@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { PageNavComponent } from "../page-nav/page-nav.component";
 
 @Component({
   selector: 'app-page-home',
-  imports: [],
+  imports: [PageNavComponent],
   templateUrl: './page-home.component.html',
   styleUrl: './page-home.component.css'
 })

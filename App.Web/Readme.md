@@ -6,7 +6,7 @@ Template to set up multi language angular app.
 npm install -g @angular/cli@latest
 ng new App.Web
 ng add @angular/localize
-# https://tailwindcss.com/docs/guides/angular
+# https://tailwindcss.com/docs/installation/framework-guides/angular
 ng generate service data --skip-tests
 ng generate component page-home --skip-tests # Update app.routes.ts
 ng generate component page-debug --skip-tests # Update app.routes.ts
