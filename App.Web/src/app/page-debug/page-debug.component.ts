@@ -7,5 +7,7 @@ import { Component } from '@angular/core';
   styleUrl: './page-debug.component.css'
 })
 export class PageDebugComponent {
-
+  text = $localize`:@@debugKeyTs:Hello Ts (Native)`
+  click() {
+  }
 }
