@@ -4,6 +4,18 @@
   "newProjectRoot": "projects",
   "projects": {
     "App.Web": {
+      "i18n": {
+        "sourceLocale": {
+          "code": "en-US",
+          "subPath": ""
+        },
+        "locales": {
+          "de": {
+            "subPath": "de",
+            "translation": "messages.de.json"
+          }
+        }
+      },
       "projectType": "application",
       "schematics": {},
       "root": "",
