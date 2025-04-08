@@ -41,3 +41,9 @@ ng build --localize --base-href "/analyze/app.web/ # If hosted on sub domain
 npm install --global http-server@latest
 http-server dist/app.web/browser
 ```
+
+## Favicon
+https://www.xiconeditor.com/
+
+## Typography
+https://tailwindcss.com/blog/tailwindcss-typography
