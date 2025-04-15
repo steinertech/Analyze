@@ -3,8 +3,8 @@
 ```
 dotnet new globaljson # Has no effect on func new
 dotnet new sln --name App
-func new --template "HttpTrigger" --name Function -f App.Function --target-framework net9.0
-# Rename to App.Function.csproj
+func new --template "HttpTrigger" --name Function -f App.Server --target-framework net9.0 # Isolated
+# Rename to App.Server.csproj # See also launchSettings.json
 ```
 
 ```
