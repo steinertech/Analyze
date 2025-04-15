@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -5,7 +6,10 @@ import { Injectable } from '@angular/core';
 })
 export class DataService {
 
-  constructor() { }
+  constructor() { 
+
+  }
+
 
   notificationList: NotificationDto[] = [];
   notificationCount: number = 0;

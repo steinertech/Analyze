@@ -10,12 +10,10 @@ import { DataService, NotificationEnum } from '../data.service';
   styleUrl: './page-home.component.css'
 })
 export class PageHomeComponent {
-[x: NotificationEnum]: any;
   constructor(private dataService : DataService) {
   }
 
   click(notificationEnum: NotificationEnum) {
-    
     this.dataService.notificationAdd(notificationEnum, "Hello Notification");
   }
 }

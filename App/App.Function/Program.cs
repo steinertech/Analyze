@@ -10,4 +10,6 @@ builder.ConfigureFunctionsWebApplication();
 //     .AddApplicationInsightsTelemetryWorkerService()
 //     .ConfigureFunctionsApplicationInsights();
 
+UtilServer.Configure(builder);
+
 builder.Build().Run();
