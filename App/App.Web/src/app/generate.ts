@@ -1,29 +1,53 @@
 import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
 import { map } from "rxjs"
+import { DataService } from "./data.service"
 
-export interface RequestDto {
-  commandName: string
+export class RequestDto {
+  public commandName!: string
+  public paramList?: any[]
 }
 
-export interface ResponseDto {
-  commandName: string
-  exceptionText: string
+export class ResponseDto {
+  public result?: any
+  public exception?: string
 }
 
-export interface ResponseVersionDto extends ResponseDto {
-  result: string
+export class ComponentDto {
+  public list?: ComponentDto[]
 }
+
+export class ComponentButtonDto extends ComponentDto {
+  public text?: string
+  public isClick?: boolean
+}
+
+export class ComponentTextDto extends ComponentDto {
+  public text?: string
+}
+
 
 @Injectable({
   providedIn: 'root',
 })
-export class AppServerCommand {
-  constructor(private httpClient: HttpClient) {
+export class ServerApi {
+  constructor(private httpClient: HttpClient, public dataService: DataService) {
 
   }
 
   CommandVersion() {
-    return this.httpClient.post<ResponseVersionDto>("http://localhost:7138/api/data", <RequestDto>{ commandName: "CommandVersion" }).pipe(map(response => response.result));
+    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandVersion" }).pipe(map(response => <string>response.result));
+  }
+
+  CommandTree(componentDto?: ComponentDto) {
+    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandTree", paramList: [componentDto] }).pipe(map(response => <ComponentDto>response.result));
+  }
+
+  CommandDebug() {
+    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandDebug" }).pipe(map(response => response.result));
+  }
+
+  CommandStorageDownload(fileName: string) {
+    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandStorageDownload", paramList: [fileName] }).pipe(map(response => <string>response.result));
   }
 }

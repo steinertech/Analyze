@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker.Builder;
+using Microsoft.Extensions.Configuration;
+using Azure.Identity;
+using Azure.Storage.Files.DataLake;
+using System.Text;
 
 public static class UtilServer
 {
@@ -12,14 +16,40 @@ public static class UtilServer
     {
         get
         {
-            return "1.0.1";
+            return "1.0.2";
         }
     }
 
+    /// <summary>
+    /// App start config.
+    /// </summary>
+    public static void AppConfigure(FunctionsApplicationBuilder builder)
+    {
+        builder.Configuration.AddUserSecrets(typeof(Function).Assembly); // secrets.json // Package Microsoft.Extensions.Configuration.UserSecrets
+        // builder.Configuration.AddAzureKeyVault(new Uri("https://stc001keyvault.vault.azure.net/"), new DefaultAzureCredential()); // KeyVault // Package Azure.Extensions.AspNetCore.Configuration.Secrets // Package Azure.Identity
+
+        builder.Services.AddSingleton<DataService>();
+
+        builder.Services.AddControllers().AddJsonOptions(configure =>
+        {
+            var options = configure.JsonSerializerOptions;
+            UtilServer.JsonConfigure(options);
+        });
+
+        var jssonOptions = new JsonSerializerOptions();
+        UtilServer.JsonConfigure(jssonOptions);
+
+        builder.Services.AddSingleton(jssonOptions);
+    }
+
+    /// <summary>
+    /// Process one request.
+    /// </summary>
     public static async Task<IActionResult> Run(HttpRequest req, IServiceProvider serviceProvider)
     {
         var logger = serviceProvider.GetService<ILogger<Function>>()!;
         logger.LogInformation("UrilServer.Run();");
+        var jsonOptions = serviceProvider.GetService<JsonSerializerOptions>()!;
         // GET
         if (req.Method == "GET")
         {
@@ -28,13 +58,11 @@ public static class UtilServer
         // POST
         using var reader = new StreamReader(req.Body);
         var requestBody = await reader.ReadToEndAsync();
-        var options = new JsonSerializerOptions();
-        UtilServer.Configure(options);
-        var requestDto = JsonSerializer.Deserialize<RequestDto>(requestBody, options)!;
+        var requestDto = JsonSerializer.Deserialize<RequestDto>(requestBody, jsonOptions)!;
         ResponseDto responseDto;
         try
         {
-            responseDto = AppServerCommand.Run(requestDto);
+            responseDto = await ServerApi.Run(requestDto, jsonOptions, serviceProvider);
         }
         catch (Exception exception)
         {
@@ -48,40 +76,24 @@ public static class UtilServer
         return new OkObjectResult(responseDto);
     }
 
-    public static void Configure(FunctionsApplicationBuilder builder)
-    {
-        builder.Services.AddSingleton<DataService>();
-
-        builder.Services.AddControllers().AddJsonOptions(configure =>
-        {
-            var options = configure.JsonSerializerOptions;
-            UtilServer.Configure(options);
-        });
-
-        var options = new JsonSerializerOptions();
-        UtilServer.Configure(options);
-
-        builder.Services.AddSingleton(options);
-    }
-
     /// <summary>
-    /// Configure json.
+    /// Configure json serialization, deserialization.
     /// </summary>
-    private static void Configure(JsonSerializerOptions options)
+    private static void JsonConfigure(JsonSerializerOptions jsonOptions)
     {
-        options.WriteIndented = true;
-        options.PropertyNameCaseInsensitive = true;
-        options.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
-        options.TypeInfoResolver = new DefaultJsonTypeInfoResolver()
+        jsonOptions.WriteIndented = true;
+        jsonOptions.PropertyNameCaseInsensitive = true;
+        jsonOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        jsonOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver()
         {
-            Modifiers = { UtilServer.Configure }
+            Modifiers = { UtilServer.JsonConfigure }
         };
     }
 
     /// <summary>
     /// Configure json inheritance for ComponentDto.
     /// </summary>
-   private static void Configure(JsonTypeInfo jsonTypeInfo)
+    private static void JsonConfigure(JsonTypeInfo jsonTypeInfo)
     {
         var typeList = AppServerComponent.ComponentTypeList();
         var list = new List<JsonDerivedType>();
@@ -102,5 +114,41 @@ public static class UtilServer
                 jsonTypeInfo.PolymorphismOptions.DerivedTypes.Add(item);
             }
         }
+    }
+
+    public static JsonElement? JsonElementFrom(object? value, JsonSerializerOptions jsonOptions)
+    {
+        return JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions)).RootElement;
+    }
+
+    public static object? JsonElementTo(JsonElement? value, Type type, JsonSerializerOptions jsonOptions)
+    {
+        return value?.Deserialize(type, jsonOptions);
+    }
+
+    public static T? JsonElementTo<T>(JsonElement? value, JsonSerializerOptions jsonOptions)
+    {
+        return (T?)JsonElementTo(value, typeof(T), jsonOptions);
+    }
+
+    public static async Task<string> StorageDownload(string connectionString, string fileName)
+    {
+        string result;
+        var fileNameExtension = Path.GetExtension(fileName).ToLower();
+        var client = new DataLakeDirectoryClient(connectionString, "app", "data");
+        var content = await client.GetFileClient(fileName).ReadContentAsync();
+        switch (fileNameExtension)
+        {
+            case ".txt":
+                result = Encoding.UTF8.GetString(content.Value.Content);
+                break;
+            case ".png":
+                result = $"data:text/plain;base64,{Convert.ToBase64String(content.Value.Content)}";
+                break;
+            default:
+                result = Convert.ToBase64String(content.Value.Content);
+                break;
+        }
+        return result;
     }
 }

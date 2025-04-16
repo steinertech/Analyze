@@ -4,3 +4,12 @@
   <p>SteinerTech provides process optimization and cutting-edge technology. Helping businesses enhance efficiency and achieve growth. Through innovative tools and tailored strategies, we transform challenges into opportunities and redefine what's possible.</p>
 </div>
 <button (click)="click()">Click</button>
+<p>
+  Version={{version}}; Tree={{componentDto | json}}; Debug={{debugDto | json}}
+</p>
+<p>
+  StorageContent={{storageContent}}
+</p>
+<p>
+  <img [src]="dataService.storageDownload('logo.png') | async">
+</p>

@@ -45,7 +45,7 @@ App.Function.csproj
 ```
 
 ```
-dotnet publish ./App.Function.csproj
+dotnet publish ./App.Server.csproj
 cd bin/Release/net9.0/linux-x64/publish
 tar -a -c -f ../publish.zip *
 cd ../../../../..
