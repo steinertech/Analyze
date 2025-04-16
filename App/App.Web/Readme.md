@@ -13,3 +13,9 @@ ng generate service data --skip-tests
 npm install -D @tailwindcss/typography # See also https://tailwindcss.com/blog/tailwindcss-typography
 npm install @angular/cdk # Used for BreakpointObserver and routerLinkActive
 ```
+
+## Build
+
+```
+ng build
+```

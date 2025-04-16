@@ -7,7 +7,7 @@ public class DataService
         this.Instance = (int)Math.Abs((DateTime.UtcNow.Ticks % 1000));
 
         // var sources = ((ConfigurationManager)configuration).Sources;
-        this.ConnectionStringStorage = configuration.GetSection("ConnectionStringStorage").Value!; // See also AddUserSecrets, AddAzureKeyVault
+        this.ConnectionStringStorage = configuration.GetConnectionString("Storage")!; // See also AddUserSecrets, AddAzureKeyVault
     }
 
     public string ConnectionStringStorage { get; }

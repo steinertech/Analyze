@@ -14,6 +14,13 @@ public class ResponseDto
     public object? Result { get; set; }
 
     public string? ExceptionText { get; set; }
+
+    public string? NavigateUrl { get; set; }
+}
+
+public class Response
+{
+    public string? NavigateUrl { get; set; }
 }
 
 public class DebugDto

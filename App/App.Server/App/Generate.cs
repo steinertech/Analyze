@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 public static class ServerApi
@@ -23,6 +22,9 @@ public static class ServerApi
                 break;
             case nameof(CommandStorageUpload):
                 responseDto = new ResponseDto { Result = new CommandStorageUpload(serviceProvider.GetService<DataService>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<string>(requestDto.ParamList![1], jsonOptions)!) };
+                break;
+            case nameof(CommandUserSignUp):
+                responseDto = new ResponseDto { Result = new CommandUserSignUp(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<Response>()!).Run(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!) };
                 break;
             default:
                 throw new Exception($"Command not found! ({requestDto.CommandName})");

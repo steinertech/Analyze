@@ -16,7 +16,7 @@ public static class UtilServer
     {
         get
         {
-            return "1.0.2";
+            return "1.0.4";
         }
     }
 
@@ -29,6 +29,8 @@ public static class UtilServer
         // builder.Configuration.AddAzureKeyVault(new Uri("https://stc001keyvault.vault.azure.net/"), new DefaultAzureCredential()); // KeyVault // Package Azure.Extensions.AspNetCore.Configuration.Secrets // Package Azure.Identity
 
         builder.Services.AddSingleton<DataService>();
+        builder.Services.AddSingleton<CosmosDb>();
+        builder.Services.AddScoped<Response>();
 
         builder.Services.AddControllers().AddJsonOptions(configure =>
         {
@@ -63,6 +65,8 @@ public static class UtilServer
         try
         {
             responseDto = await ServerApi.Run(requestDto, jsonOptions, serviceProvider);
+            var response = serviceProvider.GetService<Response>()!;
+            responseDto.NavigateUrl = response.NavigateUrl;
         }
         catch (Exception exception)
         {
@@ -169,5 +173,6 @@ public static class UtilServer
         using var stream = new MemoryStream(result);
         var fileClient = client.GetFileClient(fileName);
         await fileClient.UploadAsync(stream, overwrite: true);
+        stream.Close();
     }
 }

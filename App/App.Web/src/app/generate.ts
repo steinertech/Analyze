@@ -26,6 +26,10 @@ export class ComponentTextDto extends ComponentDto {
   public text?: string
 }
 
+export class UserDto {
+  public email?: string
+  public password?: string
+}
 
 @Injectable({
   providedIn: 'root',
@@ -53,5 +57,9 @@ export class ServerApi {
 
   CommmandStorageUpload(fileName: string, data: string) {
     return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandStorageUpload", paramList: [fileName, data] }).pipe(map(response => <string>response.result));
+  }
+
+  CommmandUserSignUp(userDto: UserDto) {
+    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandUserSignUp", paramList: [userDto] }).pipe(map(response => <void>response.result));
   }
 }
