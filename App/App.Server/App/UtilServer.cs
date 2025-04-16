@@ -131,7 +131,7 @@ public static class UtilServer
         return (T?)JsonElementTo(value, typeof(T), jsonOptions);
     }
 
-    public static async Task<string> StorageDownload(string connectionString, string fileName)
+    public static async Task<string> StorageDownload(string fileName, string connectionString)
     {
         string result;
         var fileNameExtension = Path.GetExtension(fileName).ToLower();
@@ -150,5 +150,24 @@ public static class UtilServer
                 break;
         }
         return result;
+    }
+
+    public static async Task StorageUpload(string fileName, string data, string connectionString)
+    {
+        byte[] result;
+        var fileNameExtension = Path.GetExtension(fileName).ToLower();
+        var client = new DataLakeDirectoryClient(connectionString, "app", "data");
+        switch (fileNameExtension)
+        {
+            case ".txt":
+                result = Encoding.UTF8.GetBytes(data);
+                break;
+            default:
+                result = Convert.FromBase64String(data);
+                break;
+        }
+        using var stream = new MemoryStream(result);
+        var fileClient = client.GetFileClient(fileName);
+        await fileClient.UploadAsync(stream, overwrite: true);
     }
 }

@@ -21,6 +21,9 @@ public static class ServerApi
             case nameof(CommandStorageDownload):
                 responseDto = new ResponseDto { Result = await new CommandStorageDownload(serviceProvider.GetService<DataService>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!) };
                 break;
+            case nameof(CommandStorageUpload):
+                responseDto = new ResponseDto { Result = new CommandStorageUpload(serviceProvider.GetService<DataService>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<string>(requestDto.ParamList![1], jsonOptions)!) };
+                break;
             default:
                 throw new Exception($"Command not found! ({requestDto.CommandName})");
         }

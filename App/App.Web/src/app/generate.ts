@@ -50,4 +50,8 @@ export class ServerApi {
   CommandStorageDownload(fileName: string) {
     return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandStorageDownload", paramList: [fileName] }).pipe(map(response => <string>response.result));
   }
+
+  CommmandStorageUpload(fileName: string, data: string) {
+    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandStorageUpload", paramList: [fileName, data] }).pipe(map(response => <string>response.result));
+  }
 }
