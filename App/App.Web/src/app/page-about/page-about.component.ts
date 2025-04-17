@@ -28,9 +28,9 @@ export class PageAboutComponent {
   storageContent?: any
 
   click() {
-    this.serverApi.CommandVersion().subscribe(result => this.version = result)
-    this.serverApi.CommandTree(this.componentDto).subscribe(result => this.componentDto = result)
-    this.serverApi.CommandDebug().subscribe(result => this.debugDto = result)
-    this.serverApi.CommandStorageDownload('a.txt').subscribe(result => this.storageContent = result)
+    this.serverApi.commandVersion().subscribe(result => this.version = result)
+    this.serverApi.commandTree(this.componentDto).subscribe(result => this.componentDto = result)
+    this.serverApi.commandDebug().subscribe(result => this.debugDto = result)
+    this.serverApi.commandStorageDownload('a.txt').subscribe(result => this.storageContent = result)
   }
 }

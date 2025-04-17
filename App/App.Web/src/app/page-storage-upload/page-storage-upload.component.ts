@@ -44,7 +44,7 @@ export class PageStorageUploadComponent {
     reader.onload = () => {
       const base64String = reader.result?.toString().split(",")[1]!
       this.ngZone.run(() =>{
-        this.serverApi.CommmandStorageUpload(file.name, base64String).subscribe();
+        this.serverApi.commmandStorageUpload(file.name, base64String).subscribe();
       })
     }
   }

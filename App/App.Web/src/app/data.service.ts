@@ -40,7 +40,7 @@ export class DataService {
       console.log("Get File", fileName)
       if (this.isWindow()) {
         let serverApi = this.injector.get(ServerApi) // Circular dependency
-        this.storageDownloadList.set(fileName, serverApi.CommandStorageDownload(fileName))
+        this.storageDownloadList.set(fileName, serverApi.commandStorageDownload(fileName))
       } else {
         this.storageDownloadList.set(fileName, this.storageDownloadEmpty);
       }

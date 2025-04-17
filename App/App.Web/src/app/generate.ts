@@ -1,7 +1,8 @@
 import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
-import { map } from "rxjs"
+import { map, Observable, tap } from "rxjs"
 import { DataService } from "./data.service"
+import { Router } from "@angular/router"
 
 export class RequestDto {
   public commandName!: string
@@ -11,6 +12,7 @@ export class RequestDto {
 export class ResponseDto {
   public result?: any
   public exception?: string
+  public navigateUrl?: string
 }
 
 export class ComponentDto {
@@ -35,31 +37,43 @@ export class UserDto {
   providedIn: 'root',
 })
 export class ServerApi {
-  constructor(private httpClient: HttpClient, public dataService: DataService) {
+  constructor(private httpClient: HttpClient, private router: Router, public dataService: DataService) {
 
   }
 
-  CommandVersion() {
-    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandVersion" }).pipe(map(response => <string>response.result));
+  post<T>(request: RequestDto ): Observable<T> {
+    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), request).pipe(
+      // NavigateUrl
+      tap(value => {
+        if (value.navigateUrl) {
+          this.router.navigateByUrl(value.navigateUrl)
+        }
+      }),
+      map(value => <T>value.result)
+    )
   }
 
-  CommandTree(componentDto?: ComponentDto) {
-    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandTree", paramList: [componentDto] }).pipe(map(response => <ComponentDto>response.result));
+  commandVersion() {
+    return this.post<string>({ commandName: "CommandVersion" });
   }
 
-  CommandDebug() {
-    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandDebug" }).pipe(map(response => response.result));
+  commandTree(componentDto?: ComponentDto) {
+    return this.post<ComponentDto>({ commandName: "CommandTree", paramList: [componentDto] });
   }
 
-  CommandStorageDownload(fileName: string) {
-    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandStorageDownload", paramList: [fileName] }).pipe(map(response => <string>response.result));
+  commandDebug() {
+    return this.post<ResponseDto>({ commandName: "CommandDebug" });
   }
 
-  CommmandStorageUpload(fileName: string, data: string) {
-    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandStorageUpload", paramList: [fileName, data] }).pipe(map(response => <string>response.result));
+  commandStorageDownload(fileName: string) {
+    return this.post<string>({ commandName: "CommandStorageDownload", paramList: [fileName] });
   }
 
-  CommmandUserSignUp(userDto: UserDto) {
-    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), <RequestDto>{ commandName: "CommandUserSignUp", paramList: [userDto] }).pipe(map(response => <void>response.result));
+  commmandStorageUpload(fileName: string, data: string) {
+    return this.post<void>({ commandName: "CommandStorageUpload", paramList: [fileName, data] });
+  }
+
+  commmandUserSignUp(userDto: UserDto) {
+    return this.post<void>({ commandName: "CommandUserSignUp", paramList: [userDto] });
   }
 }

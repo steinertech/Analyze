@@ -21,6 +21,6 @@ export class PageUserComponent {
   userEmail?: string = "E"
   userPassword?: string = "P"
   click() {
-    this.serverApi.CommmandUserSignUp(<UserDto>{ email: this.userEmail, password: this.userPassword }).subscribe()
+    this.serverApi.commmandUserSignUp(<UserDto>{ email: this.userEmail, password: this.userPassword }).subscribe()
   }
 }

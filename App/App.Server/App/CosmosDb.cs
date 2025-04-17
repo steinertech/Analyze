@@ -201,7 +201,7 @@ public class DocumentDto
     }
 
     /// <summary>
-    /// Gets or sets Name. This is unique within partition key and class type. See also property Key.
+    /// Gets or sets Name. This (Class type + Name) is unique within a partition key. See also property Key.
     /// </summary>
     public string? Name { get; set; }
 
