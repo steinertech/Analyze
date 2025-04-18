@@ -4,7 +4,7 @@
     {
         user.Name = user.Email;
         await cosmosDb.InsertAsync(user);
-        response.NavigateUrl = "register-confirm";
+        response.NavigateUrl = "signup-email"; // Email has been sent to activate.
     }
 }
 
