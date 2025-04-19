@@ -18,4 +18,6 @@ npm install @angular/cdk # Used for BreakpointObserver and routerLinkActive
 
 ```
 ng build
+npm install --global http-server@latest
+http-server dist/app.web/browser
 ```
