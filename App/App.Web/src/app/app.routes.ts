@@ -4,6 +4,7 @@ import { PageDebugComponent } from './page-debug/page-debug.component';
 import { PageAboutComponent } from './page-about/page-about.component';
 import { PageUserComponent } from './page-user/page-user.component';
 import { PageStorageComponent } from './page-storage/page-storage.component';
+import { PageProductComponent } from './page-product/page-product.component';
 
 export const routes: Routes = [
   { path: '', component: PageHomeComponent },
@@ -17,4 +18,5 @@ export const routes: Routes = [
   { path: 'signin-recover', component: PageUserComponent },
   { path: 'signin-password-change', component: PageUserComponent },
   { path: 'storage', component: PageStorageComponent },
+  { path: 'product', component: PageProductComponent },
 ];

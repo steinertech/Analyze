@@ -13,37 +13,37 @@
     {
         if (gridName == nameof(ProductDto))
         {
-            var result = new GridConfigDto
+            return new GridConfigDto
             {
                 IsAllowUpdate = true,
-                GridConfigFieldList =
-            {
-                new GridConfigFieldDto { FieldName = nameof(ProductDto.Text), Text = "Description" },
-                new GridConfigFieldDto { FieldName = nameof(ProductDto.StorageFileName), Text = "File", IsDropDown = true },
-                new GridConfigFieldDto { FieldName = nameof(ProductDto.Price), Text = "Price" }
-            }
+                GridConfigFieldList = new()
+                {
+                    new GridConfigFieldDto { FieldName = nameof(ProductDto.Text), Text = "Description" },
+                    new GridConfigFieldDto { FieldName = nameof(ProductDto.StorageFileName), Text = "File", IsDropDown = true },
+                    new GridConfigFieldDto { FieldName = nameof(ProductDto.Price), Text = "Price" }
+                }
             };
         }
         throw new Exception($"Grid select config not found! ({gridName})");
     }
 
-    private void Update(List<object> list, List<UpdateDto> updateList)
+    private void Update(List<object> rowList, List<UpdateDto> updateList)
     {
         foreach (var item in updateList)
         {
-            var row = list[item.Index];
+            var row = rowList[item.Index];
             var propertyInfo = row.GetType().GetProperty(item.FieldName)!;
             var value = Convert.ChangeType(item.Text, propertyInfo.PropertyType);
             propertyInfo.SetValue(item, value);
         }
     }
 
-    public void Update(string gridName, List<object> list, List<UpdateDto> updateList)
+    public void Update(string gridName, List<object> rowList, List<UpdateDto> updateList)
     {
         if (gridName == nameof(ProductDto))
         {
-            Update(list, updateList);
-            memoryDb.ProductList = list.Cast<ProductDto>().ToList();
+            Update(rowList, updateList);
+            memoryDb.ProductList = rowList.Cast<ProductDto>().ToList();
             return;
         }
         throw new Exception($"Grid update not found! ({gridName})");

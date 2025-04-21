@@ -26,6 +26,12 @@ public static class ServerApi
             case nameof(CommandUserSignUp):
                 await new CommandUserSignUp(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<Response>()!).Run(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
+            case nameof(CommandGrid) + nameof(CommandGrid.Select):
+                responseDto.Result = new CommandGrid(serviceProvider.GetService<MemoryDb>()!).Select(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
+                break;
+            case nameof(CommandGrid) + nameof(CommandGrid.SelectConfig):
+                responseDto.Result = new CommandGrid(serviceProvider.GetService<MemoryDb>()!).SelectConfig(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
+                break;
             default:
                 throw new Exception($"Command not found! ({requestDto.CommandName})");
         }

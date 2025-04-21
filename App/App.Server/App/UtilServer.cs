@@ -30,6 +30,7 @@ public static class UtilServer
 
         builder.Services.AddSingleton<DataService>();
         builder.Services.AddSingleton<CosmosDb>();
+        builder.Services.AddSingleton<MemoryDb>();
         builder.Services.AddScoped<Response>();
 
         builder.Services.AddControllers().AddJsonOptions(configure =>

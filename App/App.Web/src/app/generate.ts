@@ -33,6 +33,31 @@ export class UserDto {
   public password?: string
 }
 
+export class ProductDto {
+  public text?: string
+  public storageFileName?: string
+  public price?: number
+}
+
+export class UpdateDto {
+  public index!: number
+  public fieldName!: string
+  public text?: string
+}
+
+export class GridConfigDto {
+  public isAllowUpdate?: boolean
+  public isAllowInsert?: boolean
+  public isAllowDelete?: boolean
+  public index!: number
+}
+
+export class GridConfigFieldDto {
+  public fieldName!: string
+  public text?: string
+  public isDropDown?: boolean
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -75,5 +100,21 @@ export class ServerApi {
 
   commmandUserSignUp(userDto: UserDto) {
     return this.post<void>({ commandName: "CommandUserSignUp", paramList: [userDto] });
+  }
+
+  commandGridSelect(gridName: string) {
+    return this.post<any[]>({ commandName: "CommandGridSelect", paramList: [gridName] });
+  }
+
+  commandGridSelectConfig(gridName: string) {
+    return this.post<GridConfigDto>({ commandName: "CommandGridSelectConfig", paramList: [gridName] });
+  }
+
+  commandGridUpdate(gridName: string, list: any[], updateList: UpdateDto[]) {
+    return this.post<void>({ commandName: "CommandGridSelectConfig", paramList: [gridName, list, updateList] });
+  }
+
+  commandGridSelectDropDown(gridName: string, fieldName: string) {
+    return this.post<string[]>({ commandName: "CommandGridSelectConfig", paramList: [gridName, fieldName] });
   }
 }

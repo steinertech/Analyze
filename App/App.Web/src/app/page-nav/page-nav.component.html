@@ -34,6 +34,7 @@
           <div class="flex space-x-4">
             <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
             <a [routerLink]="['/']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white" [routerLinkActiveOptions]="{exact: true}">Home</a>
+            <a [routerLink]="['/product']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Product</a>
             <a [routerLink]="['/about']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
           </div>
         </div>
@@ -50,6 +51,7 @@
     <div class="space-y-1 px-2 pt-2 pb-3">
       <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
       <a [routerLink]="['/']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white" [routerLinkActiveOptions]="{exact: true}">Home</a>
+      <a [routerLink]="['/product']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Product</a>
       <a [routerLink]="['/about']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
       <a [routerLink]="['/signin']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Sign in</a>
     </div>
