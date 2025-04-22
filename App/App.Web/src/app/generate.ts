@@ -40,7 +40,7 @@ export class ProductDto {
 }
 
 export class UpdateDto {
-  public index!: number
+  public rowIndex!: number
   public fieldName!: string
   public text?: string
 }
@@ -50,12 +50,39 @@ export class GridConfigDto {
   public isAllowInsert?: boolean
   public isAllowDelete?: boolean
   public index!: number
+  public grid?: GridDto
 }
 
 export class GridConfigFieldDto {
   public fieldName!: string
   public text?: string
   public isDropDown?: boolean
+}
+
+export class GridCellDto {
+
+  public text?: string
+  public cellEnum!: GridCellEnum
+}
+
+export enum GridCellEnum {
+  None = 0,
+  Field = 1,
+  Header = 1,
+  Label = 2,
+}
+
+export class GridDto {
+  // public editRowIndex?: number
+  // public editFieldName?: string
+  // public selectRowIndex?: number
+  // public selectFieldName?: string
+  public rowCount!: number
+  public colCount!: number
+  // rowList?: any[]
+  // gridConfig?: GridConfigDto
+  public cellList?: GridCellDto[][]
+  public updateList!: UpdateDto[]
 }
 
 @Injectable({

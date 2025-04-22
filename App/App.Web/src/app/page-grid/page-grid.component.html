@@ -1,2 +1,15 @@
 RowList={{rowList | json}}
 GridConfig={{gridConfig | json}}
+<h1>Table</h1>
+<table>
+  @for (row of gridConfig?.grid?.cellList; track $index; let rowIndex = $index) {
+  <tr>
+    @for (cell of row; track $index; let colIndex = $index) {
+    <td>
+      ({{rowIndex}},{{colIndex}})={{cell.text}}
+    </td>
+    }
+  </tr>
+  }
+</table>
+<button (click)="click()">Click</button>

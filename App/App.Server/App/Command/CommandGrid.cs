@@ -21,6 +21,15 @@
                     new GridConfigFieldDto { FieldName = nameof(ProductDto.Text), Text = "Description" },
                     new GridConfigFieldDto { FieldName = nameof(ProductDto.StorageFileName), Text = "File", IsDropDown = true },
                     new GridConfigFieldDto { FieldName = nameof(ProductDto.Price), Text = "Price" }
+                },
+                Grid = new()
+                {
+                    CellList = 
+                    [
+                        [new() { Text = "A1" }, new() { Text = "A2" }, new() { Text = "A3" }],
+                        [new() { Text = "B1" }, new() { Text = "B2" }, new() { Text = "B3" }],
+                        [new() { Text = "C1" }, new() { Text = "C2" }, new() { Text = "C3" }],
+                    ]
                 }
             };
         }
@@ -31,7 +40,7 @@
     {
         foreach (var item in updateList)
         {
-            var row = rowList[item.Index];
+            var row = rowList[item.RowIndex];
             var propertyInfo = row.GetType().GetProperty(item.FieldName)!;
             var value = Convert.ChangeType(item.Text, propertyInfo.PropertyType);
             propertyInfo.SetValue(item, value);
@@ -66,7 +75,7 @@
 
 public class UpdateDto
 {
-    public int Index { get; set; } = default!;
+    public int RowIndex { get; set; } = default!;
 
     public string FieldName { get; set; } = default!;
 
@@ -85,6 +94,21 @@ public class GridConfigDto
     public bool? IsAllowInsert { get; set; }
 
     public bool? IsAllowDelete { get; set; }
+
+    public GridDto? Grid { get; set; }
+}
+
+public class GridDto
+{
+    /// <summary>
+    /// (Row, Cell)
+    /// </summary>
+    public GridCellDto[][]? CellList { get; set; }
+}
+
+public class GridCellDto
+{
+    public string? Text { get; set; }
 }
 
 public class GridConfigFieldDto
