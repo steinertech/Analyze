@@ -6,10 +6,9 @@ RowCellList={{grid?.rowCellList | json}}
     @for (cell of row; track $index; let colIndex = $index) {
     <td>
       ({{rowIndex}},{{colIndex}})={{cell.text}}
-      <input [ngModel]="cell.text" (ngModelChange)="cellTextChange(cell, $event)">
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
     </td>
     }
   </tr>
   }
 </table>
-<button (click)="click()">Click</button>

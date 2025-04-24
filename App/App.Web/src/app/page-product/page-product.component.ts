@@ -16,15 +16,13 @@ export class PageProductComponent {
   constructor(public serverApi: ServerApi) {
   }
 
-  grid?: GridDto
+  grid: GridDto = { gridName: 'ProductDto' }
 
   clickLoad() {
-    this.serverApi.commandGridLoad('ProductDto').subscribe(value => this.grid = value);
+    this.serverApi.commandGridLoad(this.grid).subscribe(value => this.grid = value);
   }
 
   clickSave() {
-    if (this.grid) {
-      this.serverApi.commandGridSave(this.grid).subscribe();
-    }
+    this.serverApi.commandGridSave(this.grid).subscribe(value => this.grid = value);
   }
 }

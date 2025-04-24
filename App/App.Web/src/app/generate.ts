@@ -73,7 +73,7 @@ export class GridDto {
   public gridName!: string
   dataRowList?: any[]
   gridConfig?: GridConfigDto
-  public rowCellList!: GridCellDto[][]
+  public rowCellList?: GridCellDto[][]
   // public editRowIndex?: number
   // public editFieldName?: string
   // public selectRowIndex?: number
@@ -124,12 +124,12 @@ export class ServerApi {
     return this.post<void>({ commandName: "CommandUserSignUp", paramList: [userDto] });
   }
 
-  commandGridLoad(gridName: string) {
-    return this.post<GridDto>({ commandName: "CommandGridLoad", paramList: [gridName] });
+  commandGridLoad(grid: GridDto) {
+    return this.post<GridDto>({ commandName: "CommandGridLoad", paramList: [grid] });
   }
 
   commandGridSave(grid: GridDto) {
-    return this.post<void>({ commandName: "CommandGridSave", paramList: [grid] });
+    return this.post<GridDto>({ commandName: "CommandGridSave", paramList: [grid] });
   }
 
   commandGridSelectDropDown(gridName: string, fieldName: string) {

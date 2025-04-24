@@ -14,14 +14,12 @@ import { FormsModule } from '@angular/forms';
 })
 export class PageGridComponent {
   @Input() grid?: GridDto
-  
-  click() {
-    if (this.grid) {
-      this.grid.rowCellList.push([{ cellEnum: 0 }])
-    }
+
+  cellTextGet(cell: GridCellDto) {
+    return cell.textModified ?? cell.text
   }
 
-  cellTextChange(cell: GridCellDto, value: string) {
+  cellTextSet(cell: GridCellDto, value: string) {
     cell.textModified = value
   }
 }

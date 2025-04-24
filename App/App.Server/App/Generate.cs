@@ -27,10 +27,10 @@ public static class ServerApi
                 await new CommandUserSignUp(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<Response>()!).Run(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandGrid) + nameof(CommandGrid.Load):
-                responseDto.Result = new CommandGrid(serviceProvider.GetService<MemoryDb>()!).Load(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
+                responseDto.Result = new CommandGrid(serviceProvider.GetService<MemoryDb>()!).Load(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandGrid) + nameof(CommandGrid.Save):
-                new CommandGrid(serviceProvider.GetService<MemoryDb>()!).Save(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!);
+                responseDto.Result = new CommandGrid(serviceProvider.GetService<MemoryDb>()!).Save(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             default:
                 throw new Exception($"Command not found! ({requestDto.CommandName})");

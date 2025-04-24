@@ -29,16 +29,16 @@ public class CommandGrid(MemoryDb memoryDb)
         throw new Exception($"Grid select config not found! ({gridName})");
     }
 
-    public GridDto Load(string gridName)
+    public GridDto Load(GridDto grid)
     {
-        if (gridName == nameof(ProductDto))
+        if (grid.GridName == nameof(ProductDto))
         {
-            var result = new GridDto { GridName = gridName, RowCellList = [] };
+            grid.RowCellList = [];
             for (int dataRowIndex = 0; dataRowIndex < memoryDb.ProductList.Count; dataRowIndex++)
             {
                 var dataRow = memoryDb.ProductList[dataRowIndex];
                 var cellList = new List<GridCellDto>();
-                result.RowCellList.Add(cellList);
+                grid.RowCellList.Add(cellList);
                 foreach (var propertyInfo in dataRow.GetType().GetProperties())
                 {
                     var value = propertyInfo.GetValue(dataRow);
@@ -46,38 +46,41 @@ public class CommandGrid(MemoryDb memoryDb)
                     cellList.Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text});
                 }
             }
-            return result;
+            return grid;
         }
-        throw new Exception($"Grid load not found! ({gridName})");
+        throw new Exception($"Grid load not found! ({grid.GridName})");
     }
 
     private bool SaveMemoryDb(GridDto grid)
     {
         if (grid.GridName == nameof(ProductDto))
         {
-            var dataRowList = memoryDb.ProductList;
-            foreach (var cellList in grid.RowCellList)
+            if (grid.RowCellList != null)
             {
-                foreach (var cell in cellList)
+                var dataRowList = memoryDb.ProductList;
+                foreach (var cellList in grid.RowCellList)
                 {
-                    if (cell.FieldName != null && cell.TextModified != null)
+                    foreach (var cell in cellList)
                     {
-                        if (cell.DataRowIndex == null) // Or -1, -2 for multiple row insert
+                        if (cell.FieldName != null && cell.TextModified != null)
                         {
-                            // TODO Insert
-                        }
-                        else
-                        {
-                            var dataRow = dataRowList[cell.DataRowIndex.Value];
-                            var propertyInfo = dataRow.GetType().GetProperty(cell.FieldName)!;
-                            var type = propertyInfo.PropertyType;
-                            var typeUnderlying = Nullable.GetUnderlyingType(type);
-                            if (typeUnderlying != null)
+                            if (cell.DataRowIndex == null) // Or -1, -2 for multiple row insert
                             {
-                                type = typeUnderlying;
+                                // TODO Insert
                             }
-                            var value = Convert.ChangeType(cell.TextModified, type);
-                            propertyInfo.SetValue(dataRow, value);
+                            else
+                            {
+                                var dataRow = dataRowList[cell.DataRowIndex.Value];
+                                var propertyInfo = dataRow.GetType().GetProperty(cell.FieldName)!;
+                                var type = propertyInfo.PropertyType;
+                                var typeUnderlying = Nullable.GetUnderlyingType(type);
+                                if (typeUnderlying != null)
+                                {
+                                    type = typeUnderlying;
+                                }
+                                var value = Convert.ChangeType(cell.TextModified, type);
+                                propertyInfo.SetValue(dataRow, value);
+                            }
                         }
                     }
                 }
@@ -87,11 +90,12 @@ public class CommandGrid(MemoryDb memoryDb)
         return false;
     }
 
-    public void Save(GridDto grid)
+    public GridDto Save(GridDto grid)
     {
         if (SaveMemoryDb(grid))
         {
-            return;
+            Load(grid);
+            return grid;
         }
         throw new Exception($"Grid save not found! ({grid.GridName})");
     }
@@ -137,7 +141,7 @@ public class GridDto
     /// <summary>
     /// (Row, Cell)
     /// </summary>
-    public List<List<GridCellDto>> RowCellList { get; set; } = default!;
+    public List<List<GridCellDto>>? RowCellList { get; set; }
 }
 
 public class GridCellDto
