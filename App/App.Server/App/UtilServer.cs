@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
-using Azure.Identity;
+using Azure.Identity; // Used for AddAzureKeyVault
 using Azure.Storage.Files.DataLake;
 using System.Text;
 

@@ -1,12 +1,12 @@
-RowList={{rowList | json}}
-GridConfig={{gridConfig | json}}
+RowCellList={{grid?.rowCellList | json}}
 <h1>Table</h1>
-<table>
-  @for (row of gridConfig?.grid?.cellList; track $index; let rowIndex = $index) {
+<table style="width:100%;">
+  @for (row of grid?.rowCellList; track $index; let rowIndex = $index) {
   <tr>
     @for (cell of row; track $index; let colIndex = $index) {
     <td>
       ({{rowIndex}},{{colIndex}})={{cell.text}}
+      <input [ngModel]="cell.text" (ngModelChange)="cellTextChange(cell, $event)">
     </td>
     }
   </tr>

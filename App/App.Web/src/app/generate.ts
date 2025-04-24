@@ -39,17 +39,12 @@ export class ProductDto {
   public price?: number
 }
 
-export class UpdateDto {
-  public rowIndex!: number
-  public fieldName!: string
-  public text?: string
-}
-
 export class GridConfigDto {
+  public gridName!: string
+  public dataTableName!: string
   public isAllowUpdate?: boolean
   public isAllowInsert?: boolean
   public isAllowDelete?: boolean
-  public index!: number
   public grid?: GridDto
 }
 
@@ -60,8 +55,10 @@ export class GridConfigFieldDto {
 }
 
 export class GridCellDto {
-
+  public dataRowIndex?: number
+  public fieldName?: string
   public text?: string
+  public textModified?: string
   public cellEnum!: GridCellEnum
 }
 
@@ -73,16 +70,14 @@ export enum GridCellEnum {
 }
 
 export class GridDto {
+  public gridName!: string
+  dataRowList?: any[]
+  gridConfig?: GridConfigDto
+  public rowCellList!: GridCellDto[][]
   // public editRowIndex?: number
   // public editFieldName?: string
   // public selectRowIndex?: number
   // public selectFieldName?: string
-  public rowCount!: number
-  public colCount!: number
-  // rowList?: any[]
-  // gridConfig?: GridConfigDto
-  public cellList?: GridCellDto[][]
-  public updateList!: UpdateDto[]
 }
 
 @Injectable({
@@ -129,16 +124,12 @@ export class ServerApi {
     return this.post<void>({ commandName: "CommandUserSignUp", paramList: [userDto] });
   }
 
-  commandGridSelect(gridName: string) {
-    return this.post<any[]>({ commandName: "CommandGridSelect", paramList: [gridName] });
+  commandGridLoad(gridName: string) {
+    return this.post<GridDto>({ commandName: "CommandGridLoad", paramList: [gridName] });
   }
 
-  commandGridSelectConfig(gridName: string) {
-    return this.post<GridConfigDto>({ commandName: "CommandGridSelectConfig", paramList: [gridName] });
-  }
-
-  commandGridUpdate(gridName: string, list: any[], updateList: UpdateDto[]) {
-    return this.post<void>({ commandName: "CommandGridSelectConfig", paramList: [gridName, list, updateList] });
+  commandGridSave(grid: GridDto) {
+    return this.post<void>({ commandName: "CommandGridSave", paramList: [grid] });
   }
 
   commandGridSelectDropDown(gridName: string, fieldName: string) {

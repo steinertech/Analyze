@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { PageGridComponent } from "../page-grid/page-grid.component";
-import { GridConfigDto, ServerApi } from '../generate';
+import { GridDto, ServerApi } from '../generate';
 import { PageNavComponent } from '../page-nav/page-nav.component';
 
 @Component({
@@ -16,12 +16,15 @@ export class PageProductComponent {
   constructor(public serverApi: ServerApi) {
   }
 
-  rowList?: any[]
+  grid?: GridDto
 
-  gridConfig?: GridConfigDto
+  clickLoad() {
+    this.serverApi.commandGridLoad('ProductDto').subscribe(value => this.grid = value);
+  }
 
-  click() {
-    this.serverApi.commandGridSelect('ProductDto').subscribe(value => this.rowList = value);
-    this.serverApi.commandGridSelectConfig('ProductDto').subscribe(value => this.gridConfig = value);
+  clickSave() {
+    if (this.grid) {
+      this.serverApi.commandGridSave(this.grid).subscribe();
+    }
   }
 }

@@ -3,7 +3,8 @@
   <h1>Product</h1>
   <p>List of products.</p>
 </div>
-<button (click)="click()">Click</button>
-<app-page-grid [rowList]="rowList" [gridConfig]="gridConfig">
+<button (click)="clickLoad()">Load</button>
+<button (click)="clickSave()">Save</button>
 
+<app-page-grid [grid]="grid">
 </app-page-grid>

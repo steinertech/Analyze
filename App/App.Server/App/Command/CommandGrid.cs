@@ -1,4 +1,6 @@
-﻿public class CommandGrid(MemoryDb memoryDb)
+﻿using System.Data;
+
+public class CommandGrid(MemoryDb memoryDb)
 {
     public List<object> Select(string gridName)
     {
@@ -21,41 +23,77 @@
                     new GridConfigFieldDto { FieldName = nameof(ProductDto.Text), Text = "Description" },
                     new GridConfigFieldDto { FieldName = nameof(ProductDto.StorageFileName), Text = "File", IsDropDown = true },
                     new GridConfigFieldDto { FieldName = nameof(ProductDto.Price), Text = "Price" }
-                },
-                Grid = new()
-                {
-                    CellList = 
-                    [
-                        [new() { Text = "A1" }, new() { Text = "A2" }, new() { Text = "A3" }],
-                        [new() { Text = "B1" }, new() { Text = "B2" }, new() { Text = "B3" }],
-                        [new() { Text = "C1" }, new() { Text = "C2" }, new() { Text = "C3" }],
-                    ]
                 }
             };
         }
         throw new Exception($"Grid select config not found! ({gridName})");
     }
 
-    private void Update(List<object> rowList, List<UpdateDto> updateList)
-    {
-        foreach (var item in updateList)
-        {
-            var row = rowList[item.RowIndex];
-            var propertyInfo = row.GetType().GetProperty(item.FieldName)!;
-            var value = Convert.ChangeType(item.Text, propertyInfo.PropertyType);
-            propertyInfo.SetValue(item, value);
-        }
-    }
-
-    public void Update(string gridName, List<object> rowList, List<UpdateDto> updateList)
+    public GridDto Load(string gridName)
     {
         if (gridName == nameof(ProductDto))
         {
-            Update(rowList, updateList);
-            memoryDb.ProductList = rowList.Cast<ProductDto>().ToList();
+            var result = new GridDto { GridName = gridName, RowCellList = [] };
+            for (int dataRowIndex = 0; dataRowIndex < memoryDb.ProductList.Count; dataRowIndex++)
+            {
+                var dataRow = memoryDb.ProductList[dataRowIndex];
+                var cellList = new List<GridCellDto>();
+                result.RowCellList.Add(cellList);
+                foreach (var propertyInfo in dataRow.GetType().GetProperties())
+                {
+                    var value = propertyInfo.GetValue(dataRow);
+                    var text = (string?)Convert.ChangeType(value, typeof(string));
+                    cellList.Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text});
+                }
+            }
+            return result;
+        }
+        throw new Exception($"Grid load not found! ({gridName})");
+    }
+
+    private bool SaveMemoryDb(GridDto grid)
+    {
+        if (grid.GridName == nameof(ProductDto))
+        {
+            var dataRowList = memoryDb.ProductList;
+            foreach (var cellList in grid.RowCellList)
+            {
+                foreach (var cell in cellList)
+                {
+                    if (cell.FieldName != null && cell.TextModified != null)
+                    {
+                        if (cell.DataRowIndex == null) // Or -1, -2 for multiple row insert
+                        {
+                            // TODO Insert
+                        }
+                        else
+                        {
+                            var dataRow = dataRowList[cell.DataRowIndex.Value];
+                            var propertyInfo = dataRow.GetType().GetProperty(cell.FieldName)!;
+                            var type = propertyInfo.PropertyType;
+                            var typeUnderlying = Nullable.GetUnderlyingType(type);
+                            if (typeUnderlying != null)
+                            {
+                                type = typeUnderlying;
+                            }
+                            var value = Convert.ChangeType(cell.TextModified, type);
+                            propertyInfo.SetValue(dataRow, value);
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void Save(GridDto grid)
+    {
+        if (SaveMemoryDb(grid))
+        {
             return;
         }
-        throw new Exception($"Grid update not found! ({gridName})");
+        throw new Exception($"Grid save not found! ({grid.GridName})");
     }
 
     public List<string> SelectDropDown(string gridName, string fieldName)
@@ -73,20 +111,12 @@
     }
 }
 
-public class UpdateDto
-{
-    public int RowIndex { get; set; } = default!;
-
-    public string FieldName { get; set; } = default!;
-
-    /// <summary>
-    /// Gets or sets Text. This is user entered text to parse.
-    /// </summary>
-    public string? Text { get; set; }
-}
-
 public class GridConfigDto
 {
+    public string GridName { get; set; } = default!;
+    
+    public string DataTableName { get; set; } = default!;
+
     public List<GridConfigFieldDto> GridConfigFieldList { get; set; } = default!;
 
     public bool? IsAllowUpdate { get; set; }
@@ -94,21 +124,34 @@ public class GridConfigDto
     public bool? IsAllowInsert { get; set; }
 
     public bool? IsAllowDelete { get; set; }
-
-    public GridDto? Grid { get; set; }
 }
 
 public class GridDto
 {
+    public string GridName { get; set; } = default!;
+
+    public List<object>? DataRowList;
+
+    public GridConfigDto? GridConfig;
+
     /// <summary>
     /// (Row, Cell)
     /// </summary>
-    public GridCellDto[][]? CellList { get; set; }
+    public List<List<GridCellDto>> RowCellList { get; set; } = default!;
 }
 
 public class GridCellDto
 {
+    public int? DataRowIndex { get; set; }
+    
+    public string? FieldName { get; set; }
+    
     public string? Text { get; set; }
+    
+    /// <summary>
+    /// Gets or sets TextModified. This is from user modified text to save.
+    /// </summary>
+    public string? TextModified { get; set; }
 }
 
 public class GridConfigFieldDto
