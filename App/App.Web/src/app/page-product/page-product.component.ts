@@ -21,8 +21,4 @@ export class PageProductComponent {
   clickLoad() {
     this.serverApi.commandGridLoad(this.grid).subscribe(value => this.grid = value);
   }
-
-  clickSave() {
-    this.serverApi.commandGridSave(this.grid).subscribe(value => this.grid = value);
-  }
 }

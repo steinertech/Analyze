@@ -49,7 +49,15 @@ public class CommandGrid(MemoryDb memoryDb)
                 {
                     var value = propertyInfo.GetValue(dataRow);
                     var text = (string?)Convert.ChangeType(value, typeof(string));
-                    grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, CellEnum = GridCellEnum.Field});
+                    if (propertyInfo.Name == nameof(ProductDto.StorageFileName))
+                    {
+                        var dropDownList = SelectDropDown(grid.GridName, propertyInfo.Name);
+                        grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, DropDownList = dropDownList, CellEnum = GridCellEnum.DropDown });
+                    }
+                    else
+                    {
+                        grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, CellEnum = GridCellEnum.Field });
+                    }
                 }
             }
             grid.RowCellList.Add(new List<GridCellDto>());
@@ -159,6 +167,8 @@ public class GridDto
 
 public class GridCellDto
 {
+    public GridCellEnum? CellEnum { get; set; }
+ 
     public int? DataRowIndex { get; set; }
     
     public string? FieldName { get; set; }
@@ -170,7 +180,7 @@ public class GridCellDto
     /// </summary>
     public string? TextModified { get; set; }
 
-    public GridCellEnum? CellEnum { get; set; }
+    public List<string>? DropDownList { get; set; }
 }
 
 public enum GridCellEnum
@@ -180,6 +190,7 @@ public enum GridCellEnum
     Header = 2,
     ButtonCancel = 3,
     ButtonSave = 4,
+    DropDown = 5,
 }
 
 public class GridConfigFieldDto

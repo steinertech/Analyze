@@ -55,11 +55,12 @@ export class GridConfigFieldDto {
 }
 
 export class GridCellDto {
+  public cellEnum?: GridCellEnum
   public dataRowIndex?: number
   public fieldName?: string
   public text?: string
   public textModified?: string
-  public cellEnum?: GridCellEnum
+  public dropDownList?: string[]
 }
 
 export enum GridCellEnum {
@@ -68,6 +69,7 @@ export enum GridCellEnum {
   Header = 2,
   ButtonCancel = 3,
   ButtonSave = 4,
+  DropDown = 5,
 }
 
 export class GridDto {

@@ -18,6 +18,13 @@ RowCellList={{grid?.rowCellList | json}}
       @case (GridCellEnum.ButtonSave) {
       <button (click)="clickSave()">Save</button>
       }
+      @case (GridCellEnum.DropDown) {
+      <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
+        @for (item of cell.dropDownList; track $index) {
+        <option value="{{item}}">{{item}}</option>
+        }
+      </select>
+      }
       }
     </td>
     }
