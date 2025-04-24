@@ -59,14 +59,15 @@ export class GridCellDto {
   public fieldName?: string
   public text?: string
   public textModified?: string
-  public cellEnum!: GridCellEnum
+  public cellEnum?: GridCellEnum
 }
 
 export enum GridCellEnum {
   None = 0,
   Field = 1,
-  Header = 1,
-  Label = 2,
+  Header = 2,
+  ButtonCancel = 3,
+  ButtonSave = 4,
 }
 
 export class GridDto {

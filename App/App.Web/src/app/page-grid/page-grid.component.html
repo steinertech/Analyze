@@ -1,12 +1,24 @@
 RowCellList={{grid?.rowCellList | json}}
 <h1>Table</h1>
 <table style="width:100%;">
-  @for (row of grid?.rowCellList; track $index; let rowIndex = $index) {
+  @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
-    @for (cell of row; track $index; let colIndex = $index) {
+    @for (cell of cellList; track $index;) {
     <td>
-      ({{rowIndex}},{{colIndex}})={{cell.text}}
+      @switch (cell.cellEnum) {
+      @case (GridCellEnum.Field) {
       <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
+      }
+      @case (GridCellEnum.Header) {
+      <b>{{cell.text}}</b>
+      }
+      @case (GridCellEnum.ButtonCancel) {
+      <button (click)="clickCancel()">Cancel</button>
+      }
+      @case (GridCellEnum.ButtonSave) {
+      <button (click)="clickSave()">Save</button>
+      }
+      }
     </td>
     }
   </tr>

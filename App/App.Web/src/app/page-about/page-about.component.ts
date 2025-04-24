@@ -16,7 +16,7 @@ import { PageStorageUploadComponent } from '../page-storage-upload/page-storage-
   styleUrl: './page-about.component.css'
 })
 export class PageAboutComponent {
-  constructor(public serverApi: ServerApi, public dataService: DataService) {
+  constructor(private serverApi: ServerApi, public dataService: DataService) {
   }
 
   componentDto?: ComponentDto

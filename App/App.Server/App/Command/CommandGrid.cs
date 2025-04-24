@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Reflection;
 
 public class CommandGrid(MemoryDb memoryDb)
 {
@@ -34,18 +35,26 @@ public class CommandGrid(MemoryDb memoryDb)
         if (grid.GridName == nameof(ProductDto))
         {
             grid.RowCellList = [];
+            var propertyInfoList = typeof(ProductDto).GetProperties();
+            grid.RowCellList.Add(new List<GridCellDto>());
+            foreach (var propertyInfo in propertyInfoList)
+            {
+                grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Header, Text = propertyInfo.Name });
+            }
             for (int dataRowIndex = 0; dataRowIndex < memoryDb.ProductList.Count; dataRowIndex++)
             {
                 var dataRow = memoryDb.ProductList[dataRowIndex];
-                var cellList = new List<GridCellDto>();
-                grid.RowCellList.Add(cellList);
-                foreach (var propertyInfo in dataRow.GetType().GetProperties())
+                grid.RowCellList.Add(new List<GridCellDto>());
+                foreach (var propertyInfo in propertyInfoList)
                 {
                     var value = propertyInfo.GetValue(dataRow);
                     var text = (string?)Convert.ChangeType(value, typeof(string));
-                    cellList.Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text});
+                    grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, CellEnum = GridCellEnum.Field});
                 }
             }
+            grid.RowCellList.Add(new List<GridCellDto>());
+            grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonCancel });
+            grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonSave });
             return grid;
         }
         throw new Exception($"Grid load not found! ({grid.GridName})");
@@ -72,13 +81,17 @@ public class CommandGrid(MemoryDb memoryDb)
                             {
                                 var dataRow = dataRowList[cell.DataRowIndex.Value];
                                 var propertyInfo = dataRow.GetType().GetProperty(cell.FieldName)!;
-                                var type = propertyInfo.PropertyType;
-                                var typeUnderlying = Nullable.GetUnderlyingType(type);
-                                if (typeUnderlying != null)
+                                object? value = null;
+                                if (!string.IsNullOrEmpty(cell.TextModified))
                                 {
-                                    type = typeUnderlying;
+                                    var type = propertyInfo.PropertyType;
+                                    var typeUnderlying = Nullable.GetUnderlyingType(type);
+                                    if (typeUnderlying != null)
+                                    {
+                                        type = typeUnderlying;
+                                    }
+                                    value = Convert.ChangeType(cell.TextModified, type);
                                 }
-                                var value = Convert.ChangeType(cell.TextModified, type);
                                 propertyInfo.SetValue(dataRow, value);
                             }
                         }
@@ -156,6 +169,17 @@ public class GridCellDto
     /// Gets or sets TextModified. This is from user modified text to save.
     /// </summary>
     public string? TextModified { get; set; }
+
+    public GridCellEnum? CellEnum { get; set; }
+}
+
+public enum GridCellEnum
+{
+    None = 0,
+    Field = 1,
+    Header = 2,
+    ButtonCancel = 3,
+    ButtonSave = 4,
 }
 
 public class GridConfigFieldDto

@@ -13,7 +13,7 @@ import { PageNavComponent } from '../page-nav/page-nav.component';
   styleUrl: './page-product.component.css'
 })
 export class PageProductComponent {
-  constructor(public serverApi: ServerApi) {
+  constructor(private serverApi: ServerApi) {
   }
 
   grid: GridDto = { gridName: 'ProductDto' }

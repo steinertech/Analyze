@@ -9,5 +9,5 @@ import { DataService } from '../data.service';
 })
 export class PageNotificationComponent {
   constructor(public dataService: DataService) {
-    }
+  }
 }
