@@ -11,6 +11,8 @@ RowCellList={{grid?.rowCellList | json}}
       }
       @case (GridCellEnum.Header) {
       <b>{{cell.text}}</b>
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search">
+      <button (click)="clickLookup(cell)">▼</button>
       }
       @case (GridCellEnum.ButtonCancel) {
       <button (click)="clickCancel()">Cancel</button>
@@ -31,3 +33,7 @@ RowCellList={{grid?.rowCellList | json}}
   </tr>
   }
 </table>
+<h1>Lookup</h1>
+@if(isLookup) {
+  <app-page-grid [grid]="gridLookup"></app-page-grid>
+}
