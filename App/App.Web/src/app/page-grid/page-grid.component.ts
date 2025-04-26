@@ -23,12 +23,9 @@ export class PageGridComponent {
 
   GridCellEnum = GridCellEnum
 
-  isLookup?: GridCellDto
+  lookupCell?: GridCellDto // Cell with open lookup
 
   cellTextGet(cell: GridCellDto) {
-    if (cell.cellEnum == GridCellEnum.Header) {
-      return undefined
-    }
     return cell.textModified ?? cell.text
   }
 
@@ -48,16 +45,23 @@ export class PageGridComponent {
     }
   }
 
+  click(cell: GridCellDto) {
+    if (this.grid) {
+      cell.isButtonClick = true
+      this.serverApi.commandGridSave(this.grid).subscribe(value => this.grid = value);
+    }
+  }
+
   clickLookup(cell: GridCellDto) {
     if (this.grid) {
-      if (this.isLookup == cell) {
-        this.isLookup = undefined // Lookup close
+      if (this.lookupCell == cell) {
+        this.lookupCell = undefined // Lookup close
       } else {
-        this.isLookup = cell // Lookup open
+        this.lookupCell = cell // Lookup open
       }
-      this.gridLookup = undefined // Clear data
-      if (this.isLookup) {
+      if (this.lookupCell) {
         this.gridLookup = { gridName: this.grid?.gridName }
+        this.gridLookup.lookupCell = cell
         this.serverApi.commandGridLoad(this.gridLookup).subscribe(value => this.gridLookup = value);
       }
     }

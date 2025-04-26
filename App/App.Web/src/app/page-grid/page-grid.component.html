@@ -11,14 +11,15 @@ RowCellList={{grid?.rowCellList | json}}
       }
       @case (GridCellEnum.Header) {
       <b>{{cell.text}}</b>
-      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search">
-      <button (click)="clickLookup(cell)">▼</button>
       }
       @case (GridCellEnum.ButtonCancel) {
       <button (click)="clickCancel()">Cancel</button>
       }
       @case (GridCellEnum.ButtonSave) {
       <button (click)="clickSave()">Save</button>
+      }
+      @case (GridCellEnum.Button) {
+      <button (click)="click(cell)">{{cell.text}}</button>
       }
       @case (GridCellEnum.DropDown) {
       <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
@@ -28,12 +29,15 @@ RowCellList={{grid?.rowCellList | json}}
       </select>
       }
       }
+      @if(cell.isLookup) {
+      <button (click)="clickLookup(cell)">▼</button>
+      }
     </td>
     }
   </tr>
   }
 </table>
 <h1>Lookup</h1>
-@if(isLookup) {
-  <app-page-grid [grid]="gridLookup"></app-page-grid>
+@if(lookupCell) {
+<app-page-grid [grid]="gridLookup"></app-page-grid>
 }

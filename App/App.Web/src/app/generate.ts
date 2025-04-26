@@ -61,6 +61,8 @@ export class GridCellDto {
   public text?: string
   public textModified?: string
   public dropDownList?: string[]
+  public isLookup?: boolean // Call shows lookup botton
+  public isButtonClick?: boolean
 }
 
 export enum GridCellEnum {
@@ -70,6 +72,7 @@ export enum GridCellEnum {
   ButtonCancel = 3,
   ButtonSave = 4,
   DropDown = 5,
+  Button = 6,
 }
 
 export class GridDto {
@@ -77,6 +80,7 @@ export class GridDto {
   dataRowList?: any[]
   gridConfig?: GridConfigDto
   public rowCellList?: GridCellDto[][]
+  public lookupCell?: GridCellDto
   // public editRowIndex?: number
   // public editFieldName?: string
   // public selectRowIndex?: number

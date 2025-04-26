@@ -3,67 +3,69 @@ using System.Reflection;
 
 public class CommandGrid(MemoryDb memoryDb)
 {
-    public List<object> Select(string gridName)
-    {
-        if (gridName == nameof(ProductDto))
-        {
-            return memoryDb.ProductList.Cast<object>().ToList();
-        }
-        throw new Exception($"Grid select not found! ({gridName})");
-    }
-
-    public GridConfigDto SelectConfig(string gridName)
-    {
-        if (gridName == nameof(ProductDto))
-        {
-            return new GridConfigDto
-            {
-                IsAllowUpdate = true,
-                GridConfigFieldList = new()
-                {
-                    new GridConfigFieldDto { FieldName = nameof(ProductDto.Text), Text = "Description" },
-                    new GridConfigFieldDto { FieldName = nameof(ProductDto.StorageFileName), Text = "File", IsDropDown = true },
-                    new GridConfigFieldDto { FieldName = nameof(ProductDto.Price), Text = "Price" }
-                }
-            };
-        }
-        throw new Exception($"Grid select config not found! ({gridName})");
-    }
-
     public GridDto Load(GridDto grid)
     {
         if (grid.GridName == nameof(ProductDto))
         {
-            grid.RowCellList = [];
-            var propertyInfoList = typeof(ProductDto).GetProperties();
-            grid.RowCellList.Add(new List<GridCellDto>());
-            foreach (var propertyInfo in propertyInfoList)
+            if (grid.LookupCell == null)
             {
-                grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Header, Text = propertyInfo.Name });
-            }
-            for (int dataRowIndex = 0; dataRowIndex < memoryDb.ProductList.Count; dataRowIndex++)
-            {
-                var dataRow = memoryDb.ProductList[dataRowIndex];
+                grid.RowCellList = [];
+                var propertyInfoList = typeof(ProductDto).GetProperties();
                 grid.RowCellList.Add(new List<GridCellDto>());
+                // Header
                 foreach (var propertyInfo in propertyInfoList)
                 {
-                    var value = propertyInfo.GetValue(dataRow);
-                    var text = (string?)Convert.ChangeType(value, typeof(string));
-                    if (propertyInfo.Name == nameof(ProductDto.StorageFileName))
+                    grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Header, Text = propertyInfo.Name, IsLookup = true });
+                }
+                // Row
+                for (int dataRowIndex = 0; dataRowIndex < memoryDb.ProductList.Count; dataRowIndex++)
+                {
+                    var dataRow = memoryDb.ProductList[dataRowIndex];
+                    grid.RowCellList.Add(new List<GridCellDto>());
+                    // Cell
+                    foreach (var propertyInfo in propertyInfoList)
                     {
-                        var dropDownList = SelectDropDown(grid.GridName, propertyInfo.Name);
-                        grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, DropDownList = dropDownList, CellEnum = GridCellEnum.DropDown });
-                    }
-                    else
-                    {
-                        grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, CellEnum = GridCellEnum.Field });
+                        var value = propertyInfo.GetValue(dataRow);
+                        var text = (string?)Convert.ChangeType(value, typeof(string));
+                        if (propertyInfo.Name == nameof(ProductDto.StorageFileName))
+                        {
+                            var dropDownList = LoadDropDown(grid.GridName, propertyInfo.Name);
+                            grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, DropDownList = dropDownList, CellEnum = GridCellEnum.DropDown });
+                        }
+                        else
+                        {
+                            grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, CellEnum = GridCellEnum.Field });
+                        }
                     }
                 }
+                grid.RowCellList.Add(new List<GridCellDto>());
+                grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonCancel });
+                grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonSave });
+                return grid;
             }
-            grid.RowCellList.Add(new List<GridCellDto>());
-            grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonCancel });
-            grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonSave });
-            return grid;
+            else
+            {
+                grid.RowCellList = [];
+                grid.RowCellList.Add(new List<GridCellDto>());
+                grid.RowCellList.Last().Add(new GridCellDto { Text = "Sort ↓", CellEnum = GridCellEnum.Button });
+                grid.RowCellList.Add(new List<GridCellDto>());
+                grid.RowCellList.Last().Add(new GridCellDto { Text = "Sort ↑", CellEnum = GridCellEnum.Button });
+                grid.RowCellList.Add(new List<GridCellDto>());
+                grid.RowCellList.Last().Add(new GridCellDto { Text = "", CellEnum = GridCellEnum.Field }); // Search field
+                grid.RowCellList.Add(new List<GridCellDto>());
+                grid.RowCellList.Last().Add(new GridCellDto { Text = "False", CellEnum = GridCellEnum.Field });
+                grid.RowCellList.Last().Add(new GridCellDto { Text = "(Select All)", CellEnum = GridCellEnum.Field });
+                grid.RowCellList.Add(new List<GridCellDto>());
+                grid.RowCellList.Last().Add(new GridCellDto { Text = "True", CellEnum = GridCellEnum.Field });
+                grid.RowCellList.Last().Add(new GridCellDto { Text = "Hello", CellEnum = GridCellEnum.Field });
+                grid.RowCellList.Add(new List<GridCellDto>());
+                grid.RowCellList.Last().Add(new GridCellDto { Text = "False", CellEnum = GridCellEnum.Field });
+                grid.RowCellList.Last().Add(new GridCellDto { Text = "World", CellEnum = GridCellEnum.Field });
+                grid.RowCellList.Add(new List<GridCellDto>());
+                grid.RowCellList.Last().Add(new GridCellDto { Text = "Cancel", CellEnum = GridCellEnum.Button });
+                grid.RowCellList.Last().Add(new GridCellDto { Text = "Ok", CellEnum = GridCellEnum.Button });
+                return grid;
+            }
         }
         throw new Exception($"Grid load not found! ({grid.GridName})");
     }
@@ -121,7 +123,7 @@ public class CommandGrid(MemoryDb memoryDb)
         throw new Exception($"Grid save not found! ({grid.GridName})");
     }
 
-    public List<string> SelectDropDown(string gridName, string fieldName)
+    private List<string> LoadDropDown(string gridName, string fieldName)
     {
         if (gridName == nameof(ProductDto) && fieldName == nameof(ProductDto.StorageFileName))
         {
@@ -163,6 +165,11 @@ public class GridDto
     /// (Row, Cell)
     /// </summary>
     public List<List<GridCellDto>>? RowCellList { get; set; }
+
+    /// <summary>
+    /// Gets or sets Lookup. This is the cell with currently open lookup.
+    /// </summary>
+    public GridCellDto? LookupCell { get; set; }
 }
 
 public class GridCellDto
@@ -181,6 +188,11 @@ public class GridCellDto
     public string? TextModified { get; set; }
 
     public List<string>? DropDownList { get; set; }
+
+    /// <summary>
+    /// Gets or sets IsLookup. If true, cell shows lookup button.
+    /// </summary>
+    public bool? IsLookup { get; set; }
 }
 
 public enum GridCellEnum
@@ -191,6 +203,7 @@ public enum GridCellEnum
     ButtonCancel = 3,
     ButtonSave = 4,
     DropDown = 5,
+    Button = 6,
 }
 
 public class GridConfigFieldDto
