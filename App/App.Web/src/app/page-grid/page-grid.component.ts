@@ -61,7 +61,7 @@ export class PageGridComponent {
       }
       if (this.lookupCell) {
         this.gridLookup = { gridName: this.grid?.gridName }
-        this.gridLookup.lookupCell = cell
+        this.gridLookup.originLookupCell = cell
         this.serverApi.commandGridLoad(this.gridLookup).subscribe(value => this.gridLookup = value);
       }
     }

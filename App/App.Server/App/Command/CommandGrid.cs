@@ -1,13 +1,10 @@
-﻿using System.Data;
-using System.Reflection;
-
-public class CommandGrid(MemoryDb memoryDb)
+﻿public class CommandGrid(MemoryDb memoryDb)
 {
     public GridDto Load(GridDto grid)
     {
         if (grid.GridName == nameof(ProductDto))
         {
-            if (grid.LookupCell == null)
+            if (grid.OriginLookupCell == null)
             {
                 grid.RowCellList = [];
                 var propertyInfoList = typeof(ProductDto).GetProperties();
@@ -167,9 +164,9 @@ public class GridDto
     public List<List<GridCellDto>>? RowCellList { get; set; }
 
     /// <summary>
-    /// Gets or sets Lookup. This is the cell with currently open lookup.
+    /// Gets or sets OriginLookupCell. This is the origin cell which opened this lookup grid.
     /// </summary>
-    public GridCellDto? LookupCell { get; set; }
+    public GridCellDto? OriginLookupCell { get; set; }
 }
 
 public class GridCellDto
@@ -193,6 +190,8 @@ public class GridCellDto
     /// Gets or sets IsLookup. If true, cell shows lookup button.
     /// </summary>
     public bool? IsLookup { get; set; }
+
+    public bool? IsButtonClick { get; set; }
 }
 
 public enum GridCellEnum

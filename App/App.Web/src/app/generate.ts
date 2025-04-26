@@ -80,7 +80,7 @@ export class GridDto {
   dataRowList?: any[]
   gridConfig?: GridConfigDto
   public rowCellList?: GridCellDto[][]
-  public lookupCell?: GridCellDto
+  public originLookupCell?: GridCellDto
   // public editRowIndex?: number
   // public editFieldName?: string
   // public selectRowIndex?: number
