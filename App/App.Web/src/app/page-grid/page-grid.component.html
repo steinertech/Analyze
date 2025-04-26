@@ -1,4 +1,4 @@
-RowCellList={{grid?.rowCellList | json}}
+RowCellList={{grid | json}}
 <h1>Table</h1>
 <table style="width:100%;">
   @for (cellList of grid?.rowCellList; track $index;) {
@@ -13,15 +13,24 @@ RowCellList={{grid?.rowCellList | json}}
       <b>{{cell.text}}</b>
       }
       @case (GridCellEnum.ButtonCancel) {
-      <button (click)="clickCancel()">Cancel</button>
+      <button (click)="click(cell)">Cancel</button>
       }
       @case (GridCellEnum.ButtonSave) {
-      <button (click)="clickSave()">Save</button>
+      <button (click)="click(cell)">Save</button>
       }
       @case (GridCellEnum.Button) {
       <button (click)="click(cell)">{{cell.text}}</button>
       }
-      @case (GridCellEnum.DropDown) {
+      @case (GridCellEnum.ButtonLookupOk) {
+      <button (click)="click(cell)">Ok</button>
+      }
+      @case (GridCellEnum.ButtonLookupCancel) {
+      <button (click)="click(cell)">Cancel</button>
+      }
+      @case (GridCellEnum.ButtonLookupSort) {
+      <button (click)="click(cell)">Sort</button>
+      }
+      @case (GridCellEnum.FieldDropDown) {
       <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
         @for (item of cell.dropDownList; track $index) {
         <option value="{{item}}">{{item}}</option>
@@ -39,5 +48,5 @@ RowCellList={{grid?.rowCellList | json}}
 </table>
 <h1>Lookup</h1>
 @if(lookupCell) {
-<app-page-grid [grid]="gridLookup"></app-page-grid>
+<app-page-grid [parent]="this" [grid]="lookupGrid"></app-page-grid>
 }

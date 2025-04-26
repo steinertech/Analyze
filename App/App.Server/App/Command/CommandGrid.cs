@@ -4,7 +4,7 @@
     {
         if (grid.GridName == nameof(ProductDto))
         {
-            if (grid.OriginLookupCell == null)
+            if (grid.ParentCell == null)
             {
                 grid.RowCellList = [];
                 var propertyInfoList = typeof(ProductDto).GetProperties();
@@ -12,7 +12,7 @@
                 // Header
                 foreach (var propertyInfo in propertyInfoList)
                 {
-                    grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Header, Text = propertyInfo.Name, IsLookup = true });
+                    grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Header, Text = propertyInfo.Name, FieldName = propertyInfo.Name, IsLookup = true });
                 }
                 // Row
                 for (int dataRowIndex = 0; dataRowIndex < memoryDb.ProductList.Count; dataRowIndex++)
@@ -44,9 +44,7 @@
             {
                 grid.RowCellList = [];
                 grid.RowCellList.Add(new List<GridCellDto>());
-                grid.RowCellList.Last().Add(new GridCellDto { Text = "Sort ↓", CellEnum = GridCellEnum.Button });
-                grid.RowCellList.Add(new List<GridCellDto>());
-                grid.RowCellList.Last().Add(new GridCellDto { Text = "Sort ↑", CellEnum = GridCellEnum.Button });
+                grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupSort });
                 grid.RowCellList.Add(new List<GridCellDto>());
                 grid.RowCellList.Last().Add(new GridCellDto { Text = "", CellEnum = GridCellEnum.Field }); // Search field
                 grid.RowCellList.Add(new List<GridCellDto>());
@@ -59,8 +57,8 @@
                 grid.RowCellList.Last().Add(new GridCellDto { Text = "False", CellEnum = GridCellEnum.Field });
                 grid.RowCellList.Last().Add(new GridCellDto { Text = "World", CellEnum = GridCellEnum.Field });
                 grid.RowCellList.Add(new List<GridCellDto>());
-                grid.RowCellList.Last().Add(new GridCellDto { Text = "Cancel", CellEnum = GridCellEnum.Button });
-                grid.RowCellList.Last().Add(new GridCellDto { Text = "Ok", CellEnum = GridCellEnum.Button });
+                grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupCancel });
+                grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupOk });
                 return grid;
             }
         }
@@ -164,9 +162,23 @@ public class GridDto
     public List<List<GridCellDto>>? RowCellList { get; set; }
 
     /// <summary>
-    /// Gets or sets OriginLookupCell. This is the origin cell which opened this lookup grid.
+    /// Gets or sets ParentCell. This is the origin cell which opened this lookup grid.
     /// </summary>
-    public GridCellDto? OriginLookupCell { get; set; }
+    public GridCellDto? ParentCell { get; set; }
+
+    public GridStateDto? State { get; set; }
+}
+
+public class GridStateDto
+{
+    public GridStateSortDto? Sort { get; set; } // public List<GridStateSortDto> SortList { get; set; }
+}
+
+public class GridStateSortDto
+{
+    public string FieldName { get; set; } = default!;
+
+    public bool IsDesc { get; set; }
 }
 
 public class GridCellDto
@@ -190,8 +202,6 @@ public class GridCellDto
     /// Gets or sets IsLookup. If true, cell shows lookup button.
     /// </summary>
     public bool? IsLookup { get; set; }
-
-    public bool? IsButtonClick { get; set; }
 }
 
 public enum GridCellEnum
@@ -202,7 +212,9 @@ public enum GridCellEnum
     ButtonCancel = 3,
     ButtonSave = 4,
     DropDown = 5,
-    Button = 6,
+    ButtonLookupOk = 7,
+    ButtonLookupCancel = 8,
+    ButtonLookupSort = 9,
 }
 
 public class GridConfigFieldDto

@@ -62,7 +62,6 @@ export class GridCellDto {
   public textModified?: string
   public dropDownList?: string[]
   public isLookup?: boolean // Call shows lookup botton
-  public isButtonClick?: boolean
 }
 
 export enum GridCellEnum {
@@ -71,8 +70,11 @@ export enum GridCellEnum {
   Header = 2,
   ButtonCancel = 3,
   ButtonSave = 4,
-  DropDown = 5,
+  FieldDropDown = 5,
   Button = 6,
+  ButtonLookupOk = 7,
+  ButtonLookupCancel = 8,
+  ButtonLookupSort = 9,
 }
 
 export class GridDto {
@@ -80,11 +82,21 @@ export class GridDto {
   dataRowList?: any[]
   gridConfig?: GridConfigDto
   public rowCellList?: GridCellDto[][]
-  public originLookupCell?: GridCellDto
+  public parentCell?: GridCellDto
+  public state?: GridStateDto
   // public editRowIndex?: number
   // public editFieldName?: string
   // public selectRowIndex?: number
   // public selectFieldName?: string
+}
+
+export class GridStateDto {
+  public sort?: GridStateSortDto
+}
+
+export class GridStateSortDto {
+  public fieldName!: string
+  public isDesc!: boolean
 }
 
 @Injectable({
