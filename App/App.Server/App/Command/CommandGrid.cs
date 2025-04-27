@@ -6,6 +6,9 @@
         {
             if (grid.ParentCell == null)
             {
+                grid.State = new();
+                grid.State.FilterList = [new() { FieldName = "Price", Text = "Hello" }]; // TODO
+
                 grid.RowCellList = [];
                 var propertyInfoList = typeof(ProductDto).GetProperties();
                 grid.RowCellList.Add(new List<GridCellDto>());
@@ -172,6 +175,8 @@ public class GridDto
 public class GridStateDto
 {
     public GridStateSortDto? Sort { get; set; } // public List<GridStateSortDto> SortList { get; set; }
+
+    public List<GridStateFilterDto>? FilterList { get; set; }
 }
 
 public class GridStateSortDto
@@ -179,6 +184,13 @@ public class GridStateSortDto
     public string FieldName { get; set; } = default!;
 
     public bool IsDesc { get; set; }
+}
+
+public class GridStateFilterDto
+{
+    public string FieldName { get; set; } = default!;
+ 
+    public string Text { get; set; } = default!;
 }
 
 public class GridCellDto

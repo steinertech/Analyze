@@ -92,11 +92,17 @@ export class GridDto {
 
 export class GridStateDto {
   public sort?: GridStateSortDto
+  public filterList?: GridStateFilterDto[]
 }
 
 export class GridStateSortDto {
   public fieldName!: string
   public isDesc!: boolean
+}
+
+export class GridStateFilterDto {
+  public fieldName!: string
+  public text!: string
 }
 
 @Injectable({

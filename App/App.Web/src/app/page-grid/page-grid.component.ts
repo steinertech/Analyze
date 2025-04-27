@@ -28,16 +28,52 @@ export class PageGridComponent {
   @Input() parent?: PageGridComponent
 
   cellTextGet(cell: GridCellDto) {
-    return cell.textModified ?? cell.text
+    switch (cell.cellEnum) {
+      case GridCellEnum.Header: {
+        return this.grid?.state?.filterList?.find(value => value.fieldName == cell.fieldName)?.text
+      }
+      case GridCellEnum.Field: {
+        return cell.textModified ?? cell.text
+      }
+    }
+    return undefined
   }
 
   cellTextSet(cell: GridCellDto, value: string) {
-    cell.textModified = value
+    if (this.grid) {
+      switch (cell.cellEnum) {
+        case GridCellEnum.Header: {
+          if (!this.grid.state) {
+            this.grid.state = {}
+          }
+          if (!this.grid.state.filterList) {
+            this.grid.state.filterList = []
+          }
+          let index = this.grid.state.filterList.findIndex(value => value.fieldName == cell.fieldName)
+          if (index == -1) {
+            index = this.grid.state.filterList.push({ fieldName: cell.fieldName!, text: '' }) - 1 // Add
+          }
+          if (value == '') {
+            this.grid.state.filterList.splice(index, 1) // Remove
+          } else {
+            this.grid.state.filterList[index].text = value
+          }
+          break
+        }
+        case GridCellEnum.Field: {
+          cell.textModified = value
+          break
+        }
+      }
+    }
   }
 
   click(cell: GridCellDto) {
     if (this.grid) {
       switch (cell.cellEnum) {
+        case GridCellEnum.Header: {
+          break
+        }
         case GridCellEnum.ButtonCancel: {
           this.serverApi.commandGridLoad(this.grid).subscribe(value => this.grid = value); // Reload
           break

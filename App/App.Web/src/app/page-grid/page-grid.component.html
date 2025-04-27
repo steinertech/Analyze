@@ -10,7 +10,8 @@ RowCellList={{grid | json}}
       <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
       }
       @case (GridCellEnum.Header) {
-      <b>{{cell.text}}</b>
+      <button (click)="click(cell)"><b>{{cell.text}}</b></button>
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search">
       }
       @case (GridCellEnum.ButtonCancel) {
       <button (click)="click(cell)">Cancel</button>
