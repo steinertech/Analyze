@@ -29,10 +29,16 @@ export class PageGridComponent {
 
   cellTextGet(cell: GridCellDto) {
     switch (cell.cellEnum) {
-      case GridCellEnum.Header: {
+      // Field
+      case GridCellEnum.Field: {
+        return cell.textModified ?? cell.text
+      }
+      // Filter
+      case GridCellEnum.Filter: {
         return this.grid?.state?.filterList?.find(value => value.fieldName == cell.fieldName)?.text
       }
-      case GridCellEnum.Field: {
+      // Checkbox
+      case GridCellEnum.FieldCheckbox: {
         return cell.textModified ?? cell.text
       }
     }
@@ -42,7 +48,13 @@ export class PageGridComponent {
   cellTextSet(cell: GridCellDto, value: string) {
     if (this.grid) {
       switch (cell.cellEnum) {
-        case GridCellEnum.Header: {
+        // Field
+        case GridCellEnum.Field: {
+          cell.textModified = cell.text != value ? value : undefined
+          break
+        }
+        // Filter
+        case GridCellEnum.Filter: {
           if (!this.grid.state) {
             this.grid.state = {}
           }
@@ -51,51 +63,80 @@ export class PageGridComponent {
           }
           let index = this.grid.state.filterList.findIndex(value => value.fieldName == cell.fieldName)
           if (index == -1) {
-            index = this.grid.state.filterList.push({ fieldName: cell.fieldName!, text: '' }) - 1 // Add
+            index = this.grid.state.filterList.push({ fieldName: cell.fieldName!, text: undefined! }) - 1 // Add
           }
           if (value == '') {
             this.grid.state.filterList.splice(index, 1) // Remove
           } else {
             this.grid.state.filterList[index].text = value
           }
+          this.serverApi.commandGridLoad(this.grid).subscribe(value => this.grid = value); // Reload // TODO Debounce
           break
         }
-        case GridCellEnum.Field: {
-          cell.textModified = value
+        // CheckBox
+        case GridCellEnum.FieldCheckbox: {
+          let valueText = value ? 'true' : 'false'
+          cell.textModified = cell.text != valueText ? valueText : undefined
           break
         }
       }
     }
   }
 
+  cellFocus(cell: GridCellDto) {
+    this.clickLookup(cell)
+  }
+
   click(cell: GridCellDto) {
     if (this.grid) {
       switch (cell.cellEnum) {
+        // Header
         case GridCellEnum.Header: {
-          break
-        }
-        case GridCellEnum.ButtonCancel: {
+          if (!this.grid.state) {
+            this.grid.state = {}
+          }
+          if (!this.grid.state.sort) {
+            this.grid.state.sort = { fieldName: undefined!, isDesc: false }
+          }
+          if (this.grid.state.sort.fieldName == cell.fieldName) {
+            this.grid.state.sort.isDesc = !this.grid.state.sort.isDesc
+          } else {
+            this.grid.state.sort = { fieldName: cell.fieldName!, isDesc: false }
+          }
           this.serverApi.commandGridLoad(this.grid).subscribe(value => this.grid = value); // Reload
           break
         }
+        // Button Cancel
+        case GridCellEnum.ButtonCancel: {
+          this.grid.state = undefined // Clear state
+          this.lookupClose()
+          this.serverApi.commandGridLoad(this.grid).subscribe(value => this.grid = value); // Reload
+          break
+        }
+        // Button Save
         case GridCellEnum.ButtonSave: {
+          this.lookupClose()
           this.serverApi.commandGridSave(this.grid).subscribe(value => this.grid = value);
           break
         }
+        // Button Cancel (Lookup)
         case GridCellEnum.ButtonLookupCancel: {
-          if (this.parent) {
-            this.parent.lookupCell!.text = 'Lookup Cancel'
-            this.parent.lookupClose()
-          }
+          this.parent?.lookupClose()
           break
         }
+        // Button Ok (Lookup)
         case GridCellEnum.ButtonLookupOk: {
-          if (this.parent) {
-            this.parent.lookupCell!.text = 'Lookup Ok'
-            this.parent.lookupClose()
+          if (this.parent?.grid) {
+            this.serverApi.commandGridSave(this.grid).subscribe(value => {
+              if (this.parent) {
+                this.parent.grid = value
+                this.parent.lookupClose()
+              }
+            });
           }
           break
         }
+        // Button Sort (Lookup)
         case GridCellEnum.ButtonLookupSort: {
           if (this.parent?.grid) {
             if (!this.parent.grid.state) {

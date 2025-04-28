@@ -33,3 +33,8 @@ public class DebugDto
 
     public List<string>? CounterList { get; set; }
 }
+
+public class HeaderDataRowDto
+{
+    public string? Text { get; set; }
+}
