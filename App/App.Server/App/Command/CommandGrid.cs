@@ -228,7 +228,7 @@ public class GridStateDto
     /// <summary>
     /// (DataRowIndex)
     /// </summary>
-    public List<bool?>? IsMouseOverList { get; set; }
+    public List<bool?>? IsMouseEnterList { get; set; }
 }
 
 public class GridStateSortDto

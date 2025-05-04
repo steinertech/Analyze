@@ -6,7 +6,7 @@ RowCellList={{grid | json}}
   @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
     @for (cell of cellList; track $index;) {
-    <td (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.mouse-enter]="cellIsEnter(cell)==true">
+    <td (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.mouse-enter]="cellIsMouseEnter(cell)==true">
       @switch (cell.cellEnum) {
       <!-- Field -->
       @case (GridCellEnum.Field) {

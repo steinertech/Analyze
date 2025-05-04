@@ -109,7 +109,7 @@ export class PageGridComponent {
     }
   }
 
-  cellIsEnter(cell: GridCellDto) {
+  cellIsMouseEnter(cell: GridCellDto) {
     return this.grid?.state?.isMouseEnterList && cell.dataRowIndex != undefined && this.grid.state.isMouseEnterList[cell.dataRowIndex] == true
   }
 
