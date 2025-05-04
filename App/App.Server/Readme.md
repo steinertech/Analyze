@@ -1,4 +1,4 @@
-# App.Function
+# App.Server (App.Function)
 
 ```
 dotnet new globaljson # Has no effect on func new

@@ -1,5 +1,7 @@
+<!--
 RowCellList={{grid | json}}
 <h1>Table</h1>
+-->
 <table style="width:100%;">
   @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
@@ -22,10 +24,10 @@ RowCellList={{grid | json}}
       @case (GridCellEnum.Header) {
       <button (click)="click(cell)"><b>{{cell.text}}</b></button>
       @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == false) {
-      Asc
+      &uarr;
       }
       @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == true) {
-      Desc
+      &darr;
       }
       <button (click)="clickLookup(cell)">▼</button>
       }
