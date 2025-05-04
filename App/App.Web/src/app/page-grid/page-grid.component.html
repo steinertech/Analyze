@@ -6,15 +6,15 @@ RowCellList={{grid | json}}
   @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
     @for (cell of cellList; track $index;) {
-    <td>
+    <td (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.mouse-enter]="cellIsEnter(cell)==true">
       @switch (cell.cellEnum) {
       <!-- Field -->
       @case (GridCellEnum.Field) {
-      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="w-full">
       }
       <!-- Autocomplete -->
       @case (GridCellEnum.FieldAutocomplete) {
-      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" (focus)="cellFocus(cell)">
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" (focus)="cellFocus(cell)" class="w-full">
       }
       <!-- Checkbox -->
       @case (GridCellEnum.FieldCheckbox) {
@@ -33,7 +33,7 @@ RowCellList={{grid | json}}
       }
       <!-- Filter -->
       @case (GridCellEnum.Filter) {
-      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search">
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search" class="w-full">
       }
       <!-- Button Cancel -->
       @case (GridCellEnum.ButtonCancel) {
@@ -57,7 +57,7 @@ RowCellList={{grid | json}}
       }
       <!-- Dropdown -->
       @case (GridCellEnum.FieldDropdown) {
-      <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
+      <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="w-full">
         @for (item of cell.dropDownList; track $index) {
         <option value="{{item}}">{{item}}</option>
         }

@@ -224,6 +224,11 @@ public class GridStateDto
     public GridStateSortDto? Sort { get; set; } // public List<GridStateSortDto> SortList { get; set; }
 
     public List<GridStateFilterDto>? FilterList { get; set; }
+
+    /// <summary>
+    /// (DataRowIndex)
+    /// </summary>
+    public List<bool?>? IsMouseOverList { get; set; }
 }
 
 public class GridStateSortDto

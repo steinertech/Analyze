@@ -95,6 +95,7 @@ export class GridDto {
 export class GridStateDto {
   public sort?: GridStateSortDto
   public filterList?: GridStateFilterDto[]
+  public isMouseEnterList?: (boolean | null)[]
 }
 
 export class GridStateSortDto {

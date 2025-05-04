@@ -87,6 +87,32 @@ export class PageGridComponent {
     this.clickLookup(cell)
   }
 
+  cellMouseEnter(cell: GridCellDto) {
+    if (this.grid) {
+      if (cell.dataRowIndex != undefined) {
+        if (!this.grid.state) {
+          this.grid.state = {}
+        }
+        if (!this.grid.state.isMouseEnterList) {
+          this.grid.state.isMouseEnterList = []
+        }
+        this.grid.state.isMouseEnterList[cell.dataRowIndex] = true
+      }
+    }
+  }
+
+  cellMouseLeave(cell: GridCellDto) {
+    if (this.grid) {
+      if (cell.dataRowIndex != undefined) {
+        this.grid.state!.isMouseEnterList![cell.dataRowIndex] = null
+      }
+    }
+  }
+
+  cellIsEnter(cell: GridCellDto) {
+    return this.grid?.state?.isMouseEnterList && cell.dataRowIndex != undefined && this.grid.state.isMouseEnterList[cell.dataRowIndex] == true
+  }
+
   click(cell: GridCellDto) {
     if (this.grid) {
       switch (cell.cellEnum) {

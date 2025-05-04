@@ -28,6 +28,7 @@ Create file App.Web\.prettierrc.json
 }
 ```
 **Format Html Code:** Press F1 > Format Document With > Prettier - Code formatter
+
 ## Build
 
 ```
