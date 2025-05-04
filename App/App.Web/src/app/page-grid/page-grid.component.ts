@@ -113,7 +113,24 @@ export class PageGridComponent {
     return this.grid?.state?.isMouseEnterList && cell.dataRowIndex != undefined && this.grid.state.isMouseEnterList[cell.dataRowIndex] == true
   }
 
-  click(cell: GridCellDto) {
+  cellIsSelect(cell: GridCellDto) {
+    return this.grid?.state?.isSelectList && cell.dataRowIndex != undefined && this.grid.state.isSelectList[cell.dataRowIndex] == true
+  }
+
+  cellClick(cell: GridCellDto) {
+    if (this.grid) {
+      if (cell.dataRowIndex != undefined) {
+        if (!this.grid.state) {
+          this.grid.state = {}
+        }
+        this.grid.state.isSelectList = []
+        this.grid.state.isSelectList[cell.dataRowIndex] = true
+        console.log('Click')
+      }
+    }
+  }
+
+  buttonClick(cell: GridCellDto) {
     if (this.grid) {
       switch (cell.cellEnum) {
         // Header

@@ -1,3 +1,7 @@
 .mouse-enter {
   background-color: rgb(227, 248, 255);
 }
+
+.select {
+  background-color: lightblue;
+}

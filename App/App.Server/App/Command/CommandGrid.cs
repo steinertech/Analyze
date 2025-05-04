@@ -92,9 +92,9 @@
     {
         grid.RowCellList = [];
         grid.RowCellList.Add(new List<GridCellDto>());
-        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Field, Text = "Hello" });
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Field, Text = "Hello", DataRowIndex = 0 });
         grid.RowCellList.Add(new List<GridCellDto>());
-        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Field, Text = "World" });
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Field, Text = "World", DataRowIndex = 1 });
         grid.RowCellList.Add(new List<GridCellDto>());
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupCancel });
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupOk });
@@ -229,6 +229,11 @@ public class GridStateDto
     /// (DataRowIndex)
     /// </summary>
     public List<bool?>? IsMouseEnterList { get; set; }
+
+    /// <summary>
+    /// (DataRowIndex)
+    /// </summary>
+    public List<bool?>? IsSelectList { get; set; }
 }
 
 public class GridStateSortDto
@@ -249,6 +254,9 @@ public class GridCellDto
 {
     public GridCellEnum? CellEnum { get; set; }
 
+    /// <summary>
+    /// Gets or sets DataRowIndex. Also used for row select and mouse enter.
+    /// </summary>
     public int? DataRowIndex { get; set; }
 
     public string? FieldName { get; set; }

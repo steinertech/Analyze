@@ -6,7 +6,7 @@ RowCellList={{grid | json}}
   @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
     @for (cell of cellList; track $index;) {
-    <td (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.mouse-enter]="cellIsMouseEnter(cell)==true">
+    <td (mousedown)="cellClick(cell)" (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.mouse-enter]="cellIsMouseEnter(cell)==true" [class.select]="cellIsSelect(cell)==true">
       @switch (cell.cellEnum) {
       <!-- Field -->
       @case (GridCellEnum.Field) {
@@ -22,7 +22,7 @@ RowCellList={{grid | json}}
       }
       <!-- Header -->
       @case (GridCellEnum.Header) {
-      <button (click)="click(cell)"><b>{{cell.text}}</b></button>
+      <button (click)="buttonClick(cell)"><b>{{cell.text}}</b></button>
       @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == false) {
       &uarr;
       }
@@ -37,23 +37,23 @@ RowCellList={{grid | json}}
       }
       <!-- Button Cancel -->
       @case (GridCellEnum.ButtonCancel) {
-      <button (click)="click(cell)">Cancel</button>
+      <button (click)="buttonClick(cell)">Cancel</button>
       }
       <!-- Button Save -->
       @case (GridCellEnum.ButtonSave) {
-      <button (click)="click(cell)">Save</button>
+      <button (click)="buttonClick(cell)">Save</button>
       }
       <!-- Button Cancel (Lookup) -->
       @case (GridCellEnum.ButtonLookupCancel) {
-      <button (click)="click(cell)">Cancel</button>
+      <button (click)="buttonClick(cell)">Cancel2</button>
       }
       <!-- Button Ok (Lookup) -->
       @case (GridCellEnum.ButtonLookupOk) {
-      <button (click)="click(cell)">Ok</button>
+      <button (click)="buttonClick(cell)">Ok2</button>
       }
       <!-- Button Sort (Lookup) -->
       @case (GridCellEnum.ButtonLookupSort) {
-      <button (click)="click(cell)">Sort</button>
+      <button (click)="buttonClick(cell)">Sort</button>
       }
       <!-- Dropdown -->
       @case (GridCellEnum.FieldDropdown) {
