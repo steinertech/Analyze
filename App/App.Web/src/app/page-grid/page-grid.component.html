@@ -6,64 +6,64 @@ RowCellList={{grid | json}}
   @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
     @for (cell of cellList; track $index;) {
-    <td (mousedown)="cellClick(cell)" (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.mouse-enter]="cellIsMouseEnter(cell)==true" [class.select]="cellIsSelect(cell)==true">
-      @switch (cell.cellEnum) {
-      <!-- Field -->
-      @case (GridCellEnum.Field) {
-      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="w-full">
-      }
-      <!-- Autocomplete -->
-      @case (GridCellEnum.FieldAutocomplete) {
-      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" (focus)="cellFocus(cell)" class="w-full">
-      }
-      <!-- Checkbox -->
-      @case (GridCellEnum.FieldCheckbox) {
-      <input [ngModel]="cellTextGet(cell) == 'true'" (ngModelChange)="cellTextSet(cell, $event)" type="checkbox">
-      }
-      <!-- Header -->
-      @case (GridCellEnum.Header) {
-      <button (click)="buttonClick(cell)"><b>{{cell.text}}</b></button>
-      @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == false) {
-      &uarr;
-      }
-      @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == true) {
-      &darr;
-      }
-      <button (click)="clickLookup(cell)">▼</button>
-      }
-      <!-- Filter -->
-      @case (GridCellEnum.Filter) {
-      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search" class="w-full">
-      }
-      <!-- Button Cancel -->
-      @case (GridCellEnum.ButtonCancel) {
-      <button (click)="buttonClick(cell)">Cancel</button>
-      }
-      <!-- Button Save -->
-      @case (GridCellEnum.ButtonSave) {
-      <button (click)="buttonClick(cell)">Save</button>
-      }
-      <!-- Button Cancel (Lookup) -->
-      @case (GridCellEnum.ButtonLookupCancel) {
-      <button (click)="buttonClick(cell)">Cancel</button>
-      }
-      <!-- Button Ok (Lookup) -->
-      @case (GridCellEnum.ButtonLookupOk) {
-      <button (click)="buttonClick(cell)">Ok</button>
-      }
-      <!-- Button Sort (Lookup) -->
-      @case (GridCellEnum.ButtonLookupSort) {
-      <button (click)="buttonClick(cell)">Sort</button>
-      }
-      <!-- Dropdown -->
-      @case (GridCellEnum.FieldDropdown) {
-      <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="w-full">
-        @for (item of cell.dropDownList; track $index) {
-        <option value="{{item}}">{{item}}</option>
+    <td (mousedown)="cellClick(cell)" (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.mouse-enter]="cellIsMouseEnter(cell)==true" [class.select]="cellIsSelect(cell)==true" style="overflow: hidden; white-space: nowrap;">
+        @switch (cell.cellEnum) {
+        <!-- Field -->
+        @case (GridCellEnum.Field) {
+        <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="w-full">
         }
-      </select>
-      }
-      }
+        <!-- Field Autocomplete -->
+        @case (GridCellEnum.FieldAutocomplete) {
+        <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" (focus)="cellFocus(cell)" class="w-full">
+        }
+        <!-- Field Checkbox -->
+        @case (GridCellEnum.FieldCheckbox) {
+        <input [ngModel]="cellTextGet(cell) == 'true'" (ngModelChange)="cellTextSet(cell, $event)" type="checkbox">
+        }
+        <!-- Header -->
+        @case (GridCellEnum.Header) {
+        <button (click)="buttonClick(cell)"><b>{{cell.text}}</b></button>
+        @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == false) {
+        &uarr;
+        }
+        @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == true) {
+        &darr;
+        }
+        <button (click)="clickLookup(cell)">▼</button>
+        }
+        <!-- Filter -->
+        @case (GridCellEnum.Filter) {
+        <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search" class="w-full">
+        }
+        <!-- Button Cancel -->
+        @case (GridCellEnum.ButtonCancel) {
+        <button (click)="buttonClick(cell)">Cancel</button>
+        }
+        <!-- Button Save -->
+        @case (GridCellEnum.ButtonSave) {
+        <button (click)="buttonClick(cell)">Save</button>
+        }
+        <!-- Button Cancel (Lookup) -->
+        @case (GridCellEnum.ButtonLookupCancel) {
+        <button (click)="buttonClick(cell)">Cancel</button>
+        }
+        <!-- Button Ok (Lookup) -->
+        @case (GridCellEnum.ButtonLookupOk) {
+        <button (click)="buttonClick(cell)">Ok</button>
+        }
+        <!-- Button Sort (Lookup) -->
+        @case (GridCellEnum.ButtonLookupSort) {
+        <button (click)="buttonClick(cell)">Sort</button>
+        }
+        <!-- Field Dropdown -->
+        @case (GridCellEnum.FieldDropdown) {
+        <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="w-full">
+          @for (item of cell.dropDownList; track $index) {
+          <option value="{{item}}">{{item}}</option>
+          }
+        </select>
+        }
+        }
     </td>
     }
   </tr>

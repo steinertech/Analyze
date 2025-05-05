@@ -37,8 +37,12 @@ export class PageGridComponent {
       case GridCellEnum.Filter: {
         return this.grid?.state?.filterList?.find(value => value.fieldName == cell.fieldName)?.text
       }
-      // Checkbox
+      // Field Checkbox
       case GridCellEnum.FieldCheckbox: {
+        return cell.textModified ?? cell.text
+      }
+      // Field Autocomplete
+      case GridCellEnum.FieldAutocomplete: {
         return cell.textModified ?? cell.text
       }
     }
@@ -50,6 +54,11 @@ export class PageGridComponent {
       switch (cell.cellEnum) {
         // Field
         case GridCellEnum.Field: {
+          cell.textModified = cell.text != value ? value : undefined
+          break
+        }
+        // Field
+        case GridCellEnum.FieldAutocomplete: {
           cell.textModified = cell.text != value ? value : undefined
           break
         }

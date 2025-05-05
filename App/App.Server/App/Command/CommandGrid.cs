@@ -53,19 +53,24 @@
                 if (propertyInfo.Name == nameof(ProductDto.StorageFileName))
                 {
                     var dropDownList = LoadDropDown(grid.GridName, propertyInfo.Name);
-                    grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, DropDownList = dropDownList, CellEnum = GridCellEnum.Dropdown });
+                    grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, DropDownList = dropDownList, CellEnum = GridCellEnum.FieldDropdown });
                 }
                 else
                 {
-                    grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, CellEnum = GridCellEnum.Field });
+                    if (propertyInfo.Name == nameof(ProductDto.City))
+                    {
+                        grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, CellEnum = GridCellEnum.FieldAutocomplete });
+                    }
+                    else
+                    {
+                        grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, CellEnum = GridCellEnum.Field });
+                    }
                 }
             }
         }
         grid.RowCellList.Add(new List<GridCellDto>());
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonCancel });
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonSave });
-        grid.RowCellList.Add(new List<GridCellDto>());
-        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.FieldAutocomplete, FieldName = "Text", DataRowIndex = 0 });
     }
 
     private void LoadHeader(GridDto grid, GridCellDto parentCell)
@@ -95,9 +100,13 @@
     {
         grid.RowCellList = [];
         grid.RowCellList.Add(new List<GridCellDto>());
-        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Field, Text = "Hello", DataRowIndex = 0 });
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Field, Text = "Berlin", DataRowIndex = 0, FieldName = "Text" });
         grid.RowCellList.Add(new List<GridCellDto>());
-        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Field, Text = "World", DataRowIndex = 1 });
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Field, Text = "Paris", DataRowIndex = 1, FieldName = "Text" });
+        grid.RowCellList.Add(new List<GridCellDto>());
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Field, Text = "Rome", DataRowIndex = 2, FieldName = "Text" });
+        grid.RowCellList.Add(new List<GridCellDto>());
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Field, Text = "Madrid", DataRowIndex = 3, FieldName = "Text" });
         grid.RowCellList.Add(new List<GridCellDto>());
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupCancel });
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupOk });
@@ -154,12 +163,12 @@
     /// </summary>
     private GridDto SaveAutocomplete(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
-        var cell = parentGrid?.RowCellList?.SelectMany(item => item).Where(item => item.FieldName == parentCell?.FieldName && item.DataRowIndex == parentCell?.DataRowIndex).FirstOrDefault(); // TODO 
+        var cell = grid.SelectedCell("Text");
         if (cell != null)
         {
-            cell.TextModified = "Selected Value!";
+            parentCell.TextModified = cell.Text;
         }
-        return parentGrid!; // Load(new GridDto { GridName = grid.GridName }, null);
+        return parentGrid; // Load(new GridDto { GridName = grid.GridName }, null);
     }
 
     public GridDto Save(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
@@ -174,6 +183,11 @@
         }
         if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
         {
+            if (parentCell.DataRowIndex != null && parentCell.FieldName != null)
+            {
+                // Parameter parentCell to parentGrid cell instance
+                parentCell = parentGrid.RowCellList?.SelectMany(item => item).Where(item => item.DataRowIndex == parentCell.DataRowIndex && item.FieldName == parentCell.FieldName).FirstOrDefault() ?? parentCell;
+            }
             return SaveAutocomplete(grid, parentCell, parentGrid);
         }
         return grid;
@@ -223,6 +237,18 @@ public class GridDto
     public List<List<GridCellDto>>? RowCellList { get; set; }
 
     public GridStateDto? State { get; set; }
+
+    public GridCellDto? SelectedCell(string fieldName)
+    {
+        GridCellDto? result = null;
+        if (State?.IsSelectList != null && RowCellList != null)
+        {
+            var index = State.IsSelectList.IndexOf(true);
+            var row = RowCellList[index];
+            result = row.Where(item => item.FieldName == fieldName).FirstOrDefault();
+        }
+        return result;
+    }
 }
 
 public class GridStateDto
@@ -285,7 +311,7 @@ public enum GridCellEnum
     Filter = 10,
     ButtonCancel = 3,
     ButtonSave = 4,
-    Dropdown = 5,
+    FieldDropdown = 5,
     ButtonLookupOk = 7,
     ButtonLookupCancel = 8,
     ButtonLookupSort = 9,

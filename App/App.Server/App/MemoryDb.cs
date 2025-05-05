@@ -6,9 +6,13 @@ public class MemoryDb
     {
         productList = new List<ProductDto>
         {
-            new ProductDto { Text = "Example A", Price = 100 },
-            new ProductDto { Text = "Example B", Price = 200 },
-            new ProductDto { Text = "Example C", Price = 250 }
+            new ProductDto { Text = "Pasta", Price = 100, Amount = 4, City = "Paris" },
+            new ProductDto { Text = "Chocolate", Price = 200, Amount = 4, City = "Rome" },
+            new ProductDto { Text = "Honey", Price = 250 , Amount = 10, City = "Berlin" },
+            new ProductDto { Text = "Butter", Price = 880.80 , Amount = 34, City = "Sydney" },
+            new ProductDto { Text = "Yogurt", Price = 65.25 , Amount = 8, City = "Miami" },
+            new ProductDto { Text = "Olive", Price = 90.30 , Amount = 2, City = "Denver" },
+            new ProductDto { Text = "Bred", Price = 105.25 , Amount = 3, City = "Boston" },
         };
     }
 
@@ -70,4 +74,8 @@ public class ProductDto
     public string? StorageFileName { get; set; }
 
     public double? Price { get; set; }
+
+    public string? City { get; set; }
+
+    public double? Amount { get; set; }
 }
