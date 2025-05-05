@@ -1,19 +1,22 @@
 ﻿public class CommandGrid(MemoryDb memoryDb)
 {
-    public GridDto Load(GridDto grid)
+    /// <summary>
+    /// Returns loaded grid.
+    /// </summary>
+    public GridDto Load(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
     {
         // Data
-        if (grid.ParentCell == null)
+        if (parentCell == null)
         {
             LoadData(grid);
         }
         // Header
-        if (grid.ParentCell?.CellEnum == GridCellEnum.Header)
+        if (parentCell?.CellEnum == GridCellEnum.Header)
         {
-            LoadHeader(grid);
+            LoadHeader(grid, parentCell);
         }
         // Autocomplete
-        if (grid.ParentCell?.CellEnum == GridCellEnum.FieldAutocomplete)
+        if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete)
         {
             LoadAutocomplete(grid);
         }
@@ -62,10 +65,10 @@
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonCancel });
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonSave });
         grid.RowCellList.Add(new List<GridCellDto>());
-        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.FieldAutocomplete, FieldName = "Text" });
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.FieldAutocomplete, FieldName = "Text", DataRowIndex = 0 });
     }
 
-    private void LoadHeader(GridDto grid)
+    private void LoadHeader(GridDto grid, GridCellDto parentCell)
     {
         grid.RowCellList = [];
         grid.RowCellList.Add(new List<GridCellDto>());
@@ -76,7 +79,7 @@
         grid.RowCellList.Last().Add(new GridCellDto { Text = "false", CellEnum = GridCellEnum.FieldCheckbox });
         grid.RowCellList.Last().Add(new GridCellDto { Text = "(Select All)", CellEnum = GridCellEnum.Field });
         // Data
-        var list = memoryDb.LoadHeader(grid);
+        var list = memoryDb.LoadHeader(grid, parentCell);
         foreach (var item in list)
         {
             grid.RowCellList.Add(new List<GridCellDto>());
@@ -143,27 +146,35 @@
 
     private GridDto SaveHeader(GridDto grid)
     {
-        return Load(new GridDto { GridName = grid.GridName });
+        return Load(new GridDto { GridName = grid.GridName }, null, null);
     }
 
-    private GridDto SaveAutocomplete(GridDto grid)
+    /// <summary>
+    /// Returns parent grid. User clicked entry on autocomplete lookup.
+    /// </summary>
+    private GridDto SaveAutocomplete(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
-        return Load(new GridDto { GridName = grid.GridName });
+        var cell = parentGrid?.RowCellList?.SelectMany(item => item).Where(item => item.FieldName == parentCell?.FieldName && item.DataRowIndex == parentCell?.DataRowIndex).FirstOrDefault(); // TODO 
+        if (cell != null)
+        {
+            cell.TextModified = "Selected Value!";
+        }
+        return parentGrid!; // Load(new GridDto { GridName = grid.GridName }, null);
     }
 
-    public GridDto Save(GridDto grid)
+    public GridDto Save(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
     {
-        if (grid.ParentCell == null)
+        if (parentCell == null)
         {
             return SaveData(grid);
         }
-        if (grid.ParentCell?.CellEnum == GridCellEnum.Header)
+        if (parentCell?.CellEnum == GridCellEnum.Header)
         {
             return SaveHeader(grid);
         }
-        if (grid.ParentCell?.CellEnum == GridCellEnum.FieldAutocomplete)
+        if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
         {
-            return SaveAutocomplete(grid);
+            return SaveAutocomplete(grid, parentCell, parentGrid);
         }
         return grid;
     }
@@ -210,11 +221,6 @@ public class GridDto
     /// (Row, Cell)
     /// </summary>
     public List<List<GridCellDto>>? RowCellList { get; set; }
-
-    /// <summary>
-    /// Gets or sets ParentCell. This is the origin cell which opened this lookup grid.
-    /// </summary>
-    public GridCellDto? ParentCell { get; set; }
 
     public GridStateDto? State { get; set; }
 }

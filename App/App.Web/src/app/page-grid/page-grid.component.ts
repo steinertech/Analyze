@@ -170,7 +170,7 @@ export class PageGridComponent {
         // Button Ok (Lookup)
         case GridCellEnum.ButtonLookupOk: {
           if (this.parent?.grid) {
-            this.serverApi.commandGridSave(this.grid).subscribe(value => {
+            this.serverApi.commandGridSave(this.grid, this.parent.lookupCell, this.parent.grid).subscribe(value => {
               if (this.parent) {
                 this.parent.grid = value
                 this.parent.lookupClose()
@@ -211,8 +211,7 @@ export class PageGridComponent {
       }
       if (this.lookupCell) {
         this.lookupGrid = { gridName: this.grid?.gridName }
-        this.lookupGrid.parentCell = cell
-        this.serverApi.commandGridLoad(this.lookupGrid).subscribe(value => this.lookupGrid = value);
+        this.serverApi.commandGridLoad(this.lookupGrid, this.lookupCell, this.grid).subscribe(value => this.lookupGrid = value);
       }
     }
   }

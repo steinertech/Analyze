@@ -50,13 +50,13 @@ public class MemoryDb
         return result;
     }
 
-    public List<HeaderDataRowDto> LoadHeader(GridDto grid)
+    public List<HeaderDataRowDto> LoadHeader(GridDto grid, GridCellDto parentCell)
     {
         var result = new List<HeaderDataRowDto>();
-        if (grid.ParentCell?.FieldName != null)
+        if (parentCell.FieldName != null)
         {
             var query = productList.AsQueryable();
-            result = query.Select(grid.ParentCell.FieldName).ToDynamicList().Select(item => ((object)item)?.ToString()).Distinct().Select(item => new HeaderDataRowDto { Text = item }).ToList();
+            result = query.Select(parentCell.FieldName).ToDynamicList().Select(item => ((object)item)?.ToString()).Distinct().Select(item => new HeaderDataRowDto { Text = item }).ToList();
         }
         result = Load(result, grid);
         return result;
