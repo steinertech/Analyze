@@ -76,6 +76,8 @@ export enum GridCellEnum {
   Filter = 10,
   FieldCheckbox = 11,
   FieldAutocomplete = 12,
+  ButtonSelectMulti = 13,
+  ButtonSelectMultiAll = 14,
 }
 
 export class GridDto {
@@ -96,6 +98,7 @@ export class GridStateDto {
   public filterList?: GridStateFilterDto[]
   public isMouseEnterList?: (boolean | null)[]
   public isSelectList?: (boolean | null)[]
+  public isSelectMultiList?: (boolean | null)[]
 }
 
 export class GridStateSortDto {

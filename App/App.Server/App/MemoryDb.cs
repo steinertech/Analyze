@@ -29,7 +29,7 @@ public class MemoryDb
         {
             foreach (var filter in grid.State.FilterList)
             {
-                query = query.Where($"Convert.ToString({filter.FieldName}).ToLower().Contains(@0)", filter.Text.ToLower());
+                query = query.Where($"Convert.ToString({filter.FieldName}).ToLower().Contains(@0)", filter.Text.ToLower()); // TODO multiple filter returns empty!
             }
         }
         // Sort

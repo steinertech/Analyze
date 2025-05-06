@@ -85,11 +85,12 @@
         grid.RowCellList.Last().Add(new GridCellDto { Text = "(Select All)", CellEnum = GridCellEnum.Field });
         // Data
         var list = memoryDb.LoadHeader(grid, parentCell);
-        foreach (var item in list)
+        for (int i = 0; i < list.Count; i++)
         {
+            var item = list[i];
             grid.RowCellList.Add(new List<GridCellDto>());
-            grid.RowCellList.Last().Add(new GridCellDto { Text = "true", CellEnum = GridCellEnum.FieldCheckbox });
-            grid.RowCellList.Last().Add(new GridCellDto { Text = item.Text, CellEnum = GridCellEnum.Field });
+            grid.RowCellList.Last().Add(new GridCellDto { Text = "true", DataRowIndex = i, CellEnum = GridCellEnum.ButtonSelectMulti });
+            grid.RowCellList.Last().Add(new GridCellDto { Text = item.Text, DataRowIndex = i, FieldName = parentCell.FieldName, CellEnum = GridCellEnum.Field });
         }
         grid.RowCellList.Add(new List<GridCellDto>());
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupCancel });
@@ -153,9 +154,38 @@
         return grid;
     }
 
-    private GridDto SaveHeader(GridDto grid)
+    private GridDto SaveHeader(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
-        return Load(new GridDto { GridName = grid.GridName }, null, null);
+        if (parentGrid.State == null)
+        {
+            parentGrid.State = new GridStateDto();
+        }
+        if (parentGrid.State.FilterList == null)
+        {
+            parentGrid.State.FilterList = new List<GridStateFilterDto>();
+        }
+        parentGrid.State.FilterList.Clear();
+        if (grid.State?.IsSelectMultiList != null)
+        {
+            for (int dataRowIndex = 0; dataRowIndex < grid.State.IsSelectMultiList.Count; dataRowIndex++)
+            {
+                var isSelect = grid.State.IsSelectMultiList[dataRowIndex];
+                if (isSelect == true)
+                {
+                    var cell = grid.RowCellList?.SelectMany(item => item).Where(item => item.DataRowIndex == dataRowIndex && item.FieldName != null).FirstOrDefault();
+                    if (cell != null)
+                    {
+                        var fieldName = cell.FieldName;
+                        var text = cell.Text;
+                        if (fieldName != null)
+                        {
+                            parentGrid.State.FilterList.Add(new GridStateFilterDto { FieldName = fieldName, Text = text }); // TODO Filter Text = empty
+                        }
+                    }
+                }
+            }
+        }
+        return Load(parentGrid, null, null);
     }
 
     /// <summary>
@@ -177,9 +207,9 @@
         {
             return SaveData(grid);
         }
-        if (parentCell?.CellEnum == GridCellEnum.Header)
+        if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
         {
-            return SaveHeader(grid);
+            return SaveHeader(grid, parentCell, parentGrid);
         }
         if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
         {
@@ -266,6 +296,11 @@ public class GridStateDto
     /// (DataRowIndex)
     /// </summary>
     public List<bool?>? IsSelectList { get; set; }
+
+    /// <summary>
+    /// (DataRowIndex)
+    /// </summary>
+    public List<bool?>? IsSelectMultiList { get; set; }
 }
 
 public class GridStateSortDto
@@ -316,7 +351,9 @@ public enum GridCellEnum
     ButtonLookupCancel = 8,
     ButtonLookupSort = 9,
     FieldCheckbox = 11,
-    FieldAutocomplete = 12
+    FieldAutocomplete = 12,
+    ButtonSelectMulti = 13,
+    ButtonSelectMultiAll = 14,
 }
 
 public class GridConfigFieldDto

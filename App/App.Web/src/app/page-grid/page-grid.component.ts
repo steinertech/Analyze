@@ -45,6 +45,14 @@ export class PageGridComponent {
       case GridCellEnum.FieldAutocomplete: {
         return cell.textModified ?? cell.text
       }
+      // Button SelectMulti
+      case GridCellEnum.ButtonSelectMulti: {
+        if (this.grid?.state?.isSelectMultiList && cell.dataRowIndex != undefined) {
+          return this.grid?.state?.isSelectMultiList[cell.dataRowIndex] ? 'true' : 'false'
+        } else {
+          return 'false'
+        }
+      }
     }
     return undefined
   }
@@ -86,6 +94,21 @@ export class PageGridComponent {
         case GridCellEnum.FieldCheckbox: {
           let valueText = value ? 'true' : 'false'
           cell.textModified = cell.text != valueText ? valueText : undefined
+          break
+        }
+        // SelectMulti
+        case GridCellEnum.ButtonSelectMulti: {
+          if (this.grid) {
+            if (cell.dataRowIndex != undefined) {
+              if (!this.grid.state) {
+                this.grid.state = {}
+              }
+              if (!this.grid.state.isSelectMultiList) {
+                this.grid.state.isSelectMultiList = []
+              }
+              this.grid.state.isSelectMultiList[cell.dataRowIndex] = value == 'true' ? true : false
+            }
+          }
           break
         }
       }
@@ -134,7 +157,6 @@ export class PageGridComponent {
         }
         this.grid.state.isSelectList = []
         this.grid.state.isSelectList[cell.dataRowIndex] = true
-        console.log('Click')
       }
     }
   }
