@@ -5,10 +5,10 @@
       "name": "App.Server",
       "type": "dotnet",
       "request": "launch",
-      "projectPath": "${workspaceFolder}/App/App.Server/App.Server.csproj"
+      "projectPath": "${workspaceFolder}/App.Server/App.Server.csproj"
     },
     {
-      "command": "npm start --prefix App/App.Web",
+      "command": "npm start --prefix App.Web",
       "name": "App.Web",
       "request": "launch",
       "type": "node-terminal"
