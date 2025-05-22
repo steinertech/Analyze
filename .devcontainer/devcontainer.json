@@ -7,7 +7,7 @@
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {}
 	},
-	"workspaceFolder": "/workspaces/Analyze/App",
+	// "workspaceFolder": "/workspaces/Analyze/App",
 	"customizations": {
 		"vscode": {
 			"extensions": [
@@ -22,7 +22,7 @@
 	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [5000, 5001],
+	"forwardPorts": [7138, 7138],
 	// "portsAttributes": {
 	//		"5001": {
 	//			"protocol": "https"
