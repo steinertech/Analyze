@@ -11,6 +11,7 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
+				"ms-dotnettools.csdevkit" // VS Code Solution Explorer
 			]
 		}
 	},
