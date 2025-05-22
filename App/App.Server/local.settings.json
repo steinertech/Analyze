@@ -4,6 +4,7 @@
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
   },
   "Host": {
+    "LocalHttpPort": 7070,
     "CORS": "*"
   }
 }
