@@ -11,9 +11,6 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"angular.ng-template",
-				"ms-dotnettools.csharp",
-				"ms-azuretools.vscode-azurefunctions"
 			]
 		}
 	},
