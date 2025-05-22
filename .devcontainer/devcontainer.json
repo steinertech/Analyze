@@ -7,7 +7,7 @@
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {}
 	},
-	// "workspaceFolder": "/workspaces/Analyze/App",
+	"workspaceFolder": "/workspaces/Analyze/App",
 	"customizations": {
 		"vscode": {
 			"extensions": [
