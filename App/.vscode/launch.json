@@ -3,6 +3,9 @@
   "configurations": [
     {
       "name": "App.Server",
+      // "type": "coreclr",
+      // "request": "attach",
+      // "processId": "${command:azureFunctions.pickProcess}"
       "type": "dotnet",
       "request": "launch",
       "projectPath": "${workspaceFolder}/App.Server/App.Server.csproj",
