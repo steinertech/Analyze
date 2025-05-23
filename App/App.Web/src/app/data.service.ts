@@ -24,10 +24,23 @@ export class DataService {
     return result
   }
 
+  private isLocalhostGitHubCodeSpace() {
+    let result = false
+    if (this.isWindow()) {
+      let hostname = window.location.hostname
+      result =
+        hostname.endsWith('github.dev') // Running on GitHub CodeSpace
+    }
+    return result
+  }
+
   public serverUrl() {
     let result = "https://stc001appfunction.azurewebsites.net/api/data"
     if (this.isLocalhost()) {
       result = "http://localhost:7138/api/data";
+    }
+    if (this.isLocalhostGitHubCodeSpace()) {
+      result = 'https://' + window.location.hostname.replace('4200', '7138') + '/api/data'
     }
     return result
   }

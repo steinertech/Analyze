@@ -1,0 +1,10 @@
+{
+    "dotnet.defaultSolution": "App.sln",
+    "workbench.preferredDarkColorTheme": "Default Dark Modern",
+    "files.autoSave": "off",
+    // "azureFunctions.deploySubpath": "App.Server/bin/Release/net9.0/publish",
+    "azureFunctions.projectLanguage": "C#",
+    "azureFunctions.projectRuntime": "~4",
+    "debug.internalConsoleOptions": "neverOpen",
+    // "azureFunctions.preDeployTask": "publish (functions)",
+}

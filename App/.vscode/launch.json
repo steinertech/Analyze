@@ -3,24 +3,19 @@
   "configurations": [
     {
       "name": "App.Server",
+      // "type": "coreclr",
+      // "request": "attach",
+      // "processId": "${command:azureFunctions.pickProcess}"
       "type": "dotnet",
       "request": "launch",
-      "projectPath": "${workspaceFolder}/App.Server/App.Server.csproj"
+      "projectPath": "${workspaceFolder}/App.Server/App.Server.csproj",
     },
     {
-      "command": "npm start --prefix App.Web",
       "name": "App.Web",
+      "type": "chrome",
       "request": "launch",
-      "type": "node-terminal"
+      "preLaunchTask": "npm: start",
+      "url": "http://localhost:4200/"
     }
-  ],
-  "compounds": [
-    {
-      "name": "App.Server/App.Web",
-      "configurations": [
-        "App.Server",
-        "App.Web"
-      ],
-      "stopAll": true
-    }
-  }
+  ]
+}
