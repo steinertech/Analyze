@@ -16,16 +16,6 @@
       "request": "launch",
       "preLaunchTask": "npm: start",
       "url": "http://localhost:4200/"
-    },
-  ],
-  "compounds": [
-    {
-      "name": "App.Server/App.Web",
-      "configurations": [
-        "App.Server",
-        "App.Web"
-      ],
-      "stopAll": true
     }
   ]
 }

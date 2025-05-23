@@ -22,14 +22,6 @@
       "options": {
         "cwd": "${workspaceFolder}/App.Web"
       }
-    },
-    {
-      "type": "npm",
-      "script": "version",
-      "isBackground": true,
-      "options": {
-        "cwd": "${workspaceFolder}/App.Server"
-      }
     }
   ]
 }
