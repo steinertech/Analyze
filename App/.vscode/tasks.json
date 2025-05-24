@@ -20,7 +20,7 @@
         }
       },
       "options": {
-        "cwd": "${workspaceFolder}/App.Web"
+        "cwd": "${workspaceFolder}/App.Web" // SubFolder
       }
     }
   ]
