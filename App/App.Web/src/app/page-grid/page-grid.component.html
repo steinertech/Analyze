@@ -1,6 +1,5 @@
-<!--
-RowCellList={{grid | json}}
--->
+FilterList={{grid?.state?.filterList | json}};
+FilterMultiList={{grid?.state?.filterMultiList | json}}
 <table style="width:100%;">
   @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
@@ -35,6 +34,11 @@ RowCellList={{grid | json}}
       }
       @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == true) {
       &darr;
+      }
+      @if (isFilterMulti(cell.fieldName)) {
+      <svg style="display: inline;" width="1em" height="1em" viewBox="-8 -10 100 120">
+        <path d="m 0,0 30,45 0,30 10,15 0,-45 30,-45 Z"></path>
+      </svg>
       }
       <button (click)="clickLookup(cell)">▼</button>
       }

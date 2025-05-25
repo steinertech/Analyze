@@ -11,9 +11,9 @@
             LoadData(grid);
         }
         // Header
-        if (parentCell?.CellEnum == GridCellEnum.Header)
+        if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
         {
-            LoadHeader(grid, parentCell);
+            LoadHeaderLookup(grid, parentCell, parentGrid);
         }
         // Autocomplete
         if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete)
@@ -73,7 +73,7 @@
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonSave });
     }
 
-    private void LoadHeader(GridDto grid, GridCellDto parentCell)
+    private void LoadHeaderLookup(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         grid.RowCellList = [];
         grid.RowCellList.Add(new List<GridCellDto>());
@@ -83,14 +83,23 @@
         grid.RowCellList.Add(new List<GridCellDto>());
         grid.RowCellList.Last().Add(new GridCellDto { Text = "false", CellEnum = GridCellEnum.ButtonSelectMultiAll });
         grid.RowCellList.Last().Add(new GridCellDto { Text = "(Select All)", CellEnum = GridCellEnum.Field });
+        // State
+        grid.State = new();
+        grid.State.IsSelectMultiList = new();
         // Data
-        var list = memoryDb.LoadHeader(grid, parentCell);
+        var list = memoryDb.LoadHeaderLookup(grid, parentCell);
+        grid.State.IsSelectMultiList.AddRange(new bool?[list.Count]);
+        var filterMulti = parentGrid.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == parentCell.FieldName);
         for (int i = 0; i < list.Count; i++)
         {
             var item = list[i];
             grid.RowCellList.Add(new List<GridCellDto>());
-            grid.RowCellList.Last().Add(new GridCellDto { Text = "true", DataRowIndex = i, CellEnum = GridCellEnum.ButtonSelectMulti });
-            grid.RowCellList.Last().Add(new GridCellDto { Text = item.Text, DataRowIndex = i, FieldName = parentCell.FieldName, CellEnum = GridCellEnum.Field });
+            grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = i, CellEnum = GridCellEnum.ButtonSelectMulti });
+            grid.RowCellList.Last().Add(new GridCellDto { Text = item.Text, DataRowIndex = i, CellEnum = GridCellEnum.Field });
+            if (filterMulti != null && item.Text != null && filterMulti.TextList.Contains(item.Text))
+            {
+                grid.State.IsSelectMultiList[i] = true;
+            }
         }
         grid.RowCellList.Add(new List<GridCellDto>());
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupCancel });
@@ -154,34 +163,51 @@
         return grid;
     }
 
-    private GridDto SaveHeader(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private GridDto SaveHeaderLookup(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         if (parentGrid.State == null)
         {
             parentGrid.State = new GridStateDto();
         }
-        if (parentGrid.State.FilterList == null)
+        if (parentGrid.State.FilterList != null)
         {
-            parentGrid.State.FilterList = new List<GridStateFilterDto>();
+            parentGrid.State.FilterList.Clear();
         }
-        parentGrid.State.FilterList.Clear();
         if (grid.State?.IsSelectMultiList != null)
         {
-            for (int dataRowIndex = 0; dataRowIndex < grid.State.IsSelectMultiList.Count; dataRowIndex++)
+            if (parentGrid.State.FilterMultiList == null)
             {
-                var isSelect = grid.State.IsSelectMultiList[dataRowIndex];
-                if (isSelect == true)
+                parentGrid.State.FilterMultiList = new();
+            }
+            var fieldName = parentCell.FieldName;
+            if (fieldName != null) 
+            {
+                var filterMulti = parentGrid.State.FilterMultiList.SingleOrDefault(item => item.FieldName == fieldName);
+                if (filterMulti == null)
                 {
-                    var cell = grid.RowCellList?.SelectMany(item => item).Where(item => item.DataRowIndex == dataRowIndex && item.FieldName != null).FirstOrDefault();
-                    if (cell != null)
+                    filterMulti = new() { FieldName = fieldName, TextList = new() };
+                    parentGrid.State.FilterMultiList.Add(filterMulti);
+                }
+                filterMulti.TextList.Clear();
+                for (int dataRowIndex = 0; dataRowIndex < grid.State.IsSelectMultiList.Count; dataRowIndex++)
+                {
+                    var isSelect = grid.State.IsSelectMultiList[dataRowIndex];
+                    if (isSelect == true)
                     {
-                        var fieldName = cell.FieldName;
-                        var text = cell.Text;
-                        if (fieldName != null)
+                        var cell = grid.RowCellList?.SelectMany(item => item).Where(item => item.CellEnum == GridCellEnum.Field && item.DataRowIndex == dataRowIndex).SingleOrDefault();
+                        if (cell != null)
                         {
-                            parentGrid.State.FilterList.Add(new GridStateFilterDto { FieldName = fieldName, Text = text }); // TODO Filter Text = empty
+                            var text = cell.Text;
+                            if (text != null)
+                            {
+                                filterMulti.TextList.Add(text);
+                            }
                         }
                     }
+                }
+                if (filterMulti.TextList.Count == 0)
+                {
+                    parentGrid.State.FilterMultiList.Remove(filterMulti);
                 }
             }
         }
@@ -209,7 +235,7 @@
         }
         if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
         {
-            return SaveHeader(grid, parentCell, parentGrid);
+            return SaveHeaderLookup(grid, parentCell, parentGrid);
         }
         if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
         {
@@ -285,7 +311,15 @@ public class GridStateDto
 {
     public GridStateSortDto? Sort { get; set; } // public List<GridStateSortDto> SortList { get; set; }
 
+    /// <summary>
+    /// (FieldName)
+    /// </summary>
     public List<GridStateFilterDto>? FilterList { get; set; }
+
+    /// <summary>
+    /// (FieldName)
+    /// </summary>
+    public List<GridStateFilterMultiDto>? FilterMultiList { get; set; }
 
     /// <summary>
     /// (DataRowIndex)
@@ -315,6 +349,13 @@ public class GridStateFilterDto
     public string FieldName { get; set; } = default!;
 
     public string Text { get; set; } = default!;
+}
+
+public class GridStateFilterMultiDto
+{
+    public string FieldName { get; set; } = default!;
+
+    public List<string> TextList { get; set; } = default!;
 }
 
 public class GridCellDto

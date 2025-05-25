@@ -106,6 +106,7 @@ export class GridDto {
 export class GridStateDto {
   public sort?: GridStateSortDto
   public filterList?: GridStateFilterDto[]
+  public filterMultiList?: GridStateFilterMultiDto[]
   public isMouseEnterList?: (boolean | null)[]
   public isSelectList?: (boolean | null)[]
   public isSelectMultiList?: (boolean | null)[]
@@ -119,6 +120,11 @@ export class GridStateSortDto {
 export class GridStateFilterDto {
   public fieldName!: string
   public text!: string
+}
+
+export class GridStateFilterMultiDto {
+  public fieldName!: string
+  public textList!: string[]
 }
 
 @Injectable({

@@ -54,13 +54,13 @@ public class MemoryDb
         return result;
     }
 
-    public List<HeaderDataRowDto> LoadHeader(GridDto grid, GridCellDto parentCell)
+    public List<HeaderLookupDataRowDto> LoadHeaderLookup(GridDto grid, GridCellDto parentCell)
     {
-        var result = new List<HeaderDataRowDto>();
+        var result = new List<HeaderLookupDataRowDto>();
         if (parentCell.FieldName != null)
         {
             var query = productList.AsQueryable();
-            result = query.Select(parentCell.FieldName).ToDynamicList().Select(item => ((object)item)?.ToString()).Distinct().Select(item => new HeaderDataRowDto { Text = item }).ToList();
+            result = query.Select(parentCell.FieldName).ToDynamicList().Select(item => ((object)item)?.ToString()).Distinct().Select(item => new HeaderLookupDataRowDto { Text = item }).ToList();
         }
         result = Load(result, grid);
         return result;

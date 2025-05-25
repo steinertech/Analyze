@@ -274,4 +274,11 @@ export class PageGridComponent {
     this.lookupCell = undefined
     this.lookupGrid = undefined
   }
+
+  isFilterMulti(fieldName?: string) {
+    if (fieldName) {
+      return (this.grid?.state?.filterMultiList?.map(item => item.fieldName).indexOf(fieldName) ?? - 1) >= 0
+    }
+    return false
+  }
 }
