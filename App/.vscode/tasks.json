@@ -20,7 +20,7 @@
         }
       },
       "options": {
-        "cwd": "${workspaceFolder}/App.Web" // SubFolder
+        "cwd": "${workspaceFolder}/App.Web" // Angular Subfolder
       }
     }
   ]

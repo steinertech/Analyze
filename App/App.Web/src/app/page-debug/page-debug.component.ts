@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { PageNavComponent } from '../page-nav/page-nav.component';
+import { DataService, NotificationEnum } from '../data.service';
 
 @Component({
   selector: 'app-page-debug',
@@ -8,5 +9,10 @@ import { PageNavComponent } from '../page-nav/page-nav.component';
   styleUrl: './page-debug.component.css'
 })
 export class PageDebugComponent {
+  constructor(private dataService : DataService) {
+  }
 
+  click() {
+    this.dataService.notificationAdd(NotificationEnum.Info, "Hello Notification");
+  }
 }
