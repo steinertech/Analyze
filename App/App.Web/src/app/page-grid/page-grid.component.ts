@@ -111,6 +111,29 @@ export class PageGridComponent {
           }
           break
         }
+        // SelectMultiAll
+        case GridCellEnum.ButtonSelectMultiAll: {
+          if (this.grid) {
+            if (!this.grid.state) {
+              this.grid.state = {}
+            }
+            if (!this.grid.state.isSelectMultiList) {
+              this.grid.state.isSelectMultiList = []
+            }
+            if (this.grid.rowCellList) {
+              for (let rowIndex = 0; rowIndex < this.grid.rowCellList.length; rowIndex++) {
+                let row = this.grid.rowCellList[rowIndex]
+                for (let cellIndex = 0; cellIndex < row.length; cellIndex++) {
+                  let cell = row[cellIndex]
+                  if (cell.cellEnum == GridCellEnum.ButtonSelectMulti && cell.dataRowIndex != undefined) {
+                    this.grid.state.isSelectMultiList[cell.dataRowIndex] = value == 'true'
+                  }
+                }
+              }
+            }
+          }
+          break
+        }
       }
     }
   }

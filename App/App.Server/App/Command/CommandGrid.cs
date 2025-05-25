@@ -81,7 +81,7 @@
         grid.RowCellList.Add(new List<GridCellDto>());
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Filter, FieldName = "Text" }); // Search field
         grid.RowCellList.Add(new List<GridCellDto>());
-        grid.RowCellList.Last().Add(new GridCellDto { Text = "false", CellEnum = GridCellEnum.FieldCheckbox });
+        grid.RowCellList.Last().Add(new GridCellDto { Text = "false", CellEnum = GridCellEnum.ButtonSelectMultiAll });
         grid.RowCellList.Last().Add(new GridCellDto { Text = "(Select All)", CellEnum = GridCellEnum.Field });
         // Data
         var list = memoryDb.LoadHeader(grid, parentCell);
@@ -257,9 +257,9 @@ public class GridDto
 {
     public string GridName { get; set; } = default!;
 
-    public List<object>? DataRowList;
+    // public List<object>? DataRowList;
 
-    public GridConfigDto? GridConfig;
+    // public GridConfigDto? GridConfig;
 
     /// <summary>
     /// (Row, Cell)
