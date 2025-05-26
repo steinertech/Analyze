@@ -84,7 +84,10 @@
         grid.RowCellList.Last().Add(new GridCellDto { Text = "false", CellEnum = GridCellEnum.ButtonSelectMultiAll });
         grid.RowCellList.Last().Add(new GridCellDto { Text = "(Select All)", CellEnum = GridCellEnum.Field });
         // State
-        grid.State = new();
+        if (grid.State == null)
+        {
+            grid.State = new();
+        }
         grid.State.IsSelectMultiList = new();
         // Data
         var list = memoryDb.LoadHeaderLookup(grid, parentCell);
@@ -382,18 +385,60 @@ public class GridCellDto
 public enum GridCellEnum
 {
     None = 0,
+
     Field = 1,
+    /// <summary>
+    /// Column header.
+    /// </summary>
     Header = 2,
+
+    /// <summary>
+    /// Search field.
+    /// </summary>
     Filter = 10,
+
+    /// <summary>
+    /// Data grid cancel button.
+    /// </summary>
     ButtonCancel = 3,
+
+    /// <summary>
+    /// Data grid save button.
+    /// </summary>
     ButtonSave = 4,
+
     FieldDropdown = 5,
+
+    /// <summary>
+    /// Lookup window ok button.
+    /// </summary>
     ButtonLookupOk = 7,
+
+    /// <summary>
+    /// Lookup window cancel button.
+    /// </summary>
     ButtonLookupCancel = 8,
+
+    /// <summary>
+    /// Lookup window sort button.
+    /// </summary>
     ButtonLookupSort = 9,
+
+    /// <summary>
+    /// Checkbox field.
+    /// </summary>
     FieldCheckbox = 11,
+
     FieldAutocomplete = 12,
+
+    /// <summary>
+    /// Select row button.
+    /// </summary>
     ButtonSelectMulti = 13,
+
+    /// <summary>
+    /// Select all row button.
+    /// </summary>
     ButtonSelectMultiAll = 14,
 }
 

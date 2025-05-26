@@ -69,9 +69,9 @@ export enum GridCellEnum {
   Field = 1,
   /** Column header */
   Header = 2,
-  /** Grid cancel button */
+  /** Data grid cancel button */
   ButtonCancel = 3,
-  /** Grid save button */
+  /** Data grid save button */
   ButtonSave = 4,
   FieldDropdown = 5,
   /** Lookup window ok button */

@@ -19,13 +19,13 @@ export class PageGridComponent {
 
   GridCellEnum = GridCellEnum
 
-  @Input() grid?: GridDto
+  @Input() grid?: GridDto // Data grid
 
   lookupCell?: GridCellDto // Cell with open lookup
 
-  @Input() lookupGrid?: GridDto
+  @Input() lookupGrid?: GridDto // Lookup window
 
-  @Input() parent?: PageGridComponent
+  @Input() parent?: PageGridComponent // Lookup parent
 
   cellTextGet(cell: GridCellDto) {
     switch (cell.cellEnum) {
@@ -87,7 +87,7 @@ export class PageGridComponent {
           } else {
             this.grid.state.filterList[index].text = value
           }
-          this.serverApi.commandGridLoad(this.grid).subscribe(value => this.grid = value); // Reload // TODO Debounce
+          this.serverApi.commandGridLoad(this.grid, this.parent?.lookupCell, this.parent?.grid).subscribe(value => this.grid = value); // Reload // TODO Debounce
           break
         }
         // CheckBox
