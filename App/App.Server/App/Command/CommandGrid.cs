@@ -10,7 +10,7 @@
         {
             LoadData(grid);
         }
-        // Header
+        // Header Lookup
         if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
         {
             LoadHeaderLookup(grid, parentCell, parentGrid);
