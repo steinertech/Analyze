@@ -29,7 +29,16 @@ public class MemoryDb
         {
             foreach (var filter in grid.State.FilterList)
             {
-                query = query.Where($"Convert.ToString({filter.FieldName}).ToLower().Contains(@0)", filter.Text.ToLower()); // TODO multiple filter returns empty!
+                query = query.Where($"Convert.ToString({filter.FieldName}).ToLower().Contains(@0)", filter.Text.ToLower());
+            }
+        }
+        // FilterMany
+        if (grid.State?.FilterMultiList != null)
+        {
+            foreach (var filterMulti in grid.State.FilterMultiList)
+            {
+                var textListLower = filterMulti.TextList.Select(item => item.ToLower()).ToList();
+                query = query.Where($"@0.Contains(Convert.ToString({filterMulti.FieldName}).ToLower())", textListLower);
             }
         }
         // Sort
