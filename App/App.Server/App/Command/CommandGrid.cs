@@ -20,15 +20,23 @@
         {
             LoadAutocomplete(grid);
         }
+        // Column Lookup
+        if (parentCell?.CellEnum == GridCellEnum.ButtonColumn && parentGrid != null)
+        {
+            LoadColumnLookup(grid, parentCell, parentGrid);
+        }
         return grid;
     }
 
     private void LoadData(GridDto grid)
     {
         grid.RowCellList = [];
-        var propertyInfoList = typeof(ProductDto).GetProperties();
+        grid.RowCellList.Add(new List<GridCellDto>());
+        // Column
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonColumn });
         // Header
         grid.RowCellList.Add(new List<GridCellDto>());
+        var propertyInfoList = typeof(ProductDto).GetProperties();
         foreach (var propertyInfo in propertyInfoList)
         {
             grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Header, Text = propertyInfo.Name, FieldName = propertyInfo.Name });
@@ -69,8 +77,41 @@
             }
         }
         grid.RowCellList.Add(new List<GridCellDto>());
+        // Cancel
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonCancel });
+        // Save
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonSave });
+    }
+
+    private void LoadColumnLookup(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    {
+        grid.RowCellList = [];
+        grid.RowCellList.Add(new List<GridCellDto>());
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Filter, FieldName = "Text" }); // Search field
+        grid.RowCellList.Add(new List<GridCellDto>());
+        grid.RowCellList.Last().Add(new GridCellDto { Text = "false", CellEnum = GridCellEnum.ButtonSelectMultiAll });
+        grid.RowCellList.Last().Add(new GridCellDto { Text = "(Select All)", CellEnum = GridCellEnum.Field });
+        // State
+        if (grid.State == null)
+        {
+            grid.State = new();
+        }
+        grid.State.IsSelectMultiList = new();
+        // Data
+        var list = memoryDb.LoadColumnLookup(grid, parentCell);
+        grid.State.IsSelectMultiList.AddRange(new bool?[list.Count]);
+        for (int i = 0; i < list.Count; i++)
+        {
+            var item = list[i];
+            grid.RowCellList.Add(new List<GridCellDto>());
+            grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = i, CellEnum = GridCellEnum.ButtonSelectMulti });
+            grid.RowCellList.Last().Add(new GridCellDto { Text = item.FieldName, DataRowIndex = i, CellEnum = GridCellEnum.Field });
+        }
+        grid.RowCellList.Add(new List<GridCellDto>());
+        // Cancel
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupCancel });
+        // Ok
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupOk });
     }
 
     private void LoadHeaderLookup(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
@@ -105,7 +146,9 @@
             }
         }
         grid.RowCellList.Add(new List<GridCellDto>());
+        // Cancel
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupCancel });
+        // Ok
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupOk });
     }
 
@@ -440,6 +483,11 @@ public enum GridCellEnum
     /// Select all row button.
     /// </summary>
     ButtonSelectMultiAll = 14,
+
+    /// <summary>
+    /// Button to open column select lookup window.
+    /// </summary>
+    ButtonColumn = 15,
 }
 
 public class GridConfigFieldDto

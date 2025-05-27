@@ -184,7 +184,8 @@ export class PageGridComponent {
     }
   }
 
-  buttonClick(cell: GridCellDto) {
+  /** Default click for GridCell */
+  click(cell: GridCellDto) {
     if (this.grid) {
       switch (cell.cellEnum) {
         // Header
@@ -230,6 +231,21 @@ export class PageGridComponent {
                 this.parent.lookupClose()
               }
             });
+          }
+          break
+        }
+        // Button Column
+        case GridCellEnum.ButtonColumn: {
+          if (this.grid) {
+            if (this.lookupCell == cell) {
+              this.lookupCell = undefined // Lookup close
+            } else {
+              this.lookupCell = cell // Lookup open
+            }
+            if (this.lookupCell) {
+              this.lookupGrid = { gridName: this.grid?.gridName }
+              this.serverApi.commandGridLoad(this.lookupGrid, this.lookupCell, this.grid).subscribe(value => this.lookupGrid = value);
+            }
           }
           break
         }
