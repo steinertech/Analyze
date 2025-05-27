@@ -65,29 +65,20 @@ export class GridCellDto {
 
 export enum GridCellEnum {
   None = 0,
-  /** Data field */
   Field = 1,
-  /** Column header */
   Header = 2,
-  /** Data grid cancel button */
   ButtonCancel = 3,
-  /** Data grid save button */
   ButtonSave = 4,
   FieldDropdown = 5,
-  /** Lookup window ok button */
   ButtonLookupOk = 7,
-  /** Lookup window cancel button */
   ButtonLookupCancel = 8,
   ButtonLookupSort = 9,
-  /** Search field */
   Filter = 10,
-  /** Checkbox field */
   FieldCheckbox = 11,
   FieldAutocomplete = 12,
-  /** Row select button */
   ButtonSelectMulti = 13,
-  /** Select all row button */
   ButtonSelectMultiAll = 14,
+  ButtonColumn = 15
 }
 
 export class GridDto {

@@ -74,6 +74,18 @@ public class MemoryDb
         result = Load(result, grid);
         return result;
     }
+
+    public List<ColumnLookupDataRowDto> LoadColumnLookup(GridDto grid, GridCellDto parentCell)
+    {
+        var result = new List<ColumnLookupDataRowDto>();
+        var propertyInfoList = typeof(ProductDto).GetProperties();
+        foreach (var propertyInfo in propertyInfoList)
+        {
+            result.Add(new() { FieldName = propertyInfo.Name });
+        }
+        result = Load(result, grid);
+        return result;
+    }
 }
 
 public class ProductDto
