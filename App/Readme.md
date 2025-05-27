@@ -5,3 +5,6 @@ Start DevContainer Codespace
 
 # ToDo
 * Check App.Web and App.Server version on every request.
+* Master detail
+* Timesheet component
+* Calendar component 
