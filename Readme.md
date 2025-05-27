@@ -1,4 +1,4 @@
 # Analyze
 
-## DevContainer CodeSpace
-Opens folder /App/
+## DevContainer
+CodeSpace opens project in folder App/
