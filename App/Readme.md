@@ -4,6 +4,7 @@ Start DevContainer Codespace
 * App.Web (**Port 4200**)
 
 # ToDo
+* Lookup Column
 * Check App.Web and App.Server version on every request.
 * Master detail
 * Timesheet component
