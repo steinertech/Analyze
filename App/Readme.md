@@ -6,7 +6,7 @@ Start DevContainer Codespace
 # ToDo
 * Colspan, Rowspan
 * Column order
-* Lookup Column
+* Column lookup [Done]
 * Check App.Web and App.Server version on every request.
 * Master detail
 * Timesheet component
