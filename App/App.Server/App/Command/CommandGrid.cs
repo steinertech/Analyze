@@ -3,32 +3,32 @@
     /// <summary>
     /// Returns loaded grid.
     /// </summary>
-    public GridDto Load(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
+    public GridDto DataLoad(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
     {
         // Data
         if (parentCell == null)
         {
-            LoadData(grid);
+            DataLoad(grid);
         }
         // Header Lookup
         if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
         {
-            LoadHeaderLookup(grid, parentCell, parentGrid);
+            LookupHeaderLoad(grid, parentCell, parentGrid);
         }
         // Autocomplete
         if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete)
         {
-            LoadAutocomplete(grid);
+            LookupAutocompleteLoad(grid);
         }
         // Column Lookup
         if (parentCell?.CellEnum == GridCellEnum.ButtonColumn && parentGrid != null)
         {
-            LoadColumnLookup(grid, parentCell, parentGrid);
+            LookupColumnLoad(grid, parentCell, parentGrid);
         }
         return grid;
     }
 
-    private void LoadData(GridDto grid)
+    private void DataLoad(GridDto grid)
     {
         var propertyInfoList = typeof(ProductDto).GetProperties().ToList();
         if (grid.State?.ColumnList?.Count > 0)
@@ -65,7 +65,7 @@
                 var text = (string?)Convert.ChangeType(value, typeof(string));
                 if (propertyInfo.Name == nameof(ProductDto.StorageFileName))
                 {
-                    var dropDownList = LoadDropDown(grid.GridName, propertyInfo.Name);
+                    var dropDownList = DropDownLoad(grid.GridName, propertyInfo.Name);
                     grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, DropDownList = dropDownList, CellEnum = GridCellEnum.FieldDropdown });
                 }
                 else
@@ -88,7 +88,7 @@
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonSave });
     }
 
-    private void LoadColumnLookup(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private void LookupColumnLoad(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         grid.RowCellList = [];
         grid.RowCellList.Add(new List<GridCellDto>());
@@ -127,7 +127,7 @@
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupOk });
     }
 
-    private void LoadHeaderLookup(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private void LookupHeaderLoad(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         grid.RowCellList = [];
         grid.RowCellList.Add(new List<GridCellDto>());
@@ -165,7 +165,7 @@
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupOk });
     }
 
-    private void LoadAutocomplete(GridDto grid)
+    private void LookupAutocompleteLoad(GridDto grid)
     {
         grid.RowCellList = [];
         grid.RowCellList.Add(new List<GridCellDto>());
@@ -181,7 +181,7 @@
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupOk });
     }
 
-    private void SaveDataMemoryDb(GridDto grid)
+    private GridDto DataSave(GridDto grid)
     {
         var dataRowList = memoryDb.Load(grid);
         foreach (var cellList in grid.RowCellList!)
@@ -214,15 +214,10 @@
                 }
             }
         }
-    }
-
-    private GridDto SaveData(GridDto grid)
-    {
-        SaveDataMemoryDb(grid);
         return grid;
     }
 
-    private GridDto SaveHeaderLookup(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private GridDto LookupHeaderSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         if (parentGrid.State == null)
         {
@@ -270,10 +265,10 @@
                 }
             }
         }
-        return Load(parentGrid, null, null);
+        return DataLoad(parentGrid, null, null);
     }
 
-    private GridDto SaveColumnLookup(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private GridDto LookupColumnSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         if (parentGrid.State == null)
         {
@@ -290,13 +285,13 @@
                 i++;
             }
         }
-        return Load(parentGrid, null, null); // TODO Column on lookup. For example filter would be missing.
+        return DataLoad(parentGrid, null, null); // TODO Column on lookup. For example filter would be missing.
     }
 
     /// <summary>
     /// Returns parent grid. User clicked entry on autocomplete lookup.
     /// </summary>
-    private GridDto SaveAutocomplete(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private GridDto LookupAutocompleteSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         var cell = grid.SelectedCell("Text");
         if (cell != null)
@@ -306,19 +301,19 @@
         return parentGrid; // Load(new GridDto { GridName = grid.GridName }, null);
     }
 
-    public GridDto Save(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
+    public GridDto DataSave(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
     {
         if (parentCell == null)
         {
-            return SaveData(grid);
+            return DataSave(grid);
         }
         if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
         {
-            return SaveHeaderLookup(grid, parentCell, parentGrid);
+            return LookupHeaderSave(grid, parentCell, parentGrid);
         }
         if (parentCell?.CellEnum == GridCellEnum.ButtonColumn && parentGrid != null)
         {
-            return SaveColumnLookup(grid, parentCell, parentGrid);
+            return LookupColumnSave(grid, parentCell, parentGrid);
         }
         if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
         {
@@ -327,12 +322,12 @@
                 // Parameter parentCell to parentGrid cell instance
                 parentCell = parentGrid.RowCellList?.SelectMany(item => item).Where(item => item.DataRowIndex == parentCell.DataRowIndex && item.FieldName == parentCell.FieldName).FirstOrDefault() ?? parentCell;
             }
-            return SaveAutocomplete(grid, parentCell, parentGrid);
+            return LookupAutocompleteSave(grid, parentCell, parentGrid);
         }
         return grid;
     }
 
-    private List<string> LoadDropDown(string gridName, string fieldName)
+    private List<string> DropDownLoad(string gridName, string fieldName)
     {
         if (gridName == nameof(ProductDto) && fieldName == nameof(ProductDto.StorageFileName))
         {
