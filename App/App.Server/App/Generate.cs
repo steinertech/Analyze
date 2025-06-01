@@ -27,10 +27,10 @@ public static class ServerApi
                 await new CommandUserSignUp(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<Response>()!).Run(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandGrid) + nameof(CommandGrid.DataLoad):
-                responseDto.Result = new CommandGrid(serviceProvider.GetService<MemoryDb>()!).DataLoad(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![2], jsonOptions));
+                responseDto.Result = new CommandGrid(serviceProvider.GetService<MemoryDb>()!).GridLoad(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![2], jsonOptions));
                 break;
             case nameof(CommandGrid) + nameof(CommandGrid.DataSave):
-                responseDto.Result = new CommandGrid(serviceProvider.GetService<MemoryDb>()!).DataSave(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![2], jsonOptions));
+                responseDto.Result = new CommandGrid(serviceProvider.GetService<MemoryDb>()!).GridSave(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![2], jsonOptions));
                 break;
             default:
                 throw new Exception($"Command not found! ({requestDto.CommandName})");
