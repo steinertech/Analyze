@@ -101,6 +101,12 @@ export class GridStateDto {
   public isMouseEnterList?: (boolean | null)[]
   public isSelectList?: (boolean | null)[]
   public isSelectMultiList?: (boolean | null)[]
+  public columnList?: GridStateColumnDto[]
+}
+
+export class GridStateColumnDto {
+  public fieldName!: string
+  public orderBy!: number
 }
 
 export class GridStateSortDto {

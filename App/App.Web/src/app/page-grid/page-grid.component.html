@@ -1,6 +1,7 @@
-FilterList={{grid?.state?.filterList | json}};
-FilterMultiList={{grid?.state?.filterMultiList | json}};
-IsSelectMultiList={{grid?.state?.isSelectMultiList | json}};
+FilterList={{grid?.state?.filterList | json}};<br>
+FilterMultiList={{grid?.state?.filterMultiList | json}};<br>
+IsSelectMultiList={{grid?.state?.isSelectMultiList | json}};<br>
+ColumnList={{grid?.state?.columnList | json}}<br>
 <table style="width:100%;">
   @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
