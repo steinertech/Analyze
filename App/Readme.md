@@ -4,8 +4,15 @@ Start DevContainer Codespace
 * App.Web (**Port 4200**)
 
 # ToDo
-* Lookup Column
-* Check App.Web and App.Server version on every request.
+* Pagination
 * Master detail
+* Colspan, Rowspan
+* Column order
+* Column lookup [Done]
+* Check App.Web and App.Server version on every request.
 * Timesheet component
 * Calendar component 
+* Check App.Web and App.Server version on every request.
+
+# Misc
+* https://github.com/mui/mui-x

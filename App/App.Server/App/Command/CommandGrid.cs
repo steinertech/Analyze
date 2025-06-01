@@ -20,13 +20,26 @@
         {
             LoadAutocomplete(grid);
         }
+        // Column Lookup
+        if (parentCell?.CellEnum == GridCellEnum.ButtonColumn && parentGrid != null)
+        {
+            LoadColumnLookup(grid, parentCell, parentGrid);
+        }
         return grid;
     }
 
     private void LoadData(GridDto grid)
     {
+        var propertyInfoList = typeof(ProductDto).GetProperties().ToList();
+        if (grid.State?.ColumnList?.Count > 0)
+        {
+            var columnList = grid.State.ColumnList.Select(item => item.FieldName);
+            propertyInfoList = propertyInfoList.Where(item => columnList.Contains(item.Name)).ToList();
+        }
         grid.RowCellList = [];
-        var propertyInfoList = typeof(ProductDto).GetProperties();
+        // Column
+        grid.RowCellList.Add(new List<GridCellDto>());
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonColumn });
         // Header
         grid.RowCellList.Add(new List<GridCellDto>());
         foreach (var propertyInfo in propertyInfoList)
@@ -69,8 +82,49 @@
             }
         }
         grid.RowCellList.Add(new List<GridCellDto>());
+        // Cancel
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonCancel });
+        // Save
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonSave });
+    }
+
+    private void LoadColumnLookup(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    {
+        grid.RowCellList = [];
+        grid.RowCellList.Add(new List<GridCellDto>());
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Filter, FieldName = "Text" }); // Search field
+        grid.RowCellList.Add(new List<GridCellDto>());
+        grid.RowCellList.Last().Add(new GridCellDto { Text = "false", CellEnum = GridCellEnum.ButtonSelectMultiAll });
+        grid.RowCellList.Last().Add(new GridCellDto { Text = "(Select All)", CellEnum = GridCellEnum.Field });
+        // State
+        if (grid.State == null)
+        {
+            grid.State = new();
+        }
+        grid.State.IsSelectMultiList = new();
+        // Data
+        var list = memoryDb.LoadColumnLookup(grid, parentCell);
+        grid.State.IsSelectMultiList.AddRange(new bool?[list.Count]);
+        var columnList = parentGrid.State?.ColumnList?.Select(item => item.FieldName).ToList();
+        for (int i = 0; i < list.Count; i++)
+        {
+            var item = list[i];
+            grid.RowCellList.Add(new List<GridCellDto>());
+            grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = i, CellEnum = GridCellEnum.ButtonSelectMulti });
+            grid.RowCellList.Last().Add(new GridCellDto { Text = item.FieldName, DataRowIndex = i, CellEnum = GridCellEnum.Field });
+            if (columnList != null && columnList.Count >= 0)
+            {
+                if (columnList.Contains(item.FieldName!))
+                {
+                    grid.State.IsSelectMultiList[i] = true;
+                }
+            }
+        }
+        grid.RowCellList.Add(new List<GridCellDto>());
+        // Cancel
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupCancel });
+        // Ok
+        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupOk });
     }
 
     private void LoadHeaderLookup(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
@@ -105,7 +159,9 @@
             }
         }
         grid.RowCellList.Add(new List<GridCellDto>());
+        // Cancel
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupCancel });
+        // Ok
         grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.ButtonLookupOk });
     }
 
@@ -217,6 +273,26 @@
         return Load(parentGrid, null, null);
     }
 
+    private GridDto SaveColumnLookup(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    {
+        if (parentGrid.State == null)
+        {
+            parentGrid.State = new GridStateDto();
+        }
+        parentGrid.State.ColumnList = new();
+        int i = 0;
+        foreach (var cell in grid.RowCellList!.SelectMany(item => item).Where(item => item.CellEnum == GridCellEnum.Field && item.DataRowIndex != null))
+        {
+            var isSelect = grid.State!.IsSelectMultiList![cell.DataRowIndex ?? -1];
+            if (isSelect == true)
+            {
+                parentGrid.State.ColumnList.Add(new GridStateColumnDto { FieldName = cell.Text!, OrderBy = i });
+                i++;
+            }
+        }
+        return Load(parentGrid, null, null); // TODO Column on lookup. For example filter would be missing.
+    }
+
     /// <summary>
     /// Returns parent grid. User clicked entry on autocomplete lookup.
     /// </summary>
@@ -239,6 +315,10 @@
         if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
         {
             return SaveHeaderLookup(grid, parentCell, parentGrid);
+        }
+        if (parentCell?.CellEnum == GridCellEnum.ButtonColumn && parentGrid != null)
+        {
+            return SaveColumnLookup(grid, parentCell, parentGrid);
         }
         if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
         {
@@ -338,6 +418,18 @@ public class GridStateDto
     /// (DataRowIndex)
     /// </summary>
     public List<bool?>? IsSelectMultiList { get; set; }
+
+    /// <summary>
+    /// Gets or sets ColumnList. This is the list columns to display. If null, display all columns.
+    /// </summary>
+    public List<GridStateColumnDto>? ColumnList { get; set; }
+}
+
+public class GridStateColumnDto
+{
+    public string FieldName { get; set; } = default!;
+
+    public int OrderBy {  get; set; }
 }
 
 public class GridStateSortDto
@@ -440,6 +532,11 @@ public enum GridCellEnum
     /// Select all row button.
     /// </summary>
     ButtonSelectMultiAll = 14,
+
+    /// <summary>
+    /// Button to open column select lookup window.
+    /// </summary>
+    ButtonColumn = 15,
 }
 
 public class GridConfigFieldDto
