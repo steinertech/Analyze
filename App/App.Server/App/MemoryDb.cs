@@ -1,4 +1,6 @@
-﻿using System.Linq.Dynamic.Core;
+﻿using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using System.Linq.Dynamic.Core;
 
 public class MemoryDb
 {
@@ -14,6 +16,16 @@ public class MemoryDb
             new ProductDto { Text = "Olive", Price = 90.30 , Amount = 2, City = "Denver" },
             new ProductDto { Text = "Bred", Price = 105.25 , Amount = 3, City = "Boston" },
         };
+
+        var fileName = UtilServer.FolderNameAppServer() + "Airport.xlsx";
+
+        using var document = SpreadsheetDocument.Open(fileName, isEditable: false);
+        var list = UtilOpenXml.List(document.WorkbookPart);
+        var worksheet = UtilOpenXml.ExcelWorksheet(document, "airports");
+        var rowList = list.OfType<Row>().Where(item => item.Parent?.Parent == worksheet).ToList();
+        var textList = UtilOpenXml.ExcelSharedStringTableGet(document);
+
+        productList.First().Text += "; AirportCount=" + rowList.Count;
     }
 
     private List<ProductDto> productList { get; set; }

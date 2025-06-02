@@ -3,7 +3,7 @@
     /// <summary>
     /// Returns loaded grid.
     /// </summary>
-    public GridDto GridLoad(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
+    public GridDto Load(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
     {
         // Data
         if (parentCell == null)
@@ -265,7 +265,7 @@
                 }
             }
         }
-        return GridLoad(parentGrid, null, null);
+        return Load(parentGrid, null, null);
     }
 
     private GridDto LookupColumnSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
@@ -285,7 +285,7 @@
                 i++;
             }
         }
-        return GridLoad(parentGrid, null, null); // TODO Column on lookup. For example filter would be missing.
+        return Load(parentGrid, null, null); // TODO Column on lookup. For example filter would be missing.
     }
 
     /// <summary>
@@ -301,7 +301,7 @@
         return parentGrid; // Load(new GridDto { GridName = grid.GridName }, null);
     }
 
-    public GridDto GridSave(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
+    public GridDto Save(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
     {
         if (parentCell == null)
         {

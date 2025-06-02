@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization.Metadata;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Azure.Identity; // Used for AddAzureKeyVault
 using Azure.Storage.Files.DataLake;
 using System.Text;
+using System.Text.Json.Serialization.Metadata;
 
 public static class UtilServer
 {
@@ -16,7 +16,7 @@ public static class UtilServer
     {
         get
         {
-            return "1.0.8";
+            return "1.0.9";
         }
     }
 
@@ -175,5 +175,21 @@ public static class UtilServer
         var fileClient = client.GetFileClient(fileName);
         await fileClient.UploadAsync(stream, overwrite: true);
         stream.Close();
+    }
+
+    public static string FolderNameAppServer()
+    {
+        var result = new Uri(new Uri(typeof(UtilServer).Assembly.Location), ".").LocalPath.Replace(@"\", "/");
+        if (File.Exists(result + "App.Server.dll"))
+        {
+            // Running on server
+            return result;
+        }
+        if (File.Exists(result + "App.Server.csproj"))
+        {
+            // Running locally
+            return result;
+        }
+        throw new Exception("Folder not found!");
     }
 }
