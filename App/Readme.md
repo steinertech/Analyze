@@ -11,7 +11,9 @@ Start DevContainer Codespace
 * Column lookup [Done]
 * Check App.Web and App.Server version on every request.
 * Timesheet component
-* Calendar component 
+* Calendar component
+* File browser component
+* Excel sheets component master detail
 * Check App.Web and App.Server version on every request.
 
 # Misc
