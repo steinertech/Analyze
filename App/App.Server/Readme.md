@@ -1,5 +1,7 @@
 # App.Server (App.Function)
 
+## Init
+
 ```
 dotnet new globaljson # Has no effect on func new
 dotnet new sln --name App
@@ -9,31 +11,6 @@ func new --template "HttpTrigger" --name Server -f App.Server --target-framework
 
 ```
 AuthorizationLevel.Anonymous
-```
-
-## Publish
-```
-dotnet publish ./App.Server.csproj
-cd bin/Release/net9.0/publish
-tar -a -c -f ../publish.zip *
-cd ../../../..
-az functionapp deployment source config-zip --resource-group stc001-prod --name stc001appFunction --src bin\Release\net9.0\publish.zip
-```
-
-## Publish (SelfContained)
-App.Server.csproj
-```
-<PropertyGroup>
-  <SelfContained>true</SelfContained>
-  <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
-```
-
-```
-dotnet publish ./App.Server.csproj
-cd bin/Release/net9.0/linux-x64/publish
-tar -a -c -f ../publish.zip *
-cd ../../../../..
-az functionapp deployment source config-zip --resource-group stc001-prod --name stc001appFunction --src bin/Release/net9.0/linux-x64/publish.zip
 ```
 
 ## Publish (ReadyToRun)
