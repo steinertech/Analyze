@@ -1,5 +1,7 @@
 # App.Function
 
+## Init
+
 ```
 dotnet new globaljson # Has no effect on func new
 dotnet new sln --name App
