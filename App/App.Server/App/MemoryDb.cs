@@ -25,7 +25,11 @@ public class MemoryDb
         var rowList = list.OfType<Row>().Where(item => item.Parent?.Parent == worksheet).ToList();
         var textList = UtilOpenXml.ExcelSharedStringTableGet(document);
 
-        productList.First().Text += "; AirportCount=" + rowList.Count;
+        var cellReference = UtilOpenXml.ExcelCellReference((2, 3));
+        var cell = list.OfType<Cell>().Where(item => item.CellReference == cellReference).Single();
+        var text = UtilOpenXml.ExcelCellValueGet(cell, textList);
+
+        productList.First().Text += "; AirportCount=" + rowList.Count + "; Airport=" + text + ";";
     }
 
     private List<ProductDto> productList { get; set; }

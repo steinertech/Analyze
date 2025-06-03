@@ -65,6 +65,57 @@ public class UtilOpenXml
         return result;
     }
 
+    public static object ExcelCellValueGet(Cell cell, List<string> textList)
+    {
+        if (cell.DataType! == "s") // SharedStringTable
+        {
+            var textIndex = int.Parse(cell.CellValue!.Text);
+            var resultText = textList[textIndex];
+            return resultText;
+        }
+        if (cell.DataType == null)
+        {
+            var resultNumber = double.Parse(cell.CellValue!.Text);
+            return resultNumber;
+        }
+        throw new Exception("Cell type unknown!");
+    }
+
+    public static (int Row, int Col) ExcelCellReference(string value)
+    {
+        int rowIndex = 0;
+        int colIndex = 0;
+        int i = 0;
+
+        // Process column part of the cell reference
+        while (i < value.Length && char.IsLetter(value[i]))
+        {
+            colIndex = colIndex * 26 + (char.ToUpper(value[i]) - 'A' + 1);
+            i++;
+        }
+
+        // Process row part of the cell reference
+        while (i < value.Length && char.IsDigit(value[i]))
+        {
+            rowIndex = rowIndex * 10 + (value[i] - '0');
+            i++;
+        }
+
+        return (rowIndex, colIndex);
+    }
+
+    public static string ExcelCellReference((int Row, int Col) value)
+    {
+        string columnReference = string.Empty;
+        while (value.Col > 0)
+        {
+            value.Col--;
+            columnReference = (char)('A' + value.Col % 26) + columnReference;
+            value.Col /= 26;
+        }
+        return $"{columnReference}{value.Row}";
+    }
+
     public static List<string> ExcelSharedStringTableGet(SpreadsheetDocument document)
     {
         var result = new List<string>();
