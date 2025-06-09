@@ -1,15 +1,15 @@
-﻿using System.Text.Json;
+﻿using Azure.Identity; // Used for AddAzureKeyVault
+using Azure.Storage.Files.DataLake;
+using Azure.Storage.Files.DataLake.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
-using Azure.Identity; // Used for AddAzureKeyVault
-using Azure.Storage.Files.DataLake;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
-using Azure.Storage.Files.DataLake.Models;
 
 public static class UtilServer
 {
@@ -32,6 +32,7 @@ public static class UtilServer
         builder.Services.AddSingleton<DataService>();
         builder.Services.AddSingleton<CosmosDb>();
         builder.Services.AddSingleton<MemoryDb>();
+        builder.Services.AddSingleton<ExcelDb>();
         builder.Services.AddScoped<Response>();
 
         builder.Services.AddControllers().AddJsonOptions(configure =>
@@ -169,6 +170,16 @@ public static class UtilServer
         return result;
     }
 
+    public static async Task StorageDownload(string fileNameStorage, string fileNameLocal, string connectionString)
+    {
+        using var file = UtilServer.StorageDownloadStream(fileNameStorage, connectionString);
+        using var streamStorage = file.Content;
+        using var streamLocal = new FileStream(fileNameLocal, FileMode.Create);
+        await streamStorage.CopyToAsync(streamLocal);
+        streamLocal.Close();
+        streamStorage.Close();
+    }
+
     public static DataLakeFileReadStreamingResult StorageDownloadStream(string fileName, string connectionString)
     {
         var client = new DataLakeDirectoryClient(connectionString, "app", "data");
@@ -210,5 +221,13 @@ public static class UtilServer
             return result;
         }
         throw new Exception("Folder not found!");
+    }
+
+    public static void Assert(bool value, string? message = null)
+    {
+        if (!value)
+        {
+            throw new Exception(message ?? "Assert!");
+        }
     }
 }

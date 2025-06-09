@@ -1,10 +1,15 @@
-﻿public class CommandGrid(MemoryDb memoryDb)
+﻿public class CommandGrid(MemoryDb memoryDb, ExcelDb excelDb)
 {
     /// <summary>
     /// Returns loaded grid.
     /// </summary>
-    public GridDto Load(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
+    public async Task <GridDto> Load(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
     {
+        if (grid.GridName == "Excel")
+        {
+            await excelDb.Load(grid);
+            return grid;
+        }
         // Data
         if (parentCell == null)
         {
@@ -217,7 +222,7 @@
         return grid;
     }
 
-    private GridDto LookupHeaderSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private async Task<GridDto> LookupHeaderSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         if (parentGrid.State == null)
         {
@@ -265,10 +270,10 @@
                 }
             }
         }
-        return Load(parentGrid, null, null);
+        return await Load(parentGrid, null, null);
     }
 
-    private GridDto LookupColumnSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private async Task<GridDto> LookupColumnSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         if (parentGrid.State == null)
         {
@@ -285,7 +290,7 @@
                 i++;
             }
         }
-        return Load(parentGrid, null, null); // TODO Column on lookup. For example filter would be missing.
+        return await Load(parentGrid, null, null); // TODO Column on lookup. For example filter would be missing.
     }
 
     /// <summary>
@@ -301,7 +306,7 @@
         return parentGrid; // Load(new GridDto { GridName = grid.GridName }, null);
     }
 
-    public GridDto Save(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
+    public async Task<GridDto> Save(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
     {
         if (parentCell == null)
         {
@@ -309,11 +314,11 @@
         }
         if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
         {
-            return LookupHeaderSave(grid, parentCell, parentGrid);
+            return await LookupHeaderSave(grid, parentCell, parentGrid);
         }
         if (parentCell?.CellEnum == GridCellEnum.ButtonColumn && parentGrid != null)
         {
-            return LookupColumnSave(grid, parentCell, parentGrid);
+            return await LookupColumnSave(grid, parentCell, parentGrid);
         }
         if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
         {

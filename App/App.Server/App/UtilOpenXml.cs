@@ -141,6 +141,17 @@ public class UtilOpenXml
         document.WorkbookPart!.SharedStringTablePart!.SharedStringTable = sharedStringTable;
     }
 
+    public static List<string> ExcelSheetNameList(SpreadsheetDocument document)
+    {
+        var list = List(document.WorkbookPart?.Workbook).ToList(); // Sheets=document.WorkbookPart?.Workbook
+
+        var sheetList = list.OfType<Sheet>();
+
+        var result = sheetList.Select(item => item.Name!.Value!).ToList();
+
+        return result;
+    }
+
     public static Worksheet ExcelWorksheet(SpreadsheetDocument document, string sheetName)
     {
         var list = List(document.WorkbookPart?.Workbook).ToList(); // Sheets=document.WorkbookPart?.Workbook
