@@ -9,6 +9,7 @@ using Azure.Identity; // Used for AddAzureKeyVault
 using Azure.Storage.Files.DataLake;
 using System.Text;
 using System.Text.Json.Serialization.Metadata;
+using Azure.Storage.Files.DataLake.Models;
 
 public static class UtilServer
 {
@@ -136,12 +137,23 @@ public static class UtilServer
         return (T?)JsonElementTo(value, typeof(T), jsonOptions);
     }
 
+    public static async Task<List<string>> StorageFileNameList(string connectionString)
+    {
+        var result = new List<string>();
+        var client = new DataLakeDirectoryClient(connectionString, "app", "data");
+        await foreach (var pathItem in client.GetSubDirectoryClient("/").GetPathsAsync(recursive: true))
+        {
+            result.Add(pathItem.Name.Substring("data/".Length));
+        }
+        return result;
+    }
+
     public static async Task<string> StorageDownload(string fileName, string connectionString)
     {
         string result;
-        var fileNameExtension = Path.GetExtension(fileName).ToLower();
         var client = new DataLakeDirectoryClient(connectionString, "app", "data");
         var content = await client.GetFileClient(fileName).ReadContentAsync();
+        var fileNameExtension = Path.GetExtension(fileName).ToLower();
         switch (fileNameExtension)
         {
             case ".txt":
@@ -155,6 +167,13 @@ public static class UtilServer
                 break;
         }
         return result;
+    }
+
+    public static DataLakeFileReadStreamingResult StorageDownloadStream(string fileName, string connectionString)
+    {
+        var client = new DataLakeDirectoryClient(connectionString, "app", "data");
+        var result = client.GetFileClient(fileName).ReadStreaming().Value;
+        return result; // result.Content is the Stream. Beware of DataLakeFileReadStreamingResult.IDisposable
     }
 
     public static async Task StorageUpload(string fileName, string data, string connectionString)
