@@ -1,13 +1,10 @@
 ﻿using Azure.Identity; // Used for AddAzureKeyVault
-using Azure.Storage.Files.DataLake;
-using Azure.Storage.Files.DataLake.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
@@ -29,10 +26,12 @@ public static class UtilServer
         builder.Configuration.AddUserSecrets(typeof(Function).Assembly); // secrets.json // Package Microsoft.Extensions.Configuration.UserSecrets
         // builder.Configuration.AddAzureKeyVault(new Uri("https://stc001keyvault.vault.azure.net/"), new DefaultAzureCredential()); // KeyVault // Package Azure.Extensions.AspNetCore.Configuration.Secrets // Package Azure.Identity
 
+        builder.Services.AddSingleton<Configuration>();
         builder.Services.AddSingleton<DataService>();
         builder.Services.AddSingleton<CosmosDb>();
-        builder.Services.AddSingleton<MemoryDb>();
-        builder.Services.AddSingleton<ExcelDb>();
+        builder.Services.AddSingleton<MemoryGrid>();
+        builder.Services.AddSingleton<ExcelGrid>();
+        builder.Services.AddSingleton<StorageGrid>();
         builder.Services.AddScoped<Response>();
 
         builder.Services.AddControllers().AddJsonOptions(configure =>
@@ -136,75 +135,6 @@ public static class UtilServer
     public static T? JsonElementTo<T>(JsonElement? value, JsonSerializerOptions jsonOptions)
     {
         return (T?)JsonElementTo(value, typeof(T), jsonOptions);
-    }
-
-    public static async Task<List<string>> StorageFileNameList(string connectionString)
-    {
-        var result = new List<string>();
-        var client = new DataLakeDirectoryClient(connectionString, "app", "data");
-        await foreach (var pathItem in client.GetSubDirectoryClient("/").GetPathsAsync(recursive: true))
-        {
-            result.Add(pathItem.Name.Substring("data/".Length));
-        }
-        return result;
-    }
-
-    public static async Task<string> StorageDownload(string fileName, string connectionString)
-    {
-        string result;
-        var client = new DataLakeDirectoryClient(connectionString, "app", "data");
-        var content = await client.GetFileClient(fileName).ReadContentAsync();
-        var fileNameExtension = Path.GetExtension(fileName).ToLower();
-        switch (fileNameExtension)
-        {
-            case ".txt":
-                result = Encoding.UTF8.GetString(content.Value.Content);
-                break;
-            case ".png":
-                result = $"data:text/plain;base64,{Convert.ToBase64String(content.Value.Content)}";
-                break;
-            default:
-                result = Convert.ToBase64String(content.Value.Content);
-                break;
-        }
-        return result;
-    }
-
-    public static async Task StorageDownload(string fileNameStorage, string fileNameLocal, string connectionString)
-    {
-        using var file = UtilServer.StorageDownloadStream(fileNameStorage, connectionString);
-        using var streamStorage = file.Content;
-        using var streamLocal = new FileStream(fileNameLocal, FileMode.Create);
-        await streamStorage.CopyToAsync(streamLocal);
-        streamLocal.Close();
-        streamStorage.Close();
-    }
-
-    public static DataLakeFileReadStreamingResult StorageDownloadStream(string fileName, string connectionString)
-    {
-        var client = new DataLakeDirectoryClient(connectionString, "app", "data");
-        var result = client.GetFileClient(fileName).ReadStreaming().Value;
-        return result; // result.Content is the Stream. Beware of DataLakeFileReadStreamingResult.IDisposable
-    }
-
-    public static async Task StorageUpload(string fileName, string data, string connectionString)
-    {
-        byte[] result;
-        var fileNameExtension = Path.GetExtension(fileName).ToLower();
-        var client = new DataLakeDirectoryClient(connectionString, "app", "data");
-        switch (fileNameExtension)
-        {
-            case ".txt":
-                result = Encoding.UTF8.GetBytes(data);
-                break;
-            default:
-                result = Convert.FromBase64String(data);
-                break;
-        }
-        using var stream = new MemoryStream(result);
-        var fileClient = client.GetFileClient(fileName);
-        await fileClient.UploadAsync(stream, overwrite: true);
-        stream.Close();
     }
 
     public static string FolderNameAppServer()

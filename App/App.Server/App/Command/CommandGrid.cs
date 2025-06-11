@@ -1,13 +1,20 @@
-﻿public class CommandGrid(MemoryDb memoryDb, ExcelDb excelDb)
+﻿public class CommandGrid(MemoryGrid memoryGrid, ExcelGrid excelGrid, StorageGrid storageGrid)
 {
     /// <summary>
     /// Returns loaded grid.
     /// </summary>
     public async Task <GridDto> Load(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
     {
+        // Excel
         if (grid.GridName == "Excel")
         {
-            await excelDb.Load(grid);
+            await excelGrid.Load(grid);
+            return grid;
+        }
+        // Storage
+        if (grid.GridName == "Storage")
+        {
+            await storageGrid.Load(grid);
             return grid;
         }
         // Data
@@ -58,7 +65,7 @@
             grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Filter, FieldName = propertyInfo.Name });
         }
         // Row
-        var list = memoryDb.Load(grid);
+        var list = memoryGrid.Load(grid);
         for (int dataRowIndex = 0; dataRowIndex < list.Count; dataRowIndex++)
         {
             var dataRow = list[dataRowIndex];
@@ -108,7 +115,7 @@
         }
         grid.State.IsSelectMultiList = new();
         // Data
-        var list = memoryDb.LoadColumnLookup(grid, parentCell);
+        var list = memoryGrid.LoadColumnLookup(grid, parentCell);
         grid.State.IsSelectMultiList.AddRange(new bool?[list.Count]);
         var columnList = parentGrid.State?.ColumnList?.Select(item => item.FieldName).ToList();
         for (int i = 0; i < list.Count; i++)
@@ -149,7 +156,7 @@
         }
         grid.State.IsSelectMultiList = new();
         // Data
-        var list = memoryDb.LoadHeaderLookup(grid, parentCell);
+        var list = memoryGrid.LoadHeaderLookup(grid, parentCell);
         grid.State.IsSelectMultiList.AddRange(new bool?[list.Count]);
         var filterMulti = parentGrid.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == parentCell.FieldName);
         for (int i = 0; i < list.Count; i++)
@@ -188,7 +195,7 @@
 
     private GridDto DataSave(GridDto grid)
     {
-        var dataRowList = memoryDb.Load(grid);
+        var dataRowList = memoryGrid.Load(grid);
         foreach (var cellList in grid.RowCellList!)
         {
             foreach (var cell in cellList)
@@ -308,6 +315,12 @@
 
     public async Task<GridDto> Save(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
     {
+        // Storage
+        if (grid.GridName == "Storage")
+        {
+            await storageGrid.Save(grid);
+            return grid;
+        }
         if (parentCell == null)
         {
             return DataSave(grid);

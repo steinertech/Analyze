@@ -18,19 +18,19 @@ public static class ServerApi
                 responseDto.Result = new CommandDebug(serviceProvider.GetService<DataService>()!).Run();
                 break;
             case nameof(CommandStorageDownload):
-                responseDto.Result = await new CommandStorageDownload(serviceProvider.GetService<DataService>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
+                responseDto.Result = await new CommandStorageDownload(serviceProvider.GetService<Configuration>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandStorageUpload):
-                await new CommandStorageUpload(serviceProvider.GetService<DataService>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<string>(requestDto.ParamList![1], jsonOptions)!);
+                await new CommandStorageUpload(serviceProvider.GetService<Configuration>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<string>(requestDto.ParamList![1], jsonOptions)!);
                 break;
             case nameof(CommandUserSignUp):
                 await new CommandUserSignUp(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<Response>()!).Run(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandGrid) + nameof(CommandGrid.Load):
-                responseDto.Result = await new CommandGrid(serviceProvider.GetService<MemoryDb>()!, serviceProvider.GetService<ExcelDb>()!).Load(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![2], jsonOptions));
+                responseDto.Result = await new CommandGrid(serviceProvider.GetService<MemoryGrid>()!, serviceProvider.GetService<ExcelGrid>()!, serviceProvider.GetService<StorageGrid>()!).Load(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![2], jsonOptions));
                 break;
             case nameof(CommandGrid) + nameof(CommandGrid.Save):
-                responseDto.Result = await new CommandGrid(serviceProvider.GetService<MemoryDb>()!, serviceProvider.GetService<ExcelDb>()!).Save(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![2], jsonOptions));
+                responseDto.Result = await new CommandGrid(serviceProvider.GetService<MemoryGrid>()!, serviceProvider.GetService<ExcelGrid>()!, serviceProvider.GetService<StorageGrid>()!).Save(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![2], jsonOptions));
                 break;
             default:
                 throw new Exception($"Command not found! ({requestDto.CommandName})");

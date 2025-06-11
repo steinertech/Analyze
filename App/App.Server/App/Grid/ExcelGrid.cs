@@ -2,7 +2,7 @@
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Extensions.Configuration;
 
-public class ExcelDb(IConfiguration configuration)
+public class ExcelGrid(Configuration configuration)
 {
     private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
@@ -21,15 +21,14 @@ public class ExcelDb(IConfiguration configuration)
             if (!isInit)
             {
                 isInit = true;
-                var connectionString = configuration.GetConnectionString("Storage")!;
-                var fileNameList = await UtilServer.StorageFileNameList(connectionString);
+                var fileNameList = await UtilStorage.FileOrFolderNameList(configuration.ConnectionStringStorage);
                 fileNameList = fileNameList.Where(item => Path.GetExtension(item).ToLower() == ".xlsx").ToList();
                 // FileName
                 foreach (var fileNameStorage in fileNameList)
                 {
                     this.list.Add(fileNameStorage, new());
                     var fileNameLocal = UtilServer.FolderNameAppServer() + "Data/Storage/" + fileNameStorage;
-                    await UtilServer.StorageDownload(fileNameStorage, fileNameLocal, connectionString);
+                    await UtilStorage.Download(fileNameStorage, fileNameLocal, configuration.ConnectionStringStorage);
                     using var document = SpreadsheetDocument.Open(fileNameLocal, isEditable: false);
                     var listLocal = UtilOpenXml.List(document.WorkbookPart);
                     var textList = UtilOpenXml.ExcelSharedStringTableGet(document);

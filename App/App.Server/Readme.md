@@ -1,5 +1,9 @@
 # App.Server (App.Function)
 
+## Storage
+* Enable HNS (hierarchical namespace) in order to create empty folders.
+* Also check soft delete configuration.
+
 ## Init
 
 ```
@@ -14,6 +18,7 @@ AuthorizationLevel.Anonymous
 ```
 
 ## Publish (ReadyToRun)
+
 App.Server.csproj
 ```
 <PropertyGroup>

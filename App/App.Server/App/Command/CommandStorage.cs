@@ -1,16 +1,16 @@
-﻿public class CommandStorageDownload(DataService dataService)
+﻿public class CommandStorageDownload(Configuration configuration)
 {
     public Task<string> Run(string fileName)
     {
-        return UtilServer.StorageDownload(fileName, dataService.ConnectionStringStorage);
+        return UtilStorage.Download(fileName, configuration.ConnectionStringStorage);
     }
 }
 
-public class CommandStorageUpload(DataService dataService)
+public class CommandStorageUpload(Configuration configuration)
 {
     public Task Run(string fileName, string data)
     {
-        return UtilServer.StorageUpload(fileName, data, dataService.ConnectionStringStorage);
+        return UtilStorage.Upload(fileName, data, configuration.ConnectionStringStorage);
     }
 }
 

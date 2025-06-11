@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
-using System.Linq.Dynamic.Core;
+﻿using System.Linq.Dynamic.Core;
 
-public class MemoryDb
+public class MemoryGrid
 {
-    public MemoryDb(IConfiguration configuration)
+    public MemoryGrid()
     {
-        var connectionString = configuration.GetConnectionString("Storage")!;
         productList = new List<ProductDto>
         {
             new ProductDto { Text = "Pasta", Price = 100, Amount = 4, City = "Paris" },
