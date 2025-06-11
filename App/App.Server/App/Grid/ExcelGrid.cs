@@ -21,11 +21,12 @@ public class ExcelGrid(Configuration configuration)
             if (!isInit)
             {
                 isInit = true;
-                var fileNameList = await UtilStorage.FileOrFolderNameList(configuration.ConnectionStringStorage);
-                fileNameList = fileNameList.Where(item => Path.GetExtension(item).ToLower() == ".xlsx").ToList();
+                var fileNameList = await UtilStorage.List(configuration.ConnectionStringStorage);
+                fileNameList = fileNameList.Where(item => item.IsFolder == false && Path.GetExtension(item.FolderOrFileName).ToLower() == ".xlsx").ToList();
                 // FileName
-                foreach (var fileNameStorage in fileNameList)
+                foreach (var item in fileNameList)
                 {
+                    var fileNameStorage = item.FolderOrFileName;
                     this.list.Add(fileNameStorage, new());
                     var fileNameLocal = UtilServer.FolderNameAppServer() + "Data/Storage/" + fileNameStorage;
                     await UtilStorage.Download(fileNameStorage, fileNameLocal, configuration.ConnectionStringStorage);

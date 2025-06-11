@@ -68,7 +68,6 @@ export class ControlDto {
   public controlEnum?: ControlEnum
   public text?: string
   public name?: string
-  public isClick?: boolean
 }
 
 export enum GridCellEnum {
@@ -93,7 +92,8 @@ export enum ControlEnum {
     ButtonColumn = 15,
     ButtonCustom = 16,
     CheckboxSelectMultiAll = 14,
-    Label = 17,
+    LabelCustom = 17,
+    FieldCustom = 18,
 }
 
 export class GridDto {
@@ -117,6 +117,13 @@ export class GridStateDto {
   public isSelectList?: (boolean | null)[]
   public isSelectMultiList?: (boolean | null)[]
   public columnList?: GridStateColumnDto[]
+  public customButtonClick?: GridStateCustomButtonClickDto
+}
+
+export class GridStateCustomButtonClickDto {
+  public name?: string
+  public dataRowIndex?: number
+  public fieldName?: string
 }
 
 export class GridStateColumnDto {

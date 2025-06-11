@@ -67,6 +67,13 @@ public static class UtilServer
         try
         {
             responseDto = await ServerApi.Run(requestDto, jsonOptions, serviceProvider);
+            if (responseDto.Result is GridDto grid)
+            {
+                if (grid.State?.CustomButtonClick != null)
+                {
+                    grid.State.CustomButtonClick = null;
+                }
+            }
             var response = serviceProvider.GetService<Response>()!;
             responseDto.NavigateUrl = response.NavigateUrl;
         }

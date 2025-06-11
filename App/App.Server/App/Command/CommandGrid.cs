@@ -122,8 +122,8 @@
         {
             CellEnum = GridCellEnum.Control,
             ControlList = [
-            new() { ControlEnum = ControlEnum.CheckboxSelectMultiAll, Text = "false" }, // TODO Calculate it from state
-            new() { ControlEnum = ControlEnum.Label, Text = "(Select All)" },
+            new() { ControlEnum = ControlEnum.CheckboxSelectMultiAll, Text = "false" },
+            new() { ControlEnum = ControlEnum.LabelCustom, Text = "(Select All)" },
             ]
         });
         // State
@@ -181,7 +181,7 @@
             CellEnum = GridCellEnum.Control,
             ControlList = [
             new() { ControlEnum = ControlEnum.CheckboxSelectMultiAll, Text = "false" },
-            new() { ControlEnum = ControlEnum.Label, Text = "(Select All)" },
+            new() { ControlEnum = ControlEnum.LabelCustom, Text = "(Select All)" },
             ]
         });
         // State
@@ -484,6 +484,20 @@ public class GridStateDto
     /// Gets or sets ColumnList. This is the list columns to display. If null, display all columns.
     /// </summary>
     public List<GridStateColumnDto>? ColumnList { get; set; }
+
+    /// <summary>
+    /// Gets or sets CustomButtonClick. User clicked button to process on Grid.Save();
+    /// </summary>
+    public GridStateCustomButtonClickDto? CustomButtonClick { get; set; }
+}
+
+public class GridStateCustomButtonClickDto
+{
+    public string? Name { get; set; }
+
+    public int? DataRowIndex { get; set; }
+
+    public string? FieldName { get; set; }
 }
 
 public class GridStateColumnDto
@@ -543,33 +557,26 @@ public class GridCellDto
 
 /// <summary>
 /// Controls are not data cell specific. Like cancel, save and delete button.
-/// Multiple controls can be in a cell.
+/// Multiple controls can be in one cell.
 /// </summary>
 public class ControlDto
 {
     public ControlEnum? ControlEnum { get; set; }
 
-    /// <summary>
-    /// Gets or sets Text. Used for custom button.
-    /// </summary>
     public string? Text { get; set; }
 
-    /// <summary>
-    /// Gets or sets Name. User for custom button.
-    /// </summary>
     public string? Name { get; set; }
-
-    /// <summary>
-    /// Gets or sets IsClick. If true, custom button has been clicked by user.
-    /// </summary>
-    public bool? IsClick { get; set; }
 }
 
 public enum GridCellEnum
 {
     None = 0,
 
+    /// <summary>
+    /// Data field.
+    /// </summary>
     Field = 1,
+    
     /// <summary>
     /// Column header.
     /// </summary>
@@ -645,9 +652,14 @@ public enum ControlEnum
     CheckboxSelectMultiAll = 14, // GridCellEnum.CheckboxSelectMulti is data cell specific. ControlEnum.CheckboxSelectMultiAll is not data cell specific.
 
     /// <summary>
-    /// Readonly label.
+    /// Custom readonly label.
     /// </summary>
-    Label = 17,
+    LabelCustom = 17,
+
+    /// <summary>
+    /// Custom text field.
+    /// </summary>
+    FieldCustom = 18,
 }
 
 public class GridConfigFieldDto

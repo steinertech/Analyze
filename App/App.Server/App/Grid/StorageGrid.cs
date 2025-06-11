@@ -3,18 +3,18 @@
     public async Task Load(GridDto grid)
     {
         grid.RowCellList = new();
-        var folderOrFileNameList = await UtilStorage.FileOrFolderNameList(configuration.ConnectionStringStorage, isRecursive: true);
+        var folderOrFileNameList = await UtilStorage.List(configuration.ConnectionStringStorage, isRecursive: true);
         var dataRowIndex = 0;
         foreach (var item in folderOrFileNameList)
         {
             grid.RowCellList.Add(new());
-            grid.RowCellList.Last().Add(new() { CellEnum = GridCellEnum.Field, Text = item, DataRowIndex = dataRowIndex });
+            grid.RowCellList.Last().Add(new() { CellEnum = GridCellEnum.Field, Text = item.FolderOrFileName, DataRowIndex = dataRowIndex });
             grid.RowCellList.Last().Add(new()
             {
                 CellEnum = GridCellEnum.Control,
                 DataRowIndex = dataRowIndex,
                 ControlList = [
-                new() { ControlEnum = ControlEnum.ButtonCustom, Text = "Delete"},
+                new() { ControlEnum = ControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" },
                 ]
             });
             dataRowIndex++;
@@ -29,6 +29,15 @@
             new() { ControlEnum = ControlEnum.ButtonSave },
             ]
         });
+        grid.RowCellList.Add(new());
+        grid.RowCellList.Last().Add(new()
+        {
+            CellEnum = GridCellEnum.Control,
+            ControlList = [
+            new() { ControlEnum = ControlEnum.FieldCustom },
+            new() { ControlEnum = ControlEnum.ButtonCustom, Text = "New Folder", Name = "NewFolder" },
+            ]
+        });
     }
 
     public async Task Save(GridDto grid)
@@ -40,11 +49,20 @@
             await UtilStorage.Rename(configuration.ConnectionStringStorage, item.Text!, item.TextModified!);
         }
         // FolderOrFileName delete
-        var dataRowIndexList = grid.RowCellList!.SelectMany(item => item).Where(item => item.ControlList != null && item.ControlList.Where(item => item.IsClick == true).Any()).Select(item => item.DataRowIndex).ToList();
-        var folderOrFileNameList = grid.RowCellList!.SelectMany(item => item).Where(item => item.CellEnum == GridCellEnum.Field && dataRowIndexList.Contains(item.DataRowIndex)).Select(item => item.Text).ToList();
-        foreach (var item in folderOrFileNameList)
+        if (grid.State?.CustomButtonClick?.Name == "Delete")
         {
-            await UtilStorage.Delete(configuration.ConnectionStringStorage, item!);
+            var dataRowIndex = grid.State.CustomButtonClick.DataRowIndex;
+            if (dataRowIndex != null)
+            {
+                var folderOrFileName = grid.RowCellList!.SelectMany(item => item).Where(item => item.CellEnum == GridCellEnum.Field && dataRowIndex == item.DataRowIndex).Select(item => item.Text).Single();
+                await UtilStorage.Delete(configuration.ConnectionStringStorage, folderOrFileName!);
+            }
+        }
+        // New Folder
+        if (grid.State?.CustomButtonClick?.Name == "NewFolder")
+        {
+            var fieldCustom = grid.RowCellList!.SelectMany(item => item).SelectMany(item => item.ControlList ?? []).Where(item => item.ControlEnum == ControlEnum.FieldCustom).Single();
+            await UtilStorage.Create(configuration.ConnectionStringStorage, fieldCustom.Text!);
         }
         await Load(grid);
     }

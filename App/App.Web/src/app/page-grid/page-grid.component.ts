@@ -130,7 +130,7 @@ export class PageGridComponent {
   cellTextSetControl(cell: GridCellDto, control: ControlDto, value: string) {
     if (this.grid) {
       switch (control.controlEnum) {
-        // SelectMultiAll
+        // Checkbox SelectMultiAll
         case ControlEnum.CheckboxSelectMultiAll: {
           if (this.grid) {
             if (!this.grid.state) {
@@ -151,6 +151,11 @@ export class PageGridComponent {
               }
             }
           }
+          break
+        }
+        // Field Custom
+        case ControlEnum.FieldCustom: {
+          control.text = value
           break
         }
       }
@@ -297,7 +302,10 @@ export class PageGridComponent {
         // Button Custom
         case ControlEnum.ButtonCustom: {
           this.lookupClose()
-          control.isClick = true
+          if (!this.grid.state) {
+            this.grid.state = {}
+          }
+          this.grid.state.customButtonClick = {name: control.name, dataRowIndex: cell.dataRowIndex, fieldName: cell.fieldName }
           this.serverApi.commandGridSave(this.grid).subscribe(value => this.grid = value);
           break
         }

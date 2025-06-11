@@ -88,8 +88,13 @@ ColumnList={{grid?.state?.columnList | json}}<br>
       @case (ControlEnum.CheckboxSelectMultiAll) {
       <input [ngModel]="cellTextGetControl(cell, control) == 'true'" (ngModelChange)="cellTextSetControl(cell, control, $event.toString())" type="checkbox">
       }
-      @case (ControlEnum.Label) {
+      <!-- Label Custom -->
+      @case (ControlEnum.LabelCustom) {
         {{control.text}}
+      }
+      <!-- Field Custom -->
+      @case (ControlEnum.FieldCustom) {
+      <input [ngModel]="cellTextGetControl(cell, control)" (ngModelChange)="cellTextSetControl(cell, control, $event)">
       }
       }
       }
