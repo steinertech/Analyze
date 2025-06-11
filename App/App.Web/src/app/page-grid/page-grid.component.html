@@ -20,13 +20,9 @@ ColumnList={{grid?.state?.columnList | json}}<br>
       @case (GridCellEnum.FieldCheckbox) {
       <input [ngModel]="cellTextGet(cell) == 'true'" (ngModelChange)="cellTextSet(cell, $event)" type="checkbox">
       }
-      <!-- Button SelectMulti -->
-      @case (GridCellEnum.ButtonSelectMulti) {
+      <!-- Checkbox SelectMulti -->
+      @case (GridCellEnum.CheckboxSelectMulti) {
       <input [ngModel]="cellTextGet(cell) == 'true'" (ngModelChange)="cellTextSet(cell, $event ? 'true' : 'false')" type="checkbox">
-      }
-      <!-- Button SelectMultiAll -->
-      @case (GridCellEnum.ButtonSelectMultiAll) {
-      <input [ngModel]="cellTextGet(cell) == 'true'" (ngModelChange)="cellTextSet(cell, $event.toString())" type="checkbox">
       }
       <!-- Header -->
       @case (GridCellEnum.Header) {
@@ -48,30 +44,6 @@ ColumnList={{grid?.state?.columnList | json}}<br>
       @case (GridCellEnum.Filter) {
       <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search" class="w-full">
       }
-      <!-- Button Cancel -->
-      @case (GridCellEnum.ButtonCancel) {
-      <button (click)="click(cell)">Cancel</button>
-      }
-      <!-- Button Save -->
-      @case (GridCellEnum.ButtonSave) {
-      <button (click)="click(cell)">Save</button>
-      }
-      <!-- Button Cancel (Lookup) -->
-      @case (GridCellEnum.ButtonLookupCancel) {
-      <button (click)="click(cell)">Cancel</button>
-      }
-      <!-- Button Ok (Lookup) -->
-      @case (GridCellEnum.ButtonLookupOk) {
-      <button (click)="click(cell)">Ok</button>
-      }
-      <!-- Button Sort (Lookup) -->
-      @case (GridCellEnum.ButtonLookupSort) {
-      <button (click)="click(cell)">Sort</button>
-      }
-      <!-- Button Column -->
-      @case (GridCellEnum.ButtonColumn) {
-      <button (click)="click(cell)">☰</button>
-      }
       <!-- Field Dropdown -->
       @case (GridCellEnum.FieldDropdown) {
       <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="w-full">
@@ -79,6 +51,48 @@ ColumnList={{grid?.state?.columnList | json}}<br>
         <option value="{{item}}">{{item}}</option>
         }
       </select>
+      }
+      <!-- Control -->
+      @case (GridCellEnum.Control) {
+      @for (control of cell.controlList; track $index;) {
+      @switch (control.controlEnum) {
+      <!-- Button Cancel -->
+      @case (ControlEnum.ButtonCancel) {
+      <button (click)="clickControl(cell, control)">Cancel</button>
+      }
+      <!-- Button Save -->
+      @case (ControlEnum.ButtonSave) {
+      <button (click)="clickControl(cell, control)">Save</button>
+      }
+      <!-- Button Cancel (Lookup) -->
+      @case (ControlEnum.ButtonLookupCancel) {
+      <button (click)="clickControl(cell, control)">Cancel</button>
+      }
+      <!-- Button Ok (Lookup) -->
+      @case (ControlEnum.ButtonLookupOk) {
+      <button (click)="clickControl(cell, control)">Ok</button>
+      }
+      <!-- Button Sort (Lookup) -->
+      @case (ControlEnum.ButtonLookupSort) {
+      <button (click)="clickControl(cell, control)">Sort</button>
+      }
+      <!-- Button Column -->
+      @case (ControlEnum.ButtonColumn) {
+      <button (click)="clickControl(cell, control)">☰</button>
+      }
+      <!-- Button Custom -->
+      @case (ControlEnum.ButtonCustom) {
+      <button (click)="clickControl(cell, control)">{{control.text ?? 'Button'}}</button>
+      }
+      <!-- Checkbox SelectMultiAll -->
+      @case (ControlEnum.CheckboxSelectMultiAll) {
+      <input [ngModel]="cellTextGetControl(cell, control) == 'true'" (ngModelChange)="cellTextSetControl(cell, control, $event.toString())" type="checkbox">
+      }
+      @case (ControlEnum.Label) {
+        {{control.text}}
+      }
+      }
+      }
       }
       }
     </td>

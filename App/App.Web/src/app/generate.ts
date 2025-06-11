@@ -61,24 +61,39 @@ export class GridCellDto {
   public text?: string
   public textModified?: string
   public dropDownList?: string[]
+  public controlList?: ControlDto[]
+}
+
+export class ControlDto {
+  public controlEnum?: ControlEnum
+  public text?: string
+  public name?: string
+  public isClick?: boolean
 }
 
 export enum GridCellEnum {
   None = 0,
   Field = 1,
   Header = 2,
-  ButtonCancel = 3,
-  ButtonSave = 4,
   FieldDropdown = 5,
-  ButtonLookupOk = 7,
-  ButtonLookupCancel = 8,
-  ButtonLookupSort = 9,
   Filter = 10,
   FieldCheckbox = 11,
   FieldAutocomplete = 12,
-  ButtonSelectMulti = 13,
-  ButtonSelectMultiAll = 14,
-  ButtonColumn = 15
+  CheckboxSelectMulti = 13, 
+  Control = 16,
+}
+
+export enum ControlEnum {
+    None = 0,
+    ButtonCancel = 3,
+    ButtonSave = 4,
+    ButtonLookupCancel = 8,
+    ButtonLookupOk = 7,
+    ButtonLookupSort = 9,
+    ButtonColumn = 15,
+    ButtonCustom = 16,
+    CheckboxSelectMultiAll = 14,
+    Label = 17,
 }
 
 export class GridDto {

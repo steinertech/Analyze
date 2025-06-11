@@ -12,18 +12,16 @@ public class UtilStorage
         return new DataLakeDirectoryClient(connectionString, "app", folderNameRoot.Substring(0, folderNameRoot.Length - 1));
     }
 
+    public static async Task Delete(string connectionString, string folderOrFileName)
+    {
+        var client = Client(connectionString);
+        await client.GetFileClient(folderOrFileName).DeleteAsync();
+    }
+
     public static async Task Rename(string connectionString, string folderOrFileName, string folderOrFileNameNew)
     {
         var client = Client(connectionString);
-        var isFolderName = (await client.GetSubDirectoryClient(folderOrFileName).ExistsAsync()).Value;
-        if (isFolderName)
-        {
-            await client.GetSubDirectoryClient(folderOrFileName).RenameAsync(folderNameRoot + folderOrFileNameNew);
-        }
-        else
-        {
-            await client.GetFileClient(folderOrFileName).RenameAsync(folderNameRoot + folderOrFileNameNew);
-        }
+        await client.GetFileClient(folderOrFileName).RenameAsync(folderNameRoot + folderOrFileNameNew);
     }
 
     public static async Task<List<string>> FileOrFolderNameList(string connectionString, string? folderName = null, bool isRecursive = false)
