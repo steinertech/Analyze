@@ -64,7 +64,7 @@ export class PageGridComponent {
   cellTextGetControl(cell: GridCellDto, control: GridControlDto) {
     switch (control.controlEnum) {
       // Field
-      case GridControlEnum.CheckboxSelectMultiAll: {
+      case GridControlEnum.FieldCustom: {
         return control.text
       }
     }
@@ -157,7 +157,7 @@ export class PageGridComponent {
         }
         // Field Custom
         case GridControlEnum.FieldCustom: {
-          control.text = value
+          control.textModified = control.text != value ? value : undefined
           break
         }
       }

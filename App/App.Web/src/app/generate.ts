@@ -72,6 +72,7 @@ export class GridCellDto {
 export class GridControlDto {
   public controlEnum?: GridControlEnum
   public text?: string
+  public textModified?: string
   public name?: string
 }
 

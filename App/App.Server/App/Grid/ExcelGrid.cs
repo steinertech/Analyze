@@ -29,7 +29,7 @@ public class ExcelGrid(Configuration configuration)
                     var fileNameStorage = item.FolderOrFileName;
                     this.list.Add(fileNameStorage, new());
                     var fileNameLocal = UtilServer.FolderNameAppServer() + "Data/Storage/" + fileNameStorage;
-                    await UtilStorage.Download(fileNameStorage, fileNameLocal, configuration.ConnectionStringStorage);
+                    await UtilStorage.Download(configuration.ConnectionStringStorage, fileNameStorage, fileNameLocal);
                     using var document = SpreadsheetDocument.Open(fileNameLocal, isEditable: false);
                     var listLocal = UtilOpenXml.List(document.WorkbookPart);
                     var textList = UtilOpenXml.ExcelSharedStringTableGet(document);

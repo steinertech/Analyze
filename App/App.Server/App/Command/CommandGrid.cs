@@ -474,6 +474,11 @@ public class GridDto
         }
     }
 
+    public List<GridCellDto> CellModifiedList()
+    {
+        return CellList().Where(item => item.CellEnum == GridCellEnum.Field && item.TextModified != null).ToList();
+    }
+
     public List<GridControlDto> ControlList()
     {
         if (RowCellList == null)
@@ -484,6 +489,11 @@ public class GridDto
         {
             return RowCellList.SelectMany(item => item).SelectMany(item => item.ControlList ?? []).ToList();
         }
+    }
+
+    public List<GridControlDto> ControlModifiedList()
+    {
+        return ControlList().Where(item => item.ControlEnum == GridControlEnum.FieldCustom && item.TextModified != null).ToList();
     }
 
     public List<List<GridCellDto>>? Clear()
@@ -628,7 +638,7 @@ public class GridCellDto
     /// <summary>
     /// Gets or sets TextModified. This is from user modified text to save. Empty not null if user deleted text.
     /// </summary>
-    public string? TextModified { get; set; }
+    public string? TextModified { get; set; } // TODO move to state
 
     public List<string>? DropDownList { get; set; }
 
@@ -644,6 +654,8 @@ public class GridControlDto
     public GridControlEnum? ControlEnum { get; set; }
 
     public string? Text { get; set; }
+    
+    public string? TextModified { get; set; } // TODO move to state
 
     public string? Name { get; set; }
 }
@@ -745,7 +757,7 @@ public enum GridControlEnum
     FieldCustom = 18,
 
     /// <summary>
-    /// 
+    /// Opens a lookup modal windows. Calls method CommandGrid.Load(); to get modal grid data.
     /// </summary>
     ButtonModal = 19,
 }

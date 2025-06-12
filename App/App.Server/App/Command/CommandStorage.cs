@@ -2,7 +2,7 @@
 {
     public Task<string> Run(string fileName)
     {
-        return UtilStorage.Download(fileName, configuration.ConnectionStringStorage);
+        return UtilStorage.Download(configuration.ConnectionStringStorage, fileName);
     }
 }
 
@@ -10,7 +10,7 @@ public class CommandStorageUpload(Configuration configuration)
 {
     public Task Run(string fileName, string data)
     {
-        return UtilStorage.Upload(fileName, data, configuration.ConnectionStringStorage);
+        return UtilStorage.Upload(configuration.ConnectionStringStorage, fileName, data);
     }
 }
 

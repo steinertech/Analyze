@@ -11,7 +11,7 @@
             grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = item.FolderOrFileName, DataRowIndex = dataRowIndex });
             grid.AddCell(new() { CellEnum = GridCellEnum.Control, DataRowIndex = dataRowIndex });
             grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Delete", Name = "Delete" });
-            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Rename", Name = "Rename" });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Rename", Name = "Rename" });
             dataRowIndex++;
         }
         // Button Reload, Save
@@ -34,25 +34,40 @@
         }
         else
         {
-            var dataRowIndex = parentCell.DataRowIndex!;
-            var folderOrFileName = parentGrid!.CellList().Where(item => item.CellEnum == GridCellEnum.Field && dataRowIndex == item.DataRowIndex).Select(item => item.Text).Single();
-            grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = $"Delete File? ({folderOrFileName})" });
-            grid.AddRow();
-            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
-            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
-            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
+            // Modal Delete
+            if (parentControl?.Name == "Delete")
+            {
+                var dataRowIndex = parentCell.DataRowIndex!;
+                var folderOrFileName = parentGrid!.CellList().Where(item => item.CellEnum == GridCellEnum.Field && dataRowIndex == item.DataRowIndex).Select(item => item.Text).Single();
+                grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = $"Delete File? ({folderOrFileName})" });
+                grid.AddRow();
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
+            }
+            // Modal Rename
+            if (parentControl?.Name == "Rename")
+            {
+                var dataRowIndex = parentCell.DataRowIndex!;
+                var folderOrFileName = parentGrid!.CellList().Where(item => item.CellEnum == GridCellEnum.Field && dataRowIndex == item.DataRowIndex).Select(item => item.Text).Single();
+                grid.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom, Name = "Rename", Text = folderOrFileName });
+                grid.AddRow();
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
+            }
         }
     }
 
     private async Task Save(GridDto grid)
     {
-        // Rename
+        // Save Rename
         var cellList = grid.CellList().Where(item => item.TextModified != null).ToList();
         foreach (var item in cellList)
         {
             await UtilStorage.Rename(configuration.ConnectionStringStorage, item.Text!, item.TextModified!);
         }
-        // Create Folder
+        // Button Create Folder
         if (grid.State?.CustomButtonClick?.Name == "CreateFolder")
         {
             var fieldCustom = grid.ControlList().Where(item => item.ControlEnum == GridControlEnum.FieldCustom).Single();
@@ -69,11 +84,24 @@
         }
         else
         {
-            // Delete
-            var dataRowIndex = parentCell.DataRowIndex!;
-            var folderOrFileName = parentGrid!.CellList().Where(item => item.CellEnum == GridCellEnum.Field && dataRowIndex == item.DataRowIndex).Select(item => item.Text).Single();
-            await UtilStorage.Delete(configuration.ConnectionStringStorage, folderOrFileName!);
-            await Load(parentGrid);
+            // Modal Delete
+            if (parentControl?.Name == "Delete")
+            {
+                var dataRowIndex = parentCell.DataRowIndex!;
+                var folderOrFileName = parentGrid!.CellList().Where(item => item.CellEnum == GridCellEnum.Field && dataRowIndex == item.DataRowIndex).Select(item => item.Text).Single();
+                await UtilStorage.Delete(configuration.ConnectionStringStorage, folderOrFileName!);
+                await Load(parentGrid);
+            }
+            // Modal Rename
+            if (parentControl?.Name == "Rename")
+            {
+                var control = grid.ControlModifiedList().Where(item => item.Name == "Rename").SingleOrDefault();
+                if (control != null)
+                {
+                    await UtilStorage.Rename(configuration.ConnectionStringStorage, control.Text!, control.TextModified!);
+                    await Load(parentGrid!);
+                }
+            }
         }
     }
 }
