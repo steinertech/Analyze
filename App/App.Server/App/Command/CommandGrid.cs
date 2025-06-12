@@ -276,7 +276,7 @@
         return grid;
     }
 
-    private async Task<GridDto> LookupHeaderSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private async Task LookupHeaderSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         if (parentGrid.State == null)
         {
@@ -324,10 +324,10 @@
                 }
             }
         }
-        return await Load(parentGrid, null, null, null);
+        await Load(parentGrid, null, null, null);
     }
 
-    private async Task<GridDto> LookupColumnSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private async Task LookupColumnSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         if (parentGrid.State == null)
         {
@@ -344,25 +344,19 @@
                 i++;
             }
         }
-        return await Load(parentGrid, null, null, null); // TODO Column on lookup. For example filter would be missing.
+        await Load(parentGrid, null, null, null); // TODO Column on lookup. For example filter would be missing.
     }
 
     /// <summary>
-    /// Returns parent grid. User clicked entry on autocomplete lookup.
+    /// User clicked entry on autocomplete lookup. Update parent grid.
     /// </summary>
-    private GridDto LookupAutocompleteSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private void LookupAutocompleteSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         var cell = grid.SelectedCell("Text");
         if (cell != null)
         {
             parentCell.TextModified = cell.Text;
         }
-        return parentGrid; // Load(new GridDto { GridName = grid.GridName }, null);
-    }
-
-    private async Task SavePrivate(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
-    {
-        // TODO
     }
 
     public async Task<GridSaveDto> Save(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
@@ -379,12 +373,14 @@
         }
         if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
         {
-            return new() { Grid = await LookupHeaderSave(grid, parentCell, parentGrid) }; 
+            await LookupHeaderSave(grid, parentCell, parentGrid);
+            return new() { Grid = grid, ParentGrid = parentGrid };
         }
         var parentCellIsColumn = parentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any();
         if (parentCell != null && parentCellIsColumn == true && parentGrid != null)
         {
-            return new() { Grid = await LookupColumnSave(grid, parentCell, parentGrid) };
+            await LookupColumnSave(grid, parentCell, parentGrid);
+            return new() { Grid = grid, ParentGrid = parentGrid };
         }
         if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
         {
@@ -393,7 +389,8 @@
                 // Parameter parentCell to parentGrid cell instance
                 parentCell = parentGrid.RowCellList?.SelectMany(item => item).Where(item => item.DataRowIndex == parentCell.DataRowIndex && item.FieldName == parentCell.FieldName).FirstOrDefault() ?? parentCell;
             }
-            return new() { Grid = LookupAutocompleteSave(grid, parentCell, parentGrid) };
+            LookupAutocompleteSave(grid, parentCell, parentGrid);
+            return new() { Grid = grid, ParentGrid = parentGrid };
         }
         return new() { Grid = grid };
     }

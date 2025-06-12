@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-
-public class StorageGrid(Configuration configuration)
+﻿public class StorageGrid(Configuration configuration)
 {
     private async Task Load(GridDto grid)
     {
