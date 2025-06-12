@@ -22,7 +22,7 @@ export class PageGridComponent {
   GridControlEnum = GridControlEnum
 
   @Input() grid?: GridDto // Data grid
-  
+
   lookupCell?: GridCellDto // Cell with open lookup
 
   lookupControl?: GridControlDto // Control with open lookup
@@ -30,6 +30,8 @@ export class PageGridComponent {
   lookupGrid?: GridDto // Lookup window
 
   @Input() protected parent?: PageGridComponent // Lookup parent
+
+  @Input() detailList?: PageGridComponent[] // Detail grids to reload if new row is selected on this grid.
 
   cellTextGet(cell: GridCellDto) {
     switch (cell.cellEnum) {
@@ -206,6 +208,12 @@ export class PageGridComponent {
         }
         this.grid.state.isSelectList = []
         this.grid.state.isSelectList[cell.dataRowIndex] = true
+        // Detail data grids reload
+        this.detailList?.forEach(item => {
+          if (item.grid) {
+            this.serverApi.commandGridLoad(item.grid, item.parent?.lookupCell, item.parent?.lookupControl, item.parent?.grid).subscribe(value => item.grid = value);
+          }
+        })
       }
     }
   }
@@ -237,11 +245,13 @@ export class PageGridComponent {
   clickControl(cell: GridCellDto, control: GridControlDto) {
     if (this.grid) {
       switch (control.controlEnum) {
-        // Button Cancel
+        // Button Reload
         case GridControlEnum.ButtonReload: {
           this.grid.state = undefined // Clear state
           this.lookupClose()
-          this.serverApi.commandGridLoad(this.grid, this.parent?.lookupCell, this.parent?.lookupControl, this.parent?.grid).subscribe(value => this.grid = value); // Reload
+          this.serverApi.commandGridLoad(this.grid, this.parent?.lookupCell, this.parent?.lookupControl, this.parent?.grid).subscribe(value => {
+            this.grid = value // Reload
+          });
           break
         }
         // Button Save

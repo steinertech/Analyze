@@ -24,7 +24,7 @@ export class PageProductComponent {
   ngAfterContentInit() {
     if (this.dataService.isWindow()) {
       this.serverApi.commandGridLoad(this.grid).subscribe(value => this.grid = value);
-      this.serverApi.commandGridLoad(this.gridExcel).subscribe(value => this.gridExcel = value);
+      // this.serverApi.commandGridLoad(this.gridExcel).subscribe(value => this.gridExcel = value);
       this.serverApi.commandGridLoad(this.gridStorage).subscribe(value => this.gridStorage = value);
     }
   }

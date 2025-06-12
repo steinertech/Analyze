@@ -511,7 +511,7 @@ public class GridDto
         return result;
     }
 
-    public GridCellDto AddCell(GridCellDto cell)
+    public GridCellDto AddCell(GridCellDto cell, string? rowKey = null)
     {
         RowCellList = RowCellList ?? new();
         if (RowCellList.LastOrDefault() == null)
@@ -519,6 +519,30 @@ public class GridDto
             RowCellList.Add(new());
         }
         RowCellList.Last().Add(cell);
+        if (rowKey != null)
+        {
+            UtilServer.Assert(cell.DataRowIndex != null, "DataRowIndex can not be null!");
+            if (State == null)
+            {
+                State = new GridStateDto();
+            }
+            if (State.RowKeyList == null)
+            {
+                State.RowKeyList = new();
+            }
+            var dataRowIndex = cell.DataRowIndex!.Value;
+            if (State.RowKeyList.Count <= dataRowIndex)
+            {
+                var emptyList = Enumerable.Repeat<string?>(null, dataRowIndex + 1 - State.RowKeyList.Count).ToList();
+                State.RowKeyList.AddRange(emptyList);
+            }
+            var rowKeyOld = State.RowKeyList[dataRowIndex];
+            if (rowKeyOld != null)
+            {
+                UtilServer.Assert(rowKeyOld == rowKey, "RowKey invalid!");
+            }
+            State.RowKeyList[dataRowIndex] = rowKey;
+        }
         return cell;
     }
 
@@ -579,6 +603,11 @@ public class GridStateDto
     /// Gets or sets CustomButtonClick. User clicked button to process on Grid.Save();
     /// </summary>
     public GridStateCustomButtonClickDto? CustomButtonClick { get; set; }
+
+    /// <summary>
+    /// Gets or sets RowKeyList. Typically this is the data primary key. (DataRowIndex, RowKey)
+    /// </summary>
+    public List<string?>? RowKeyList { get; set; }
 }
 
 public class GridStateCustomButtonClickDto

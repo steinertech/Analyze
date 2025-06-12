@@ -8,9 +8,9 @@
 </app-page-grid>
 
 <h1>Excel</h1>
-<app-page-grid [grid]="gridExcel">
+<app-page-grid #gridExcelRef [grid]="gridExcel">
 </app-page-grid>
 
 <h1>Storage</h1>
-<app-page-grid [grid]="gridStorage">
+<app-page-grid [grid]="gridStorage" [detailList]="[gridExcelRef]">
 </app-page-grid>

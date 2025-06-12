@@ -125,6 +125,7 @@ export class GridStateDto {
   public isSelectMultiList?: (boolean | null)[]
   public columnList?: GridStateColumnDto[]
   public customButtonClick?: GridStateCustomButtonClickDto
+  public rowKeyList?: (string | null)[]
 }
 
 export class GridStateCustomButtonClickDto {
