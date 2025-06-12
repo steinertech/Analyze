@@ -70,8 +70,11 @@
         // Button Create Folder
         if (grid.State?.CustomButtonClick?.Name == "CreateFolder")
         {
-            var fieldCustom = grid.ControlList().Where(item => item.ControlEnum == GridControlEnum.FieldCustom).Single();
-            await UtilStorage.Create(configuration.ConnectionStringStorage, fieldCustom.Text!);
+            var control = grid.ControlModifiedList().SingleOrDefault();
+            if (control != null)
+            {
+                await UtilStorage.Create(configuration.ConnectionStringStorage, control.TextModified!);
+            }
         }
     }
 

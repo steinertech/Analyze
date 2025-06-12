@@ -22,14 +22,14 @@ export class PageGridComponent {
   GridControlEnum = GridControlEnum
 
   @Input() grid?: GridDto // Data grid
-
+  
   lookupCell?: GridCellDto // Cell with open lookup
 
   lookupControl?: GridControlDto // Control with open lookup
 
-  @Input() lookupGrid?: GridDto // Lookup window
+  lookupGrid?: GridDto // Lookup window
 
-  @Input() parent?: PageGridComponent // Lookup parent
+  @Input() protected parent?: PageGridComponent // Lookup parent
 
   cellTextGet(cell: GridCellDto) {
     switch (cell.cellEnum) {
