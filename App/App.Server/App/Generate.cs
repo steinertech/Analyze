@@ -27,10 +27,10 @@ public static class ServerApi
                 await new CommandUserSignUp(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<Response>()!).Run(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandGrid) + nameof(CommandGrid.Load):
-                responseDto.Result = await new CommandGrid(serviceProvider.GetService<MemoryGrid>()!, serviceProvider.GetService<ExcelGrid>()!, serviceProvider.GetService<StorageGrid>()!).Load(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![2], jsonOptions));
+                responseDto.Result = await new CommandGrid(serviceProvider.GetService<MemoryGrid>()!, serviceProvider.GetService<ExcelGrid>()!, serviceProvider.GetService<StorageGrid>()!).Load(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridControlDto>(requestDto.ParamList![2], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![3], jsonOptions));
                 break;
             case nameof(CommandGrid) + nameof(CommandGrid.Save):
-                responseDto.Result = await new CommandGrid(serviceProvider.GetService<MemoryGrid>()!, serviceProvider.GetService<ExcelGrid>()!, serviceProvider.GetService<StorageGrid>()!).Save(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![2], jsonOptions));
+                responseDto.Result = await new CommandGrid(serviceProvider.GetService<MemoryGrid>()!, serviceProvider.GetService<ExcelGrid>()!, serviceProvider.GetService<StorageGrid>()!).Save(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridControlDto>(requestDto.ParamList![2], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![3], jsonOptions));
                 break;
             default:
                 throw new Exception($"Command not found! ({requestDto.CommandName})");

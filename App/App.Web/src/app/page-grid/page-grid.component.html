@@ -56,45 +56,49 @@ ColumnList={{grid?.state?.columnList | json}}<br>
       @case (GridCellEnum.Control) {
       @for (control of cell.controlList; track $index;) {
       @switch (control.controlEnum) {
-      <!-- Button Cancel -->
-      @case (ControlEnum.ButtonCancel) {
-      <button (click)="clickControl(cell, control)">Cancel</button>
+      <!-- Button Reload -->
+      @case (GridControlEnum.ButtonReload) {
+      <button (click)="clickControl(cell, control)">Reload</button>
       }
       <!-- Button Save -->
-      @case (ControlEnum.ButtonSave) {
+      @case (GridControlEnum.ButtonSave) {
       <button (click)="clickControl(cell, control)">Save</button>
       }
       <!-- Button Cancel (Lookup) -->
-      @case (ControlEnum.ButtonLookupCancel) {
+      @case (GridControlEnum.ButtonLookupCancel) {
       <button (click)="clickControl(cell, control)">Cancel</button>
       }
       <!-- Button Ok (Lookup) -->
-      @case (ControlEnum.ButtonLookupOk) {
+      @case (GridControlEnum.ButtonLookupOk) {
       <button (click)="clickControl(cell, control)">Ok</button>
       }
       <!-- Button Sort (Lookup) -->
-      @case (ControlEnum.ButtonLookupSort) {
+      @case (GridControlEnum.ButtonLookupSort) {
       <button (click)="clickControl(cell, control)">Sort</button>
       }
       <!-- Button Column -->
-      @case (ControlEnum.ButtonColumn) {
+      @case (GridControlEnum.ButtonColumn) {
       <button (click)="clickControl(cell, control)">☰</button>
       }
       <!-- Button Custom -->
-      @case (ControlEnum.ButtonCustom) {
+      @case (GridControlEnum.ButtonCustom) {
       <button (click)="clickControl(cell, control)">{{control.text ?? 'Button'}}</button>
       }
       <!-- Checkbox SelectMultiAll -->
-      @case (ControlEnum.CheckboxSelectMultiAll) {
+      @case (GridControlEnum.CheckboxSelectMultiAll) {
       <input [ngModel]="cellTextGetControl(cell, control) == 'true'" (ngModelChange)="cellTextSetControl(cell, control, $event.toString())" type="checkbox">
       }
       <!-- Label Custom -->
-      @case (ControlEnum.LabelCustom) {
+      @case (GridControlEnum.LabelCustom) {
         {{control.text}}
       }
       <!-- Field Custom -->
-      @case (ControlEnum.FieldCustom) {
+      @case (GridControlEnum.FieldCustom) {
       <input [ngModel]="cellTextGetControl(cell, control)" (ngModelChange)="cellTextSetControl(cell, control, $event)">
+      }
+      <!-- Button Modal -->
+      @case (GridControlEnum.ButtonModal) {
+      <button (click)="clickLookup(cell, control)">{{control.text ?? 'Button'}}</button>
       }
       }
       }

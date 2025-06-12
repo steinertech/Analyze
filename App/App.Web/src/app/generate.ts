@@ -39,6 +39,11 @@ export class ProductDto {
   public price?: number
 }
 
+export class GridSaveDto {
+  public grid!: GridDto
+  public parentGrid?: GridDto
+}
+
 export class GridConfigDto {
   public gridName!: string
   public dataTableName!: string
@@ -61,11 +66,11 @@ export class GridCellDto {
   public text?: string
   public textModified?: string
   public dropDownList?: string[]
-  public controlList?: ControlDto[]
+  public controlList?: GridControlDto[]
 }
 
-export class ControlDto {
-  public controlEnum?: ControlEnum
+export class GridControlDto {
+  public controlEnum?: GridControlEnum
   public text?: string
   public name?: string
 }
@@ -82,9 +87,9 @@ export enum GridCellEnum {
   Control = 16,
 }
 
-export enum ControlEnum {
+export enum GridControlEnum {
     None = 0,
-    ButtonCancel = 3,
+    ButtonReload = 3,
     ButtonSave = 4,
     ButtonLookupCancel = 8,
     ButtonLookupOk = 7,
@@ -94,6 +99,7 @@ export enum ControlEnum {
     CheckboxSelectMultiAll = 14,
     LabelCustom = 17,
     FieldCustom = 18,
+    ButtonModal = 19,
 }
 
 export class GridDto {
@@ -190,12 +196,12 @@ export class ServerApi {
     return this.post<void>({ commandName: "CommandUserSignUp", paramList: [userDto] });
   }
 
-  commandGridLoad(grid: GridDto, parentCell?: GridCellDto, parentGrid?: GridDto) {
-    return this.post<GridDto>({ commandName: "CommandGridLoad", paramList: [grid, parentCell, parentGrid] });
+  commandGridLoad(grid: GridDto, parentCell?: GridCellDto, parentControl?: GridControlDto, parentGrid?: GridDto) {
+    return this.post<GridDto>({ commandName: "CommandGridLoad", paramList: [grid, parentCell, parentControl, parentGrid] });
   }
 
-  commandGridSave(grid: GridDto, parentCell?: GridCellDto, parentGrid?: GridDto) {
-    return this.post<GridDto>({ commandName: "CommandGridSave", paramList: [grid, parentCell, parentGrid] });
+  commandGridSave(grid: GridDto, parentCell?: GridCellDto, parentControl?: GridControlDto, parentGrid?: GridDto) {
+    return this.post<GridSaveDto>({ commandName: "CommandGridSave", paramList: [grid, parentCell, parentControl, parentGrid] });
   }
 
   commandGridSelectDropDown(gridName: string, fieldName: string) {

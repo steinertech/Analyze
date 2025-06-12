@@ -3,7 +3,7 @@
     /// <summary>
     /// Returns loaded grid.
     /// </summary>
-    public async Task <GridDto> Load(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
+    public async Task<GridDto> Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
     {
         // Excel
         if (grid.GridName == "Excel")
@@ -14,7 +14,7 @@
         // Storage
         if (grid.GridName == "Storage")
         {
-            await storageGrid.Load(grid);
+            await storageGrid.Load(grid, parentCell, parentControl, parentGrid);
             return grid;
         }
         // Data
@@ -33,7 +33,7 @@
             LookupAutocompleteLoad(grid);
         }
         // Column Lookup
-        var parentCellIsColumn = parentCell?.ControlList?.Where(item => item.ControlEnum == ControlEnum.ButtonColumn).Any();
+        var parentCellIsColumn = parentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any();
         if (parentCell != null && parentCellIsColumn == true && parentGrid != null)
         {
             LookupColumnLoad(grid, parentCell, parentGrid);
@@ -56,7 +56,7 @@
         {
             CellEnum = GridCellEnum.Control,
             ControlList = [
-            new(){ ControlEnum =  ControlEnum.ButtonColumn },
+            new(){ ControlEnum =  GridControlEnum.ButtonColumn },
             ]
         });
         // Header
@@ -106,8 +106,8 @@
         {
             CellEnum = GridCellEnum.Control,
             ControlList = [
-            new() { ControlEnum = ControlEnum.ButtonCancel },
-            new() { ControlEnum = ControlEnum.ButtonSave },
+            new() { ControlEnum = GridControlEnum.ButtonReload },
+            new() { ControlEnum = GridControlEnum.ButtonSave },
             ]
         });
     }
@@ -122,8 +122,8 @@
         {
             CellEnum = GridCellEnum.Control,
             ControlList = [
-            new() { ControlEnum = ControlEnum.CheckboxSelectMultiAll, Text = "false" },
-            new() { ControlEnum = ControlEnum.LabelCustom, Text = "(Select All)" },
+            new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll, Text = "false" },
+            new() { ControlEnum = GridControlEnum.LabelCustom, Text = "(Select All)" },
             ]
         });
         // State
@@ -156,8 +156,8 @@
         {
             CellEnum = GridCellEnum.Control,
             ControlList = [
-            new() { ControlEnum = ControlEnum.ButtonLookupCancel },
-            new() { ControlEnum = ControlEnum.ButtonLookupOk },
+            new() { ControlEnum = GridControlEnum.ButtonLookupCancel },
+            new() { ControlEnum = GridControlEnum.ButtonLookupOk },
             ]
         });
     }
@@ -170,7 +170,7 @@
         {
             CellEnum = GridCellEnum.Control,
             ControlList = [
-            new() { ControlEnum = ControlEnum.ButtonLookupSort }
+            new() { ControlEnum = GridControlEnum.ButtonLookupSort }
             ]
         });
         grid.RowCellList.Add(new List<GridCellDto>());
@@ -180,8 +180,8 @@
         {
             CellEnum = GridCellEnum.Control,
             ControlList = [
-            new() { ControlEnum = ControlEnum.CheckboxSelectMultiAll, Text = "false" },
-            new() { ControlEnum = ControlEnum.LabelCustom, Text = "(Select All)" },
+            new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll, Text = "false" },
+            new() { ControlEnum = GridControlEnum.LabelCustom, Text = "(Select All)" },
             ]
         });
         // State
@@ -211,8 +211,8 @@
         {
             CellEnum = GridCellEnum.Control,
             ControlList = [
-            new() { ControlEnum = ControlEnum.ButtonLookupCancel },
-            new() { ControlEnum = ControlEnum.ButtonLookupOk },
+            new() { ControlEnum = GridControlEnum.ButtonLookupCancel },
+            new() { ControlEnum = GridControlEnum.ButtonLookupOk },
             ]
         });
     }
@@ -234,8 +234,8 @@
         {
             CellEnum = GridCellEnum.Control,
             ControlList = [
-            new() { ControlEnum = ControlEnum.ButtonLookupCancel },
-            new() { ControlEnum = ControlEnum.ButtonLookupOk },
+            new() { ControlEnum = GridControlEnum.ButtonLookupCancel },
+            new() { ControlEnum = GridControlEnum.ButtonLookupOk },
             ]
         });
     }
@@ -324,7 +324,7 @@
                 }
             }
         }
-        return await Load(parentGrid, null, null);
+        return await Load(parentGrid, null, null, null);
     }
 
     private async Task<GridDto> LookupColumnSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
@@ -344,7 +344,7 @@
                 i++;
             }
         }
-        return await Load(parentGrid, null, null); // TODO Column on lookup. For example filter would be missing.
+        return await Load(parentGrid, null, null, null); // TODO Column on lookup. For example filter would be missing.
     }
 
     /// <summary>
@@ -360,26 +360,31 @@
         return parentGrid; // Load(new GridDto { GridName = grid.GridName }, null);
     }
 
-    public async Task<GridDto> Save(GridDto grid, GridCellDto? parentCell, GridDto? parentGrid)
+    private async Task SavePrivate(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
+    {
+        // TODO
+    }
+
+    public async Task<GridSaveDto> Save(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
     {
         // Storage
         if (grid.GridName == "Storage")
         {
-            await storageGrid.Save(grid);
-            return grid;
+            await storageGrid.Save(grid, parentCell, parentControl, parentGrid);
+            return new() { Grid = grid, ParentGrid = parentGrid };
         }
         if (parentCell == null)
         {
-            return DataSave(grid);
+            return new() { Grid = DataSave(grid) };
         }
         if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
         {
-            return await LookupHeaderSave(grid, parentCell, parentGrid);
+            return new() { Grid = await LookupHeaderSave(grid, parentCell, parentGrid) }; 
         }
-        var parentCellIsColumn = parentCell?.ControlList?.Where(item => item.ControlEnum == ControlEnum.ButtonColumn).Any();
+        var parentCellIsColumn = parentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any();
         if (parentCell != null && parentCellIsColumn == true && parentGrid != null)
         {
-            return await LookupColumnSave(grid, parentCell, parentGrid);
+            return new() { Grid = await LookupColumnSave(grid, parentCell, parentGrid) };
         }
         if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
         {
@@ -388,9 +393,9 @@
                 // Parameter parentCell to parentGrid cell instance
                 parentCell = parentGrid.RowCellList?.SelectMany(item => item).Where(item => item.DataRowIndex == parentCell.DataRowIndex && item.FieldName == parentCell.FieldName).FirstOrDefault() ?? parentCell;
             }
-            return LookupAutocompleteSave(grid, parentCell, parentGrid);
+            return new() { Grid = LookupAutocompleteSave(grid, parentCell, parentGrid) };
         }
-        return grid;
+        return new() { Grid = grid };
     }
 
     private List<string> DropDownLoad(string gridName, string fieldName)
@@ -406,6 +411,16 @@
         }
         throw new Exception($"Grid select drop down not found! ({gridName}.{fieldName})");
     }
+}
+
+public class GridSaveDto
+{
+    public GridDto Grid { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets ParentGrid. Can be used to reload parent grid when lookup is closed. See also GridControlEnum.ButtonLookupOk;
+    /// </summary>
+    public GridDto? ParentGrid { get; set; }
 }
 
 public class GridConfigDto
@@ -448,6 +463,74 @@ public class GridDto
             result = row.Where(item => item.FieldName == fieldName).FirstOrDefault();
         }
         return result;
+    }
+
+    public List<GridCellDto> CellList()
+    {
+        if (RowCellList == null)
+        {
+            return new();
+        }
+        else
+        {
+            return RowCellList.SelectMany(item => item).ToList();
+        }
+    }
+
+    public List<GridControlDto> ControlList()
+    {
+        if (RowCellList == null)
+        {
+            return new();
+        }
+        else
+        {
+            return RowCellList.SelectMany(item => item).SelectMany(item => item.ControlList ?? []).ToList();
+        }
+    }
+
+    public List<List<GridCellDto>>? Clear()
+    {
+        RowCellList = RowCellList ?? new();
+        RowCellList.Clear();
+        return RowCellList;
+    }
+
+    public List<GridCellDto> AddRow()
+    {
+        RowCellList = RowCellList ?? new();
+        var result = new List<GridCellDto>();
+        RowCellList.Add(result);
+        return result;
+    }
+
+    public GridCellDto AddCell(GridCellDto cell)
+    {
+        RowCellList = RowCellList ?? new();
+        if (RowCellList.LastOrDefault() == null)
+        {
+            RowCellList.Add(new());
+        }
+        RowCellList.Last().Add(cell);
+        return cell;
+    }
+
+    public GridControlDto AddControl(GridControlDto control)
+    {
+        RowCellList = RowCellList ?? new();
+        if (RowCellList.LastOrDefault() == null)
+        {
+            RowCellList.Add(new());
+        }
+        var row = RowCellList.Last();
+        if (row.LastOrDefault()?.CellEnum != GridCellEnum.Control)
+        {
+            row.Add(new() { CellEnum = GridCellEnum.Control, ControlList = [] });
+        }
+        var cell = row.Last();
+        cell.ControlList = cell.ControlList ?? [];
+        cell.ControlList.Add(control);
+        return control;
     }
 }
 
@@ -552,16 +635,16 @@ public class GridCellDto
 
     public List<string>? DropDownList { get; set; }
 
-    public List<ControlDto>? ControlList { get; set; }
+    public List<GridControlDto>? ControlList { get; set; }
 }
 
 /// <summary>
 /// Controls are not data cell specific. Like cancel, save and delete button.
 /// Multiple controls can be in one cell.
 /// </summary>
-public class ControlDto
+public class GridControlDto
 {
-    public ControlEnum? ControlEnum { get; set; }
+    public GridControlEnum? ControlEnum { get; set; }
 
     public string? Text { get; set; }
 
@@ -594,6 +677,9 @@ public enum GridCellEnum
     /// </summary>
     FieldCheckbox = 11,
 
+    /// <summary>
+    /// Data field with autocomplete.
+    /// </summary>
     FieldAutocomplete = 12,
 
     /// <summary>
@@ -607,14 +693,14 @@ public enum GridCellEnum
     Control = 16,
 }
 
-public enum ControlEnum
+public enum GridControlEnum
 {
     None = 0,
 
     /// <summary>
-    /// Data grid cancel button. Reload grid.
+    /// Data grid reload button.
     /// </summary>
-    ButtonCancel = 3,
+    ButtonReload = 3,
 
     /// <summary>
     /// Data grid save button.
@@ -622,12 +708,12 @@ public enum ControlEnum
     ButtonSave = 4,
 
     /// <summary>
-    /// Lookup window cancel button.
+    /// Lookup window cancel button. If this grid is a lookup window it gets closed.
     /// </summary>
     ButtonLookupCancel = 8,
 
     /// <summary>
-    /// Lookup window ok button.
+    /// Lookup window ok button. If this grid is a lookup window it gets saved and closed after.
     /// </summary>
     ButtonLookupOk = 7,
 
@@ -660,6 +746,11 @@ public enum ControlEnum
     /// Custom text field.
     /// </summary>
     FieldCustom = 18,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    ButtonModal = 19,
 }
 
 public class GridConfigFieldDto

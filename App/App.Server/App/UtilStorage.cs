@@ -39,7 +39,7 @@ public class UtilStorage
             Debug.Assert(pathItem.Name.StartsWith(folderNameRoot));
             var folderOrFileName = pathItem.Name.Substring(folderNameRoot.Length)!;
             var isFolder = pathItem.IsDirectory ?? false;
-            var resultItem = ("", isFolder);
+            var resultItem = (folderOrFileName, isFolder);
             result.Add(resultItem);
         }
         return result;

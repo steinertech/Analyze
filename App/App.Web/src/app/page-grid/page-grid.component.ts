@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { ControlDto, ControlEnum, GridCellDto, GridCellEnum, GridDto, ServerApi } from '../generate';
+import { GridControlDto, GridControlEnum, GridCellDto, GridCellEnum, GridDto, ServerApi } from '../generate';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -19,11 +19,13 @@ export class PageGridComponent {
 
   GridCellEnum = GridCellEnum
 
-  ControlEnum = ControlEnum
+  GridControlEnum = GridControlEnum
 
   @Input() grid?: GridDto // Data grid
 
   lookupCell?: GridCellDto // Cell with open lookup
+
+  lookupControl?: GridControlDto // Control with open lookup
 
   @Input() lookupGrid?: GridDto // Lookup window
 
@@ -59,10 +61,10 @@ export class PageGridComponent {
     return undefined
   }
 
-  cellTextGetControl(cell: GridCellDto, control: ControlDto) {
+  cellTextGetControl(cell: GridCellDto, control: GridControlDto) {
     switch (control.controlEnum) {
       // Field
-      case ControlEnum.CheckboxSelectMultiAll: {
+      case GridControlEnum.CheckboxSelectMultiAll: {
         return control.text
       }
     }
@@ -99,7 +101,7 @@ export class PageGridComponent {
           } else {
             this.grid.state.filterList[index].text = value
           }
-          this.serverApi.commandGridLoad(this.grid, this.parent?.lookupCell, this.parent?.grid).subscribe(value => this.grid = value); // Reload // TODO Debounce
+          this.serverApi.commandGridLoad(this.grid, this.parent?.lookupCell, this.parent?.lookupControl, this.parent?.grid).subscribe(value => this.grid = value); // Reload // TODO Debounce
           break
         }
         // CheckBox
@@ -127,11 +129,11 @@ export class PageGridComponent {
     }
   }
 
-  cellTextSetControl(cell: GridCellDto, control: ControlDto, value: string) {
+  cellTextSetControl(cell: GridCellDto, control: GridControlDto, value: string) {
     if (this.grid) {
       switch (control.controlEnum) {
         // Checkbox SelectMultiAll
-        case ControlEnum.CheckboxSelectMultiAll: {
+        case GridControlEnum.CheckboxSelectMultiAll: {
           if (this.grid) {
             if (!this.grid.state) {
               this.grid.state = {}
@@ -154,7 +156,7 @@ export class PageGridComponent {
           break
         }
         // Field Custom
-        case ControlEnum.FieldCustom: {
+        case GridControlEnum.FieldCustom: {
           control.text = value
           break
         }
@@ -232,41 +234,47 @@ export class PageGridComponent {
     }
   }
 
-  clickControl(cell: GridCellDto, control: ControlDto) {
+  clickControl(cell: GridCellDto, control: GridControlDto) {
     if (this.grid) {
       switch (control.controlEnum) {
         // Button Cancel
-        case ControlEnum.ButtonCancel: {
+        case GridControlEnum.ButtonReload: {
           this.grid.state = undefined // Clear state
           this.lookupClose()
-          this.serverApi.commandGridLoad(this.grid).subscribe(value => this.grid = value); // Reload
+          this.serverApi.commandGridLoad(this.grid, this.parent?.lookupCell, this.parent?.lookupControl, this.parent?.grid).subscribe(value => this.grid = value); // Reload
           break
         }
         // Button Save
-        case ControlEnum.ButtonSave: {
+        case GridControlEnum.ButtonSave: {
           this.lookupClose()
-          this.serverApi.commandGridSave(this.grid).subscribe(value => this.grid = value);
+          this.serverApi.commandGridSave(this.grid, this.parent?.lookupCell, this.parent?.lookupControl, this.parent?.grid).subscribe(value => {
+            this.grid = value.grid
+            if (this.parent?.grid && value.parentGrid) {
+              this.parent.grid = value.parentGrid
+            }
+          });
           break
         }
         // Button Cancel (Lookup)
-        case ControlEnum.ButtonLookupCancel: {
+        case GridControlEnum.ButtonLookupCancel: {
           this.parent?.lookupClose()
           break
         }
         // Button Ok (Lookup)
-        case ControlEnum.ButtonLookupOk: {
+        case GridControlEnum.ButtonLookupOk: {
           if (this.parent?.grid) {
-            this.serverApi.commandGridSave(this.grid, this.parent.lookupCell, this.parent.grid).subscribe(value => {
-              if (this.parent) {
-                this.parent.grid = value
-                this.parent.lookupClose()
+            this.serverApi.commandGridSave(this.grid, this.parent.lookupCell, this.parent.lookupControl, this.parent.grid).subscribe(value => {
+              this.grid = value.grid // Lookup to be closed
+              if (this.parent?.grid && value.parentGrid) {
+                this.parent.grid = value.parentGrid // Parent reload
               }
+              this.parent?.lookupClose()
             });
           }
           break
         }
         // Button Sort (Lookup)
-        case ControlEnum.ButtonLookupSort: {
+        case GridControlEnum.ButtonLookupSort: {
           if (this.parent?.grid) {
             if (!this.parent.grid.state) {
               this.parent.grid.state = {}
@@ -285,44 +293,36 @@ export class PageGridComponent {
           break
         }
         // Button Column
-        case ControlEnum.ButtonColumn: {
-          if (this.grid) {
-            if (this.lookupCell == cell) {
-              this.lookupCell = undefined // Lookup close
-            } else {
-              this.lookupCell = cell // Lookup open
-            }
-            if (this.lookupCell) {
-              this.lookupGrid = { gridName: this.grid?.gridName }
-              this.serverApi.commandGridLoad(this.lookupGrid, this.lookupCell, this.grid).subscribe(value => this.lookupGrid = value);
-            }
-          }
+        case GridControlEnum.ButtonColumn: {
+          this.clickLookup(cell, control)
           break
         }
         // Button Custom
-        case ControlEnum.ButtonCustom: {
+        case GridControlEnum.ButtonCustom: {
           this.lookupClose()
           if (!this.grid.state) {
             this.grid.state = {}
           }
-          this.grid.state.customButtonClick = {name: control.name, dataRowIndex: cell.dataRowIndex, fieldName: cell.fieldName }
-          this.serverApi.commandGridSave(this.grid).subscribe(value => this.grid = value);
+          this.grid.state.customButtonClick = { name: control.name, dataRowIndex: cell.dataRowIndex, fieldName: cell.fieldName }
+          this.serverApi.commandGridSave(this.grid, this.parent?.lookupCell, this.parent?.lookupControl, this.parent?.grid).subscribe(value => this.grid = value.grid);
           break
         }
       }
     }
   }
 
-  clickLookup(cell: GridCellDto) {
+  clickLookup(cell: GridCellDto, control?: GridControlDto) {
     if (this.grid) {
       if (this.lookupCell == cell) {
         this.lookupCell = undefined // Lookup close
+        this.lookupControl = undefined
       } else {
         this.lookupCell = cell // Lookup open
+        this.lookupControl = control
       }
       if (this.lookupCell) {
         this.lookupGrid = { gridName: this.grid?.gridName }
-        this.serverApi.commandGridLoad(this.lookupGrid, this.lookupCell, this.grid).subscribe(value => this.lookupGrid = value);
+        this.serverApi.commandGridLoad(this.lookupGrid, this.lookupCell, this.lookupControl, this.grid).subscribe(value => this.lookupGrid = value);
       }
     }
   }
