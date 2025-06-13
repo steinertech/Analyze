@@ -5,16 +5,17 @@ Start DevContainer Codespace
 
 # ToDo
 * Pagination
-* Master detail
+* Master detail [Done]
 * Colspan, Rowspan
 * Column order
 * Column lookup [Done]
 * Check App.Web and App.Server version on every request.
 * Timesheet component
 * Calendar component
-* File browser component
-* Excel sheets component master detail
+* Storage component [Done]
+* Excel sheets component master detail [Done]
 * Check App.Web and App.Server version on every request.
+* Tenant
 
 # Misc
 * https://github.com/mui/mui-x

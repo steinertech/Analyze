@@ -614,7 +614,7 @@ public class GridStateDto
     public List<string?>? RowKeyList { get; set; }
 
     /// <summary>
-    /// Gets or sets RowKeyMasterList. These are the (multi) master (one) detail grid relations. (GridName, RowKey)
+    /// Gets or sets RowKeyMasterList. Value is set by master grid on its row selection. (GridName, RowKey)
     /// </summary>
     public Dictionary<string, string?>? RowKeyMasterList { get; set; }
 }
