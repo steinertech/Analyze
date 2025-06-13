@@ -5,7 +5,7 @@ using System.Text;
 
 public class UtilStorage
 {
-    private static string folderNameRoot = "data/";
+    private static string folderNameRoot = "data/"; // TODO "app/data/"
 
     private static DataLakeDirectoryClient Client(string connectionString)
     {

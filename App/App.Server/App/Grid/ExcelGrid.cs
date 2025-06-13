@@ -70,9 +70,16 @@ public class ExcelGrid(Configuration configuration)
     public async Task Load(GridDto grid)
     {
         await Init();
+        // Filter master detail
+        var listLocal = list;
+        var rowKeyMaster = grid.State?.RowKeyMasterList?.Values?.FirstOrDefault();
+        if (rowKeyMaster != null)
+        {
+            listLocal = listLocal.Where(item => item.Key == rowKeyMaster).ToDictionary();
+        }
 
-        grid.RowCellList = new();
-        foreach (var file in list)
+        grid.Clear();
+        foreach (var file in listLocal)
         {
             foreach (var sheet in file.Value)
             {
@@ -84,11 +91,11 @@ public class ExcelGrid(Configuration configuration)
                     {
                         break;
                     }
-                    grid.RowCellList.Add(new());
+                    grid.AddRow();
                     foreach (var cell in row.Value)
                     {
                         var value = cell.Value;
-                        grid.RowCellList.Last().Add(new GridCellDto { CellEnum = GridCellEnum.Field, Text = value.ToString() });
+                        grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = value.ToString() });
                     }
                 }
             }

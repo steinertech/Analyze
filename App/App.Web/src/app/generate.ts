@@ -84,23 +84,23 @@ export enum GridCellEnum {
   Filter = 10,
   FieldCheckbox = 11,
   FieldAutocomplete = 12,
-  CheckboxSelectMulti = 13, 
+  CheckboxSelectMulti = 13,
   Control = 16,
 }
 
 export enum GridControlEnum {
-    None = 0,
-    ButtonReload = 3,
-    ButtonSave = 4,
-    ButtonLookupCancel = 8,
-    ButtonLookupOk = 7,
-    ButtonLookupSort = 9,
-    ButtonColumn = 15,
-    ButtonCustom = 16,
-    CheckboxSelectMultiAll = 14,
-    LabelCustom = 17,
-    FieldCustom = 18,
-    ButtonModal = 19,
+  None = 0,
+  ButtonReload = 3,
+  ButtonSave = 4,
+  ButtonLookupCancel = 8,
+  ButtonLookupOk = 7,
+  ButtonLookupSort = 9,
+  ButtonColumn = 15,
+  ButtonCustom = 16,
+  CheckboxSelectMultiAll = 14,
+  LabelCustom = 17,
+  FieldCustom = 18,
+  ButtonModal = 19,
 }
 
 export class GridDto {
@@ -126,6 +126,7 @@ export class GridStateDto {
   public columnList?: GridStateColumnDto[]
   public customButtonClick?: GridStateCustomButtonClickDto
   public rowKeyList?: (string | null)[]
+  public rowKeyMasterList?: Record<string, string | null>
 }
 
 export class GridStateCustomButtonClickDto {
@@ -162,7 +163,7 @@ export class ServerApi {
 
   }
 
-  post<T>(request: RequestDto ): Observable<T> {
+  post<T>(request: RequestDto): Observable<T> {
     return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), request).pipe(
       // NavigateUrl
       tap(value => {

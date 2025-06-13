@@ -203,14 +203,27 @@ export class PageGridComponent {
   cellClick(cell: GridCellDto) {
     if (this.grid) {
       if (cell.dataRowIndex != undefined) {
+        let dataRowIndex = cell.dataRowIndex
         if (!this.grid.state) {
           this.grid.state = {}
         }
         this.grid.state.isSelectList = []
         this.grid.state.isSelectList[cell.dataRowIndex] = true
-        // Detail data grids reload
+        // Reload detail data grids
         this.detailList?.forEach(item => {
           if (item.grid) {
+            if (!item.grid.state) {
+              item.grid.state = {}
+            }
+            if (!item.grid.state.rowKeyMasterList) {
+              item.grid.state.rowKeyMasterList = {}
+            }
+            // Set rowKey on detail grid
+            if (this.grid?.gridName && this.grid.state?.rowKeyList) {
+              let rowKey = this.grid.state?.rowKeyList[dataRowIndex]
+              item.grid.state.rowKeyMasterList[this.grid?.gridName] = rowKey
+            }
+            // Reload detail grid
             this.serverApi.commandGridLoad(item.grid, item.parent?.lookupCell, item.parent?.lookupControl, item.parent?.grid).subscribe(value => item.grid = value);
           }
         })

@@ -500,6 +500,10 @@ public class GridDto
     {
         RowCellList = RowCellList ?? new();
         RowCellList.Clear();
+        if (State != null)
+        {
+            State.RowKeyList = null;
+        }
         return RowCellList;
     }
 
@@ -605,9 +609,14 @@ public class GridStateDto
     public GridStateCustomButtonClickDto? CustomButtonClick { get; set; }
 
     /// <summary>
-    /// Gets or sets RowKeyList. Typically this is the data primary key. (DataRowIndex, RowKey)
+    /// Gets or sets RowKeyList. This is typically the data primary key. (DataRowIndex, RowKey)
     /// </summary>
     public List<string?>? RowKeyList { get; set; }
+
+    /// <summary>
+    /// Gets or sets RowKeyMasterList. These are the (multi) master (one) detail grid relations. (GridName, RowKey)
+    /// </summary>
+    public Dictionary<string, string?>? RowKeyMasterList { get; set; }
 }
 
 public class GridStateCustomButtonClickDto
