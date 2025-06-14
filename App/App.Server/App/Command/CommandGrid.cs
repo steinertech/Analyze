@@ -450,6 +450,18 @@ public class GridDto
 
     public GridStateDto? State { get; set; }
 
+    public GridStateDto StateGet()
+    {
+        State = State ?? new();
+        return State;
+    }
+
+    public GridPaginationDto PaginationGet()
+    {
+        StateGet().Pagination = StateGet().Pagination ?? new();
+        return StateGet().Pagination!;
+    }
+
     public GridCellDto? SelectedCell(string fieldName)
     {
         GridCellDto? result = null;
@@ -505,6 +517,12 @@ public class GridDto
             State.RowKeyList = null;
         }
         return RowCellList;
+    }
+
+    public GridControlDto AddPagination(int? pageIndex)
+    {
+        StateGet().Pagination = new() { PageIndex = pageIndex };
+        return AddControl(new() { ControlEnum = GridControlEnum.Pagination });
     }
 
     public List<GridCellDto> AddRow()
@@ -614,9 +632,20 @@ public class GridStateDto
     public List<string?>? RowKeyList { get; set; }
 
     /// <summary>
-    /// Gets or sets RowKeyMasterList. Value is set by master grid on its row selection. (GridName, RowKey)
+    /// Gets or sets RowKeyMasterList. This value is set by a master grid on data row selection. (GridName, RowKey)
     /// </summary>
     public Dictionary<string, string?>? RowKeyMasterList { get; set; }
+
+    public GridPaginationDto? Pagination { get; set; }
+}
+
+public class GridPaginationDto
+{
+    public int? PageIndex { get; set; }
+
+    public bool? IsNextClick { get; set; }
+
+    public bool? IsPreviousClick { get; set; }
 }
 
 public class GridStateCustomButtonClickDto
@@ -798,6 +827,11 @@ public enum GridControlEnum
     /// Opens a lookup modal windows. Calls method CommandGrid.Load(); to get modal grid data.
     /// </summary>
     ButtonModal = 19,
+
+    /// <summary>
+    /// Data grid pagination. See also GridPaginationDto.
+    /// </summary>
+    Pagination = 20,
 }
 
 public class GridConfigFieldDto

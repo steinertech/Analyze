@@ -100,5 +100,8 @@ public class ExcelGrid(Configuration configuration)
                 }
             }
         }
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Previous" });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Next" });
     }
 }
