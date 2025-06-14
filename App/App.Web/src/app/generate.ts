@@ -101,6 +101,7 @@ export enum GridControlEnum {
   LabelCustom = 17,
   FieldCustom = 18,
   ButtonModal = 19,
+  Pagination = 20,
 }
 
 export class GridDto {
@@ -124,12 +125,20 @@ export class GridStateDto {
   public isSelectList?: (boolean | null)[]
   public isSelectMultiList?: (boolean | null)[]
   public columnList?: GridStateColumnDto[]
-  public customButtonClick?: GridStateCustomButtonClickDto
+  public buttonCustomClick?: GridStateButtonCustomClickDto
   public rowKeyList?: (string | null)[]
   public rowKeyMasterList?: Record<string, string | null>
+  public pagination?: GridPaginationDto
 }
 
-export class GridStateCustomButtonClickDto {
+export class GridPaginationDto {
+  public pageIndex?: number
+  public pageCount?: number
+  public pageSize?: number
+  public pageIndexClick?: number
+}
+
+export class GridStateButtonCustomClickDto {
   public name?: string
   public dataRowIndex?: number
   public fieldName?: string

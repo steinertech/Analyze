@@ -450,6 +450,18 @@ public class GridDto
 
     public GridStateDto? State { get; set; }
 
+    public GridStateDto StateGet()
+    {
+        State = State ?? new();
+        return State;
+    }
+
+    public GridPaginationDto PaginationGet()
+    {
+        StateGet().Pagination = StateGet().Pagination ?? new();
+        return StateGet().Pagination!;
+    }
+
     public GridCellDto? SelectedCell(string fieldName)
     {
         GridCellDto? result = null;
@@ -505,6 +517,18 @@ public class GridDto
             State.RowKeyList = null;
         }
         return RowCellList;
+    }
+
+    public void ClearResponse()
+    {
+        if (State?.ButtonCustomClick != null)
+        {
+            State.ButtonCustomClick = null;
+        }
+        if (State?.Pagination?.PageIndexClick != null)
+        {
+            State.Pagination.PageIndexClick = null;
+        }
     }
 
     public List<GridCellDto> AddRow()
@@ -604,9 +628,9 @@ public class GridStateDto
     public List<GridStateColumnDto>? ColumnList { get; set; }
 
     /// <summary>
-    /// Gets or sets CustomButtonClick. User clicked button to process on Grid.Save();
+    /// Gets or sets ButtonCustomClick. User clicked button. Process it in Grid.Save();
     /// </summary>
-    public GridStateCustomButtonClickDto? CustomButtonClick { get; set; }
+    public GridStateButtonCustomClickDto? ButtonCustomClick { get; set; }
 
     /// <summary>
     /// Gets or sets RowKeyList. This is typically the data primary key. (DataRowIndex, RowKey)
@@ -614,12 +638,25 @@ public class GridStateDto
     public List<string?>? RowKeyList { get; set; }
 
     /// <summary>
-    /// Gets or sets RowKeyMasterList. Value is set by master grid on its row selection. (GridName, RowKey)
+    /// Gets or sets RowKeyMasterList. This value is set by a master grid on its data row selection. (GridName, RowKey)
     /// </summary>
     public Dictionary<string, string?>? RowKeyMasterList { get; set; }
+
+    public GridPaginationDto? Pagination { get; set; }
 }
 
-public class GridStateCustomButtonClickDto
+public class GridPaginationDto
+{
+    public int? PageIndex { get; set; }
+
+    public int? PageCount { get; set; }
+    
+    public int? PageSize { get; set; }
+
+    public int? PageIndexClick { get; set; }
+}
+
+public class GridStateButtonCustomClickDto
 {
     public string? Name { get; set; }
 
@@ -798,6 +835,11 @@ public enum GridControlEnum
     /// Opens a lookup modal windows. Calls method CommandGrid.Load(); to get modal grid data.
     /// </summary>
     ButtonModal = 19,
+
+    /// <summary>
+    /// Data grid pagination. See also GridPaginationDto.
+    /// </summary>
+    Pagination = 20,
 }
 
 public class GridConfigFieldDto

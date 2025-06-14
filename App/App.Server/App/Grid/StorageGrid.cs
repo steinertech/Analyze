@@ -68,7 +68,7 @@
             await UtilStorage.Rename(configuration.ConnectionStringStorage, item.Text!, item.TextModified!);
         }
         // Button Create Folder
-        if (grid.State?.CustomButtonClick?.Name == "CreateFolder")
+        if (grid.State?.ButtonCustomClick?.Name == "CreateFolder")
         {
             var control = grid.ControlModifiedList().SingleOrDefault();
             if (control != null)
