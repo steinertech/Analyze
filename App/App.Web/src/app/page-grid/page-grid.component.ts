@@ -326,7 +326,7 @@ export class PageGridComponent {
           if (!this.grid.state) {
             this.grid.state = {}
           }
-          this.grid.state.customButtonClick = { name: control.name, dataRowIndex: cell.dataRowIndex, fieldName: cell.fieldName }
+          this.grid.state.buttonCustomClick = { name: control.name, dataRowIndex: cell.dataRowIndex, fieldName: cell.fieldName }
           this.serverApi.commandGridSave(this.grid, this.parent?.lookupCell, this.parent?.lookupControl, this.parent?.grid).subscribe(value => this.grid = value.grid);
           break
         }
@@ -347,6 +347,19 @@ export class PageGridComponent {
         this.lookupGrid = { gridName: this.grid?.gridName }
         this.serverApi.commandGridLoad(this.lookupGrid, this.lookupCell, this.lookupControl, this.grid).subscribe(value => this.lookupGrid = value);
       }
+    }
+  }
+
+  clickPagination(pageIndexClick?: number) {
+    if (this.grid) {
+      if (!this.grid.state) {
+        this.grid.state = {}
+      }
+      if (!this.grid.state.pagination) {
+        this.grid.state.pagination = {}
+      }
+      this.grid.state.pagination.pageIndexClick = pageIndexClick
+      this.serverApi.commandGridLoad(this.grid, this.parent?.lookupCell, this.parent?.lookupControl, this.parent?.grid).subscribe(value => { this.grid = value });
     }
   }
 

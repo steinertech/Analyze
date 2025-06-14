@@ -90,7 +90,7 @@ ColumnList={{grid?.state?.columnList | json}}<br>
       }
       <!-- Label Custom -->
       @case (GridControlEnum.LabelCustom) {
-        {{control.text}}
+      {{control.text}}
       }
       <!-- Field Custom -->
       @case (GridControlEnum.FieldCustom) {
@@ -99,6 +99,11 @@ ColumnList={{grid?.state?.columnList | json}}<br>
       <!-- Button Modal -->
       @case (GridControlEnum.ButtonModal) {
       <button (click)="clickLookup(cell, control)">{{control.text ?? 'Button'}}</button>
+      }
+      <!-- Pagination -->
+      @case (GridControlEnum.Pagination) {
+      <button (click)="clickPagination((grid?.state?.pagination?.pageIndex ?? 0) - 1)">Previous</button>
+      <button (click)="clickPagination((grid?.state?.pagination?.pageIndex ?? 0) + 1)">Next</button>
       }
       }
       }

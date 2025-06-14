@@ -519,6 +519,18 @@ public class GridDto
         return RowCellList;
     }
 
+    public void ClearResponse()
+    {
+        if (State?.ButtonCustomClick != null)
+        {
+            State.ButtonCustomClick = null;
+        }
+        if (State?.Pagination?.PageIndexClick != null)
+        {
+            State.Pagination.PageIndexClick = null;
+        }
+    }
+
     public GridControlDto AddPagination(int? pageIndex)
     {
         StateGet().Pagination = new() { PageIndex = pageIndex };
@@ -622,9 +634,9 @@ public class GridStateDto
     public List<GridStateColumnDto>? ColumnList { get; set; }
 
     /// <summary>
-    /// Gets or sets CustomButtonClick. User clicked button to process on Grid.Save();
+    /// Gets or sets ButtonCustomClick. User clicked button. Process it in Grid.Save();
     /// </summary>
-    public GridStateCustomButtonClickDto? CustomButtonClick { get; set; }
+    public GridStateButtonCustomClickDto? ButtonCustomClick { get; set; }
 
     /// <summary>
     /// Gets or sets RowKeyList. This is typically the data primary key. (DataRowIndex, RowKey)
@@ -643,12 +655,14 @@ public class GridPaginationDto
 {
     public int? PageIndex { get; set; }
 
-    public bool? IsNextClick { get; set; }
+    public int? PageCount { get; set; }
+    
+    public int? PageSize { get; set; }
 
-    public bool? IsPreviousClick { get; set; }
+    public int? PageIndexClick { get; set; }
 }
 
-public class GridStateCustomButtonClickDto
+public class GridStateButtonCustomClickDto
 {
     public string? Name { get; set; }
 
