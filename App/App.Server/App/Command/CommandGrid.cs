@@ -531,12 +531,6 @@ public class GridDto
         }
     }
 
-    public GridControlDto AddPagination(int? pageIndex)
-    {
-        StateGet().Pagination = new() { PageIndex = pageIndex };
-        return AddControl(new() { ControlEnum = GridControlEnum.Pagination });
-    }
-
     public List<GridCellDto> AddRow()
     {
         RowCellList = RowCellList ?? new();
@@ -644,7 +638,7 @@ public class GridStateDto
     public List<string?>? RowKeyList { get; set; }
 
     /// <summary>
-    /// Gets or sets RowKeyMasterList. This value is set by a master grid on data row selection. (GridName, RowKey)
+    /// Gets or sets RowKeyMasterList. This value is set by a master grid on its data row selection. (GridName, RowKey)
     /// </summary>
     public Dictionary<string, string?>? RowKeyMasterList { get; set; }
 
