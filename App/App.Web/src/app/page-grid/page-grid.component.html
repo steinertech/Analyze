@@ -1,11 +1,16 @@
-FilterList={{grid?.state?.filterList | json}};<br>
-FilterMultiList={{grid?.state?.filterMultiList | json}};<br>
-IsSelectMultiList={{grid?.state?.isSelectMultiList | json}};<br>
-ColumnList={{grid?.state?.columnList | json}}<br>
-<table class="w-full">
+Resize={{resize | json}}<br>
+ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
+<table #tableRef class="w-full">
+  @if(grid?.state?.columnWidthList) {
+  <colgroup>
+    @for (width of grid?.state?.columnWidthList; track $index;) {
+    <col [style.width]="width ? width + 'px' : undefined">
+    }
+  </colgroup>
+  }
   @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
-    @for (cell of cellList; track $index;) {
+    @for (cell of cellList; let cellIndex = $index; track $index;) {
     <td (mousedown)="cellClick(cell)" (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.mouse-enter]="cellIsMouseEnter(cell)==true" [class.select]="cellIsSelect(cell)==true" style="overflow: hidden; white-space: nowrap;">
       @switch (cell.cellEnum) {
       <!-- Field -->
@@ -26,6 +31,7 @@ ColumnList={{grid?.state?.columnList | json}}<br>
       }
       <!-- Header -->
       @case (GridCellEnum.Header) {
+      <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="resize">&nbsp;&nbsp;</div>
       <button (click)="click(cell)"><b>{{cell.text}}</b></button>
       @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == false) {
       &uarr;

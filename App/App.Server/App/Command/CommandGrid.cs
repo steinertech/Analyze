@@ -420,21 +420,6 @@ public class GridSaveDto
     public GridDto? ParentGrid { get; set; }
 }
 
-public class GridConfigDto
-{
-    public string GridName { get; set; } = default!;
-
-    public string DataTableName { get; set; } = default!;
-
-    public List<GridConfigFieldDto> GridConfigFieldList { get; set; } = default!;
-
-    public bool? IsAllowUpdate { get; set; }
-
-    public bool? IsAllowInsert { get; set; }
-
-    public bool? IsAllowDelete { get; set; }
-}
-
 public class GridDto
 {
     public string GridName { get; set; } = default!;
@@ -626,6 +611,11 @@ public class GridStateDto
     /// Gets or sets ColumnList. This is the list columns to display. If null, display all columns.
     /// </summary>
     public List<GridStateColumnDto>? ColumnList { get; set; }
+
+    /// <summary>
+    /// Gets or sets ColumnWidthList. Used to resize columns.
+    /// </summary>
+    public List<double?>? ColumnWidthList { get; set; }
 
     /// <summary>
     /// Gets or sets ButtonCustomClick. User clicked button. Process it in Grid.Save();
@@ -840,13 +830,4 @@ public enum GridControlEnum
     /// Data grid pagination. See also GridPaginationDto.
     /// </summary>
     Pagination = 20,
-}
-
-public class GridConfigFieldDto
-{
-    public string FieldName { get; set; } = default!;
-
-    public string? Text { get; set; }
-
-    public bool? IsDropDown { get; set; }
 }

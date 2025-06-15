@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
 import { GridControlDto, GridControlEnum, GridCellDto, GridCellEnum, GridDto, ServerApi } from '../generate';
 import { FormsModule } from '@angular/forms';
 
@@ -374,4 +374,61 @@ export class PageGridComponent {
     }
     return false
   }
+
+  @ViewChild('tableRef') tableRef!: ElementRef;
+
+  @HostListener('document:mouseup', ['$event'])
+  onMouseUp(event: MouseEvent) {
+    if (this.resize) {
+      this.resize = undefined
+    }
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.resize) {
+      let columnWidthDiff = event.clientX - (this.resize?.cellClientX ?? 0)
+      if (this.grid?.state?.columnWidthList) {
+        this.grid.state.columnWidthList[this.resize.columnIndex ?? -1] = this.resize.cellWidth! + columnWidthDiff
+      }
+    }
+  }
+
+  resize?: Resize
+
+  headerMouseDown(e: MouseEvent, cell: GridCellDto, cellIndex: number) {
+    e.preventDefault()
+    this.resize = {}
+    this.resize.cell = cell
+    this.resize.cellClientX = e.clientX
+    this.resize.cellWidth = (e.target as HTMLElement).parentElement?.offsetWidth
+    this.resize.columnIndex = cellIndex
+    let table = this.tableRef.nativeElement
+    // ColumnCount
+    this.resize.columnCount = 0
+    for (let rowIndex = 0; rowIndex < table.rows.length; rowIndex++) {
+      this.resize.columnCount = Math.max(this.resize.columnCount, table.rows[rowIndex].cells.length)
+    }
+    this.resize.tableWidth = this.tableRef.nativeElement.clientWidth
+    if (this.grid) {
+      if (!this.grid.state) {
+        this.grid.state = {}
+      }
+      if (!this.grid.state.columnWidthList) {
+        this.grid.state.columnWidthList = []
+      }
+      if (this.grid.state.columnWidthList.length < this.resize.columnCount) {
+        this.grid.state.columnWidthList[this.resize.columnCount - 1] = null
+      }
+    }
+  }
+}
+
+class Resize {
+  cell?: GridCellDto
+  cellClientX?: number
+  cellWidth?: number
+  columnIndex?: number
+  columnCount?: number
+  tableWidth?: number
 }
