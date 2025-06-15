@@ -95,7 +95,7 @@ public class ExcelGrid(Configuration configuration)
                         foreach (var cell in row.Value)
                         {
                             var value = cell.Value;
-                            grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = value.ToString() });
+                            grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = value.ToString(), DataRowIndex = rowCount -1 });
                         }
                     }
                 }
