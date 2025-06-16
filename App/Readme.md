@@ -18,6 +18,10 @@ Start DevContainer Codespace
 * Tenant
 * Move folder Data/
 * Load and save to load only
+* Css svg content [Done]
+* Report html 2 pdf
+* GridDebug (without css classes)
+* Tenant, Domain my.localhost
 
 # Misc
 * https://github.com/mui/mui-x
