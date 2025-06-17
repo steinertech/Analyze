@@ -8,6 +8,8 @@ Start DevContainer Codespace
 * Master detail [Done]
 * Column width
 * Colspan, Rowspan
+* Label
+* Storage lease
 * Column order
 * Column lookup [Done]
 * Timesheet component
@@ -15,10 +17,10 @@ Start DevContainer Codespace
 * Storage component [Done]
 * Excel sheets component master detail [Done]
 * Check App.Web and App.Server version on every request.
-* Tenant
-* Move folder Data/
+* Move folder Data/ [Done]
 * Load and save to load only
 * Css svg content [Done]
+* Class for left and right symbol
 * Report html 2 pdf
 * GridDebug (without css classes)
 * Tenant, Domain my.localhost

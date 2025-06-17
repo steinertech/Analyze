@@ -34,15 +34,15 @@ ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
       <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="resize">&nbsp;&nbsp;</div>
       <button (click)="click(cell)"><b>{{cell.text}}</b></button>
       @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == false) {
-      <span class="icon-sortup"></span>
+      <span class="i-sortup"></span>
       }
       @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == true) {
-      <span class="icon-sortdown"></span>
+      <span class="i-sortdown"></span>
       }
       @if (isFilterMulti(cell.fieldName)) {
-      <span class="icon-filter"></span>
+      <span class="i-filter"></span>
       }
-      <button (click)="clickLookup(cell)"><span class="icon-lookup"></span></button>
+      <button (click)="clickLookup(cell)"><span class="i-lookup"></span></button>
       }
       <!-- Filter -->
       @case (GridCellEnum.Filter) {
@@ -82,7 +82,7 @@ ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
       }
       <!-- Button Column -->
       @case (GridControlEnum.ButtonColumn) {
-      <button (click)="clickControl(cell, control)"><span class="icon-column"></span></button>
+      <button (click)="clickControl(cell, control)"><span class="i-column"></span></button>
       }
       <!-- Button Custom -->
       @case (GridControlEnum.ButtonCustom) {
