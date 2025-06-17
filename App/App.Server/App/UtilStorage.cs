@@ -1,15 +1,36 @@
 ﻿using Azure.Storage.Files.DataLake;
 using Azure.Storage.Files.DataLake.Models;
-using System.Diagnostics;
 using System.Text;
 
 public class UtilStorage
 {
-    private static string folderNameRoot = "data/"; // TODO "app/data/"
+    private static string containerName = "app";
+
+    private static string containerFolderName = "data/"; // "data/Tenant/"
+
+    private static string prefix = "/" + containerName + "/" + containerFolderName;
+
+    private static string PathItemToFolderOrFileName(PathItem value)
+    {
+        UtilServer.Assert(value.Name.StartsWith(containerFolderName));
+        var result = value.Name.Substring(containerFolderName.Length);
+        return result;
+    }
 
     private static DataLakeDirectoryClient Client(string connectionString)
     {
-        return new DataLakeDirectoryClient(connectionString, "app", folderNameRoot.Substring(0, folderNameRoot.Length - 1));
+        var result = new DataLakeDirectoryClient(connectionString, containerName, containerFolderName).GetSubDirectoryClient(null);
+        
+        // Debug
+        // var list = result.GetPaths(recursive: true).ToArray();
+        // foreach (var item in list)
+        // {
+        //     var folderOrFileName = PathItemToFolderOrFileName(item);
+        //     var localPath = result.GetFileClient(folderOrFileName).Uri.LocalPath;
+        //     UtilServer.Assert(localPath == prefix + folderOrFileName);
+        // }
+        
+        return result;
     }
 
     /// <summary>
@@ -17,13 +38,12 @@ public class UtilStorage
     /// </summary>
     private static string Sanatize(string connectionString, string? folderOrFileName)
     {
-        folderOrFileName = !string.IsNullOrEmpty(folderOrFileName) ? folderOrFileName : ".";
         var client = Client(connectionString);
-        var result = client.GetFileClient(folderOrFileName).Uri.LocalPath;
-        var prefix = "/app/" + folderNameRoot;
-        if (result.StartsWith(prefix))
+        var result = client.GetSubDirectoryClient(string.IsNullOrEmpty(folderOrFileName) ? "." : folderOrFileName).Uri.LocalPath;
+        if (result == prefix + folderOrFileName)
         {
-            return result.Substring(prefix.Length);
+            result = result.Substring(prefix.Length);
+            return result;
         }
         throw new Exception($"Folder or file name invalid! ({folderOrFileName})");
     }
@@ -50,7 +70,7 @@ public class UtilStorage
         folderOrFileNameNew = Sanatize(connectionString, folderOrFileNameNew);
 
         var client = Client(connectionString);
-        await client.GetFileClient(folderOrFileName).RenameAsync(folderNameRoot + folderOrFileNameNew);
+        await client.GetFileClient(folderOrFileName).RenameAsync(containerFolderName + folderOrFileNameNew);
     }
 
     public static async Task<List<(string FolderOrFileName, bool IsFolder)>> List(string connectionString, string? folderName = null, bool isRecursive = false)
@@ -61,8 +81,7 @@ public class UtilStorage
         var client = Client(connectionString);
         await foreach (var pathItem in client.GetSubDirectoryClient(folderName).GetPathsAsync(recursive: isRecursive))
         {
-            Debug.Assert(pathItem.Name.StartsWith(folderNameRoot));
-            var folderOrFileName = pathItem.Name.Substring(folderNameRoot.Length)!;
+            var folderOrFileName = PathItemToFolderOrFileName(pathItem);
             var isFolder = pathItem.IsDirectory ?? false;
             var resultItem = (folderOrFileName, isFolder);
             result.Add(resultItem);
@@ -96,7 +115,6 @@ public class UtilStorage
     public static async Task Download(string connectionString, string fileNameStorage, string fileNameLocal)
     {
         fileNameStorage = Sanatize(connectionString, fileNameStorage);
-        fileNameLocal = Sanatize(connectionString, fileNameLocal);
 
         using var file = DownloadStream(connectionString, fileNameStorage);
         using var streamStorage = file.Content;
