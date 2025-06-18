@@ -119,6 +119,16 @@ ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
   }
 </table>
 <h1>Lookup</h1>
-@if(lookupCell) {
-<app-page-grid [parent]="this" [grid]="lookupGrid"></app-page-grid>
+@if(lookup) {
+@if(lookup.isModal) {
+<div style="display: flex; justify-content: center; align-items: center; position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5);">
+  <div style="background: lightskyblue;">
+    <app-page-grid [parent]="this" [grid]="lookup.grid"></app-page-grid>
+  </div>
+</div>
+} @else {
+<div style="position: fixed; left: 20px; top: 100px; background: lightskyblue; ">
+  <app-page-grid [parent]="this" [grid]="lookup.grid"></app-page-grid>
+</div>
+}
 }
