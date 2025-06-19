@@ -20,7 +20,7 @@ Start DevContainer Codespace
 * Move folder Data/ [Done]
 * Load and save to load only
 * Css svg content [Done]
-* Class for left and right symbol
+* Class for left and right icon symbol [Done]
 * Report html 2 pdf
 * GridDebug (without css classes)
 * Tenant, Domain my.localhost

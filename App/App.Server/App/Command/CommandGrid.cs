@@ -95,7 +95,14 @@
                     }
                     else
                     {
-                        grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, CellEnum = GridCellEnum.Field });
+                        if (propertyInfo.Name == nameof(ProductDto.Amount))
+                        {
+                            grid.AddCell(new() { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = "Hello2", CellEnum = GridCellEnum.Field, IconLeft = new GridCellIconDto { ClassName = "i-info", Tooltip = "Latest value from today" }, IconRight = new GridCellIconDto { ClassName = "i-success", Tooltip = "Validation Ok" } });
+                        }
+                        else
+                        {
+                            grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, CellEnum = GridCellEnum.Field });
+                        }
                     }
                 }
             }
@@ -707,7 +714,24 @@ public class GridCellDto
 
     public List<string>? DropDownList { get; set; }
 
+    /// <summary>
+    /// Gets or sets ControlList. Applicable for CellEnum.Control
+    /// </summary>
     public List<GridControlDto>? ControlList { get; set; }
+
+    public GridCellIconDto? IconLeft { get; set; }
+
+    public GridCellIconDto? IconRight { get; set; }
+}
+
+public class GridCellIconDto
+{
+    /// <summary>
+    /// Gets or sets ClassName. For example i-info, i-warning, i-error.
+    /// </summary>
+    public string? ClassName { get; set; }
+
+    public string? Tooltip { get; set; }
 }
 
 /// <summary>

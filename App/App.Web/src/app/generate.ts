@@ -67,6 +67,13 @@ export class GridCellDto {
   public textModified?: string
   public dropDownList?: string[]
   public controlList?: GridControlDto[]
+  public iconLeft?: GridCellIconDto
+  public iconRight?: GridCellIconDto
+}
+
+export class GridCellIconDto {
+  public className?: string
+  public tooltip?: string
 }
 
 export class GridControlDto {
