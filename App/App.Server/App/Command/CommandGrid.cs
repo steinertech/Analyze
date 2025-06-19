@@ -97,7 +97,7 @@
                     {
                         if (propertyInfo.Name == nameof(ProductDto.Amount))
                         {
-                            grid.AddCell(new() { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = "Hello2", CellEnum = GridCellEnum.Field, IconLeft = new GridCellIconDto { ClassName = "i-info", Tooltip = "Latest value from today" }, IconRight = new GridCellIconDto { ClassName = "i-success", Tooltip = "Validation Ok" } });
+                            grid.AddCell(new() { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = "Wg - Hello2", CellEnum = GridCellEnum.Field, IconLeft = new GridCellIconDto { ClassName = "i-warning", Tooltip = "Wg - Latest value from today" }, IconRight = new GridCellIconDto { ClassName = "i-success", Tooltip = "Validation Ok" } });
                         }
                         else
                         {

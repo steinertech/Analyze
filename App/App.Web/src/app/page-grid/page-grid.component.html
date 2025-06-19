@@ -17,11 +17,13 @@ ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
       @case (GridCellEnum.Field) {
       <div class="frm-cell-container">
         @if (cell.iconLeft) {
-          <span title="{{cell.iconLeft.tooltip}}" [ngClass]=cell.iconLeft.className></span>
+        <div><span title="{{cell.iconLeft.tooltip}}" [ngClass]=cell.iconLeft.className></span></div>
         }
-        <input class="frm-cell-content" [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
+        <div class="frm-cell-content">
+          <input class="frm-width" [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
+        </div>
         @if (cell.iconRight) {
-          <span title="{{cell.iconRight.tooltip}}" [ngClass]=cell.iconRight.className></span>
+        <div> <span title="{{cell.iconRight.tooltip}}" [ngClass]=cell.iconRight.className></span></div>
         }
       </div>
       }
