@@ -1,6 +1,6 @@
 Resize={{resize | json}}<br>
 ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
-<table #tableRef class="w-full">
+<table #tableRef class="frm-table">
   @if(grid?.state?.columnWidthList) {
   <colgroup>
     @for (width of grid?.state?.columnWidthList; track $index;) {
@@ -11,15 +11,15 @@ ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
   @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
     @for (cell of cellList; let cellIndex = $index; track $index;) {
-    <td (mousedown)="cellClick(cell)" (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.mouse-enter]="cellIsMouseEnter(cell)==true" [class.select]="cellIsSelect(cell)==true" style="overflow: hidden; white-space: nowrap;">
+    <td (mousedown)="cellClick(cell)" (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.frm-mouse-enter]="cellIsMouseEnter(cell)==true" [class.frm-select]="cellIsSelect(cell)==true">
       @switch (cell.cellEnum) {
       <!-- Field -->
       @case (GridCellEnum.Field) {
-      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="w-full">
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="frm-width">
       }
       <!-- Field Autocomplete -->
       @case (GridCellEnum.FieldAutocomplete) {
-      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" (focus)="cellFocus(cell)" class="w-full">
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" (focus)="cellFocus(cell)" class="frm-width">
       }
       <!-- Field Checkbox -->
       @case (GridCellEnum.FieldCheckbox) {
@@ -31,26 +31,30 @@ ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
       }
       <!-- Header -->
       @case (GridCellEnum.Header) {
-      <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="resize">&nbsp;&nbsp;</div>
-      <button (click)="click(cell)"><b>{{cell.text}}</b></button>
-      @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == false) {
-      <span class="i-sortup"></span>
-      }
-      @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == true) {
-      <span class="i-sortdown"></span>
-      }
-      @if (isFilterMulti(cell.fieldName)) {
-      <span class="i-filter"></span>
-      }
-      <button (click)="clickLookup(cell)"><span class="i-lookup"></span></button>
+      <div class="frm-cell-container frm-header">
+        <button class="frm-cell-content frm-pointer" (click)="click(cell)"><b>{{cell.text}}</b></button>
+        <div class="frm-cell-icon">
+          @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == false) {
+          <span class="i-sortup"></span>
+          }
+          @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == true) {
+          <span class="i-sortdown"></span>
+          }
+          @if (isFilterMulti(cell.fieldName)) {
+          <span class="i-filter"></span>
+          }
+          <button (click)="clickLookup(cell)"><span class="i-lookup"></span></button>
+          <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="frm-column-resize">&nbsp;</div>
+        </div>
+      </div>
       }
       <!-- Filter -->
       @case (GridCellEnum.Filter) {
-      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search" class="w-full">
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search" class="frm-filter frm-width">
       }
       <!-- Field Dropdown -->
       @case (GridCellEnum.FieldDropdown) {
-      <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="w-full">
+      <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="frm-width">
         @for (item of cell.dropDownList; track $index) {
         <option value="{{item}}">{{item}}</option>
         }
@@ -121,13 +125,13 @@ ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
 <h1>Lookup</h1>
 @if(lookup) {
 @if(lookup.isModal) {
-<div style="display: flex; justify-content: center; align-items: center; position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5);">
-  <div style="background: lightskyblue;">
+<div class="frm-modal-container">
+  <div class="frm-modal">
     <app-page-grid [parent]="this" [grid]="lookup.grid"></app-page-grid>
   </div>
 </div>
 } @else {
-<div style="position: fixed; left: 20px; top: 100px; background: lightskyblue; ">
+<div class="frm-lookup">
   <app-page-grid [parent]="this" [grid]="lookup.grid"></app-page-grid>
 </div>
 }

@@ -1,12 +1,93 @@
-.mouse-enter {
+.frm-width {
+  width: 100%;
+}
+
+.frm-pointer {
+  cursor: pointer;
+}
+
+.frm-table {
+  /* Table column overflow works only with defined width*/
+  width: 100%;
+  /* Table column overflow */
+  table-layout: fixed;
+}
+
+/* Cell with icon left, content, icon right */
+.frm-cell-container {
+  overflow: hidden;
+  white-space: nowrap;
+  /* Align horizontaly */
+  display: flex
+}
+
+/* Cell icon left and right */
+.frm-cell-icon {
+  overflow: hidden;
+  /* Align horizontally multiple icons and divs */
+  display: flex;
+}
+
+/* Cell content */
+.frm-cell-content {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+
+/* Mouse hover over data row */
+.frm-mouse-enter {
   background-color: rgb(227, 248, 255);
 }
 
-.select {
+/* Selected data row */
+.frm-select {
   background-color: lightblue;
 }
 
-.resize {
-  float: right;
+/* Header */
+.frm-header {
+  background: rgb(112, 112, 255);
+  color: white;
+}
+
+/* Filter */
+.frm-filter {
+  background: rgb(233, 250, 255);
+}
+
+.frm-column-resize {
   cursor: col-resize;
+  width: 8px;
+  border-right: 2px solid white;
+}
+
+/* Lookup window */
+.frm-lookup {
+  position: fixed;
+  left: 20px;
+  top: 100px;
+  width: 200px;
+  background: lightskyblue;
+}
+
+/* Lookup modal window */
+.frm-modal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* In center also if page scroll up down */
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5)
+}
+
+/* Lookup modal window content */
+.frm-modal {
+  background: lightskyblue;
+  width: 50%;
 }
