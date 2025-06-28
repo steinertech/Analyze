@@ -15,15 +15,15 @@ jobs:
       contents: read #This is required for actions/checkout
 
     steps:
-      - name: 'Checkout GitHub Action'
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+      - name: Setup
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: 'Resolve Project Dependencies Using Dotnet'
+      - name: Dotnet Build
         shell: bash
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
@@ -37,7 +37,7 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F2AC48361B5E47B7BBA3C6A41BD35F78 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_6746E4C4C80D4DAB8F5971E6C45F7D4B }}
 
-      - name: 'Run Azure Functions Action'
+      - name: Deploy Azure Function
         uses: Azure/functions-action@v1
         id: fa
         with:
@@ -45,20 +45,20 @@ jobs:
           slot-name: 'Production'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
 
-      - name: Checkout second repo
+      - name: Checkout Pages
         uses: actions/checkout@v4
         with:
           repository: steinertech/steinertech.github.io
           path: pages
           token: ${{ secrets.PAGES_PAT }}
       
-      - name: Node
+      - name: Node Setup
         uses: actions/setup-node@v4
         with:
           node-version: 24.x
       
-      - name: Make script executable
+      - name: Deploy.sh Make Executable
         run: chmod +x .github/workflows/deploy.sh
       
-      - name: Run deploy.sh
+      - name: Deploy.sh Run
         run: .github/workflows/deploy.sh    
