@@ -14,7 +14,7 @@ public static class UtilServer
     {
         get
         {
-            return "1.0.11";
+            return "1.0.12";
         }
     }
 
