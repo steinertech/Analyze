@@ -97,7 +97,7 @@
                     {
                         if (propertyInfo.Name == nameof(ProductDto.Amount))
                         {
-                            grid.AddCell(new() { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = "Wg - Hello2", CellEnum = GridCellEnum.Field, IconLeft = new GridCellIconDto { ClassName = "i-warning", Tooltip = "Wg - Latest value from today" }, IconRight = new GridCellIconDto { ClassName = "i-success", Tooltip = "Validation Ok" } });
+                            grid.AddCell(new() { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, CellEnum = GridCellEnum.Field, IconLeft = new GridCellIconDto { ClassName = "i-warning", Tooltip = "Wg - Latest value from today" }, IconRight = new GridCellIconDto { ClassName = "i-success", Tooltip = "Validation Ok" } });
                         }
                         else
                         {
@@ -107,8 +107,16 @@
                 }
             }
         }
-        grid.RowCellList.Add(new List<GridCellDto>());
+
+        // ColSpan RowSpan
+        grid.AddRow();
+        grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = "ColSpan2", ColSpan = 2 });
+        grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = "RolSpan2", RowSpan = 2 });
+        grid.AddRow();
+        grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = "One" });
+
         // Button Cancel, Save
+        grid.RowCellList.Add(new List<GridCellDto>());
         grid.RowCellList.Last().Add(new GridCellDto
         {
             CellEnum = GridCellEnum.Control,
@@ -722,6 +730,10 @@ public class GridCellDto
     public GridCellIconDto? IconLeft { get; set; }
 
     public GridCellIconDto? IconRight { get; set; }
+
+    public int? ColSpan { get; set; }
+    
+    public int? RowSpan { get; set; }
 }
 
 public class GridCellIconDto

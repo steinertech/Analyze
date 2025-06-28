@@ -69,6 +69,8 @@ export class GridCellDto {
   public controlList?: GridControlDto[]
   public iconLeft?: GridCellIconDto
   public iconRight?: GridCellIconDto
+  public colSpan?: number
+  public rowSpan?: number
 }
 
 export class GridCellIconDto {

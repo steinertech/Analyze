@@ -11,7 +11,7 @@ ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
   @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
     @for (cell of cellList; let cellIndex = $index; track $index;) {
-    <td (mousedown)="cellClick(cell)" (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.frm-mouse-enter]="cellIsMouseEnter(cell)==true" [class.frm-select]="cellIsSelect(cell)==true">
+    <td [attr.colspan]="cell.colSpan" [attr.rowspan]="cell.rowSpan" (mousedown)="cellClick(cell)" (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.frm-mouse-enter]="cellIsMouseEnter(cell)==true" [class.frm-select]="cellIsSelect(cell)==true">
       @switch (cell.cellEnum) {
       <!-- Field -->
       @case (GridCellEnum.Field) {
