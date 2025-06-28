@@ -45,13 +45,13 @@ ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
         <button class="frm-cell-content frm-pointer" (click)="click(cell)"><b>{{cell.text}}</b></button>
         <div class="frm-cell-icon">
           @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == false) {
-          <span class="i-sortup"></span>
+          <div><span class="i-sortup"></span></div>
           }
           @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == true) {
-          <span class="i-sortdown"></span>
+          <div><span class="i-sortdown"></span></div>
           }
           @if (isFilterMulti(cell.fieldName)) {
-          <span class="i-filter"></span>
+          <div><span class="i-filter"></span></div>
           }
           <button (click)="clickLookup(cell)"><span class="i-lookup"></span></button>
           <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="frm-column-resize">&nbsp;</div>
