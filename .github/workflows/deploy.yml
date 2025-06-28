@@ -44,4 +44,21 @@ jobs:
           app-name: 'stc001appFunction'
           slot-name: 'Production'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-          
+
+      - name: Checkout second repo
+        uses: actions/checkout@v4
+        with:
+          repository: steinertech/steinertech.github.io
+          path: pages
+          token: ${{ secrets.PAGES_PAT }}
+      
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      
+      - name: Make script executable
+        run: chmod +x .github/workflows/deploy.sh
+      
+      - name: Run deploy.sh
+        run: .github/workflows/deploy.sh    
