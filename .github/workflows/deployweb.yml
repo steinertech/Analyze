@@ -15,26 +15,26 @@ jobs:
       matrix:
         node-version: [24.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+    
     steps:
     - name: Checkout
-    - uses: actions/checkout@v4
-
+      uses: actions/checkout@v4
+    
     - name: Checkout second repo
       uses: actions/checkout@v4
       with:
         repository: steinertech/steinertech.github.io
         path: pages
-        token: ${{ secrets.PAGES_PAT }} # https://github.com/settings/personal-access-tokens
+        token: ${{ secrets.PAGES_PAT }}
     
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-
+    
     - name: Make script executable
       run: chmod +x .github/workflows/deploy.sh
-
+    
     - name: Run deploy.sh
-      run: .github/workflows/deploy.sh
+      run: .github/workflows/deploy.sh    
