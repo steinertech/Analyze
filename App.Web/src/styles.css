@@ -1,0 +1,19 @@
+/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/*
+https://www.svgrepo.com/
+https://svgcrop.com/
+https://www.developertoolkits.com/base64/encoder content: url("data:image/svg+xml;base64,");
+https://www.developertoolkits.com/base64/decoder content: url("data:image/svg+xml;base64,");
+https://www.svgviewer.dev (*.svg) https://www.base64-image.de (*.png)
+
+Icon if used in display flex put it into a div.
+Default: <span class="i-info"></span> 
+Inside flex: <div><span class="i-info"></span></div>
+ */
+.i-info {
+  content: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjEgMSAyMiAyMiI+ICA8ZyBpZD0iU1ZHUmVwb19iZ0NhcnJpZXIiIHN0cm9rZS13aWR0aD0iMCI+PC9nPiAgPGcgaWQ9IlNWR1JlcG9fdHJhY2VyQ2FycmllciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L2c+ICA8ZyBpZD0iU1ZHUmVwb19pY29uQ2FycmllciI+IDxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMSAxMkMxIDUuOTI0ODcgNS45MjQ4NyAxIDEyIDFDMTguMDc1MSAxIDIzIDUuOTI0ODcgMjMgMTJDMjMgMTguMDc1MSAxOC4wNzUxIDIzIDEyIDIzQzUuOTI0ODcgMjMgMSAxOC4wNzUxIDEgMTJaTTEwLjI1IDExQzEwLjI1IDEwLjQ0NzcgMTAuNjk3NyAxMCAxMS4yNSAxMEgxMi43NUMxMy4zMDIzIDEwIDEzLjc1IDEwLjQ0NzcgMTMuNzUgMTFWMThDMTMuNzUgMTguNTUyMyAxMy4zMDIzIDE5IDEyLjc1IDE5SDExLjI1QzEwLjY5NzcgMTkgMTAuMjUgMTguNTUyMyAxMC4yNSAxOFYxMVpNMTQgN0MxNCA1Ljg5NTQzIDEzLjEwNDYgNSAxMiA1QzEwLjg5NTQgNSAxMCA1Ljg5NTQzIDEwIDdDMTAgOC4xMDQ1NyAxMC44OTU0IDkgMTIgOUMxMy4xMDQ2IDkgMTQgOC4xMDQ1NyAxNCA3WiIgZmlsbD0iIzI1MWJiMSI+PC9wYXRoPiA8L2c+ICA8L3N2Zz4=");
+  height: 1em; position: relative; top: 0.1em;
+}

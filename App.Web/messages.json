@@ -1,0 +1,7 @@
+{
+  "locale": "en-US",
+  "translations": {
+    "debugKeyHtml": "Hello Html (Native)",
+    "debugKeyTs": "Hello Ts (Native)"
+  }
+}
