@@ -2,6 +2,6 @@
 {
     public string Run()
     {
-        return UtilServer.Version;
+        return UtilServer.VersionServer;
     }
 }

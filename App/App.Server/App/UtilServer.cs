@@ -10,13 +10,7 @@ using System.Text.Json.Serialization.Metadata;
 
 public static class UtilServer
 {
-    public static string Version
-    {
-        get
-        {
-            return "1.0.12";
-        }
-    }
+    public static string VersionServer => "1.0.13";
 
     /// <summary>
     /// App start config.
@@ -57,7 +51,7 @@ public static class UtilServer
         // GET
         if (req.Method == "GET")
         {
-            return new OkObjectResult($"App.Server ({UtilServer.Version})");
+            return new OkObjectResult($"App.Server ({UtilServer.VersionServer})");
         }
         // POST
         using var reader = new StreamReader(req.Body);

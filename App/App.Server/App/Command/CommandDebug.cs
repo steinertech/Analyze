@@ -4,7 +4,7 @@
     {
         var result = new DebugDto
         {
-            VersionServer = UtilServer.Version,
+            VersionServer = UtilServer.VersionServer,
             Instance = dataService.Instance,
             Counter = dataService.Counter,
             CounterList = dataService.CounterList,
