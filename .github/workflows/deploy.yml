@@ -50,6 +50,11 @@ jobs:
           repository: steinertech/steinertech.github.io
           path: pages
           token: ${{ secrets.PAGES_PAT }}
+
+      - name: Set Git user
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"          
       
       - name: Setup Node
         uses: actions/setup-node@v4
