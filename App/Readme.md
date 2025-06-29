@@ -24,6 +24,7 @@ Start DevContainer Codespace
 * Report html 2 pdf
 * GridDebug (without css classes)
 * Tenant, Domain my.localhost
+* Multi Language
 
 # Misc
 * https://www.browserling.com
