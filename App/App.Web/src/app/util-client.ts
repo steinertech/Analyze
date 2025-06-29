@@ -1,3 +1,3 @@
 export class UtilClient{
-  public static versionClient = '1.0.13'
+  public static versionClient = '1.0.14'
 }

@@ -10,7 +10,7 @@ using System.Text.Json.Serialization.Metadata;
 
 public static class UtilServer
 {
-    public static string VersionServer => "1.0.13";
+    public static string VersionServer => "1.0.14";
 
     /// <summary>
     /// App start config.
