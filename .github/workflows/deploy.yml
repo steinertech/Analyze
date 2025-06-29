@@ -1,17 +1,17 @@
 name: Deploy
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Trigger manually
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'App/App.Server' # set this to the path to your web app project, defaults to the repository root
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'App/App.Server'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
 
     steps:
       - name: Checkout
@@ -32,7 +32,7 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_121155F2AC32461ABD708E07BBA86972 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_121155F2AC32461ABD708E07BBA86972 }} # See also https://github.com/steinertech/Analyze/settings/secrets/actions
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F2AC48361B5E47B7BBA3C6A41BD35F78 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_6746E4C4C80D4DAB8F5971E6C45F7D4B }}
 
@@ -49,12 +49,12 @@ jobs:
         with:
           repository: steinertech/steinertech.github.io
           path: pages
-          token: ${{ secrets.PAGES_PAT }}
+          token: ${{ secrets.PAGES_PAT }} # See also https://github.com/settings/personal-access-tokens
 
       - name: Set Git user
         run: |
           git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"          
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com" # See also https://github.com/settings/emails
       
       - name: Setup Node
         uses: actions/setup-node@v4
