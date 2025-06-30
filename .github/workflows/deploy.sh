@@ -4,7 +4,7 @@ set -x
 
 cd App/App.Web
 npm ci
-ng build --localize
+npm run buildLocalize
 cd ../..
 
 cd pages
