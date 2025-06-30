@@ -4,12 +4,12 @@ set -x
 
 cd App/App.Web
 npm ci
-npm run build
+ng build --localize
 cd ../..
 
 cd pages
 git rm -r * # Delete all files and folders
-cp -r ../App/App.Web/dist/app.web/browser/. . # Copy
+cp -r ../App/App.Web/dist/App.Web/browser/. . # Copy
 
 git add .
 git commit -m "Publish"
