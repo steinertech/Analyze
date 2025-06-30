@@ -1,0 +1,26 @@
+<app-page-nav></app-page-nav>
+
+<div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
+  <h1>About <span class="i-about"></span></h1>
+  <p>SteinerTech provides process optimization and cutting-edge technology. Helping businesses enhance efficiency and achieve growth. Through innovative tools and tailored strategies, we transform challenges into opportunities and redefine what's possible.</p>
+</div>
+<button (click)="click()">Click</button>
+<p>
+  VersionClient={{versionClient}}; Tree={{componentDto() | json}}; Debug={{debugDto() | json}}
+</p>
+<p>
+  StorageContent={{storageContent()}}
+</p>
+<p>
+  <img [src]="dataService.storageDownload('logo.png') | async">
+</p>
+<div class="sm:container sm:mx-auto sm:px-24 sm:pt-8">
+  <app-page-storage-upload></app-page-storage-upload>
+</div>
+
+<div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
+  <h1 class="text-4xl font-bold">Language</h1>
+  <p i18n="@@debugKeyHtml">Hello Html (Native)</p>
+  <p>{{text}}</p>
+</div>
+<button (click)="click()">Click</button>

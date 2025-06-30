@@ -1,0 +1,102 @@
+<app-page-nav></app-page-nav>
+<!--
+  This example requires updating your template:
+
+  ```
+  <html class="h-full bg-white">
+  <body class="h-full">
+  ```
+-->
+@if(userModeEnum==UserModeEnumLocal.SignUpEmail) {
+  <div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
+  <h1>Signup Email</h1>
+  <p>Registration email has been sent.</p>
+</div>
+}
+
+@if(userModeEnum==UserModeEnumLocal.SignUpConfirm) {
+  <div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
+  <h1>Signup Confirm</h1>
+  <p>Your account registration has been successfully completed.</p>
+</div>
+}
+
+@if(userModeEnum==UserModeEnumLocal.SignIn || userModeEnum== UserModeEnumLocal.SignUp || userModeEnum==UserModeEnumLocal.SignInRecover|| userModeEnum==UserModeEnumLocal.SignInPasswordChange) {
+<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+    <img class="mx-auto h-10 w-auto" src="logo.png" alt="SteinerTech">
+    @if(userModeEnum==UserModeEnumLocal.SignIn){
+    <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Sign in to your account</h2>
+    }
+    @if(userModeEnum==UserModeEnumLocal.SignUp){
+    <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Sign up new account</h2>
+    }
+    @if(userModeEnum==UserModeEnumLocal.SignInRecover){
+    <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Reset password</h2>
+    }
+    @if(userModeEnum==UserModeEnumLocal.SignInPasswordChange){
+    <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Change password</h2>
+    }
+  </div>
+
+  <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+    <form class="space-y-6" action="#" method="POST">
+      <div>
+        <label for="email" class="block text-sm/6 font-medium text-gray-900">Email address</label>
+        <div class="mt-2">
+          <input [(ngModel)]="userEmail" type="email" name="email" id="email" autocomplete="email" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+        </div>
+      </div>
+
+      @if(userModeEnum==UserModeEnumLocal.SignIn || userModeEnum==UserModeEnumLocal.SignUp){
+      <div>
+        <div class="flex items-center justify-between">
+          <label for="password" class="block text-sm/6 font-medium text-gray-900">Password</label>
+          @if(userModeEnum==UserModeEnumLocal.SignIn){
+          <div class="text-sm">
+            <a [routerLink]="['/signin-recover']" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</a>
+          </div>
+          }
+        </div>
+        <div class="mt-2">
+          <input [(ngModel)]="userPassword" type="password" name="password" id="password" autocomplete="current-password" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+        </div>
+      </div>
+      }
+
+      @if(userModeEnum==UserModeEnumLocal.SignUp){
+      <div>
+        <div class="flex items-center justify-between">
+          <label for="password-confirm" class="block text-sm/6 font-medium text-gray-900">Confirm Password</label>
+        </div>
+        <div class="mt-2">
+          <input [(ngModel)]="userPasswordConfirm" type="password" name="password-confirm" id="password-confirm" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+        </div>
+      </div>
+      }
+
+      <div>
+        @if(userModeEnum==UserModeEnumLocal.SignIn){
+        <button (click)="click()" type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
+        }
+        @if(userModeEnum==UserModeEnumLocal.SignUp){
+        <button (click)="click()" type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign up</button>
+        }
+        @if(userModeEnum==UserModeEnumLocal.SignInRecover){
+        <button (click)="click()" type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Send new password</button>
+        }
+        @if(userModeEnum==UserModeEnumLocal.SignInPasswordChange){
+        <button (click)="click()" type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Change password</button>
+        }
+      </div>
+    </form>
+
+    @if(userModeEnum==UserModeEnumLocal.SignIn){
+    <p class="mt-10 text-center text-sm/6 text-gray-500">
+      Not a member?
+      <a [routerLink]="['/signup']" class="font-semibold text-indigo-600 hover:text-indigo-500">Sign up</a>
+    </p>
+    }
+  </div>
+</div>
+}

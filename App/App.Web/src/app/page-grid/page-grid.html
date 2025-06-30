@@ -1,0 +1,150 @@
+@let grid = this.grid();
+Resize={{resize | json}}<br>
+ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
+<table #tableRef class="frm-table">
+  @if(grid?.state?.columnWidthList) {
+  <colgroup>
+    @for (width of grid?.state?.columnWidthList; track $index;) {
+    <col [style.width]="width ? width + 'px' : undefined">
+    }
+  </colgroup>
+  }
+  @for (cellList of grid?.rowCellList; track $index;) {
+  <tr>
+    @for (cell of cellList; let cellIndex = $index; track $index;) {
+    <td [attr.colspan]="cell.colSpan" [attr.rowspan]="cell.rowSpan" (mousedown)="cellClick(cell)" (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.frm-mouse-enter]="cellIsMouseEnter(cell)==true" [class.frm-select]="cellIsSelect(cell)==true">
+      @switch (cell.cellEnum) {
+      <!-- Field -->
+      @case (GridCellEnum.Field) {
+      <div class="frm-cell-container">
+        @if (cell.iconLeft) {
+        <div><span title="{{cell.iconLeft.tooltip}}" [ngClass]=cell.iconLeft.className></span></div>
+        }
+        <div class="frm-cell-content">
+          <input class="frm-width" [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
+        </div>
+        @if (cell.iconRight) {
+        <div> <span title="{{cell.iconRight.tooltip}}" [ngClass]=cell.iconRight.className></span></div>
+        }
+      </div>
+      }
+      <!-- Field Autocomplete -->
+      @case (GridCellEnum.FieldAutocomplete) {
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" (focus)="cellFocus(cell)" class="frm-width">
+      }
+      <!-- Field Checkbox -->
+      @case (GridCellEnum.FieldCheckbox) {
+      <input [ngModel]="cellTextGet(cell) == 'true'" (ngModelChange)="cellTextSet(cell, $event)" type="checkbox">
+      }
+      <!-- Checkbox SelectMulti -->
+      @case (GridCellEnum.CheckboxSelectMulti) {
+      <input [ngModel]="cellTextGet(cell) == 'true'" (ngModelChange)="cellTextSet(cell, $event ? 'true' : 'false')" type="checkbox">
+      }
+      <!-- Header -->
+      @case (GridCellEnum.Header) {
+      <div class="frm-cell-container frm-header">
+        <button class="frm-cell-content frm-pointer" (click)="click(cell)"><b>{{cell.text}}</b></button>
+        <div class="frm-cell-icon">
+          @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == false) {
+          <div><span class="i-sortup"></span></div>
+          }
+          @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == true) {
+          <div><span class="i-sortdown"></span></div>
+          }
+          @if (isFilterMulti(cell.fieldName)) {
+          <div><span class="i-filter"></span></div>
+          }
+          <button (click)="clickLookup(cell)"><span class="i-lookup"></span></button>
+          <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="frm-column-resize">&nbsp;</div>
+        </div>
+      </div>
+      }
+      <!-- Filter -->
+      @case (GridCellEnum.Filter) {
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search" class="frm-filter frm-width">
+      }
+      <!-- Field Dropdown -->
+      @case (GridCellEnum.FieldDropdown) {
+      <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="frm-width">
+        @for (item of cell.dropDownList; track $index) {
+        <option value="{{item}}">{{item}}</option>
+        }
+      </select>
+      }
+      <!-- Control -->
+      @case (GridCellEnum.Control) {
+      @for (control of cell.controlList; track $index;) {
+      @switch (control.controlEnum) {
+      <!-- Button Reload -->
+      @case (GridControlEnum.ButtonReload) {
+      <button (click)="clickControl(cell, control)">Reload</button>
+      }
+      <!-- Button Save -->
+      @case (GridControlEnum.ButtonSave) {
+      <button (click)="clickControl(cell, control)">Save</button>
+      }
+      <!-- Button Cancel (Lookup) -->
+      @case (GridControlEnum.ButtonLookupCancel) {
+      <button (click)="clickControl(cell, control)">Cancel</button>
+      }
+      <!-- Button Ok (Lookup) -->
+      @case (GridControlEnum.ButtonLookupOk) {
+      <button (click)="clickControl(cell, control)">Ok</button>
+      }
+      <!-- Button Sort (Lookup) -->
+      @case (GridControlEnum.ButtonLookupSort) {
+      <button (click)="clickControl(cell, control)">Sort</button>
+      }
+      <!-- Button Column -->
+      @case (GridControlEnum.ButtonColumn) {
+      <button (click)="clickControl(cell, control)"><span class="i-column"></span></button>
+      }
+      <!-- Button Custom -->
+      @case (GridControlEnum.ButtonCustom) {
+      <button (click)="clickControl(cell, control)">{{control.text ?? 'Button'}}</button>
+      }
+      <!-- Checkbox SelectMultiAll -->
+      @case (GridControlEnum.CheckboxSelectMultiAll) {
+      <input [ngModel]="cellTextGetControl(cell, control) == 'true'" (ngModelChange)="cellTextSetControl(cell, control, $event.toString())" type="checkbox">
+      }
+      <!-- Label Custom -->
+      @case (GridControlEnum.LabelCustom) {
+      {{control.text}}
+      }
+      <!-- Field Custom -->
+      @case (GridControlEnum.FieldCustom) {
+      <input [ngModel]="cellTextGetControl(cell, control)" (ngModelChange)="cellTextSetControl(cell, control, $event)">
+      }
+      <!-- Button Modal -->
+      @case (GridControlEnum.ButtonModal) {
+      <button (click)="clickLookup(cell, control)">{{control.text ?? 'Button'}}</button>
+      }
+      <!-- Pagination -->
+      @case (GridControlEnum.Pagination) {
+      <button (click)="clickPagination((grid?.state?.pagination?.pageIndex ?? 0) - 1)">Previous</button>
+      <button (click)="clickPagination((grid?.state?.pagination?.pageIndex ?? 0) + 1)">Next</button>
+      }
+      }
+      }
+      }
+      }
+    </td>
+    }
+  </tr>
+  }
+</table>
+<h1>Lookup</h1>
+@let lookup = this.lookup();
+@if(lookup) {
+@if(lookup.isModal) {
+<div class="frm-modal-container">
+  <div class="frm-modal">
+    <app-page-grid [parent]="this" [grid]="lookup.grid"></app-page-grid>
+  </div>
+</div>
+} @else {
+<div class="frm-lookup">
+  <app-page-grid [parent]="this" [grid]="lookup.grid"></app-page-grid>
+</div>
+}
+}
