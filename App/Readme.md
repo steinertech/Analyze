@@ -4,6 +4,9 @@ Start DevContainer Codespace
 * App.Web (**Port 4200**)
 
 # ToDo
+* Excel hours and hours total
+* Validate cell
+* Link to navigate to another grid
 * Pagination [Done]
 * Master detail [Done]
 * Column width
