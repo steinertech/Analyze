@@ -2,7 +2,7 @@ import { Component, signal, Signal } from '@angular/core';
 import { PageNav } from '../page-nav/page-nav';
 import { ComponentDto, ServerApi } from '../generate';
 import { DataService } from '../data.service';
-import { UtilClient } from '../util.client';
+import { UtilClient } from '../util-client';
 import { PageStorageUpload } from '../page-storage-upload/page-storage-upload';
 import { CommonModule } from '@angular/common';
 

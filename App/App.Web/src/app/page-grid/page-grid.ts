@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, Input, model, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridDto, ServerApi } from '../generate';
+import { UtilClient } from '../util-client';
 
 @Component({
   selector: 'app-page-grid',
@@ -385,9 +386,34 @@ export class PageGrid {
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     if (this.resize) {
-      let columnWidthDiff = event.clientX - (this.resize?.cellClientX ?? 0)
+      let columnWidthDiff = event.clientX - (this.resize.cellClientX ?? 0)
       if (this._grid?.state?.columnWidthList) {
-        this._grid.state.columnWidthList[this.resize.columnIndex ?? -1] = this.resize.cellWidth! + columnWidthDiff
+        let widhtDiff = 100 / this.resize.tableWidth * columnWidthDiff
+        let widthSum = 0
+        let columnList = [...this.resize.columnWidthList]
+        for (let i = 0; i < columnList.length; i++) {
+          let width = columnList[i]!
+          if (i == columnList.length - 1) {
+            // Column last
+            columnList[i] = UtilClient.MathFloor100(100 - widthSum) // 100.00 - 80.04 = 19.959999999999994 !
+          } else {
+            if (i < this.resize.columnIndex) {
+              // Column left to resize
+              columnList[i] = width
+            } else {
+              if (i == this.resize.columnIndex) {
+                // Column resize
+                columnList[i] = UtilClient.MathFloor100(width + UtilClient.MathFloor100(widhtDiff))
+              } else {
+                // Column right to resize
+                let widthRight = this.resize.columnWidthList.slice(this.resize.columnIndex + 1).reduce((sum, value) => sum! + value!, 0)!
+                columnList[i] = UtilClient.MathFloor100(width - UtilClient.MathFloor100(widhtDiff / widthRight * this.resize.columnWidthList[i]!))
+              }
+            }
+          }
+          widthSum = UtilClient.MathFloor100(widthSum + columnList[i]!)
+        }
+        this._grid.state.columnWidthList = columnList
       }
     }
   }
@@ -396,14 +422,17 @@ export class PageGrid {
 
   headerMouseDown(e: MouseEvent, cell: GridCellDto, cellIndex: number) {
     e.preventDefault()
-    this.resize = {}
-    this.resize.cell = cell
-    this.resize.cellClientX = e.clientX
-    this.resize.cellWidth = (e.target as HTMLElement).parentElement?.offsetWidth
-    this.resize.columnIndex = cellIndex
+    this.resize = {
+      cell: cell,
+      cellClientX: e.clientX,
+      cellWidth: (e.target as HTMLElement).closest('td')!.offsetWidth,
+      columnIndex: cellIndex,
+      columnCount: 0,
+      tableWidth: this.tableRef.nativeElement.clientWidth,
+      columnWidthList: []
+    }
     let table = this.tableRef.nativeElement
     // ColumnCount
-    this.resize.columnCount = 0
     for (let rowIndex = 0; rowIndex < table.rows.length; rowIndex++) {
       this.resize.columnCount = Math.max(this.resize.columnCount, table.rows[rowIndex].cells.length)
     }
@@ -416,9 +445,20 @@ export class PageGrid {
         this._grid.state.columnWidthList = []
       }
       if (this._grid.state.columnWidthList.length < this.resize.columnCount) {
-        this._grid.state.columnWidthList[this.resize.columnCount - 1] = null
+        let widthAvg = UtilClient.MathFloor100(100 / this.resize.columnCount)
+        let widthSum = 0
+        let columnWidthList = this._grid.state.columnWidthList
+        for (let i = 0; i < this.resize.columnCount; i++) {
+          if (i < this.resize.columnCount - 1) {
+            columnWidthList[i] = widthAvg
+            widthSum += widthAvg
+          } else {
+            columnWidthList[i] = 100 - widthSum
+          }
+        }
       }
     }
+    this.resize.columnWidthList = this._grid!.state!.columnWidthList!
   }
 }
 
@@ -433,10 +473,11 @@ class Lookup {
 }
 
 class Resize {
-  cell?: GridCellDto
-  cellClientX?: number
-  cellWidth?: number
-  columnIndex?: number
-  columnCount?: number
-  tableWidth?: number
+  cell!: GridCellDto
+  cellClientX!: number
+  cellWidth!: number
+  columnIndex!: number
+  columnCount!: number
+  tableWidth!: number
+  columnWidthList!: (number | null)[]
 }

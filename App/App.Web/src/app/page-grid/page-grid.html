@@ -1,11 +1,9 @@
 @let grid = this.grid();
-Resize={{resize | json}}<br>
-ColumnWidthList={{grid?.state?.columnWidthList | json}}<br>
 <table #tableRef class="frm-table">
   @if(grid?.state?.columnWidthList) {
   <colgroup>
     @for (width of grid?.state?.columnWidthList; track $index;) {
-    <col [style.width]="width ? width + 'px' : undefined">
+    <col [style.width]="width ? width + '%' : undefined">
     }
   </colgroup>
   }
