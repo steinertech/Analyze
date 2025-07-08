@@ -395,7 +395,7 @@ export class PageGrid {
           let width = columnList[i]!
           if (i == columnList.length - 1) {
             // Column last
-            columnList[i] = UtilClient.MathFloor100(100 - widthSum) // 100.00 - 80.04 = 19.959999999999994 !
+            columnList[i] = UtilClient.MathRound100(100 - widthSum) // 100.00 - 80.04 = 19.959999999999994 !
           } else {
             if (i < this.resize.columnIndex) {
               // Column left to resize
@@ -403,15 +403,15 @@ export class PageGrid {
             } else {
               if (i == this.resize.columnIndex) {
                 // Column resize
-                columnList[i] = UtilClient.MathFloor100(width + UtilClient.MathFloor100(widhtDiff))
+                columnList[i] = UtilClient.MathRound100(width + UtilClient.MathFloor100(widhtDiff))
               } else {
                 // Column right to resize
                 let widthRight = this.resize.columnWidthList.slice(this.resize.columnIndex + 1).reduce((sum, value) => sum! + value!, 0)!
-                columnList[i] = UtilClient.MathFloor100(width - UtilClient.MathFloor100(widhtDiff / widthRight * this.resize.columnWidthList[i]!))
+                columnList[i] = UtilClient.MathRound100(width - UtilClient.MathFloor100(widhtDiff / widthRight * this.resize.columnWidthList[i]!))
               }
             }
           }
-          widthSum = UtilClient.MathFloor100(widthSum + columnList[i]!)
+          widthSum = UtilClient.MathRound100(widthSum + columnList[i]!)
         }
         this._grid.state.columnWidthList = columnList
       }
