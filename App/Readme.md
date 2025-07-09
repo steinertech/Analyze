@@ -9,7 +9,7 @@ Start DevContainer Codespace
 * Link to navigate to another grid
 * Pagination [Done]
 * Master detail [Done]
-* Column width
+* Column width [Done]
 * Colspan, Rowspan
 * Label
 * Storage lease
@@ -22,12 +22,13 @@ Start DevContainer Codespace
 * Check App.Web and App.Server version on every request.
 * Move folder Data/ [Done]
 * Load and save to load only
+* Audit, History
 * Css svg content [Done]
 * Class for left and right icon symbol [Done]
 * Report html 2 pdf
-* GridDebug (without css classes)
+* GridDebug (without css classes); tailwind @apply component
 * Tenant, Domain my.localhost
-* Multi Language
+* Multi Language [Done]
 
 # Misc
 * https://www.browserling.com
