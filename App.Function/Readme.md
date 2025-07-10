@@ -7,7 +7,7 @@ dotnet new globaljson # Has no effect on func new
 dotnet new sln --name App
 mkdir App.Function
 cd App.Function
-func new --template "HttpTrigger" --name Function -f App.Function --target-framework net9.0
+func new --template "HttpTrigger" --name Function -f App.Function --target-framework net9.0 # Isolated
 # Rename to App.Function.csproj
 ```
 
