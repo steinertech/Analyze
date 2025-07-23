@@ -1,12 +1,13 @@
 ﻿// Import packages
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.ComponentModel;
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.Configuration;
 
 // Populate values from your OpenAI deployment
 var configurationBuilder = new ConfigurationBuilder().AddUserSecrets<Program>();
@@ -48,6 +49,11 @@ do
 
     // Add user input
     history.AddUserMessage(userInput);
+
+    // Serialize and deserialze chat history. (Example for session handling)
+    var options = new JsonSerializerOptions { WriteIndented = true };
+    string json = JsonSerializer.Serialize(history, options);
+    history = JsonSerializer.Deserialize<ChatHistory>(json, options)!;
 
     // Get the response from the AI
     var result = await chatCompletionService.GetChatMessageContentAsync(
