@@ -34,7 +34,7 @@ kernel.Plugins.AddFromType<LightsPlugin>("Lights");
 // Enable planning
 OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
 {
-    FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+    FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() // Enable function calling
 };
 
 // Create a history store the conversation
@@ -50,6 +50,7 @@ do
 
     // Add user input
     history.AddUserMessage(userInput);
+    // history.AddSystemMessage("For function calling parameter translate city name always to English");
 
     // Serialize and deserialze chat history. (Example for session handling)
     var options = new JsonSerializerOptions { WriteIndented = true };
@@ -107,20 +108,37 @@ public class LightsPlugin
 
     [KernelFunction("weather")]
     [Description("Gets the weather in a city")]
-    public async Task<string?> GetWeather(string city)
+    public async Task<string?> GetWeather(Kernel kernel, string city)
     {
-        if (city == "Zurich") // TODO Exact matching. Vector store.
+        // Option 1
+        // Translate city name to English
+        var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+        var result = await chatCompletionService.GetChatMessageContentAsync(
+            chatHistory: new ChatHistory($"Translate the city name {city} to English. Respond with only the translated name."),
+            executionSettings: new PromptExecutionSettings { FunctionChoiceBehavior = FunctionChoiceBehavior.None() },
+            kernel: kernel);
+        var cityEnglish = result.Content;
+
+        // Option 2
+        // Add instruction to LLM above
+        // history.AddSystemMessage("For function calling parameter translate city name always to English");
+
+        // Option 3
+        // For custom data vectorize data.
+
+        if (cityEnglish == "Zurich")
         {
             return "Rainy";
         }
-        if (city == "Sydney")
+        if (cityEnglish == "Sydney")
         {
             return "Sunny";
         }
-        if (city == "Bern")
+        if (cityEnglish == "Bern")
         {
             return "Cloudy";
         }
+
         return null;
     }
 }
@@ -136,4 +154,3 @@ public class LightModel
     [JsonPropertyName("is_on")]
     public bool? IsOn { get; set; }
 }
-
