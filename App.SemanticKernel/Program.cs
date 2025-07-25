@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
+using OpenAI.Chat;
 using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -63,6 +64,8 @@ do
 
     // Print the results
     Console.WriteLine("Assistant > " + result);
+
+    Console.WriteLine($"Assistant > TokenCount={(result.Metadata!["Usage"] as ChatTokenUsage)?.TotalTokenCount}");
 
     // Add the message from the agent to the chat history
     history.AddMessage(result.Role, result.Content ?? string.Empty);
