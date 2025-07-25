@@ -31,6 +31,20 @@ var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 // Add a plugin (the LightsPlugin class is defined below)
 kernel.Plugins.AddFromType<LightsPlugin>("Lights");
 
+// Add a dynamic plugin for country codes
+var countryParam = new KernelParameterMetadata("country") { Description = "Country for which to get telephone country code", IsRequired = true, ParameterType = typeof(string) };
+var countryCodeFunction = kernel.CreateFunctionFromMethod((KernelArguments paramList) =>
+    {
+        var country = paramList["country"];
+        return "+00";
+    },
+    functionName: "CountryCode",
+    description: "Input parameters",
+    parameters: [countryParam]
+);
+var telephonePlugin = kernel.CreatePluginFromFunctions("Telephone", [countryCodeFunction]);
+kernel.Plugins.Add(telephonePlugin);
+
 // Enable planning
 OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
 {
@@ -145,12 +159,12 @@ public class LightsPlugin
 
 public class LightModel
 {
-    [JsonPropertyName("id")]
-    public int Id { get; set; }
+  [JsonPropertyName("id")]
+  public int Id { get; set; }
 
-    [JsonPropertyName("name")]
-    public string Name { get; set; }
+  [JsonPropertyName("name")]
+  public string Name { get; set; }
 
-    [JsonPropertyName("is_on")]
-    public bool? IsOn { get; set; }
+  [JsonPropertyName("is_on")]
+  public bool? IsOn { get; set; }
 }
