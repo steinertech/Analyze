@@ -65,6 +65,8 @@ do
     // Add user input
     history.AddUserMessage(userInput);
     // history.AddSystemMessage("For function calling parameter translate city name always to English");
+    // history.AddUserMessage("What are the top 3 cities to see?");
+    // history.AddAssistantMessage("Here are three must-see cities: Barcelona, Munich, Berlin.");
 
     // Serialize and deserialze chat history. (Example for session handling)
     var options = new JsonSerializerOptions { WriteIndented = true };

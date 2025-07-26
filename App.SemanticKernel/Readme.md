@@ -1,5 +1,13 @@
 # App.SemanticKernel
 
-```
-<PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.49.0-preview" />
-```
+Command line application
+
+* Plugin function calling for weather and telephone country code
+* Dynamically add functions (with dynamic parameter declaration) to plugin
+
+## TODO
+* Confirm before execute plugin function
+* IFunctionInvocationFilter log every function call. Ask for user permission to execute.
+* PromptTemplateConfig
+* CreateFunctionFromPrompt
+* https://learn.microsoft.com/en-us/credentials/applied-skills/develop-ai-agents-using-microsoft-azure-openai-and-semantic-kernel/#applied-skill-take-the-assessment
