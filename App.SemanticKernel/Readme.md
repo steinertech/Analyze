@@ -11,3 +11,4 @@ Command line application
 * PromptTemplateConfig
 * CreateFunctionFromPrompt
 * https://learn.microsoft.com/en-us/credentials/applied-skills/develop-ai-agents-using-microsoft-azure-openai-and-semantic-kernel/#applied-skill-take-the-assessment
+* https://learn.microsoft.com/en-us/training/modules/create-azure-cognitive-search-solution/

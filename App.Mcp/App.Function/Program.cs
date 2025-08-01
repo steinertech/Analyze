@@ -35,7 +35,7 @@ builder.Services.AddSingleton((serviceProvider) =>
            endpoint: configuration["openAiEndpoint"]!,
            apiKey: configuration["openAiApiKey"]!)
        .AddAzureOpenAIEmbeddingGenerator(
-           deploymentName: "text-embedding-3-small",
+           deploymentName: "text-embedding-3-small", // text-embedding-3-large
            endpoint: configuration["openAiEndpoint"]!,
            apiKey: configuration["openAiApiKey"]!)
        .Build();
