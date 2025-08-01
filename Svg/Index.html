@@ -1,0 +1,18 @@
+<html>
+<head>
+</head>
+<body>
+  <svg id="mySVG" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="30" fill="green">
+      <animate id="pulse" attributeName="r" values="30;40;30" dur="2s" repeatCount="indefinite" />
+    </circle>
+  </svg>
+  <script>
+    // Set the animation to 1 second into its timeline after 2 seconds
+    setTimeout(() => {
+      const svg = document.getElementById("mySVG");
+      svg.setCurrentTime(1); // jumps to 1 second in the animation timeline
+    }, 2000);
+  </script>
+</body>
+</html>
