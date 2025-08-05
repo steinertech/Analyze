@@ -1,5 +1,8 @@
 ﻿using System.Text.Json;
 
+/// <summary>
+/// Generic request.
+/// </summary>
 public class RequestDto
 {
     public string CommandName { get; set; } = default!;
@@ -7,6 +10,9 @@ public class RequestDto
     public List<JsonElement>? ParamList { get; set; }
 }
 
+/// <summary>
+/// Generic response.
+/// </summary>
 public class ResponseDto
 {
     public string? CommandName { get; set; }
@@ -18,9 +24,13 @@ public class ResponseDto
     public string? NavigateUrl { get; set; }
 }
 
-public class Response
+public class CommandContext
 {
-    public string? NavigateUrl { get; set; }
+    public string DomainNameClient { get; set; } = default!;
+
+    public string DomainNameServer { get; set; } = default!;
+
+    public string ResponseNavigateUrl { get; set; } = default!;
 }
 
 public class DebugDto

@@ -27,8 +27,10 @@ Start DevContainer Codespace
 * Class for left and right icon symbol [Done]
 * Report html 2 pdf
 * GridDebug (without css classes); tailwind @apply component
-* Tenant, Domain my.localhost
+* Tenant, Session
+* DomainName (my.localhost) [Done]
 * Multi Language [Done]
+* Notification
 
 # Misc
 * https://www.browserling.com

@@ -10,7 +10,7 @@ using System.Text.Json.Serialization.Metadata;
 
 public static class UtilServer
 {
-    public static string VersionServer => "1.0.14";
+    public static string VersionServer => "1.0.14 (2323)";
 
     /// <summary>
     /// App start config.
@@ -26,7 +26,7 @@ public static class UtilServer
         builder.Services.AddSingleton<MemoryGrid>();
         builder.Services.AddSingleton<ExcelGrid>();
         builder.Services.AddSingleton<StorageGrid>();
-        builder.Services.AddScoped<Response>();
+        builder.Services.AddScoped<CommandContext>();
 
         builder.Services.AddControllers().AddJsonOptions(configure =>
         {
@@ -57,6 +57,9 @@ public static class UtilServer
         using var reader = new StreamReader(req.Body);
         var requestBody = await reader.ReadToEndAsync();
         var requestDto = JsonSerializer.Deserialize<RequestDto>(requestBody, jsonOptions)!;
+        var context = serviceProvider.GetService<CommandContext>()!;
+        context.DomainNameClient = new Uri(req.Headers.Origin!).Host;
+        context.DomainNameServer = req.Host.Host;
         ResponseDto responseDto;
         try
         {
@@ -65,8 +68,7 @@ public static class UtilServer
             {
                 grid.ClearResponse();
             }
-            var response = serviceProvider.GetService<Response>()!;
-            responseDto.NavigateUrl = response.NavigateUrl;
+            responseDto.NavigateUrl = context.ResponseNavigateUrl;
         }
         catch (Exception exception)
         {

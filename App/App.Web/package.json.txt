@@ -1,0 +1,4 @@
+File package.json change to ng serve --host my.localhost
+File C:\Windows\System32\drivers\etc\hosts add 127.0.0.1 my.localhost
+File launch.json change to "url": "http://my.localhost:4200/"
+File data.service.ts add hostname == "my.localhost" || // Running in VS code
