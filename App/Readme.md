@@ -21,16 +21,18 @@ Start DevContainer Codespace
 * Excel sheets component master detail [Done]
 * Check App.Web and App.Server version on every request.
 * Move folder Data/ [Done]
-* Load and save to load only
+* Load and save to load command only
 * Audit, History
 * Css svg content [Done]
 * Class for left and right icon symbol [Done]
-* Report html 2 pdf
+* Report html to pdf
 * GridDebug (without css classes); tailwind @apply component
 * Tenant, Session
 * DomainName (my.localhost) [Done]
 * Multi Language [Done]
-* Notification
+* Notification [Done]
+* Notification language
+* Notification parameter
 
 # Misc
 * https://www.browserling.com
