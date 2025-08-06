@@ -67,7 +67,6 @@ export class DataService {
   notificationCount: number = 0;
   notificationAdd(notificationEnum: NotificationEnum, text: string) {
     let notification = new NotificationDto();
-    notification.id = this.notificationCount++;
     notification.notificationEnum = notificationEnum;
     notification.text = text;
     this.notificationList.push(notification);
@@ -78,14 +77,13 @@ export class DataService {
 
 export enum NotificationEnum {
   None = 0,
-  Success = 1,
-  Info = 2,
+  Info = 1,
+  Success = 2,
   Warning = 3,
   Error = 4,
 }
 
-class NotificationDto {
-  id?: number;
-  notificationEnum?: number;
+export class NotificationDto {
+  notificationEnum?: NotificationEnum;
   text?: string
 }

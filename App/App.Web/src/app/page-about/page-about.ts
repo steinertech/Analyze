@@ -5,14 +5,16 @@ import { DataService } from '../data.service';
 import { UtilClient } from '../util-client';
 import { PageStorageUpload } from '../page-storage-upload/page-storage-upload';
 import { CommonModule } from '@angular/common';
+import { PageNotification } from "../page-notification/page-notification";
 
 @Component({
   selector: 'app-page-about',
   imports: [
     PageNav,
     PageStorageUpload,
-    CommonModule, // Async pipe    
-  ],
+    CommonModule,
+    PageNotification
+],
   templateUrl: './page-about.html',
   styleUrl: './page-about.css'
 })

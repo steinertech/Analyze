@@ -63,12 +63,14 @@ public static class UtilServer
         ResponseDto responseDto;
         try
         {
+            // Run
             responseDto = await ServerApi.Run(requestDto, jsonOptions, serviceProvider);
             if (responseDto.Result is GridDto grid)
             {
                 grid.ClearResponse();
             }
             responseDto.NavigateUrl = context.ResponseNavigateUrl;
+            responseDto.NotificationList = context.NotificationList;
         }
         catch (Exception exception)
         {

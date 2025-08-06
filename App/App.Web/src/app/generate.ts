@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
 import { map, Observable, tap } from "rxjs"
 import { Router } from "@angular/router"
-import { DataService } from "./data.service"
+import { DataService, NotificationDto } from "./data.service"
 
 export class RequestDto {
   public commandName!: string
@@ -11,12 +11,21 @@ export class RequestDto {
 
 export class ResponseDto {
   public result?: any
-  public exception?: string
+  public exceptionText?: string
   public navigateUrl?: string
+  public notificationList?: NotificationDto[]
 }
 
 export class ComponentDto {
   public list?: ComponentDto[]
+}
+
+export enum NatificationEnum {
+  None = 0,
+  Info = 1,
+  Success = 2,
+  Warning = 3,
+  Error = 4,
 }
 
 export class ComponentButtonDto extends ComponentDto {
@@ -184,10 +193,14 @@ export class ServerApi {
 
   post<T>(request: RequestDto): Observable<T> {
     return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), request).pipe(
-      // NavigateUrl
       tap(value => {
+        // NavigateUrl
         if (value.navigateUrl) {
           this.router.navigateByUrl(value.navigateUrl)
+        }
+        // Notification
+        if (value.notificationList) {
+          this.dataService.notificationList.push(...value.notificationList)
         }
       }),
       map(value => <T>value.result)

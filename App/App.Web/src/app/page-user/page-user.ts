@@ -3,14 +3,16 @@ import { PageNav } from '../page-nav/page-nav';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ServerApi, UserDto } from '../generate';
+import { PageNotification } from "../page-notification/page-notification";
 
 @Component({
   selector: 'app-page-user',
   imports: [
     PageNav,
     RouterModule,
-    FormsModule, // Used for ngModels    
-  ],
+    FormsModule,
+    PageNotification
+],
   templateUrl: './page-user.html',
   styleUrl: './page-user.css'
 })

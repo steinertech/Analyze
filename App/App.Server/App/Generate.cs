@@ -15,7 +15,7 @@ public static class ServerApi
                 responseDto.Result = new CommandTree().Run(UtilServer.JsonElementTo<ComponentDto?>(requestDto.ParamList![0], jsonOptions));
                 break;
             case nameof(CommandDebug):
-                responseDto.Result = new CommandDebug(serviceProvider.GetService<DataService>()!).Run();
+                responseDto.Result = new CommandDebug(serviceProvider.GetService<DataService>()!, serviceProvider.GetService<CommandContext>()!).Run();
                 break;
             case nameof(CommandStorageDownload):
                 responseDto.Result = await new CommandStorageDownload(serviceProvider.GetService<Configuration>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
