@@ -49,7 +49,7 @@ jobs:
         with:
           repository: steinertech/steinertech.github.io
           path: pages
-          token: ${{ secrets.PAGES_PAT }} # See also https://github.com/settings/personal-access-tokens
+          token: ${{ secrets.PAGES_PAT }} # See also https://github.com/settings/personal-access-tokens and renew GitHub Pages PAT. Enter PAGES_PAT at https://github.com/steinertech/Analyze/settings/secrets/actions Repository secrets.
 
       - name: Set Git user
         run: |
