@@ -1,8 +1,8 @@
 import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
-import { map, Observable, tap } from "rxjs"
+import { catchError, map, Observable, tap } from "rxjs"
 import { Router } from "@angular/router"
-import { DataService, NotificationDto } from "./data.service"
+import { DataService, NotificationDto, NotificationEnum } from "./data.service"
 
 export class RequestDto {
   public commandName!: string
@@ -200,10 +200,20 @@ export class ServerApi {
         }
         // Notification
         if (value.notificationList) {
-          this.dataService.notificationList.push(...value.notificationList)
+          this.dataService.notificationList.update(list => {
+            if (value.notificationList) {
+              value.notificationList = value.notificationList.reverse()
+              list = [...value.notificationList, ...list]
+            }
+            return list
+          })
         }
       }),
-      map(value => <T>value.result)
+      map(value => <T>value.result),
+      catchError(error => {
+        this.dataService.notificationAdd(NotificationEnum.Error, "Network error!")
+        throw error
+      })
     )
   }
 

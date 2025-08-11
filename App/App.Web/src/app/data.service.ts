@@ -1,4 +1,4 @@
-import { Injectable, Injector } from '@angular/core';
+import { Injectable, Injector, signal } from '@angular/core';
 import { ServerApi } from './generate';
 import { Observable, of } from 'rxjs';
 
@@ -63,13 +63,16 @@ export class DataService {
     return result
   }
 
-  notificationList: NotificationDto[] = [];
+  notificationList = signal(<NotificationDto[]>[]);
   notificationCount: number = 0;
   notificationAdd(notificationEnum: NotificationEnum, text: string) {
     let notification = new NotificationDto();
     notification.notificationEnum = notificationEnum;
     notification.text = text;
-    this.notificationList.push(notification);
+    this.notificationList.update(list => {
+      list = [notification, ...list]
+      return list
+    })
   }
 
   isSignin = false;

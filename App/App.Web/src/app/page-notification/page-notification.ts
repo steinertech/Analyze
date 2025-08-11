@@ -14,6 +14,9 @@ export class PageNotification {
   NotificationEnum = NotificationEnum
 
   click(value: NotificationDto) {
-    this.dataService.notificationList = this.dataService.notificationList.filter(item => item != value)
+    this.dataService.notificationList.update(list => {
+      list = list.filter(item => item != value)
+      return list
+    })
   }
 }
