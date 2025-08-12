@@ -10,7 +10,7 @@ using System.Text.Json.Serialization.Metadata;
 
 public static class UtilServer
 {
-    public static string VersionServer => "1.0.14 (2323)";
+    public static string VersionServer => "1.0.14 (2233)";
 
     /// <summary>
     /// App start config.
@@ -74,7 +74,7 @@ public static class UtilServer
             responseDto.NotificationList = context.NotificationList;
             if (context.ResponseSessionId != null)
             {
-                req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, new CookieOptions { HttpOnly = true, Path = "/", SameSite = SameSiteMode.None, Secure = true });
+                req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, new CookieOptions { HttpOnly = true, Path = "/", SameSite = SameSiteMode.None, Secure = true, IsEssential = true });
             }
         }
         catch (Exception exception)
