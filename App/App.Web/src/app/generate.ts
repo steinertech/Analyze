@@ -214,10 +214,10 @@ export class ServerApi {
       map(value => <T>value.result),
       catchError(error => {
         if (error.error?.exceptionText) {
-          this.dataService.notificationAdd(NotificationEnum.Error, error.error?.exceptionText)
+          this.dataService.notificationAdd(NotificationEnum.Error, "Exception: " + error.error?.exceptionText)
           throw error
         }
-        this.dataService.notificationAdd(NotificationEnum.Error, "Network error!")
+        this.dataService.notificationAdd(NotificationEnum.Error, "Error: " + "Network failure!")
         throw error
       })
     )
