@@ -192,7 +192,9 @@ export class ServerApi {
   }
 
   post<T>(request: RequestDto): Observable<T> {
-    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), request, { withCredentials: true }).pipe( // withCredentials send SessionId cookie to server
+    // Param withCredentials to send SessionId cookie to server. 
+    // Add CORS (not *) https://steinertech.github.io and enable Enable Access-Control-Allow-Credentials
+    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), request, { withCredentials: true }).pipe(
       tap(value => {
         // NavigateUrl
         if (value.navigateUrl) {

@@ -74,7 +74,7 @@ public static class UtilServer
             responseDto.NotificationList = context.NotificationList;
             if (context.ResponseSessionId != null)
             {
-                req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, new CookieOptions { HttpOnly = true, Path = "/", SameSite = SameSiteMode.Strict, Secure = true });
+                req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, new CookieOptions { HttpOnly = true, Path = "/", SameSite = SameSiteMode.None, Secure = true });
             }
         }
         catch (Exception exception)
