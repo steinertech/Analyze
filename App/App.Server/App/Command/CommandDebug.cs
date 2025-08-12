@@ -12,6 +12,15 @@
 
         context.NotificationAdd("Hello from debug", NotificationEnum.Info);
 
+        if (context.RequestSessionId == null)
+        {
+            context.ResponseSessionId = Guid.NewGuid().ToString();
+        }
+        else
+        {
+            context.NotificationAdd("SessionId=" + context.RequestSessionId, NotificationEnum.Info);
+        }
+
         return result;
     }
 }

@@ -60,6 +60,7 @@ public static class UtilServer
         var context = serviceProvider.GetService<CommandContext>()!;
         context.DomainNameClient = new Uri(req.Headers.Origin!).Host;
         context.DomainNameServer = req.Host.Host;
+        context.RequestSessionId = req.Cookies["SessionId"];
         ResponseDto responseDto;
         try
         {
@@ -71,6 +72,10 @@ public static class UtilServer
             }
             responseDto.NavigateUrl = context.ResponseNavigateUrl;
             responseDto.NotificationList = context.NotificationList;
+            if (context.ResponseSessionId != null)
+            {
+                req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, new CookieOptions { HttpOnly = true, Path = "/", SameSite = SameSiteMode.Strict, Secure = true });
+            }
         }
         catch (Exception exception)
         {

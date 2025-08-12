@@ -192,7 +192,7 @@ export class ServerApi {
   }
 
   post<T>(request: RequestDto): Observable<T> {
-    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), request).pipe(
+    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), request, { withCredentials: true }).pipe( // withCredentials send SessionId cookie to server
       tap(value => {
         // NavigateUrl
         if (value.navigateUrl) {
@@ -211,6 +211,10 @@ export class ServerApi {
       }),
       map(value => <T>value.result),
       catchError(error => {
+        if (error.error?.exceptionText) {
+          this.dataService.notificationAdd(NotificationEnum.Error, error.error?.exceptionText)
+          throw error
+        }
         this.dataService.notificationAdd(NotificationEnum.Error, "Network error!")
         throw error
       })

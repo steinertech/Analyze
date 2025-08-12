@@ -59,6 +59,10 @@ public class CommandContext
 
     public List<NotificationDto>? NotificationList { get; set; }
 
+    public string? RequestSessionId { get; set; }
+
+    public string? ResponseSessionId { get; set; }
+
     public void NotificationAdd(string text, NotificationEnum notificationEnum = NotificationEnum.None)
     {
         if (NotificationList == null)
