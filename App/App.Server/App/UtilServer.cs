@@ -74,7 +74,14 @@ public static class UtilServer
             responseDto.NotificationList = context.NotificationList;
             if (context.ResponseSessionId != null)
             {
-                req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.None, Secure = true });
+                var options = new CookieOptions 
+                { 
+                    HttpOnly = true, // JavaScript can not access cookie
+                    SameSite = SameSiteMode.Strict, 
+                    Secure = true,
+                    Domain = "t2sync.com"
+                };
+                req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, options);
             }
         }
         catch (Exception exception)
