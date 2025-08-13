@@ -36,7 +36,7 @@ export class DataService {
   }
 
   public serverUrl() {
-    let result = "https://stc001appfunction.azurewebsites.net/api/data"
+    let result = "https://api.t2sync.com/api/data" // "https://stc001appfunction.azurewebsites.net/api/data"
     if (this.isLocalhost()) {
       result = "http://localhost:7138/api/data";
     }
