@@ -47,7 +47,7 @@ jobs:
       - name: Checkout Pages
         uses: actions/checkout@v4
         with:
-          repository: steinertech/steinertech.github.io
+          repository: steinertech/GitHubPages
           path: pages
           token: ${{ secrets.PAGES_PAT }} # See also https://github.com/settings/personal-access-tokens and renew GitHub Pages PAT. Enter PAGES_PAT at https://github.com/steinertech/Analyze/settings/secrets/actions Repository secrets.
 
@@ -66,3 +66,4 @@ jobs:
       
       - name: Deploy.sh Run
         run: .github/workflows/deploy.sh    
+
