@@ -49,7 +49,7 @@ jobs:
         with:
           repository: steinertech/GitHubPages
           path: pages
-          token: ${{ secrets.PAGES_PAT }} # See also https://github.com/settings/personal-access-tokens and renew GitHub Pages PAT. Enter PAGES_PAT at https://github.com/steinertech/Analyze/settings/secrets/actions Repository secrets.
+          token: ${{ secrets.PAGES_PAT }} # See also https://github.com/settings/personal-access-tokens and renew GitHubPages PAT or create new with Permission "Contents" read and write. Enter PAGES_PAT at https://github.com/steinertech/Analyze/settings/secrets/actions Repository secrets.
 
       - name: Set Git user
         run: |
@@ -66,4 +66,5 @@ jobs:
       
       - name: Deploy.sh Run
         run: .github/workflows/deploy.sh    
+
 
