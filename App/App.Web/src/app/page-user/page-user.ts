@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ServerApi, UserDto } from '../generate';
 import { PageNotification } from "../page-notification/page-notification";
+import { DataService } from '../data.service';
 
 @Component({
   selector: 'app-page-user',
@@ -12,12 +13,12 @@ import { PageNotification } from "../page-notification/page-notification";
     RouterModule,
     FormsModule,
     PageNotification
-],
+  ],
   templateUrl: './page-user.html',
   styleUrl: './page-user.css'
 })
 export class PageUser {
-  constructor(private serverApi: ServerApi, private router: Router) {
+  constructor(private serverApi: ServerApi, private router: Router, protected dataService: DataService) {
   }
 
   userModeEnum: UserModeEnum = UserModeEnum.None
@@ -33,14 +34,30 @@ export class PageUser {
       case "/signup-confirm": this.userModeEnum = UserModeEnum.SignUpConfirm; break;
       case "/signin-recover": this.userModeEnum = UserModeEnum.SignInRecover; break;
       case "/signin-password-change": this.userModeEnum = UserModeEnum.SignInPasswordChange; break;
+      case "/signin-dashboard": this.userModeEnum = UserModeEnum.SignInDashboard; break;
+    }
+  }
+
+  async ngAfterContentInit() {
+    if (this.userModeEnum == UserModeEnum.SignOut) {
+      if (this.dataService.isWindow()) {
+        await this.serverApi.commmandUserSignOut()
+        await this.dataService.userUpdate()
+      }
     }
   }
 
   userEmail?: string;
   userPassword?: string;
   userPasswordConfirm?: string;
-  click() {
-    this.serverApi.commmandUserSignUp(<UserDto>{ email: this.userEmail, password: this.userPassword }).subscribe();
+  async click() {
+    if (this.userModeEnum == UserModeEnum.SignIn) {
+      await this.serverApi.commmandUserSignIn(<UserDto>{ email: this.userEmail, password: this.userPassword })
+      await this.dataService.userUpdate()
+    }
+    if (this.userModeEnum == UserModeEnum.SignUp) {
+      await this.serverApi.commmandUserSignUp(<UserDto>{ email: this.userEmail, password: this.userPassword })
+    }
   }
 }
 
@@ -53,4 +70,5 @@ export enum UserModeEnum {
   SignUpConfirm = 5,
   SignInRecover = 6,
   SignInPasswordChange = 7,
+  SignInDashboard = 8 // Page shown after user sign in
 }

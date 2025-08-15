@@ -10,14 +10,14 @@
   ```
 -->
 @if(userModeEnum==UserModeEnumLocal.SignUpEmail) {
-  <div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
+<div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
   <h1>Signup Email</h1>
   <p>Registration email has been sent.</p>
 </div>
 }
 
 @if(userModeEnum==UserModeEnumLocal.SignUpConfirm) {
-  <div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
+<div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
   <h1>Signup Confirm</h1>
   <p>Your account registration has been successfully completed.</p>
 </div>
@@ -100,5 +100,23 @@
     </p>
     }
   </div>
+</div>
+}
+
+@if (userModeEnum==UserModeEnumLocal.SignInDashboard) {
+<div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
+  <h1>Welcome</h1>
+  <p>Welcome to your account.</p>
+</div>
+}
+
+@if (userModeEnum==UserModeEnumLocal.SignOut) {
+<div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
+  <h1>Sign Out</h1>
+  @if (dataService.user()) {
+  <p>Signing out...</p>
+  } @else {
+  <p>Successfully signed out.</p>
+  }
 </div>
 }

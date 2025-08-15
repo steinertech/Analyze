@@ -77,7 +77,7 @@ public static class UtilServer
                 var options = new CookieOptions 
                 { 
                     HttpOnly = true, // JavaScript can not access cookie
-                    SameSite = SameSiteMode.Strict, // api.example.com and www.example.com are the same site
+                    SameSite = SameSiteMode.Strict, // api.example.com and www.example.com are the same site. Not considered to be a third party cookie which can be blocked.
                     Secure = true
                 };
                 req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, options);

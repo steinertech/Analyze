@@ -17,6 +17,7 @@ export const routes: Routes = [
   { path: 'signup-confirm', component: PageUser },
   { path: 'signin-recover', component: PageUser },
   { path: 'signin-password-change', component: PageUser },
+  { path: 'signin-dashboard', component: PageUser },
   { path: 'storage', component: PageStorage },
   { path: 'product', component: PageProduct },  
 ];

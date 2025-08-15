@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
-import { catchError, map, Observable, tap } from "rxjs"
+import { catchError, firstValueFrom, map, Observable, tap } from "rxjs"
 import { Router } from "@angular/router"
 import { DataService, NotificationDto, NotificationEnum } from "./data.service"
 
@@ -193,7 +193,7 @@ export class ServerApi {
 
   post<T>(request: RequestDto): Observable<T> {
     // Param withCredentials to send SessionId cookie to server. 
-    // Add CORS (not *) https://steinertech.github.io and enable Enable Access-Control-Allow-Credentials
+    // Add CORS (not *) https://www.example.com and enable Enable Access-Control-Allow-Credentials on server
     return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), request, { withCredentials: true }).pipe(
       tap(value => {
         // NavigateUrl
@@ -243,8 +243,20 @@ export class ServerApi {
     return this.post<void>({ commandName: "CommandStorageUpload", paramList: [fileName, data] });
   }
 
-  commmandUserSignUp(userDto: UserDto) {
-    return this.post<void>({ commandName: "CommandUserSignUp", paramList: [userDto] });
+  async commmandUserSignStatus() {
+    return await firstValueFrom(this.post<UserDto>({ commandName: "CommandUserSignStatus", paramList: [] }));
+  }
+
+  async commmandUserSignIn(userDto: UserDto) {
+    return await firstValueFrom(this.post<void>({ commandName: "CommandUserSignIn", paramList: [userDto] }));
+  }
+
+  async commmandUserSignUp(userDto: UserDto) {
+    return await firstValueFrom(this.post<void>({ commandName: "CommandUserSignUp", paramList: [userDto] }));
+  }
+
+  async commmandUserSignOut() {
+    return await firstValueFrom(this.post<void>({ commandName: "CommandUserSignOut", paramList: [] }));
   }
 
   commandGridLoad(grid: GridDto, parentCell?: GridCellDto, parentControl?: GridControlDto, parentGrid?: GridDto) {

@@ -55,7 +55,7 @@ public class CosmosDb
         return result;
     }
 
-    public IQueryable<T> Select<T>(Guid? tenantId = null, string? name = null) where T : DocumentDto
+    public IQueryable<T> Select<T>(Guid? tenantId = null, string? name = null) where T : DocumentDto // TODO Domain
     {
         IQueryable<T> result = container.GetItemLinqQueryable<T>();
         result = result.Where(item => item.Type == typeof(T).Name);
@@ -149,6 +149,13 @@ public static class DocumentDbExtension
                 result.Add(item);
             }
         }
+        return result;
+    }
+
+    public static async Task<T?> SingleOrDefaultAsync<T>(this IQueryable<T> querable, Guid? tenantId = null, string? name = null) where T : DocumentDto
+    {
+        var list = await querable.ToListAsync();
+        var result = list.SingleOrDefault();
         return result;
     }
 

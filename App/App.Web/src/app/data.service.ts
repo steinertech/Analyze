@@ -1,5 +1,5 @@
 import { Injectable, Injector, signal } from '@angular/core';
-import { ServerApi } from './generate';
+import { ServerApi, UserDto } from './generate';
 import { Observable, of } from 'rxjs';
 
 @Injectable({
@@ -12,6 +12,10 @@ export class DataService {
 
   public isWindow() {
     return typeof window !== "undefined";
+  }
+
+  private serverApi() {
+    return this.injector.get(ServerApi) // Circular dependency // TODO new data service Notification
   }
 
   private isLocalhost() {
@@ -36,7 +40,7 @@ export class DataService {
   }
 
   public serverUrl() {
-    let result = "https://api.t2sync.com/api/data" // "https://stc001appfunction.azurewebsites.net/api/data"
+    let result = "https://api.t2sync.com/api/data" // "https://stc001appfunction.azurewebsites.net/api/data" // TODO generic
     if (this.isLocalhost()) {
       result = "http://localhost:7138/api/data";
     }
@@ -53,7 +57,7 @@ export class DataService {
     if (!result) {
       console.log("Get File", fileName)
       if (this.isWindow()) {
-        let serverApi = this.injector.get(ServerApi) // Circular dependency
+        let serverApi = this.serverApi()
         this.storageDownloadList.set(fileName, serverApi.commandStorageDownload(fileName))
       } else {
         this.storageDownloadList.set(fileName, this.storageDownloadEmpty);
@@ -75,7 +79,13 @@ export class DataService {
     })
   }
 
-  isSignin = false;
+  /** Currently loggen in user  */
+  user = signal<UserDto | null>(null);
+  async userUpdate() {
+    let serverApi = this.serverApi()
+    let user = await serverApi.commmandUserSignStatus()
+    this.user.set(user)
+  }
 }
 
 export enum NotificationEnum {

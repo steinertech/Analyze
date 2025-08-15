@@ -51,10 +51,13 @@ public class NotificationDto
 /// </summary>
 public class CommandContext
 {
-    public string DomainNameClient { get; set; } = default!;
+    public string DomainNameClient { get; set; } = default!; // TODO rename to Domain
 
-    public string DomainNameServer { get; set; } = default!;
+    public string DomainNameServer { get; set; } = default!; // Remove
 
+    /// <summary>
+    /// Gets or sets ResponseNavigateUrl. For example "about"
+    /// </summary>
     public string? ResponseNavigateUrl { get; set; }
 
     public List<NotificationDto>? NotificationList { get; set; }
@@ -71,6 +74,17 @@ public class CommandContext
         }
         NotificationList.Add(new NotificationDto { NotificationEnum = notificationEnum, Text = text });
     }
+}
+
+public class SessionDto : DocumentDto
+{
+    public string? SessionId { get; set; }
+
+    public string? DomainNameClient { get; set; }
+
+    public string? Email { get; set; }
+
+    public bool? IsLogin { get; set; }
 }
 
 public class DebugDto
