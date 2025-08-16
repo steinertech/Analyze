@@ -113,7 +113,7 @@
 @if (userModeEnum==UserModeEnumLocal.SignOut) {
 <div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
   <h1>Sign Out</h1>
-  @if (dataService.user()) {
+  @if (dataService.userSign()) {
   <p>Signing out...</p>
   } @else {
   <p>Successfully signed out.</p>

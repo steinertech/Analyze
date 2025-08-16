@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http"
 import { Injectable } from "@angular/core"
 import { catchError, firstValueFrom, map, Observable, tap } from "rxjs"
 import { Router } from "@angular/router"
-import { DataService, NotificationDto, NotificationEnum } from "./data.service"
+import { NotificationDto, NotificationEnum, NotificationService } from "./notification.service"
 
 export class RequestDto {
   public commandName!: string
@@ -187,14 +187,50 @@ export class GridStateFilterMultiDto {
   providedIn: 'root',
 })
 export class ServerApi {
-  constructor(private httpClient: HttpClient, private router: Router, public dataService: DataService) {
+  constructor(private httpClient: HttpClient, private router: Router, private notificationService: NotificationService) {
 
+  }
+
+  public isWindow() {
+    return typeof window !== "undefined";
+  }
+
+  private isLocalhost() {
+    let result = false
+    if (this.isWindow()) {
+      let hostname = window.location.hostname
+      result =
+        hostname == "localhost" || // Running in VS code
+        hostname == '127.0.0.1' // Running with http-server (ng build --localize)
+    }
+    return result
+  }
+
+  private isLocalhostGitHubCodeSpace() {
+    let result = false
+    if (this.isWindow()) {
+      let hostname = window.location.hostname
+      result =
+        hostname.endsWith('github.dev') // Running on GitHub CodeSpace
+    }
+    return result
+  }
+
+  public serverUrl() {
+    let result = "https://api.t2sync.com/api/data" // "https://stc001appfunction.azurewebsites.net/api/data" // TODO generic
+    if (this.isLocalhost()) {
+      result = "http://localhost:7138/api/data";
+    }
+    if (this.isLocalhostGitHubCodeSpace()) {
+      result = 'https://' + window.location.hostname.replace('4200', '7138') + '/api/data'
+    }
+    return result
   }
 
   post<T>(request: RequestDto): Observable<T> {
     // Param withCredentials to send SessionId cookie to server. 
     // Add CORS (not *) https://www.example.com and enable Enable Access-Control-Allow-Credentials on server
-    return this.httpClient.post<ResponseDto>(this.dataService.serverUrl(), request, { withCredentials: true }).pipe(
+    return this.httpClient.post<ResponseDto>(this.serverUrl(), request, { withCredentials: true }).pipe(
       tap(value => {
         // NavigateUrl
         if (value.navigateUrl) {
@@ -202,7 +238,7 @@ export class ServerApi {
         }
         // Notification
         if (value.notificationList) {
-          this.dataService.notificationList.update(list => {
+          this.notificationService.list.update(list => {
             if (value.notificationList) {
               value.notificationList = value.notificationList.reverse()
               list = [...value.notificationList, ...list]
@@ -214,10 +250,10 @@ export class ServerApi {
       map(value => <T>value.result),
       catchError(error => {
         if (error.error?.exceptionText) {
-          this.dataService.notificationAdd(NotificationEnum.Error, "Exception: " + error.error?.exceptionText)
+          this.notificationService.add(NotificationEnum.Error, "Exception: " + error.error?.exceptionText)
           throw error
         }
-        this.dataService.notificationAdd(NotificationEnum.Error, "Error: " + "Network failure!")
+        this.notificationService.add(NotificationEnum.Error, "Error: " + "Network failure!")
         throw error
       })
     )

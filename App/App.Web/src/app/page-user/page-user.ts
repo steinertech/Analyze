@@ -40,9 +40,9 @@ export class PageUser {
 
   async ngAfterContentInit() {
     if (this.userModeEnum == UserModeEnum.SignOut) {
-      if (this.dataService.isWindow()) {
+      if (this.serverApi.isWindow()) {
         await this.serverApi.commmandUserSignOut()
-        await this.dataService.userUpdate()
+        await this.dataService.userSignUpdate()
       }
     }
   }
@@ -53,7 +53,7 @@ export class PageUser {
   async click() {
     if (this.userModeEnum == UserModeEnum.SignIn) {
       await this.serverApi.commmandUserSignIn(<UserDto>{ email: this.userEmail, password: this.userPassword })
-      await this.dataService.userUpdate()
+      await this.dataService.userSignUpdate()
     }
     if (this.userModeEnum == UserModeEnum.SignUp) {
       await this.serverApi.commmandUserSignUp(<UserDto>{ email: this.userEmail, password: this.userPassword })

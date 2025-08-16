@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { DataService, NotificationDto, NotificationEnum } from '../data.service';
+import { NotificationDto, NotificationEnum, NotificationService } from '../notification.service';
 
 @Component({
   selector: 'app-page-notification',
@@ -8,13 +8,13 @@ import { DataService, NotificationDto, NotificationEnum } from '../data.service'
   styleUrl: './page-notification.css'
 })
 export class PageNotification {
-  constructor(public dataService: DataService) {
+  constructor(protected notificationService: NotificationService) {
   }
 
   NotificationEnum = NotificationEnum
 
   click(value: NotificationDto) {
-    this.dataService.notificationList.update(list => {
+    this.notificationService.list.update(list => {
       list = list.filter(item => item != value)
       return list
     })

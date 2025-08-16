@@ -25,7 +25,7 @@ export class PageProduct {
   readonly gridStorage = signal<GridDto>({ gridName: 'Storage' })
 
   ngAfterContentInit() {
-    if (this.dataService.isWindow()) {
+    if (this.serverApi.isWindow()) {
       this.serverApi.commandGridLoad(this.grid()).subscribe(value => this.grid.set(value));
       // this.serverApi.commandGridLoad(this.gridExcel).subscribe(value => this.gridExcel = value);
       this.serverApi.commandGridLoad(this.gridStorage()).subscribe(value => this.gridStorage.set(value));
