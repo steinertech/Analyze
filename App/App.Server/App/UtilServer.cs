@@ -10,7 +10,7 @@ using System.Text.Json.Serialization.Metadata;
 
 public static class UtilServer
 {
-    public static string VersionServer => "1.0.14 (1300)";
+    public static string VersionServer => "1.0.14 (1604)";
 
     /// <summary>
     /// App start config.
@@ -78,7 +78,8 @@ public static class UtilServer
                 { 
                     HttpOnly = true, // JavaScript can not access cookie
                     SameSite = SameSiteMode.Strict, // api.example.com and www.example.com are the same site. Not considered to be a third party cookie which can be blocked.
-                    Secure = true
+                    Secure = true,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
                 };
                 req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, options);
             }
