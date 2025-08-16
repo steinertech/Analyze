@@ -102,7 +102,7 @@ public static class UtilServer
     {
         jsonOptions.WriteIndented = true;
         jsonOptions.PropertyNameCaseInsensitive = true;
-        jsonOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        jsonOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull; // Response value null ends up as unassigned (not null) in JavaScript!
         jsonOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver()
         {
             Modifiers = { UtilServer.JsonConfigure }

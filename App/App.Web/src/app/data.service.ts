@@ -80,7 +80,7 @@ export class DataService {
   }
 
   /** Currently loggen in user  */
-  user = signal<UserDto | null>(null);
+  user = signal<UserDto | undefined>(undefined)
   async userUpdate() {
     let serverApi = this.serverApi()
     let user = await serverApi.commmandUserSignStatus()

@@ -152,7 +152,7 @@ public static class DocumentDbExtension
         return result;
     }
 
-    public static async Task<T?> SingleOrDefaultAsync<T>(this IQueryable<T> querable, Guid? tenantId = null, string? name = null) where T : DocumentDto
+    public static async Task<T?> SingleOrDefaultAsync<T>(this IQueryable<T> querable) where T : DocumentDto
     {
         var list = await querable.ToListAsync();
         var result = list.SingleOrDefault();

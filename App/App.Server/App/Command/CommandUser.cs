@@ -7,18 +7,21 @@
     {
         UserDto? result = null;
         var sessionId = context.RequestSessionId;
-        var session = await cosmosDb.Select<SessionDto>(name: sessionId).SingleOrDefaultAsync();
-        if (session != null)
+        if (sessionId != null)
         {
-            if (session.DomainNameClient == context.DomainNameClient)
+            var session = await cosmosDb.Select<SessionDto>(name: sessionId).SingleOrDefaultAsync();
+            if (session != null)
             {
-                if (session.IsLogin == true)
+                if (session.DomainNameClient == context.DomainNameClient)
                 {
-                    result = new UserDto
+                    if (session.IsLogin == true)
                     {
-                        DomainNameClient = context.DomainNameClient,
-                        Email = session.Email,
-                    };
+                        result = new UserDto
+                        {
+                            DomainNameClient = context.DomainNameClient,
+                            Email = session.Email,
+                        };
+                    }
                 }
             }
         }

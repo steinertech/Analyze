@@ -224,50 +224,50 @@ export class ServerApi {
   }
 
   commandVersion() {
-    return this.post<string>({ commandName: "CommandVersion" });
+    return this.post<string>({ commandName: "CommandVersion" })
   }
 
   commandTree(componentDto?: ComponentDto) {
-    return this.post<ComponentDto>({ commandName: "CommandTree", paramList: [componentDto] });
+    return this.post<ComponentDto>({ commandName: "CommandTree", paramList: [componentDto] })
   }
 
   commandDebug() {
-    return this.post<ResponseDto>({ commandName: "CommandDebug" });
+    return this.post<ResponseDto>({ commandName: "CommandDebug" })
   }
 
   commandStorageDownload(fileName: string) {
-    return this.post<string>({ commandName: "CommandStorageDownload", paramList: [fileName] });
+    return this.post<string>({ commandName: "CommandStorageDownload", paramList: [fileName] })
   }
 
   commmandStorageUpload(fileName: string, data: string) {
-    return this.post<void>({ commandName: "CommandStorageUpload", paramList: [fileName, data] });
+    return this.post<void>({ commandName: "CommandStorageUpload", paramList: [fileName, data] })
   }
 
   async commmandUserSignStatus() {
-    return await firstValueFrom(this.post<UserDto>({ commandName: "CommandUserSignStatus", paramList: [] }));
+    return await firstValueFrom(this.post<UserDto>({ commandName: "CommandUserSignStatus", paramList: [] }))
   }
 
   async commmandUserSignIn(userDto: UserDto) {
-    return await firstValueFrom(this.post<void>({ commandName: "CommandUserSignIn", paramList: [userDto] }));
+    return await firstValueFrom(this.post<void>({ commandName: "CommandUserSignIn", paramList: [userDto] }))
   }
 
   async commmandUserSignUp(userDto: UserDto) {
-    return await firstValueFrom(this.post<void>({ commandName: "CommandUserSignUp", paramList: [userDto] }));
+    return await firstValueFrom(this.post<void>({ commandName: "CommandUserSignUp", paramList: [userDto] }))
   }
 
   async commmandUserSignOut() {
-    return await firstValueFrom(this.post<void>({ commandName: "CommandUserSignOut", paramList: [] }));
+    return await firstValueFrom(this.post<void>({ commandName: "CommandUserSignOut", paramList: [] }))
   }
 
   commandGridLoad(grid: GridDto, parentCell?: GridCellDto, parentControl?: GridControlDto, parentGrid?: GridDto) {
-    return this.post<GridDto>({ commandName: "CommandGridLoad", paramList: [grid, parentCell, parentControl, parentGrid] });
+    return this.post<GridDto>({ commandName: "CommandGridLoad", paramList: [grid, parentCell, parentControl, parentGrid] })
   }
 
   commandGridSave(grid: GridDto, parentCell?: GridCellDto, parentControl?: GridControlDto, parentGrid?: GridDto) {
-    return this.post<GridSaveDto>({ commandName: "CommandGridSave", paramList: [grid, parentCell, parentControl, parentGrid] });
+    return this.post<GridSaveDto>({ commandName: "CommandGridSave", paramList: [grid, parentCell, parentControl, parentGrid] })
   }
 
   commandGridSelectDropDown(gridName: string, fieldName: string) {
-    return this.post<string[]>({ commandName: "CommandGridSelectConfig", paramList: [gridName, fieldName] });
+    return this.post<string[]>({ commandName: "CommandGridSelectConfig", paramList: [gridName, fieldName] })
   }
 }
