@@ -34,7 +34,6 @@ export class PageUser {
       case "/signup-confirm": this.userModeEnum = UserModeEnum.SignUpConfirm; break;
       case "/signin-recover": this.userModeEnum = UserModeEnum.SignInRecover; break;
       case "/signin-password-change": this.userModeEnum = UserModeEnum.SignInPasswordChange; break;
-      case "/signin-dashboard": this.userModeEnum = UserModeEnum.SignInDashboard; break;
     }
   }
 
@@ -52,10 +51,13 @@ export class PageUser {
   userPasswordConfirm?: string;
   async click() {
     if (this.userModeEnum == UserModeEnum.SignIn) {
+      // SignIn
       await this.serverApi.commmandUserSignIn(<UserDto>{ email: this.userEmail, password: this.userPassword })
       await this.dataService.userSignUpdate()
+      this.serverApi.navigate('/')
     }
     if (this.userModeEnum == UserModeEnum.SignUp) {
+      // SignUp
       await this.serverApi.commmandUserSignUp(<UserDto>{ email: this.userEmail, password: this.userPassword })
     }
   }
@@ -70,5 +72,4 @@ export enum UserModeEnum {
   SignUpConfirm = 5,
   SignInRecover = 6,
   SignInPasswordChange = 7,
-  SignInDashboard = 8 // Page shown after user sign in
 }

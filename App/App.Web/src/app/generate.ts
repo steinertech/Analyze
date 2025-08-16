@@ -192,7 +192,7 @@ export class ServerApi {
   }
 
   public isWindow() {
-    return typeof window !== "undefined";
+    return typeof window !== "undefined"
   }
 
   private isLocalhost() {
@@ -216,7 +216,7 @@ export class ServerApi {
     return result
   }
 
-  public serverUrl() {
+  private serverUrl() {
     let result = "https://api.t2sync.com/api/data" // "https://stc001appfunction.azurewebsites.net/api/data" // TODO generic
     if (this.isLocalhost()) {
       result = "http://localhost:7138/api/data";
@@ -227,14 +227,18 @@ export class ServerApi {
     return result
   }
 
-  post<T>(request: RequestDto): Observable<T> {
+  public navigate(url: string) {
+    this.router.navigateByUrl(url)
+  }
+
+  private post<T>(request: RequestDto): Observable<T> {
     // Param withCredentials to send SessionId cookie to server. 
     // Add CORS (not *) https://www.example.com and enable Enable Access-Control-Allow-Credentials on server
     return this.httpClient.post<ResponseDto>(this.serverUrl(), request, { withCredentials: true }).pipe(
       tap(value => {
         // NavigateUrl
         if (value.navigateUrl) {
-          this.router.navigateByUrl(value.navigateUrl)
+          this.navigate(value.navigateUrl)
         }
         // Notification
         if (value.notificationList) {
