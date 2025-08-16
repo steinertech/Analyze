@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http"
-import { Injectable } from "@angular/core"
-import { catchError, firstValueFrom, map, Observable, tap } from "rxjs"
+import { Injectable, signal } from "@angular/core"
+import { catchError, firstValueFrom, map, mergeMap, Observable, of, tap } from "rxjs"
 import { Router } from "@angular/router"
 import { NotificationDto, NotificationEnum, NotificationService } from "./notification.service"
 
@@ -231,35 +231,51 @@ export class ServerApi {
     this.router.navigateByUrl(url)
   }
 
+  private postCount = 0
+  private postCountAdd(value: number) {
+    setTimeout(() => { // Prevent error Writing to signals is not allowed while Angular renders the template
+      this.postCount += value
+      this.isPost.set(this.postCount > 0)
+    })
+  }
+  public isPost = signal(false)
+
   private post<T>(request: RequestDto): Observable<T> {
-    // Param withCredentials to send SessionId cookie to server. 
-    // Add CORS (not *) https://www.example.com and enable Enable Access-Control-Allow-Credentials on server
-    return this.httpClient.post<ResponseDto>(this.serverUrl(), request, { withCredentials: true }).pipe(
-      tap(value => {
-        // NavigateUrl
-        if (value.navigateUrl) {
-          this.navigate(value.navigateUrl)
-        }
-        // Notification
-        if (value.notificationList) {
-          this.notificationService.list.update(list => {
-            if (value.notificationList) {
-              value.notificationList = value.notificationList.reverse()
-              list = [...value.notificationList, ...list]
-            }
-            return list
-          })
-        }
-      }),
-      map(value => <T>value.result),
-      catchError(error => {
-        if (error.error?.exceptionText) {
-          this.notificationService.add(NotificationEnum.Error, "Exception: " + error.error?.exceptionText)
+    return of(0).pipe(
+      tap(() => this.postCountAdd(1)),
+      // Param withCredentials to send SessionId cookie to server. 
+      // Add CORS (not *) https://www.example.com and enable Enable Access-Control-Allow-Credentials on server
+      mergeMap(() => this.httpClient.post<ResponseDto>(this.serverUrl(), request, { withCredentials: true }).pipe(
+        tap(value => {
+          // NavigateUrl
+          if (value.navigateUrl) {
+            this.navigate(value.navigateUrl)
+          }
+          // Notification
+          if (value.notificationList) {
+            this.notificationService.list.update(list => {
+              if (value.notificationList) {
+                value.notificationList = value.notificationList.reverse()
+                list = [...value.notificationList, ...list]
+              }
+              return list
+            })
+          }
+        }),
+        map(value => {
+          this.postCountAdd(-1);
+          return <T>value.result
+        }),
+        catchError(error => {
+          this.postCountAdd(-1);
+          if (error.error?.exceptionText) {
+            this.notificationService.add(NotificationEnum.Error, "Exception: " + error.error?.exceptionText)
+            throw error
+          }
+          this.notificationService.add(NotificationEnum.Error, "Error: " + "Network failure!")
           throw error
-        }
-        this.notificationService.add(NotificationEnum.Error, "Error: " + "Network failure!")
-        throw error
-      })
+        })
+      ))
     )
   }
 

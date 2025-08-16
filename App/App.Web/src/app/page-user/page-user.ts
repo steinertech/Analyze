@@ -54,7 +54,9 @@ export class PageUser {
       // SignIn
       await this.serverApi.commmandUserSignIn(<UserDto>{ email: this.userEmail, password: this.userPassword })
       await this.dataService.userSignUpdate()
-      this.serverApi.navigate('/')
+      if (this.dataService.userSign()) {
+        this.serverApi.navigate('/')
+      }
     }
     if (this.userModeEnum == UserModeEnum.SignUp) {
       // SignUp

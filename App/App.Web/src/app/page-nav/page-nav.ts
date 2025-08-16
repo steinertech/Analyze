@@ -3,6 +3,7 @@ import { BreakpointObserver, LayoutModule } from '@angular/cdk/layout';
 import { RouterModule } from '@angular/router';
 import { DataService } from '../data.service';
 import { JsonPipe } from '@angular/common';
+import { ServerApi } from '../generate';
 
 @Component({
   selector: 'app-page-nav',
@@ -11,7 +12,7 @@ import { JsonPipe } from '@angular/common';
   styleUrl: './page-nav.css'
 })
 export class PageNav {
-  constructor(observer: BreakpointObserver, public dataService: DataService) {
+  constructor(observer: BreakpointObserver, protected dataService: DataService, protected serverApi: ServerApi) {
     observer.observe(['(max-width: 640px)']).subscribe(result => { // See also https://v2.tailwindcss.com/docs/responsive-design
       if (!result.matches) {
         // User increased window size over break point
@@ -21,7 +22,7 @@ export class PageNav {
   }
 
   isShow = signal(false);
-  
+
   click() {
     this.isShow.set(!this.isShow());
   }

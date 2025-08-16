@@ -66,4 +66,10 @@
   </div>
   }
 </nav>
+
+<div class="h-2">
+  @if(serverApi.isPost()) {
+  <div class="w-full bg-blue-500 animate-pulse h-2"></div>
+  }
+</div>
 User={{dataService.userSign() | json}}
