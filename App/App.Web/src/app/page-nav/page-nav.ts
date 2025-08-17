@@ -2,12 +2,11 @@ import { Component, signal } from '@angular/core';
 import { BreakpointObserver, LayoutModule } from '@angular/cdk/layout';
 import { RouterModule } from '@angular/router';
 import { DataService } from '../data.service';
-import { JsonPipe } from '@angular/common';
 import { ServerApi } from '../generate';
 
 @Component({
   selector: 'app-page-nav',
-  imports: [RouterModule, LayoutModule, JsonPipe],
+  imports: [RouterModule, LayoutModule],
   templateUrl: './page-nav.html',
   styleUrl: './page-nav.css'
 })

@@ -37,7 +37,13 @@
               <a [routerLink]="['/']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white" [routerLinkActiveOptions]="{exact: true}">Home</a>
               <a [routerLink]="['/product']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Product</a>
               @if (dataService.userSign()) {
+              <a [routerLink]="['/storage']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Storage</a>
+              }
+              @if (dataService.userSign()) {
               <a [routerLink]="['/article']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Article</a>
+              }
+              @if (dataService.userSign()) {
+              <a [routerLink]="['/organisation']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Organisation</a>
               }
               <a [routerLink]="['/about']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
             </div>
@@ -61,7 +67,13 @@
         <a [routerLink]="['/']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white" [routerLinkActiveOptions]="{exact: true}">Home</a>
         <a [routerLink]="['/product']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Product</a>
         @if (dataService.userSign()) {
+        <a [routerLink]="['/storage']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Storage</a>
+        }
+        @if (dataService.userSign()) {
         <a [routerLink]="['/article']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Article</a>
+        }
+        @if (dataService.userSign()) {
+        <a [routerLink]="['/organisation']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Organisation</a>
         }
         <a [routerLink]="['/about']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
         @if (dataService.userSign() == null) {
@@ -74,10 +86,12 @@
     }
   </nav>
 
+    @if(dataService.userSign()) {
+    <div class="text-right w-full bg-blue-200">{{dataService.userSign()?.email}}</div>
+    }
   <div class="h-2">
     @if(serverApi.isPost()) {
     <div class="w-full bg-blue-500 animate-pulse h-2"></div>
     }
   </div>
 </div>
-User={{dataService.userSign() | json}}

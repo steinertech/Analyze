@@ -6,6 +6,7 @@ import { PageUser } from './page-user/page-user';
 import { PageStorage } from './page-storage/page-storage';
 import { PageProduct } from './page-product/page-product';
 import { PageArticle } from './page-article/page-article';
+import { PageOrganisation } from './page-organisation/page-organisation';
 
 export const routes: Routes = [
   { path: '', component: PageHome },
@@ -18,8 +19,8 @@ export const routes: Routes = [
   { path: 'signup-confirm', component: PageUser },
   { path: 'signin-recover', component: PageUser },
   { path: 'signin-password-change', component: PageUser },
-  { path: 'signin-dashboard', component: PageUser },
-  { path: 'storage', component: PageStorage },
   { path: 'product', component: PageProduct },
+  { path: 'storage', component: PageStorage },
   { path: 'article', component: PageArticle },
+  { path: 'organisation', component: PageOrganisation },
 ];

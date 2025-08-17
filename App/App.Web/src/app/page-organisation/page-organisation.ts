@@ -3,11 +3,11 @@ import { PageNav } from "../page-nav/page-nav";
 import { PageNotification } from "../page-notification/page-notification";
 
 @Component({
-  selector: 'app-page-storage',
+  selector: 'app-page-organisation',
   imports: [PageNav, PageNotification],
-  templateUrl: './page-storage.html',
-  styleUrl: './page-storage.css'
+  templateUrl: './page-organisation.html',
+  styleUrl: './page-organisation.css'
 })
-export class PageStorage {
+export class PageOrganisation {
 
 }
