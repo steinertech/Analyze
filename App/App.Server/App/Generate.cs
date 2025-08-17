@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using App.Server.App.Command;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
 public static class ServerApi
@@ -8,21 +9,26 @@ public static class ServerApi
         var responseDto = new ResponseDto();
         switch (requestDto.CommandName)
         {
+            // Version
             case nameof(CommandVersion):
                 responseDto.Result = new CommandVersion().Run();
                 break;
+            // Tree
             case nameof(CommandTree):
                 responseDto.Result = new CommandTree().Run(UtilServer.JsonElementTo<ComponentDto?>(requestDto.ParamList![0], jsonOptions));
                 break;
+            // Debug
             case nameof(CommandDebug):
-                responseDto.Result = new CommandDebug(serviceProvider.GetService<DataService>()!, serviceProvider.GetService<CommandContext>()!).Run();
+                responseDto.Result = new CommandDebug(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<DataService>()!).Run();
                 break;
+            // Storage
             case nameof(CommandStorageDownload):
                 responseDto.Result = await new CommandStorageDownload(serviceProvider.GetService<Configuration>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandStorageUpload):
                 await new CommandStorageUpload(serviceProvider.GetService<Configuration>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<string>(requestDto.ParamList![1], jsonOptions)!);
                 break;
+            // User
             case nameof(CommandUser) + nameof(CommandUser.SignStatus):
                 responseDto.Result = await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CommandContext>()!).SignStatus();
                 break;
@@ -35,6 +41,11 @@ public static class ServerApi
             case nameof(CommandUser) + nameof(CommandUser.SignOut):
                 await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CommandContext>()!).SignOut();
                 break;
+            // Article
+            case nameof(CommandArticle) + nameof(CommandArticle.Add):
+                await new CommandArticle(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<CosmosDb>()!).Add();
+                break;
+            // Grid
             case nameof(CommandGrid) + nameof(CommandGrid.Load):
                 responseDto.Result = await new CommandGrid(serviceProvider.GetService<MemoryGrid>()!, serviceProvider.GetService<ExcelGrid>()!, serviceProvider.GetService<StorageGrid>()!).Load(UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<GridCellDto>(requestDto.ParamList![1], jsonOptions), UtilServer.JsonElementTo<GridControlDto>(requestDto.ParamList![2], jsonOptions), UtilServer.JsonElementTo<GridDto>(requestDto.ParamList![3], jsonOptions));
                 break;

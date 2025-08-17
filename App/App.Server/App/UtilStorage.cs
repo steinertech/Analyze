@@ -6,7 +6,7 @@ public class UtilStorage
 {
     private static string containerName = "app";
 
-    private static string containerFolderName = "data/"; // "data/Tenant/"
+    private static string containerFolderName = "data/"; // "data/Organisation/"
 
     private static string prefix = "/" + containerName + "/" + containerFolderName;
 

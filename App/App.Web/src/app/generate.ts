@@ -315,6 +315,10 @@ export class ServerApi {
     return await firstValueFrom(this.post<void>({ commandName: "CommandUserSignOut", paramList: [] }))
   }
 
+  async commmandArticleAdd() {
+    return await firstValueFrom(this.post<void>({ commandName: "CommandArticleAdd", paramList: [] }))
+  }
+
   commandGridLoad(grid: GridDto, parentCell?: GridCellDto, parentControl?: GridControlDto, parentGrid?: GridDto) {
     return this.post<GridDto>({ commandName: "CommandGridLoad", paramList: [grid, parentCell, parentControl, parentGrid] })
   }

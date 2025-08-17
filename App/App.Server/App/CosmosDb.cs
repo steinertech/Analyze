@@ -57,10 +57,10 @@ public class CosmosDb
     private static string PartionKey<T>(CommandContext context) where T : DocumentDto
     {
         var domain = context.Domain;
-        if (context.TenantId != null)
+        if (context.OrganisationName != null)
         {
-            // PartitionKey tenant
-            return $"{domain}/Tenant/{context.TenantId}"; // One resource token for read access to all type within a tenant
+            // PartitionKey organisation
+            return $"{domain}/Organisation/{context.OrganisationName}"; // One resource token for read access to all type within an organisation
         }
         else
         {
@@ -188,7 +188,7 @@ public class DocumentDto
     internal string? InternalEtag { get; set; }
 
     /// <summary>
-    /// Gets or sets PartitionKey. This is the partition key (Type or Tenant). Also used for resource token to provide read access for client.
+    /// Gets or sets PartitionKey. This is the partition key (Type or Organisation). Also used for resource token to provide read access for client.
     /// </summary>
     [JsonProperty(PropertyName = "partitionKey")]
     internal string? InternalPartitionKey { get; set; }

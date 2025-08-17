@@ -52,14 +52,33 @@ public class NotificationDto
 public class CommandContext
 {
     /// <summary>
+    /// Returns true, if user is signed in. Sets also OrganisationName.
+    /// </summary>
+    public async Task<bool> IsUserSignIn(CosmosDb cosmosDb)
+    {
+        var result = false;
+        var session = await cosmosDb.SelectSingleOrDefaultAsync<SessionDto>(this, RequestSessionId);
+        if (session != null)
+        {
+            var organisation = await cosmosDb.SelectSingleOrDefaultAsync<OrganisationDto>(this, session.OrganisationName);
+            if (organisation != null)
+            {
+                OrganisationName = organisation.Name;
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    /// <summary>
     /// Gets Domain. This is the client domain name. For example localhost or example.com
     /// </summary>
     public string Domain { get; internal set; } = default!;
-    
+
     /// <summary>
-    /// Gets Tenant. This is the users selected tenant.
+    /// Gets OrganisationName. This is the signed in user selected organisation.
     /// </summary>
-    public string TenantId { get; internal set; } = default!;
+    public string? OrganisationName { get; internal set; }
 
     // public string DomainNameServer { get; set; } = default!;
 
@@ -94,9 +113,30 @@ public class SessionDto : DocumentDto
 {
     public string? SessionId { get; set; }
 
+    /// <summary>
+    /// Gets or sets Email. This is the signed in user email.
+    /// </summary>
     public string? Email { get; set; }
 
     public bool? IsLogin { get; set; }
+
+    /// <summary>
+    /// Gets or sets OrganisationName. This is the currently selected organisation.
+    /// </summary>
+    public string? OrganisationName { get; set; }
+}
+
+public class OrganisationDto : DocumentDto
+{
+    /// <summary>
+    /// Gets or sets EmailList. This is the list of users which can access this organisation.
+    /// </summary>
+    public List<string>? EmailList { get; set; }
+}
+
+public class ArticleDto : DocumentDto
+{
+    public string? Text { get; set; }
 }
 
 public class DebugDto

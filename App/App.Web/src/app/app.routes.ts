@@ -5,6 +5,7 @@ import { PageDebug } from './page-debug/page-debug';
 import { PageUser } from './page-user/page-user';
 import { PageStorage } from './page-storage/page-storage';
 import { PageProduct } from './page-product/page-product';
+import { PageArticle } from './page-article/page-article';
 
 export const routes: Routes = [
   { path: '', component: PageHome },
@@ -19,5 +20,6 @@ export const routes: Routes = [
   { path: 'signin-password-change', component: PageUser },
   { path: 'signin-dashboard', component: PageUser },
   { path: 'storage', component: PageStorage },
-  { path: 'product', component: PageProduct },  
+  { path: 'product', component: PageProduct },
+  { path: 'article', component: PageArticle },
 ];

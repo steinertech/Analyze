@@ -40,16 +40,25 @@
         }
         else
         {
-            var sessionId = Guid.NewGuid().ToString();
-            SessionDto session = new SessionDto
+            var organisation = await cosmosDb.SelectSingleOrDefaultAsync<OrganisationDto>(context, user.Email);
+            if (organisation == null)
             {
-                Name = sessionId,
-                SessionId = sessionId,
-                Email = user.Email,
-                IsLogin = true
-            };
-            await cosmosDb.InsertAsync(context, session);
-            context.ResponseSessionId = sessionId;
+                context.NotificationAdd("User not associated with an organisation!", NotificationEnum.Error);
+            }
+            else
+            {
+                var sessionId = Guid.NewGuid().ToString();
+                SessionDto session = new SessionDto
+                {
+                    Name = sessionId,
+                    SessionId = sessionId,
+                    Email = user.Email,
+                    OrganisationName = organisation.Name,
+                    IsLogin = true
+                };
+                await cosmosDb.InsertAsync(context, session);
+                context.ResponseSessionId = sessionId;
+            }
         }
     }
 
@@ -63,6 +72,12 @@
         user.Password = user.Password;
         // SignUp
         await cosmosDb.InsertAsync(context, user);
+        // New (small) organisation for user. Additional users can be invited later on.
+        var organisation = new OrganisationDto();
+        organisation.Name = user.Email;
+        organisation.EmailList = [user.Email];
+        await cosmosDb.InsertAsync(context, organisation);
+        // Navigate
         context.ResponseNavigateUrl = "signup-email"; // Email has been sent to activate.
     }
 

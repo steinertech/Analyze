@@ -1,4 +1,4 @@
-﻿public class CommandDebug(DataService dataService, CommandContext context)
+﻿public class CommandDebug(CommandContext context, DataService dataService)
 {
     public DebugDto Run()
     {
