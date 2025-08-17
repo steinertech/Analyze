@@ -58,8 +58,8 @@ public static class UtilServer
         var requestBody = await reader.ReadToEndAsync();
         var requestDto = JsonSerializer.Deserialize<RequestDto>(requestBody, jsonOptions)!;
         var context = serviceProvider.GetService<CommandContext>()!;
-        context.DomainNameClient = new Uri(req.Headers.Origin!).Host;
-        context.DomainNameServer = req.Host.Host;
+        context.Domain = new Uri(req.Headers.Origin!).Host;
+        // context.DomainNameServer = req.Host.Host; // Not used
         context.RequestSessionId = req.Cookies["SessionId"];
         ResponseDto responseDto;
         try

@@ -51,19 +51,33 @@ public class NotificationDto
 /// </summary>
 public class CommandContext
 {
-    public string DomainNameClient { get; set; } = default!; // TODO rename to Domain
+    /// <summary>
+    /// Gets Domain. This is the client domain name. For example localhost or example.com
+    /// </summary>
+    public string Domain { get; internal set; } = default!;
+    
+    /// <summary>
+    /// Gets Tenant. This is the users selected tenant.
+    /// </summary>
+    public string TenantId { get; internal set; } = default!;
 
-    public string DomainNameServer { get; set; } = default!; // Remove
+    // public string DomainNameServer { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets ResponseNavigateUrl. For example "about"
     /// </summary>
     public string? ResponseNavigateUrl { get; set; }
 
-    public List<NotificationDto>? NotificationList { get; set; }
+    internal List<NotificationDto>? NotificationList { get; set; }
 
-    public string? RequestSessionId { get; set; }
+    /// <summary>
+    /// Gets RequestSessionId. This is the SessionId sent by the client.
+    /// </summary>
+    public string? RequestSessionId { get; internal set; }
 
+    /// <summary>
+    /// Gets or sets ResponseSessionId.
+    /// </summary>
     public string? ResponseSessionId { get; set; }
 
     public void NotificationAdd(string text, NotificationEnum notificationEnum = NotificationEnum.None)
@@ -79,8 +93,6 @@ public class CommandContext
 public class SessionDto : DocumentDto
 {
     public string? SessionId { get; set; }
-
-    public string? DomainNameClient { get; set; }
 
     public string? Email { get; set; }
 

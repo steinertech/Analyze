@@ -9,19 +9,15 @@
         var sessionId = context.RequestSessionId;
         if (sessionId != null)
         {
-            var session = await cosmosDb.Select<SessionDto>(name: sessionId).SingleOrDefaultAsync();
+            var session = await cosmosDb.SelectSingleOrDefaultAsync<SessionDto>(context, name: sessionId);
             if (session != null)
             {
-                if (session.DomainNameClient == context.DomainNameClient)
+                if (session.IsLogin == true)
                 {
-                    if (session.IsLogin == true)
+                    result = new UserDto
                     {
-                        result = new UserDto
-                        {
-                            DomainNameClient = context.DomainNameClient,
-                            Email = session.Email,
-                        };
-                    }
+                        Email = session.Email,
+                    };
                 }
             }
         }
@@ -33,12 +29,11 @@
     /// </summary>
     public async Task SignIn(UserDto user)
     {
-        user.Name = $"({context.DomainNameClient}; {user.Email})";
-        user.DomainNameClient = context.DomainNameClient;
+        user.Name = user.Email;
         user.Email = user.Email;
         user.Password = user.Password;
         // SignIn
-        var userDb = await cosmosDb.Select<UserDto>(name: user.Name).SingleOrDefaultAsync();
+        var userDb = await cosmosDb.SelectSingleOrDefaultAsync<UserDto>(context, name: user.Name);
         if (userDb == null || userDb.Password != user.Password)
         {
             context.NotificationAdd("User or password wrong!", NotificationEnum.Error);
@@ -50,11 +45,10 @@
             {
                 Name = sessionId,
                 SessionId = sessionId,
-                DomainNameClient = context.DomainNameClient,
                 Email = user.Email,
                 IsLogin = true
             };
-            await cosmosDb.InsertAsync(session);
+            await cosmosDb.InsertAsync(context, session);
             context.ResponseSessionId = sessionId;
         }
     }
@@ -64,31 +58,29 @@
     /// </summary>
     public async Task SignUp(UserDto user)
     {
-        user.Name = $"({context.DomainNameClient}; {user.Email})";
-        user.DomainNameClient = context.DomainNameClient;
+        user.Name = user.Email;
         user.Email = user.Email;
         user.Password = user.Password;
         // SignUp
-        await cosmosDb.InsertAsync(user);
+        await cosmosDb.InsertAsync(context, user);
         context.ResponseNavigateUrl = "signup-email"; // Email has been sent to activate.
     }
 
     public async Task SignOut()
     {
         var sessionId = context.RequestSessionId;
-        var session = await cosmosDb.Select<SessionDto>(name: sessionId).SingleOrDefaultAsync();
+        var session = await cosmosDb.SelectSingleOrDefaultAsync<SessionDto>(context, name: sessionId);
         if (session != null)
         {
             session.IsLogin = false;
-            await cosmosDb.UpdateAsync(session);
+            await cosmosDb.UpdateAsync(context, session);
+            // await cosmosDb.DeleteAsync(session);
         }
     }
 }
 
 public class UserDto : DocumentDto
 {
-    public string? DomainNameClient { get; set; }
-
     public string? Email { get; set; }
 
     public string? Password { get; set; }
