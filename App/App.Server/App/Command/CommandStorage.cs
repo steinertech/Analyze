@@ -1,16 +1,13 @@
-﻿public class CommandStorageDownload(Configuration configuration)
+﻿public class CommandStorage(Storage storage)
 {
-    public Task<string> Run(string fileName)
+    public async Task<string> Download(string fileName)
     {
-        return UtilStorage.Download(configuration.ConnectionStringStorage, fileName);
+        return await storage.Download(fileName);
     }
-}
 
-public class CommandStorageUpload(Configuration configuration)
-{
-    public Task Run(string fileName, string data)
+    public async Task Upload(string fileName, string data)
     {
-        return UtilStorage.Upload(configuration.ConnectionStringStorage, fileName, data);
+        await storage.Upload(fileName, data);
     }
 }
 

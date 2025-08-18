@@ -1,14 +1,11 @@
 ﻿namespace App.Server.App.Command
 {
-    public class CommandArticle(CommandContext context, CosmosDb cosmosDb)
+    public class CommandArticle(CosmosDb2 cosmosDb)
     {
         public async Task Add()
         {
-            if (await context.IsUserSignIn(cosmosDb))
-            {
-                var article = new ArticleDto { Text = "Banana", Name = Guid.NewGuid().ToString() };
-                article = await cosmosDb.InsertAsync(context, article);
-            }
+            var article = new ArticleDto { Text = "Banana", Name = Guid.NewGuid().ToString() };
+            article = await cosmosDb.InsertAsync(article);
         }
     }
 }

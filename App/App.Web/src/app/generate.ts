@@ -268,8 +268,13 @@ export class ServerApi {
         }),
         catchError(error => {
           this.postCountAdd(-1);
+          // NavigateUrl
+          if (error.error?.navigateUrl) {
+            this.navigate(error.error.navigateUrl)
+          }
+          // Notification
           if (error.error?.exceptionText) {
-            this.notificationService.add(NotificationEnum.Error, "Exception: " + error.error?.exceptionText)
+            this.notificationService.add(NotificationEnum.Error, "Exception: " + error.error.exceptionText)
             throw error
           }
           this.notificationService.add(NotificationEnum.Error, "Error: " + "Network failure!")

@@ -1,4 +1,4 @@
-﻿public class CommandUser(CosmosDb cosmosDb, CommandContext context)
+﻿public class CommandUser(CosmosDb2 cosmosDb, CommandContext context)
 {
     /// <summary>
     /// Returns UserDto. This is the currently signed in user.
@@ -9,10 +9,10 @@
         var sessionId = context.RequestSessionId;
         if (sessionId != null)
         {
-            var session = await cosmosDb.SelectSingleOrDefaultAsync<SessionDto>(context, name: sessionId);
+            var session = await (await cosmosDb.SelectAsync<SessionDto>(sessionId, isGlobal: true)).SingleOrDefaultAsync();
             if (session != null)
             {
-                if (session.IsLogin == true)
+                if (session.IsSignIn == true)
                 {
                     result = new UserDto
                     {
@@ -33,14 +33,14 @@
         user.Email = user.Email;
         user.Password = user.Password;
         // SignIn
-        var userDb = await cosmosDb.SelectSingleOrDefaultAsync<UserDto>(context, name: user.Name);
+        var userDb = await (await cosmosDb.SelectAsync<UserDto>(user.Name, isGlobal: true)).SingleOrDefaultAsync();
         if (userDb == null || userDb.Password != user.Password)
         {
             context.NotificationAdd("User or password wrong!", NotificationEnum.Error);
         }
         else
         {
-            var organisation = await cosmosDb.SelectSingleOrDefaultAsync<OrganisationDto>(context, user.Email);
+            var organisation = await (await cosmosDb.SelectAsync<OrganisationDto>(user.Email, isGlobal: true)).SingleOrDefaultAsync();
             if (organisation == null)
             {
                 context.NotificationAdd("User not associated with an organisation!", NotificationEnum.Error);
@@ -54,9 +54,9 @@
                     SessionId = sessionId,
                     Email = user.Email,
                     OrganisationName = organisation.Name,
-                    IsLogin = true
+                    IsSignIn = true
                 };
-                await cosmosDb.InsertAsync(context, session);
+                await cosmosDb.InsertAsync(session, isGlobal: true);
                 context.ResponseSessionId = sessionId;
             }
         }
@@ -71,12 +71,12 @@
         user.Email = user.Email;
         user.Password = user.Password;
         // SignUp
-        await cosmosDb.InsertAsync(context, user);
+        await cosmosDb.InsertAsync(user, isGlobal: true);
         // New (small) organisation for user. Additional users can be invited later on.
         var organisation = new OrganisationDto();
         organisation.Name = user.Email;
         organisation.EmailList = [user.Email];
-        await cosmosDb.InsertAsync(context, organisation);
+        await cosmosDb.InsertAsync(organisation, isGlobal: true);
         // Navigate
         context.ResponseNavigateUrl = "signup-email"; // Email has been sent to activate.
     }
@@ -84,12 +84,12 @@
     public async Task SignOut()
     {
         var sessionId = context.RequestSessionId;
-        var session = await cosmosDb.SelectSingleOrDefaultAsync<SessionDto>(context, name: sessionId);
+        var session = await (await cosmosDb.SelectAsync<SessionDto>(sessionId, isGlobal: true)).SingleOrDefaultAsync();
         if (session != null)
         {
-            session.IsLogin = false;
-            await cosmosDb.UpdateAsync(context, session);
-            // await cosmosDb.DeleteAsync(session);
+            session.IsSignIn = false;
+            await cosmosDb.UpdateAsync(session, isGlobal: true);
+            // await cosmosDb.DeleteAsync(session, isGlobal: true);
         }
     }
 }

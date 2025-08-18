@@ -20,13 +20,16 @@ public static class UtilServer
         builder.Configuration.AddUserSecrets(typeof(Function).Assembly); // secrets.json // Package Microsoft.Extensions.Configuration.UserSecrets
         // builder.Configuration.AddAzureKeyVault(new Uri("https://stc001keyvault.vault.azure.net/"), new DefaultAzureCredential()); // KeyVault // Package Azure.Extensions.AspNetCore.Configuration.Secrets // Package Azure.Identity
 
-        builder.Services.AddSingleton<Configuration>();
-        builder.Services.AddSingleton<DataService>();
-        builder.Services.AddSingleton<CosmosDb>();
-        builder.Services.AddSingleton<MemoryGrid>();
+        builder.Services.AddSingleton<Configuration>(); // Contains state
+        builder.Services.AddSingleton<DataService>(); // Contains state
+        builder.Services.AddSingleton<UtilCosmosDb>(); // Contains state
+        // builder.Services.AddSingleton<CosmosDb>();
+        builder.Services.AddTransient<CosmosDb2>(); // Wrapper
+        builder.Services.AddSingleton<MemoryGrid>(); // Contains state
         builder.Services.AddSingleton<ExcelGrid>();
-        builder.Services.AddSingleton<StorageGrid>();
-        builder.Services.AddScoped<CommandContext>();
+        builder.Services.AddTransient<StorageGrid>(); // Wrapper
+        builder.Services.AddScoped<CommandContext>(); // One new instance for every http request
+        builder.Services.AddTransient<Storage>(); // Wrapper
 
         builder.Services.AddControllers().AddJsonOptions(configure =>
         {
@@ -86,7 +89,11 @@ public static class UtilServer
         }
         catch (Exception exception)
         {
-            responseDto = new ResponseDto { ExceptionText = exception.Message };
+            responseDto = new ResponseDto 
+            { 
+                ExceptionText = exception.Message,
+                NavigateUrl = context.ResponseNavigateUrl, // For example navigate to signin
+            };
         }
         responseDto.CommandName = requestDto.CommandName;
         if (responseDto.ExceptionText != null)

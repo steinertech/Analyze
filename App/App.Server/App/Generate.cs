@@ -22,28 +22,28 @@ public static class ServerApi
                 responseDto.Result = new CommandDebug(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<DataService>()!).Run();
                 break;
             // Storage
-            case nameof(CommandStorageDownload):
-                responseDto.Result = await new CommandStorageDownload(serviceProvider.GetService<Configuration>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
+            case nameof(CommandStorage) + nameof(CommandStorage.Download):
+                responseDto.Result = await new CommandStorage(serviceProvider.GetService<Storage>()!).Download(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
                 break;
-            case nameof(CommandStorageUpload):
-                await new CommandStorageUpload(serviceProvider.GetService<Configuration>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<string>(requestDto.ParamList![1], jsonOptions)!);
+            case nameof(CommandStorage) + nameof(CommandStorage.Upload):
+                await new CommandStorage(serviceProvider.GetService<Storage>()!).Upload(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<string>(requestDto.ParamList![1], jsonOptions)!);
                 break;
             // User
             case nameof(CommandUser) + nameof(CommandUser.SignStatus):
-                responseDto.Result = await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CommandContext>()!).SignStatus();
+                responseDto.Result = await new CommandUser(serviceProvider.GetService<CosmosDb2>()!, serviceProvider.GetService<CommandContext>()!).SignStatus();
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignIn):
-                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CommandContext>()!).SignIn(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
+                await new CommandUser(serviceProvider.GetService<CosmosDb2>()!, serviceProvider.GetService<CommandContext>()!).SignIn(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignUp):
-                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CommandContext>()!).SignUp(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
+                await new CommandUser(serviceProvider.GetService<CosmosDb2>()!, serviceProvider.GetService<CommandContext>()!).SignUp(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignOut):
-                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CommandContext>()!).SignOut();
+                await new CommandUser(serviceProvider.GetService<CosmosDb2>()!, serviceProvider.GetService<CommandContext>()!).SignOut();
                 break;
             // Article
             case nameof(CommandArticle) + nameof(CommandArticle.Add):
-                await new CommandArticle(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<CosmosDb>()!).Add();
+                await new CommandArticle(serviceProvider.GetService<CosmosDb2>()!).Add();
                 break;
             // Grid
             case nameof(CommandGrid) + nameof(CommandGrid.Load):

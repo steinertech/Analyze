@@ -49,38 +49,68 @@ public class NotificationDto
 /// <summary>
 /// Gives access to generic RequestDto and ResponseDto.
 /// </summary>
-public class CommandContext
+public class CommandContext(UtilCosmosDb utilCosmosDb)
 {
-    /// <summary>
-    /// Returns true, if user is signed in. Sets also OrganisationName.
-    /// </summary>
-    public async Task<bool> IsUserSignIn(CosmosDb cosmosDb)
-    {
-        var result = false;
-        var session = await cosmosDb.SelectSingleOrDefaultAsync<SessionDto>(this, RequestSessionId);
-        if (session != null)
-        {
-            var organisation = await cosmosDb.SelectSingleOrDefaultAsync<OrganisationDto>(this, session.OrganisationName);
-            if (organisation != null)
-            {
-                OrganisationName = organisation.Name;
-                result = true;
-            }
-        }
-        return result;
-    }
+    private string? domain;
 
     /// <summary>
     /// Gets Domain. This is the client domain name. For example localhost or example.com
     /// </summary>
-    public string Domain { get; internal set; } = default!;
+    public string Domain
+    {
+        get
+        {
+            if (domain == null)
+            {
+                throw new Exception(); // Make sure calling service has not an old copy of CommandContext. See also builder.Services.AddScoped
+            }
+            return domain;
+        }
+        set
+        {
+            domain = value;
+        }
+    }
+
+    public string DomainNameServer { get; set; } = default!;
 
     /// <summary>
     /// Gets OrganisationName. This is the signed in user selected organisation.
     /// </summary>
-    public string? OrganisationName { get; internal set; }
+    private string? organisationName;
 
-    // public string DomainNameServer { get; set; } = default!;
+    /// <summary>
+    /// Return OrganisationName. This is the signed in users selected organisation.
+    /// Throws exception, if user not signed in and not selected an organisation.
+    /// </summary>
+    public async Task<string> OrganisationNameAsync(string? name = null, bool isGlobal = false)
+    {
+        if (isGlobal)
+        {
+            return $"{Domain}/Global" + (name == null ? null : $"/{name}");
+        }
+        if (organisationName != null)
+        {
+            return $"{Domain}/Organisation/{organisationName}" + (name == null ? null : $"/{name}");
+        }
+        var partitionKeySessionDto = await OrganisationNameAsync(typeof(SessionDto).Name, isGlobal: true);
+        var session = await utilCosmosDb.Select<SessionDto>(partitionKeySessionDto, RequestSessionId).SingleOrDefaultAsync(); // UtilCosmosDb to prevent circular reference
+        if (session == null || session.IsSignIn != true)
+        {
+            ResponseNavigateUrl = "signin";
+            throw new Exception("User not signed in!");
+        }
+        var partitionKeyOrganisationDto = await OrganisationNameAsync(typeof(OrganisationDto).Name, isGlobal: true);
+        var organisation = await utilCosmosDb.Select<OrganisationDto>(partitionKeyOrganisationDto, session.OrganisationName).SingleOrDefaultAsync(); // // UtilCosmosDb to prevent circular reference
+        if (organisation == null)
+        {
+            ResponseNavigateUrl = "signin";
+            throw new Exception("User not signed in!");
+        }
+        organisationName = organisation.Name;
+        UtilServer.Assert(!string.IsNullOrEmpty(organisationName));
+        return await OrganisationNameAsync(name, isGlobal);
+    }
 
     /// <summary>
     /// Gets or sets ResponseNavigateUrl. For example "about"
@@ -118,7 +148,7 @@ public class SessionDto : DocumentDto
     /// </summary>
     public string? Email { get; set; }
 
-    public bool? IsLogin { get; set; }
+    public bool? IsSignIn { get; set; }
 
     /// <summary>
     /// Gets or sets OrganisationName. This is the currently selected organisation.
