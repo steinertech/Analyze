@@ -1,5 +1,4 @@
-﻿using App.Server.App.Command;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
 public static class ServerApi
@@ -30,20 +29,20 @@ public static class ServerApi
                 break;
             // User
             case nameof(CommandUser) + nameof(CommandUser.SignStatus):
-                responseDto.Result = await new CommandUser(serviceProvider.GetService<CosmosDb2>()!, serviceProvider.GetService<CommandContext>()!).SignStatus();
+                responseDto.Result = await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CommandContext>()!).SignStatus();
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignIn):
-                await new CommandUser(serviceProvider.GetService<CosmosDb2>()!, serviceProvider.GetService<CommandContext>()!).SignIn(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
+                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CommandContext>()!).SignIn(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignUp):
-                await new CommandUser(serviceProvider.GetService<CosmosDb2>()!, serviceProvider.GetService<CommandContext>()!).SignUp(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
+                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CommandContext>()!).SignUp(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignOut):
-                await new CommandUser(serviceProvider.GetService<CosmosDb2>()!, serviceProvider.GetService<CommandContext>()!).SignOut();
+                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CommandContext>()!).SignOut();
                 break;
             // Article
             case nameof(CommandArticle) + nameof(CommandArticle.Add):
-                await new CommandArticle(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<CosmosDb2>()!).Add();
+                await new CommandArticle(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbDynamic>()!).Add();
                 break;
             // Grid
             case nameof(CommandGrid) + nameof(CommandGrid.Load):

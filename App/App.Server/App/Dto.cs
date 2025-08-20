@@ -71,11 +71,6 @@ public class OrganisationDto : DocumentDto
     public List<string?>? EmailList { get; set; }
 }
 
-public class ArticleDto : DocumentDto
-{
-    public string? Text { get; set; }
-}
-
 public class DebugDto
 {
     public string? VersionServer { get; set; }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Newtonsoft.Json;
+using System.ComponentModel;
+using Container = Microsoft.Azure.Cosmos.Container;
 
 public static class UtilCosmosDb
 {
@@ -38,6 +40,32 @@ public static class UtilCosmosDb
     }
 }
 
+public static class UtilCosmosDbDynamic
+{
+    public static IQueryable<IDictionary<string, object>> Select<T>(Container container, string partitionKey, string? name) where T : DocumentDto
+    {
+        IQueryable<IDictionary<string, object>> result = container.GetItemLinqQueryable<IDictionary<string, object>>();
+        result = result.Where(item => (string)item["partitionKey"] == partitionKey);
+        result = result.Where(item => (string)item["type"] == typeof(T).Name);
+        if (name != null)
+        {
+            result = result.Where(item => (string)item["key"] == typeof(T).Name + "/" + name);
+        }
+        return result;
+    }
+
+    public static async Task<IDictionary<string, object>> InsertAsync<T>(Container container, string partitionKey, IDictionary<string, object> item) where T : DocumentDto, new()
+    {
+        item["partitionKey"] = partitionKey;
+        item["type"] = typeof(T).Name;
+        item["id"] = Guid.NewGuid().ToString();
+        item["key"] = typeof(T).Name + "/" + (item.ContainsKey("name") ? item["name"] : null);
+        item["_etag"] = null!;
+        var result = await container.UpsertItemAsync(item);
+        return result.Resource;
+    }
+}
+
 public static class UtilCosmosDbExtension
 {
     public static async Task<List<T>> ToListAsync<T>(this IQueryable<T> querable) where T : DocumentDto
@@ -56,6 +84,31 @@ public static class UtilCosmosDbExtension
     }
 
     public static async Task<T?> SingleOrDefaultAsync<T>(this IQueryable<T> querable) where T : DocumentDto
+    {
+        var list = await querable.ToListAsync();
+        var result = list.SingleOrDefault();
+        return result;
+    }
+}
+
+public static class UtilCosmosDbDynamicExtension
+{
+    public static async Task<List<T>> ToListAsync<T>(this IQueryable<T> querable) where T : IDictionary<string, object>
+    {
+        var result = new List<T>();
+        using var feed = querable.ToFeedIterator();
+        while (feed.HasMoreResults)
+        {
+            var response = await feed.ReadNextAsync();
+            foreach (var item in response)
+            {
+                result.Add(item);
+            }
+        }
+        return result;
+    }
+
+    public static async Task<T?> SingleOrDefaultDynamicAsync<T>(this IQueryable<T> querable) where T : IDictionary<string, object>
     {
         var list = await querable.ToListAsync();
         var result = list.SingleOrDefault();
