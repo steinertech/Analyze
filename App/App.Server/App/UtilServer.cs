@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
-public static class UtilServer
+internal static class UtilServer
 {
     public static string VersionServer => "1.0.14 (1604)";
 

@@ -24,3 +24,14 @@
         return result;
     }
 }
+
+public class DebugDto
+{
+    public string? VersionServer { get; set; }
+    
+    public int? Instance { get; set; }
+
+    public int? Counter { get; set; }
+
+    public List<string>? CounterList { get; set; }
+}

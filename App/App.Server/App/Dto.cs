@@ -70,24 +70,3 @@ public class OrganisationDto : DocumentDto
     /// </summary>
     public List<string?>? EmailList { get; set; }
 }
-
-public class DebugDto
-{
-    public string? VersionServer { get; set; }
-    
-    public int? Instance { get; set; }
-
-    public int? Counter { get; set; }
-
-    public List<string>? CounterList { get; set; }
-}
-
-public class HeaderLookupDataRowDto
-{
-    public string? Text { get; set; }
-}
-
-public class ColumnLookupDataRowDto
-{
-    public string? FieldName { get; set; }
-}

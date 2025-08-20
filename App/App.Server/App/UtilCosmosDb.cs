@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using System.ComponentModel;
 using Container = Microsoft.Azure.Cosmos.Container;
 
-public static class UtilCosmosDb
+internal static class UtilCosmosDb
 {
     public static IQueryable<T> Select<T>(Container container, string partitionKey, string? name) where T : DocumentDto
     {

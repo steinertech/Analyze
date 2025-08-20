@@ -1,5 +1,8 @@
 ﻿using Microsoft.Azure.Cosmos;
 
+/// <summary>
+/// Keeps CosmosDb container conection.
+/// </summary>
 public class CosmosDbContainer
 {
     public CosmosDbContainer(Configuration configuration)
