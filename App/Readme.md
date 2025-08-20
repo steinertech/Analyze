@@ -28,7 +28,7 @@ Start DevContainer Codespace
 * Class for left and right icon symbol [Done]
 * Report html to pdf
 * GridDebug (without css classes); tailwind @apply component
-* Tenant, Session
+* Tenant, Session [Done]
 * DomainName (my.localhost) [Done]
 * Multi Language [Done]
 * Notification [Done]
