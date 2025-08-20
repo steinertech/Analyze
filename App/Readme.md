@@ -1,7 +1,8 @@
 # App
 Start DevContainer Codespace
-* App.Server (**Port 7138**) - Make Public
 * App.Web (**Port 4200**)
+* Update file local.settings.json CORS to https://my-4200.app.github.dev
+* App.Server (**Port 7138**) - Make Public
 
 # ToDo
 * Excel hours and hours total
