@@ -23,10 +23,10 @@ public static class ServerApi
                 break;
             // Storage
             case nameof(CommandStorage) + nameof(CommandStorage.Download):
-                responseDto.Result = await new CommandStorage(serviceProvider.GetService<Storage>()!).Download(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
+                responseDto.Result = await new CommandStorage(serviceProvider.GetService<Storage>()!, serviceProvider.GetService<CommandContext>()!).Download(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandStorage) + nameof(CommandStorage.Upload):
-                await new CommandStorage(serviceProvider.GetService<Storage>()!).Upload(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<string>(requestDto.ParamList![1], jsonOptions)!);
+                await new CommandStorage(serviceProvider.GetService<Storage>()!, serviceProvider.GetService<CommandContext>()!).Upload(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<string>(requestDto.ParamList![1], jsonOptions)!);
                 break;
             // User
             case nameof(CommandUser) + nameof(CommandUser.SignStatus):
@@ -43,7 +43,7 @@ public static class ServerApi
                 break;
             // Article
             case nameof(CommandArticle) + nameof(CommandArticle.Add):
-                await new CommandArticle(serviceProvider.GetService<CosmosDb2>()!).Add();
+                await new CommandArticle(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<CosmosDb2>()!).Add();
                 break;
             // Grid
             case nameof(CommandGrid) + nameof(CommandGrid.Load):

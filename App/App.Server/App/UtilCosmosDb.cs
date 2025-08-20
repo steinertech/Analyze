@@ -2,24 +2,9 @@
 using Microsoft.Azure.Cosmos.Linq;
 using Newtonsoft.Json;
 
-public class UtilCosmosDb
+public static class UtilCosmosDb
 {
-    public UtilCosmosDb(Configuration configuration)
-    {
-        var connectionString = configuration.ConnectionStringCosmosDb;
-        this.ConnectionString = connectionString;
-        var options = new CosmosClientOptions { SerializerOptions = new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase } };
-        this.client = new CosmosClient(connectionString, options);
-        this.container = client.GetContainer("db", "container");
-    }
-
-    public string ConnectionString { get; }
-
-    private CosmosClient client;
-
-    private Container container;
-
-    public IQueryable<T> Select<T>(string partitionKey, string? name) where T : DocumentDto
+    public static IQueryable<T> Select<T>(Container container, string partitionKey, string? name) where T : DocumentDto
     {
         IQueryable<T> result = container.GetItemLinqQueryable<T>();
         result = result.Where(item => item.InternalPartitionKey == partitionKey);
@@ -31,7 +16,7 @@ public class UtilCosmosDb
         return result;
     }
 
-    public async Task<T> InsertAsync<T>(string partitionKey, T item) where T : DocumentDto
+    public static async Task<T> InsertAsync<T>(Container container, string partitionKey, T item) where T : DocumentDto
     {
         item.InternalPartitionKey = partitionKey;
         item.Id = Guid.NewGuid().ToString();
@@ -39,14 +24,14 @@ public class UtilCosmosDb
         return await container.UpsertItemAsync(item);
     }
 
-    public async Task<T> UpdateAsync<T>(string partitionKey, T item) where T : DocumentDto
+    public static async Task<T> UpdateAsync<T>(Container container, string partitionKey, T item) where T : DocumentDto
     {
         item.InternalPartitionKey = partitionKey;
         var options = new ItemRequestOptions() { IfMatchEtag = item.InternalEtag }; // Concurrency
         return await container.ReplaceItemAsync(item, item.Id, requestOptions: options);
     }
 
-    public async Task<T> DeleteAsync<T>(string partitionKey, T item) where T : DocumentDto
+    public static async Task<T> DeleteAsync<T>(Container container, string partitionKey, T item) where T : DocumentDto
     {
         item.InternalPartitionKey = partitionKey;
         return await container.DeleteItemAsync<T>(item.Id, new PartitionKey(item.InternalPartitionKey));

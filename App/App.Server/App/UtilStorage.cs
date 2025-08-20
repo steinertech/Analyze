@@ -2,7 +2,7 @@
 using Azure.Storage.Files.DataLake.Models;
 using System.Text;
 
-public class UtilStorage
+public static class UtilStorage
 {
     private static string containerName = "app";
 

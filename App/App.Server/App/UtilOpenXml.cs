@@ -2,7 +2,7 @@
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Spreadsheet;
 
-public class UtilOpenXml
+public static class UtilOpenXml
 {
     public static void List(OpenXmlPart? part, List<object> result, string? pathDebug)
     {

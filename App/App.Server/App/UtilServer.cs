@@ -22,7 +22,7 @@ public static class UtilServer
 
         builder.Services.AddSingleton<Configuration>(); // Contains state
         builder.Services.AddSingleton<DataService>(); // Contains state
-        builder.Services.AddSingleton<UtilCosmosDb>(); // Contains state
+        builder.Services.AddSingleton<CosmosDbContainer>(); // Contains state
         // builder.Services.AddSingleton<CosmosDb>();
         builder.Services.AddTransient<CosmosDb2>(); // Wrapper
         builder.Services.AddSingleton<MemoryGrid>(); // Contains state

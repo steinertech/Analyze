@@ -1,32 +1,32 @@
-﻿public class CosmosDb2(CommandContext context, UtilCosmosDb utilCosmosDb)
+﻿public class CosmosDb2(CommandContext context, CosmosDbContainer cosmosDbContainer)
 {
-    private Task<string> PartitionKeyAsync<T>(bool isGlobal) where T : DocumentDto
+    private string PartitionKey<T>(bool isOrganisation) where T : DocumentDto
     {
-        var name = isGlobal ? typeof(T).Name : null;
-        return context.OrganisationNameAsync(name, isGlobal);
+        var name = isOrganisation == false ? typeof(T).Name : null;
+        return context.Name(name, isOrganisation);
     }
 
-    public async Task<IQueryable<T>> SelectAsync<T>(string? name = null, bool isGlobal = false) where T : DocumentDto
+    public IQueryable<T> Select<T>(string? name = null, bool isOrganisation = true) where T : DocumentDto
     {
-        var partitionKey = await PartitionKeyAsync<T>(isGlobal);
-        return utilCosmosDb.Select<T>(partitionKey, name);
+        var partitionKey = PartitionKey<T>(isOrganisation);
+        return UtilCosmosDb.Select<T>(cosmosDbContainer.Container, partitionKey, name);
     }
 
-    public async Task<T> InsertAsync<T>(T item, bool isGlobal = false) where T : DocumentDto
+    public async Task<T> InsertAsync<T>(T item, bool isOrganisation = true) where T : DocumentDto
     {
-        var partitionKey = await PartitionKeyAsync<T>(isGlobal);
-        return await utilCosmosDb.InsertAsync(partitionKey, item);
+        var partitionKey = PartitionKey<T>(isOrganisation);
+        return await UtilCosmosDb.InsertAsync(cosmosDbContainer.Container, partitionKey, item);
     }
 
-    public async Task<T> UpdateAsync<T>(T item, bool isGlobal = false) where T : DocumentDto
+    public async Task<T> UpdateAsync<T>(T item, bool isOrganisation = true) where T : DocumentDto
     {
-        var partitionKey = await PartitionKeyAsync<T>(isGlobal);
-        return await utilCosmosDb.UpdateAsync(partitionKey, item);
+        var partitionKey = PartitionKey<T>(isOrganisation);
+        return await UtilCosmosDb.UpdateAsync(cosmosDbContainer.Container, partitionKey, item);
     }
 
-    public async Task<T> DeleteAsync<T>(T item, bool isGlobal = false) where T : DocumentDto
+    public async Task<T> DeleteAsync<T>(T item, bool isOrganisation = true) where T : DocumentDto
     {
-        var partitionKey = await PartitionKeyAsync<T>(isGlobal);
-        return await utilCosmosDb.DeleteAsync(partitionKey, item);
+        var partitionKey = PartitionKey<T>(isOrganisation);
+        return await UtilCosmosDb.DeleteAsync(cosmosDbContainer.Container, partitionKey, item);
     }
 }

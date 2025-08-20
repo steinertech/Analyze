@@ -1,7 +1,7 @@
 /// <summary>
 /// Gives access to generic RequestDto and ResponseDto.
 /// </summary>
-public class CommandContext(UtilCosmosDb utilCosmosDb)
+public class CommandContext(CosmosDbContainer cosmosDbContainer)
 {
     private string? domain;
 
@@ -24,36 +24,23 @@ public class CommandContext(UtilCosmosDb utilCosmosDb)
         }
     }
 
-    public string DomainNameServer { get; set; } = default!;
+    // public string DomainNameServer { get; set; } = default!;
 
     /// <summary>
-    /// Gets OrganisationName. This is the signed in user selected organisation.
+    /// Check user is signed in and has an organisation selected. Throws exception if not.
     /// </summary>
-    private string? organisationName;
-
-    /// <summary>
-    /// Return OrganisationName. This is the signed in users selected organisation.
-    /// Throws exception, if user not signed in and not selected an organisation.
-    /// </summary>
-    public async Task<string> OrganisationNameAsync(string? name = null, bool isGlobal = false)
+    public async Task UserSignInOrganisation()
     {
-        if (isGlobal)
-        {
-            return $"{Domain}/Global" + (name == null ? null : $"/{name}");
-        }
-        if (organisationName != null)
-        {
-            return $"{Domain}/Organisation/{organisationName}" + (name == null ? null : $"/{name}");
-        }
-        var partitionKeySessionDto = await OrganisationNameAsync(typeof(SessionDto).Name, isGlobal: true);
-        var session = await utilCosmosDb.Select<SessionDto>(partitionKeySessionDto, RequestSessionId).SingleOrDefaultAsync(); // UtilCosmosDb to prevent circular reference
+        var partitionKeySessionDto = Name(typeof(SessionDto).Name, isOrganisation: false);
+
+        var session = await UtilCosmosDb.Select<SessionDto>(cosmosDbContainer.Container, partitionKeySessionDto, RequestSessionId).SingleOrDefaultAsync(); // UtilCosmosDb to prevent circular reference
         if (session == null || session.IsSignIn != true)
         {
             ResponseNavigateUrl = "signin";
             throw new Exception("User not signed in!");
         }
-        var partitionKeyOrganisationDto = await OrganisationNameAsync(typeof(OrganisationDto).Name, isGlobal: true);
-        var organisation = await utilCosmosDb.Select<OrganisationDto>(partitionKeyOrganisationDto, session.OrganisationName).SingleOrDefaultAsync(); // // UtilCosmosDb to prevent circular reference
+        var partitionKeyOrganisationDto = Name(typeof(OrganisationDto).Name, isOrganisation: false);
+        var organisation = await UtilCosmosDb.Select<OrganisationDto>(cosmosDbContainer.Container, partitionKeyOrganisationDto, session.OrganisationName).SingleOrDefaultAsync(); // // UtilCosmosDb to prevent circular reference
         if (organisation == null)
         {
             ResponseNavigateUrl = "signin";
@@ -61,7 +48,30 @@ public class CommandContext(UtilCosmosDb utilCosmosDb)
         }
         organisationName = organisation.Name;
         UtilServer.Assert(!string.IsNullOrEmpty(organisationName));
-        return await OrganisationNameAsync(name, isGlobal);
+    }
+
+    /// <summary>
+    /// Gets OrganisationName. This is the signed in user selected organisation.
+    /// </summary>
+    private string? organisationName;
+
+    /// <summary>
+    /// Returns the name in the global scope or in an organisation scope. 
+    /// If organisation scope, the user has to be signed in and has to have selected an organisation. Otherwise throws exception.
+    /// </summary>
+    /// <param name="name">A name in the global or an organisation scope.</param>
+    /// <param name="isOrganisation">Organisation or global scope.</param>
+    internal string Name(string? name = null, bool isOrganisation = true)
+    {
+        if (isOrganisation == false)
+        {
+            return $"{Domain}/Global" + (name == null ? null : $"/{name}");
+        }
+        if (organisationName != null)
+        {
+            return $"{Domain}/Organisation/{organisationName}" + (name == null ? null : $"/{name}");
+        }
+        throw new Exception("First call method UserSignInOrganisation();"); // Make sure user is signed in and has an organisation selected.
     }
 
     /// <summary>

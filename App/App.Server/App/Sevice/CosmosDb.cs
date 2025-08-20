@@ -56,10 +56,10 @@ public class CosmosDb
     private static string PartionKey<T>(CommandContext context) where T : DocumentDto
     {
         var domain = context.Domain;
-        if (context.OrganisationNameAsync != null)
+        if (context.Name != null)
         {
             // PartitionKey organisation
-            return $"{domain}/Organisation/{context.OrganisationNameAsync}"; // One resource token for read access to all type within an organisation
+            return $"{domain}/Organisation/{context.Name}"; // One resource token for read access to all type within an organisation
         }
         else
         {

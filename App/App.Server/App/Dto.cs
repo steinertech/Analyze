@@ -68,7 +68,7 @@ public class OrganisationDto : DocumentDto
     /// <summary>
     /// Gets or sets EmailList. This is the list of users which can access this organisation.
     /// </summary>
-    public List<string>? EmailList { get; set; }
+    public List<string?>? EmailList { get; set; }
 }
 
 public class ArticleDto : DocumentDto
