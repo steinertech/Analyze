@@ -7,6 +7,7 @@ import { NotificationDto, NotificationEnum, NotificationService } from "./notifi
 export class RequestDto {
   public commandName!: string
   public paramList?: any[]
+  public developmentSessionId?: string
 }
 
 export class ResponseDto {
@@ -14,6 +15,7 @@ export class ResponseDto {
   public exceptionText?: string
   public navigateUrl?: string
   public notificationList?: NotificationDto[]
+  public developmentSessionId?: string
 }
 
 export class ComponentDto {
@@ -216,13 +218,17 @@ export class ServerApi {
     return result
   }
 
-  private serverUrl() {
-    let result = "https://api.t2sync.com/api/data" // "https://stc001appfunction.azurewebsites.net/api/data" // TODO generic
+  /** Returns configuration based on client domain. */
+  private configuration() {
+    let partList = window.location.hostname.split('.')
+    partList[0] = 'api' // www.example.com to api.example.com
+    let urlApi = partList.join('.') + '/api/data'
+    let result = { serverUrl: urlApi, isDevelopment: false }
     if (this.isLocalhost()) {
-      result = "http://localhost:7138/api/data";
+      result = { serverUrl: 'http://localhost:7138/api/data', isDevelopment: true }
     }
     if (this.isLocalhostGitHubCodeSpace()) {
-      result = 'https://' + window.location.hostname.replace('4200', '7138') + '/api/data'
+      result = { serverUrl: 'https://' + window.location.hostname.replace('4200', '7138') + '/api/data', isDevelopment: true }
     }
     return result
   }
@@ -245,42 +251,54 @@ export class ServerApi {
       tap(() => this.postCountAdd(1)),
       // Param withCredentials to send SessionId cookie to server. 
       // Add CORS (not *) https://www.example.com and enable Enable Access-Control-Allow-Credentials on server
-      mergeMap(() => this.httpClient.post<ResponseDto>(this.serverUrl(), request, { withCredentials: true }).pipe(
-        tap(value => {
-          // NavigateUrl
-          if (value.navigateUrl) {
-            this.navigate(value.navigateUrl)
-          }
-          // Notification
-          if (value.notificationList) {
-            this.notificationService.list.update(list => {
-              if (value.notificationList) {
-                value.notificationList = value.notificationList.reverse()
-                list = [...value.notificationList, ...list]
+      mergeMap(() => {
+        let configuration = this.configuration()
+        if (configuration.isDevelopment) {
+          request.developmentSessionId = localStorage.getItem('developmentSessionId') ?? undefined
+        }
+        return this.httpClient.post<ResponseDto>(configuration.serverUrl, request, { withCredentials: configuration.isDevelopment == false }).pipe(
+          tap(value => {
+            // DevelopmentSessionId
+            if (configuration.isDevelopment) {
+              if (value.developmentSessionId) {
+                localStorage.setItem('developmentSessionId', value.developmentSessionId)
               }
-              return list
-            })
-          }
-        }),
-        map(value => {
-          this.postCountAdd(-1);
-          return <T>value.result
-        }),
-        catchError(error => {
-          this.postCountAdd(-1);
-          // NavigateUrl
-          if (error.error?.navigateUrl) {
-            this.navigate(error.error.navigateUrl)
-          }
-          // Notification
-          if (error.error?.exceptionText) {
-            this.notificationService.add(NotificationEnum.Error, "Exception: " + error.error.exceptionText)
+            }
+            // NavigateUrl
+            if (value.navigateUrl) {
+              this.navigate(value.navigateUrl)
+            }
+            // Notification
+            if (value.notificationList) {
+              this.notificationService.list.update(list => {
+                if (value.notificationList) {
+                  value.notificationList = value.notificationList.reverse()
+                  list = [...value.notificationList, ...list]
+                }
+                return list
+              })
+            }
+          }),
+          map(value => {
+            this.postCountAdd(-1);
+            return <T>value.result
+          }),
+          catchError(error => {
+            this.postCountAdd(-1);
+            // NavigateUrl
+            if (error.error?.navigateUrl) {
+              this.navigate(error.error.navigateUrl)
+            }
+            // Notification
+            if (error.error?.exceptionText) {
+              this.notificationService.add(NotificationEnum.Error, "Exception: " + error.error.exceptionText)
+              throw error
+            }
+            this.notificationService.add(NotificationEnum.Error, "Error: " + "Network failure!")
             throw error
-          }
-          this.notificationService.add(NotificationEnum.Error, "Error: " + "Network failure!")
-          throw error
-        })
-      ))
+          })
+        )
+      })
     )
   }
 

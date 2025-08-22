@@ -7,18 +7,15 @@
     {
         UserDto? result = null;
         var sessionId = context.RequestSessionId;
-        if (sessionId != null)
+        var session = await cosmosDb.SelectByNameAsync<SessionDto>(sessionId, isOrganisation: false);
+        if (session != null)
         {
-            var session = await cosmosDb.Select<SessionDto>(sessionId, isOrganisation: false).SingleOrDefaultAsync();
-            if (session != null)
+            if (session.IsSignIn == true)
             {
-                if (session.IsSignIn == true)
+                result = new UserDto
                 {
-                    result = new UserDto
-                    {
-                        Email = session.Email,
-                    };
-                }
+                    Email = session.Email,
+                };
             }
         }
         return result;
@@ -33,14 +30,14 @@
         user.Email = user.Email;
         user.Password = user.Password;
         // SignIn
-        var userDb = await cosmosDb.Select<UserDto>(user.Name, isOrganisation: false).SingleOrDefaultAsync();
+        var userDb = await cosmosDb.SelectByNameAsync<UserDto>(user.Name, isOrganisation: false);
         if (userDb == null || userDb.Password != user.Password)
         {
             context.NotificationAdd("User or password wrong!", NotificationEnum.Error);
         }
         else
         {
-            var organisation = await cosmosDb.Select<OrganisationDto>(user.Email, isOrganisation: false).SingleOrDefaultAsync();
+            var organisation = await cosmosDb.SelectByNameAsync<OrganisationDto>(user.Email, isOrganisation: false);
             if (organisation == null)
             {
                 context.NotificationAdd("User not associated with an organisation!", NotificationEnum.Error);
@@ -84,7 +81,7 @@
     public async Task SignOut()
     {
         var sessionId = context.RequestSessionId;
-        var session = await cosmosDb.Select<SessionDto>(sessionId, isOrganisation: false).SingleOrDefaultAsync();
+        var session = await cosmosDb.SelectByNameAsync<SessionDto>(sessionId, isOrganisation: false);
         if (session != null)
         {
             session.IsSignIn = false;

@@ -1,7 +1,10 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
 /// <summary>
 /// Gives access to generic RequestDto and ResponseDto.
 /// </summary>
-public class CommandContext(CosmosDbContainer cosmosDbContainer)
+public class CommandContext(CosmosDbContainer cosmosDbContainer, IServiceProvider serviceProvider)
 {
     private string? domain;
 
@@ -31,16 +34,17 @@ public class CommandContext(CosmosDbContainer cosmosDbContainer)
     /// </summary>
     public async Task UserSignInOrganisation()
     {
+        var cosmosDb = serviceProvider.GetService<CosmosDb>()!; // Prevent circular reference.
         var partitionKeySessionDto = Name(typeof(SessionDto).Name, isOrganisation: false);
 
-        var session = await UtilCosmosDb.Select<SessionDto>(cosmosDbContainer.Container, partitionKeySessionDto, RequestSessionId).SingleOrDefaultAsync(); // UtilCosmosDb to prevent circular reference
+        var session = await cosmosDb.SelectByNameAsync<SessionDto>(RequestSessionId, isOrganisation: false);
         if (session == null || session.IsSignIn != true)
         {
             ResponseNavigateUrl = "signin";
             throw new Exception("User not signed in!");
         }
         var partitionKeyOrganisationDto = Name(typeof(OrganisationDto).Name, isOrganisation: false);
-        var organisation = await UtilCosmosDb.Select<OrganisationDto>(cosmosDbContainer.Container, partitionKeyOrganisationDto, session.OrganisationName).SingleOrDefaultAsync(); // // UtilCosmosDb to prevent circular reference
+        var organisation = await cosmosDb.SelectByNameAsync<OrganisationDto>(session.OrganisationName, isOrganisation: false);
         if (organisation == null)
         {
             ResponseNavigateUrl = "signin";

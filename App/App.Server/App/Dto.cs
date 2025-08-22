@@ -8,6 +8,11 @@ public class RequestDto
     public string CommandName { get; set; } = default!;
 
     public List<JsonElement>? ParamList { get; set; }
+
+    /// <summary>
+    /// Gets or sets DevelopmentSessionId. Used only in development mode. For example GitHub Codespaces.
+    /// </summary>
+    public string? DevelopmentSessionId { get; set; }
 }
 
 /// <summary>
@@ -24,6 +29,11 @@ public class ResponseDto
     public List<NotificationDto>? NotificationList { get; set; }
 
     public string? NavigateUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets DevelopmentSessionId. Used only in development mode. For example GitHub Codespaces.
+    /// </summary>
+    public string? DevelopmentSessionId { get; set; }
 }
 
 public enum NotificationEnum

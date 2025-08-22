@@ -6,10 +6,20 @@
         return context.Name(name, isOrganisation);
     }
 
-    public IQueryable<T> Select<T>(string? name = null, bool isOrganisation = true) where T : DocumentDto
+    public IQueryable<T> Select<T>(bool isOrganisation = true) where T : DocumentDto
     {
         var partitionKey = PartitionKey<T>(isOrganisation);
-        return UtilCosmosDb.Select<T>(cosmosDbContainer.Container, partitionKey, name);
+        return UtilCosmosDb.Select<T>(cosmosDbContainer.Container, partitionKey);
+    }
+
+    public Task<T?> SelectByNameAsync<T>(string? name, bool isOrganisation = true) where T : DocumentDto
+    {
+        if (string.IsNullOrEmpty(name))
+        {
+            return Task.FromResult<T?>(null);
+        }
+        var partitionKey = PartitionKey<T>(isOrganisation);
+        return UtilCosmosDb.Select<T>(cosmosDbContainer.Container, partitionKey, name).SingleOrDefaultAsync();
     }
 
     public async Task<T> InsertAsync<T>(T item, bool isOrganisation = true) where T : DocumentDto

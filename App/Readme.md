@@ -1,7 +1,6 @@
 # App
 Start DevContainer Codespace
 * App.Web (**Port 4200**)
-* Update file local.settings.json CORS to https://my-4200.app.github.dev
 * App.Server (**Port 7138**) - Make Public
 
 # ToDo

@@ -1,0 +1,10 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+  },
+  "Host": { // Simulate PROD config
+    "CORS": "http://localhost:4200", // Star (*) is not allowed for CORSCredentials.
+    "CORSCredentials": true // Used for HttpOnly session cookies
+  }
+}

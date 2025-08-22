@@ -8,9 +8,16 @@ public class Configuration
         // See also AddUserSecrets, Function App > Environment variables > Connection strings, AddAzureKeyVault
         this.ConnectionStringStorage = configuration.GetConnectionString("Storage")!; 
         this.ConnectionStringCosmosDb = configuration.GetConnectionString("CosmosDb")!;
+        this.IsDevelopment = configuration.GetValue<bool>("IsDevelopment", false);
     }
 
     public string ConnectionStringStorage { get; }
+    
     public string ConnectionStringCosmosDb { get; }
+
+    /// <summary>
+    /// Gets IsDevelopment. If true, running for example in GitHub Codespaces.
+    /// </summary>
+    public bool IsDevelopment { get; }
 }
 

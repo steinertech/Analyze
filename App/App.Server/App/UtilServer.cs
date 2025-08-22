@@ -62,9 +62,14 @@ internal static class UtilServer
         var requestBody = await reader.ReadToEndAsync();
         var requestDto = JsonSerializer.Deserialize<RequestDto>(requestBody, jsonOptions)!;
         var context = serviceProvider.GetService<CommandContext>()!;
+        var configuration = serviceProvider.GetService<Configuration>()!;
         context.Domain = new Uri(req.Headers.Origin!).Host;
         // context.DomainNameServer = req.Host.Host; // Not used
         context.RequestSessionId = req.Cookies["SessionId"];
+        if (configuration.IsDevelopment)
+        {
+            context.RequestSessionId = requestDto.DevelopmentSessionId;
+        }
         ResponseDto responseDto;
         try
         {
@@ -78,20 +83,24 @@ internal static class UtilServer
             responseDto.NotificationList = context.NotificationList;
             if (context.ResponseSessionId != null)
             {
-                var options = new CookieOptions 
-                { 
+                var options = new CookieOptions
+                {
                     HttpOnly = true, // JavaScript can not access cookie
                     SameSite = SameSiteMode.Strict, // api.example.com and www.example.com are the same site. Not considered to be a third party cookie which can be blocked.
                     Secure = true,
                     Expires = DateTimeOffset.UtcNow.AddDays(7)
                 };
                 req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, options);
+                if (configuration.IsDevelopment)
+                {
+                    responseDto.DevelopmentSessionId = context.ResponseSessionId;
+                }
             }
         }
         catch (Exception exception)
         {
-            responseDto = new ResponseDto 
-            { 
+            responseDto = new ResponseDto
+            {
                 ExceptionText = exception.Message,
                 NavigateUrl = context.ResponseNavigateUrl, // For example navigate to signin
             };

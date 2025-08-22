@@ -1,12 +1,10 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Newtonsoft.Json;
-using System.ComponentModel;
-using Container = Microsoft.Azure.Cosmos.Container;
 
 internal static class UtilCosmosDb
 {
-    public static IQueryable<T> Select<T>(Container container, string partitionKey, string? name) where T : DocumentDto
+    public static IQueryable<T> Select<T>(Container container, string partitionKey, string? name = null) where T : DocumentDto
     {
         IQueryable<T> result = container.GetItemLinqQueryable<T>();
         result = result.Where(item => item.InternalPartitionKey == partitionKey);
@@ -42,7 +40,7 @@ internal static class UtilCosmosDb
 
 public static class UtilCosmosDbDynamic
 {
-    public static IQueryable<IDictionary<string, object>> Select<T>(Container container, string partitionKey, string? name) where T : DocumentDto
+    public static IQueryable<IDictionary<string, object>> Select<T>(Container container, string partitionKey, string? name = null) where T : DocumentDto
     {
         IQueryable<IDictionary<string, object>> result = container.GetItemLinqQueryable<IDictionary<string, object>>();
         result = result.Where(item => (string)item["partitionKey"] == partitionKey);
