@@ -16,7 +16,7 @@ public class Configuration
     public string ConnectionStringCosmosDb { get; }
 
     /// <summary>
-    /// Gets IsDevelopment. If true, running for example in GitHub Codespaces.
+    /// Gets IsDevelopment. If true, running for example in GitHub Codespaces. See also file secrets.json
     /// </summary>
     public bool IsDevelopment { get; }
 }

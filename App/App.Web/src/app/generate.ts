@@ -223,7 +223,7 @@ export class ServerApi {
     let partList = window.location.hostname.split('.')
     partList[0] = 'api' // www.example.com to api.example.com
     let urlApi = partList.join('.') + '/api/data'
-    let result = { serverUrl: urlApi, isDevelopment: false }
+    let result = { serverUrl: 'https://' + urlApi, isDevelopment: false }
     if (this.isLocalhost()) {
       result = { serverUrl: 'http://localhost:7138/api/data', isDevelopment: true }
     }
