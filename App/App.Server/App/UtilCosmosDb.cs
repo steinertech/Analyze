@@ -4,6 +4,11 @@ using Newtonsoft.Json;
 
 internal static class UtilCosmosDb
 {
+    public static string Key(Type type, string? name)
+    {
+        return type.Name + (string.IsNullOrEmpty(name) ? null : "/" + name);
+    }
+
     public static IQueryable<T> Select<T>(Container container, string partitionKey, string? name = null) where T : DocumentDto
     {
         IQueryable<T> result = container.GetItemLinqQueryable<T>();
@@ -11,7 +16,7 @@ internal static class UtilCosmosDb
         result = result.Where(item => item.InternalType == typeof(T).Name);
         if (name != null)
         {
-            result = result.Where(item => item.InternalKey == typeof(T).Name + "/" + name);
+            result = result.Where(item => item.InternalKey == UtilCosmosDb.Key(typeof(T), name));
         }
         return result;
     }
@@ -47,7 +52,7 @@ public static class UtilCosmosDbDynamic
         result = result.Where(item => (string)item["type"] == typeof(T).Name);
         if (name != null)
         {
-            result = result.Where(item => (string)item["key"] == typeof(T).Name + "/" + name);
+            result = result.Where(item => (string)item["key"] == UtilCosmosDb.Key(typeof(T), name));
         }
         return result;
     }
@@ -57,7 +62,7 @@ public static class UtilCosmosDbDynamic
         item["partitionKey"] = partitionKey;
         item["type"] = typeof(T).Name;
         item["id"] = Guid.NewGuid().ToString();
-        item["key"] = typeof(T).Name + "/" + (item.ContainsKey("name") ? item["name"] : null);
+        item["key"] = UtilCosmosDb.Key(typeof(T), item.ContainsKey("name") ? (string)item["name"] : null);
         item["_etag"] = null!;
         var result = await container.UpsertItemAsync(item);
         return result.Resource;
@@ -164,7 +169,7 @@ public class DocumentDto
     {
         get
         {
-            return GetType().Name + "/" + Name;
+            return UtilCosmosDb.Key(this.GetType(), Name);
         }
         set
         {
