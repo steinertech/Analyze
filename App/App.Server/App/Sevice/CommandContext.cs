@@ -1,10 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Gives access to generic RequestDto and ResponseDto.
 /// </summary>
-public class CommandContext(CosmosDbContainer cosmosDbContainer, IServiceProvider serviceProvider)
+public class CommandContext(IServiceProvider serviceProvider)
 {
     private string? domain;
 
