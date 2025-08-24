@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { PageNav } from "../page-nav/page-nav";
 import { PageNotification } from "../page-notification/page-notification";
-import { ServerApi } from '../generate';
+import { GridDto, ServerApi } from '../generate';
+import { PageGrid } from "../page-grid/page-grid";
 
 @Component({
   selector: 'app-page-article',
-  imports: [PageNav, PageNotification],
+  imports: [PageNav, PageNotification, PageGrid],
   templateUrl: './page-article.html',
   styleUrl: './page-article.css'
 })
@@ -14,7 +15,15 @@ export class PageArticle {
     serverApi.commmandUserSignOut
   }
 
+  readonly grid = signal<GridDto>({ gridName: 'Article' })
+
   click() {
     this.serverApi.commmandArticleAdd()
+  }
+
+  ngAfterContentInit() {
+    if (this.serverApi.isWindow()) {
+      this.serverApi.commandGridLoad(this.grid()).subscribe(value => this.grid.set(value));
+    }
   }
 }

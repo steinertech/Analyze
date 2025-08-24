@@ -2,7 +2,7 @@
 {
     public async Task Add()
     {
-        await context.UserSignInOrganisation();
+        await context.UserAuthenticate();
         var article = new ArticleDto { Text = "Banana", Name = Guid.NewGuid().ToString() };
         
         article = await cosmosDb.InsertAsync(article);

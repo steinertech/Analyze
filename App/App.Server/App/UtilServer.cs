@@ -28,6 +28,7 @@ internal static class UtilServer
         builder.Services.AddTransient<CosmosDbDynamic>(); // Wrapper
         builder.Services.AddSingleton<MemoryGrid>(); // Contains state
         builder.Services.AddSingleton<ExcelGrid>();
+        builder.Services.AddTransient<ArticleGrid>();
         builder.Services.AddTransient<StorageGrid>(); // Wrapper
         builder.Services.AddScoped<CommandContext>(); // One new instance for every http request
         builder.Services.AddTransient<Storage>(); // Wrapper

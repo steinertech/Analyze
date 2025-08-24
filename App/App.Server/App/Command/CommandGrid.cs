@@ -1,10 +1,16 @@
-﻿public class CommandGrid(MemoryGrid memoryGrid, ExcelGrid excelGrid, StorageGrid storageGrid)
+﻿public class CommandGrid(MemoryGrid memoryGrid, ExcelGrid excelGrid, StorageGrid storageGrid, ArticleGrid articleGrid)
 {
     /// <summary>
     /// Returns loaded grid.
     /// </summary>
     public async Task<GridDto> Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
     {
+        // Article
+        if (grid.GridName == "Article")
+        {
+            await articleGrid.Load(grid);
+            return grid;
+        }
         // Excel
         if (grid.GridName == "Excel")
         {

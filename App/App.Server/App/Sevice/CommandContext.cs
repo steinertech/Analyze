@@ -16,7 +16,9 @@ public class CommandContext(IServiceProvider serviceProvider)
         {
             if (domain == null)
             {
-                throw new Exception(); // Make sure calling service has not an old copy of CommandContext. See also builder.Services.AddScoped
+                // Make sure calling service has not an old copy of CommandContext. See also builder.Services.AddScoped.
+                // For example AddSingleton can not hold a AddTransient service
+                throw new Exception(); 
             }
             return domain;
         }
@@ -29,9 +31,9 @@ public class CommandContext(IServiceProvider serviceProvider)
     // public string DomainNameServer { get; set; } = default!;
 
     /// <summary>
-    /// Check user is signed in and has an organisation selected. Throws exception if not.
+    /// For this request check user is signed in and has an organisation selected. Throws exception if not.
     /// </summary>
-    public async Task UserSignInOrganisation()
+    public async Task UserAuthenticate()
     {
         var cosmosDb = serviceProvider.GetService<CosmosDb>()!; // Prevent circular reference.
         var partitionKeySessionDto = Name(typeof(SessionDto).Name, isOrganisation: false);
@@ -74,7 +76,7 @@ public class CommandContext(IServiceProvider serviceProvider)
         {
             return $"{Domain}/Organisation/{organisationName}" + (name == null ? null : $"/{name}");
         }
-        throw new Exception("First call method UserSignInOrganisation();"); // Make sure user is signed in and has an organisation selected.
+        throw new Exception("Request not authenticated!"); // Call method CommandContext.UserSignInOrganisation(); to make sure user is signed in and has an organisation selected.
     }
 
     /// <summary>
