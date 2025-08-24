@@ -10,7 +10,7 @@ using System.Text.Json.Serialization.Metadata;
 
 internal static class UtilServer
 {
-    public static string VersionServer => "1.0.14 (1604)";
+    public static string VersionServer => "1.0.15";
 
     /// <summary>
     /// App start config.
@@ -71,9 +71,14 @@ internal static class UtilServer
             context.RequestSessionId = requestDto.DevelopmentSessionId;
         }
         ResponseDto responseDto;
+        var isReload = requestDto.VersionClient != null && requestDto.VersionClient != UtilServer.VersionServer;
         try
         {
             // Run
+            if (isReload)
+            {
+                throw new Exception("Reload page!");
+            }
             responseDto = await ServerApi.Run(requestDto, jsonOptions, serviceProvider);
             if (responseDto.Result is GridDto grid)
             {
@@ -103,6 +108,7 @@ internal static class UtilServer
             {
                 ExceptionText = exception.Message,
                 NavigateUrl = context.ResponseNavigateUrl, // For example navigate to signin
+                IsReload = isReload ? true : null
             };
         }
         responseDto.CommandName = requestDto.CommandName;

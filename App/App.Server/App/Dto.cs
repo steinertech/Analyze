@@ -13,6 +13,8 @@ public class RequestDto
     /// Gets or sets DevelopmentSessionId. Used only in development mode. For example GitHub Codespaces.
     /// </summary>
     public string? DevelopmentSessionId { get; set; }
+
+    public string? VersionClient { get; set; }
 }
 
 /// <summary>
@@ -34,6 +36,8 @@ public class ResponseDto
     /// Gets or sets DevelopmentSessionId. Used only in development mode. For example GitHub Codespaces.
     /// </summary>
     public string? DevelopmentSessionId { get; set; }
+    
+    public bool? IsReload { get; set; }
 }
 
 public enum NotificationEnum

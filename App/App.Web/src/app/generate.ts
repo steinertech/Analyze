@@ -3,11 +3,13 @@ import { Injectable, signal } from "@angular/core"
 import { catchError, firstValueFrom, map, mergeMap, Observable, of, tap } from "rxjs"
 import { Router } from "@angular/router"
 import { NotificationDto, NotificationEnum, NotificationService } from "./notification.service"
+import { UtilClient } from "./util-client"
 
 export class RequestDto {
   public commandName!: string
   public paramList?: any[]
   public developmentSessionId?: string
+  public versionClient?: string
 }
 
 export class ResponseDto {
@@ -16,6 +18,7 @@ export class ResponseDto {
   public navigateUrl?: string
   public notificationList?: NotificationDto[]
   public developmentSessionId?: string
+  public isReload?: boolean
 }
 
 export class ComponentDto {
@@ -247,6 +250,7 @@ export class ServerApi {
   public isPost = signal(false)
 
   private post<T>(request: RequestDto): Observable<T> {
+    request.versionClient = UtilClient.versionClient
     return of(0).pipe(
       tap(() => this.postCountAdd(1)),
       // Param withCredentials to send SessionId cookie to server. 
@@ -285,6 +289,10 @@ export class ServerApi {
           }),
           catchError(error => {
             this.postCountAdd(-1);
+            // Reload
+            if (error.error?.isReload) {
+              window.location.reload()
+            }
             // NavigateUrl
             if (error.error?.navigateUrl) {
               this.navigate(error.error.navigateUrl)
