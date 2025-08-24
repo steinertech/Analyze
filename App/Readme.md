@@ -1,7 +1,9 @@
 # App
 Start DevContainer Codespace
 * App.Web (**Port 4200**)
+* App.Server configuration manage user secrets
 * App.Server (**Port 7138**) - Make Public
+
 
 # ToDo
 * Excel hours and hours total
