@@ -74,11 +74,12 @@ internal static class UtilServer
         var isReload = requestDto.VersionClient != null && requestDto.VersionClient != UtilServer.VersionServer;
         try
         {
-            // Run
+            // IsReload
             if (isReload)
             {
                 throw new Exception("Reload page!");
             }
+            // Run
             responseDto = await ServerApi.Run(requestDto, jsonOptions, serviceProvider);
             if (responseDto.Result is GridDto grid)
             {
@@ -86,6 +87,7 @@ internal static class UtilServer
             }
             responseDto.NavigateUrl = context.ResponseNavigateUrl;
             responseDto.NotificationList = context.NotificationList;
+            // Session
             if (context.ResponseSessionId != null)
             {
                 var options = new CookieOptions

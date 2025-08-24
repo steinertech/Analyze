@@ -291,18 +291,20 @@ export class ServerApi {
             this.postCountAdd(-1);
             // Reload
             if (error.error?.isReload) {
+              this.notificationService.add(NotificationEnum.Info, "Info: " + error.error.exceptionText) // Show reload as info not as exception
               window.location.reload()
+            } else {
+              // NavigateUrl
+              if (error.error?.navigateUrl) {
+                this.navigate(error.error.navigateUrl)
+              }
+              // Notification
+              if (error.error?.exceptionText) {
+                this.notificationService.add(NotificationEnum.Error, "Exception: " + error.error.exceptionText)
+                throw error
+              }
+              this.notificationService.add(NotificationEnum.Error, "Error: " + "Network failure!")
             }
-            // NavigateUrl
-            if (error.error?.navigateUrl) {
-              this.navigate(error.error.navigateUrl)
-            }
-            // Notification
-            if (error.error?.exceptionText) {
-              this.notificationService.add(NotificationEnum.Error, "Exception: " + error.error.exceptionText)
-              throw error
-            }
-            this.notificationService.add(NotificationEnum.Error, "Error: " + "Network failure!")
             throw error
           })
         )

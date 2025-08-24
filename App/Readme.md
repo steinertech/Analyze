@@ -19,7 +19,7 @@ Start DevContainer Codespace
 * Calendar component
 * Storage component [Done]
 * Excel sheets component master detail [Done]
-* Check App.Web and App.Server version on every request.
+* Check App.Web and App.Server version on every request. [Done]
 * Move folder Data/ [Done]
 * Load and save to load command only
 * Audit, History
