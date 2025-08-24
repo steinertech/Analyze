@@ -26,11 +26,10 @@
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [7138, 7138, 4200, 4200],
-	// "portsAttributes": {
-	//		"5001": {
-	//			"protocol": "https"
-	//		}
-	// }
+	"portsAttributes": {
+	  "7138": {
+	  "visibility": "public"
+	},
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// Moved to features npm install -g @angular/cli && 
