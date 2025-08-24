@@ -292,7 +292,9 @@ export class ServerApi {
             // Reload
             if (error.error?.isReload) {
               this.notificationService.add(NotificationEnum.Info, "Info: " + error.error.exceptionText) // Show reload as info not as exception
-              window.location.reload()
+              setTimeout(() => {
+                window.location.reload()
+              }, 3000);
             } else {
               // NavigateUrl
               if (error.error?.navigateUrl) {

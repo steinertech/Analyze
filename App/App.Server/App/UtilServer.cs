@@ -77,7 +77,7 @@ internal static class UtilServer
             // IsReload
             if (isReload)
             {
-                throw new Exception("Reload page!");
+                throw new Exception("Reload page.");
             }
             // Run
             responseDto = await ServerApi.Run(requestDto, jsonOptions, serviceProvider);
