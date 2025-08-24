@@ -5,6 +5,7 @@
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	// mcr.microsoft.com/devcontainers/dotnet:1-9.0-bookworm, mcr.microsoft.com/dotnet/sdk:9.0
 	"image": "mcr.microsoft.com/dotnet/sdk:9.0",
+	// See also https://containers.dev/features
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {},
 		"ghcr.io/jlaundry/devcontainer-features/azure-functions-core-tools:1": {},
@@ -21,13 +22,11 @@
 		}
 	},
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [7138, 7138, 4200, 4200],
 	"portsAttributes": {
 		"7138": {
+			// Not working in Codespaces!
 			"visibility": "public"
 		}
 	},
