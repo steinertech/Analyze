@@ -4,6 +4,10 @@ Start DevContainer Codespace
 * App.Server configuration manage user secrets
 * App.Server (**Port 7138**) - Make Public
 
+# CosmosDb Consumption
+* Serverless
+* Metrics, Total Request Units, Last 30 days
+* Data Explorer, Setting, RU Limit
 
 # ToDo
 * Excel hours and hours total
