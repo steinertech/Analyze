@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, Input, model, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, Input, signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridDto, ServerApi } from '../generate';
 import { UtilClient } from '../util-client';
@@ -16,18 +16,21 @@ import { UtilClient } from '../util-client';
 })
 export class PageGrid {
   constructor(private serverApi: ServerApi) {
-    effect(() => this._grid = this.grid())
+    effect(() => {
+      // console.log('Update _grid')
+      this._grid = this.grid()
+    })
   }
 
   GridCellEnum = GridCellEnum
 
   GridControlEnum = GridControlEnum
 
-  readonly grid = model<GridDto>()
+  @Input() grid!: WritableSignal<GridDto>
 
   _grid?: GridDto // Data grid
 
-  readonly lookup = signal<Lookup | undefined>(undefined)
+  protected lookup?: Lookup
 
   @Input() protected parent?: PageGrid // Lookup parent
 
@@ -73,17 +76,44 @@ export class PageGrid {
     return undefined
   }
 
+  cellTextSetSave(cell: GridCellDto) {
+    if (this._grid) {
+      if (!this._grid.state) {
+        this._grid.state = {}
+      }
+      if (!this._grid.state.fieldSaveList) {
+        this._grid.state.fieldSaveList = []
+      }
+      if (cell.fieldName && cell.dataRowIndex != undefined) {
+        let index = this._grid.state.fieldSaveList.findIndex(item => item.fieldName == cell.fieldName && item.dataRowIndex == cell.dataRowIndex)
+        if (index != -1) {
+          this._grid.state.fieldSaveList.splice(index) // Remove item
+        }
+        if (cell.textModified) {
+          this._grid.state.fieldSaveList.push({
+            fieldName: cell.fieldName,
+            dataRowIndex: cell.dataRowIndex,
+            text: cell.text,
+            textModified: cell.textModified
+          })
+        }
+      }
+    }
+  }
+
   cellTextSet(cell: GridCellDto, value: string) {
     if (this._grid) {
       switch (cell.cellEnum) {
         // Field
         case GridCellEnum.Field: {
           cell.textModified = cell.text != value ? value : undefined
+          this.cellTextSetSave(cell)
           break
         }
         // Field
         case GridCellEnum.FieldAutocomplete: {
           cell.textModified = cell.text != value ? value : undefined
+          this.cellTextSetSave(cell)
           break
         }
         // Filter
@@ -103,13 +133,14 @@ export class PageGrid {
           } else {
             this._grid.state.filterList[index].text = value
           }
-          this.serverApi.commandGridLoad(this._grid, this.parent?.lookup()?.cell, this.parent?.lookup()?.control, this.parent?._grid).subscribe(value => this.grid.set(value)); // Reload // TODO Debounce
+          this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid).subscribe(value => this.grid.set(value.grid)); // Reload // TODO Debounce
           break
         }
         // CheckBox
         case GridCellEnum.FieldCheckbox: {
           let valueText = value ? 'true' : 'false'
           cell.textModified = cell.text != valueText ? valueText : undefined
+          this.cellTextSetSave(cell)
           break
         }
         // SelectMulti
@@ -160,6 +191,7 @@ export class PageGrid {
         // Field Custom
         case GridControlEnum.FieldCustom: {
           control.textModified = control.text != value ? value : undefined
+          this.cellTextSetSave(cell)
           break
         }
       }
@@ -224,7 +256,7 @@ export class PageGrid {
               item._grid.state.rowKeyMasterList[this._grid?.gridName] = rowKey
             }
             // Reload detail grid
-            this.serverApi.commandGridLoad(item._grid, item.parent?.lookup()?.cell, item.parent?.lookup()?.control, item.parent?._grid).subscribe(value => item.grid.set(value));
+            this.serverApi.commandGridLoad(item._grid, item.parent?.lookup?.cell, item.parent?.lookup?.control, item.parent?._grid).subscribe(value => item.grid.set(value.grid));
           }
         })
       }
@@ -248,7 +280,7 @@ export class PageGrid {
           } else {
             this._grid.state.sort = { fieldName: cell.fieldName!, isDesc: false }
           }
-          this.serverApi.commandGridLoad(this._grid).subscribe(value => this.grid.set(value)); // Reload
+          this.serverApi.commandGridLoad(this._grid).subscribe(value => this.grid.set(value.grid)); // Reload
           break
         }
       }
@@ -262,15 +294,15 @@ export class PageGrid {
         case GridControlEnum.ButtonReload: {
           this._grid.state = undefined // Clear state
           this.lookupClose()
-          this.serverApi.commandGridLoad(this._grid, this.parent?.lookup()?.cell, this.parent?.lookup()?.control, this.parent?._grid).subscribe(value => {
-            this.grid.set(value) // Reload
+          this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid).subscribe(value => {
+            this.grid.set(value.grid) // Reload
           });
           break
         }
         // Button Save
         case GridControlEnum.ButtonSave: {
           this.lookupClose()
-          this.serverApi.commandGridSave(this._grid, this.parent?.lookup()?.cell, this.parent?.lookup()?.control, this.parent?._grid).subscribe(value => {
+          this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid).subscribe(value => {
             this.grid.set(value.grid)
             if (this.parent?._grid && value.parentGrid) {
               this.parent.grid.set(value.parentGrid)
@@ -286,7 +318,7 @@ export class PageGrid {
         // Button Ok (Lookup)
         case GridControlEnum.ButtonLookupOk: {
           if (this.parent?._grid) {
-            this.serverApi.commandGridSave(this._grid, this.parent.lookup()?.cell, this.parent.lookup()?.control, this.parent._grid).subscribe(value => {
+            this.serverApi.commandGridLoad(this._grid, this.parent.lookup?.cell, this.parent.lookup?.control, this.parent._grid).subscribe(value => {
               this.grid.set(value.grid) // Lookup to be closed
               if (this.parent?._grid && value.parentGrid) {
                 this.parent.grid.set(value.parentGrid) // Parent reload
@@ -303,10 +335,10 @@ export class PageGrid {
               this.parent._grid.state = {}
             }
             if (!this.parent._grid.state.sort) {
-              this.parent._grid.state.sort = { fieldName: this.parent.lookup()?.cell?.fieldName!, isDesc: false }
+              this.parent._grid.state.sort = { fieldName: this.parent.lookup?.cell?.fieldName!, isDesc: false }
             }
-            if (this.parent._grid.state.sort.fieldName != this.parent.lookup()?.cell?.fieldName) {
-              this.parent._grid.state.sort = { fieldName: this.parent.lookup()?.cell?.fieldName!, isDesc: false }
+            if (this.parent._grid.state.sort.fieldName != this.parent.lookup?.cell?.fieldName) {
+              this.parent._grid.state.sort = { fieldName: this.parent.lookup?.cell?.fieldName!, isDesc: false }
             }
             else {
               this.parent._grid.state.sort.isDesc = !this.parent._grid.state.sort.isDesc
@@ -327,7 +359,7 @@ export class PageGrid {
             this._grid.state = {}
           }
           this._grid.state.buttonCustomClick = { name: control.name, dataRowIndex: cell.dataRowIndex, fieldName: cell.fieldName }
-          this.serverApi.commandGridSave(this._grid, this.parent?.lookup()?.cell, this.parent?.lookup()?.control, this.parent?._grid).subscribe(value => this.grid.set(value.grid));
+          this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid).subscribe(value => this.grid.set(value.grid));
           break
         }
       }
@@ -341,11 +373,10 @@ export class PageGrid {
       if (control?.controlEnum == GridControlEnum.ButtonModal) {
         lookup.isModal = true
       }
-      lookup.grid = { gridName: this._grid?.gridName }
-      this.lookup.set(lookup) // Lookup open (not yet loaded grid)
-      this.serverApi.commandGridLoad(lookup.grid, lookup.cell, lookup.control, this._grid).subscribe(value => {
-        lookup.grid = value
-        this.lookup.set({ ...lookup }) // Lookup open (with loaded grid)
+      lookup.grid = signal<GridDto>({ gridName: this._grid?.gridName }) 
+      this.lookup = lookup // Lookup open (not yet loaded grid)
+      this.serverApi.commandGridLoad(lookup.grid(), lookup.cell, lookup.control, this._grid).subscribe(value => {
+        lookup.grid.set(value.grid) // Lookup open (with loaded grid)
       });
     }
   }
@@ -359,12 +390,12 @@ export class PageGrid {
         this._grid.state.pagination = {}
       }
       this._grid.state.pagination.pageIndexClick = pageIndexClick
-      this.serverApi.commandGridLoad(this._grid, this.parent?.lookup()?.cell, this.parent?.lookup()?.control, this.parent?._grid).subscribe(value => { this.grid.set(value) });
+      this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid).subscribe(value => { this.grid.set(value.grid) });
     }
   }
 
   lookupClose() {
-    this.lookup.set(undefined)
+    this.lookup = undefined
   }
 
   isFilterMulti(fieldName?: string) {
@@ -467,7 +498,7 @@ class Lookup {
 
   control?: GridControlDto // Control with open lookup
 
-  grid?: GridDto // Lookup window
+  grid!: WritableSignal<GridDto> // Lookup window
 
   isModal?: boolean // Lookup window is modal
 }

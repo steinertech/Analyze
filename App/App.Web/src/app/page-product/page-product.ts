@@ -26,9 +26,9 @@ export class PageProduct {
 
   ngAfterContentInit() {
     if (this.serverApi.isWindow()) {
-      this.serverApi.commandGridLoad(this.grid()).subscribe(value => this.grid.set(value));
+      this.serverApi.commandGridLoad(this.grid()).subscribe(value => this.grid.set(value.grid));
       // this.serverApi.commandGridLoad(this.gridExcel).subscribe(value => this.gridExcel = value);
-      this.serverApi.commandGridLoad(this.gridStorage()).subscribe(value => this.gridStorage.set(value));
+      this.serverApi.commandGridLoad(this.gridStorage()).subscribe(value => this.gridStorage.set(value.grid));
     }
   }
 }

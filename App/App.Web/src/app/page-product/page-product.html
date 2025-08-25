@@ -7,13 +7,13 @@
   <p>List of products.</p>
 </div>
 
-<app-page-grid [grid]="grid()">
+<app-page-grid [grid]="grid">
 </app-page-grid>
 
 <h1>Excel</h1>
-<app-page-grid #gridExcelRef [grid]="gridExcel()">
+<app-page-grid #gridExcelRef [grid]="gridExcel">
 </app-page-grid>
 
 <h1>Storage</h1>
-<app-page-grid [grid]="gridStorage()" [detailList]="[gridExcelRef]">
+<app-page-grid [grid]="gridStorage" [detailList]="[gridExcelRef]">
 </app-page-grid>

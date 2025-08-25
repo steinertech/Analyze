@@ -27,7 +27,7 @@ Start DevContainer Codespace
 * Excel sheets component master detail [Done]
 * Check App.Web and App.Server version on every request. [Done]
 * Move folder Data/ [Done]
-* Load and save to load command only
+* Load and save to load command only [Done]
 * Audit, History
 * Css svg content [Done]
 * Class for left and right icon symbol [Done]

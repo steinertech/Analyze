@@ -3,25 +3,44 @@
     /// <summary>
     /// Returns loaded grid.
     /// </summary>
-    public async Task<GridDto> Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
+    public async Task<GridLoadDto> Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
     {
+        if (grid.State?.FieldSaveList?.Count() > 0)
+        {
+            // Storage
+            if (grid.GridName == "Storage")
+            {
+                await storageGrid.Save(grid, parentCell, parentControl, parentGrid);
+                return new() { Grid = grid, ParentGrid = parentGrid };
+            }
+            if (parentCell == null)
+            {
+                var result = new GridLoadDto() { Grid = DataSave(grid) };
+                if (result.Grid?.State?.FieldSaveList != null)
+                {
+                    result.Grid.State.FieldSaveList = null;
+                }
+                await Load(grid, parentCell, parentControl, parentGrid);
+                return result;
+            }
+        }
         // Article
         if (grid.GridName == "Article")
         {
             await articleGrid.Load(grid);
-            return grid;
+            return new GridLoadDto { Grid = grid };
         }
         // Excel
         if (grid.GridName == "Excel")
         {
             await excelGrid.Load(grid);
-            return grid;
+            return new GridLoadDto { Grid = grid };
         }
         // Storage
         if (grid.GridName == "Storage")
         {
             await storageGrid.Load(grid, parentCell, parentControl, parentGrid);
-            return grid;
+            return new GridLoadDto { Grid = grid };
         }
         // Data
         if (parentCell == null)
@@ -31,20 +50,49 @@
         // Header Lookup
         if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
         {
-            LookupHeaderLoad(grid, parentCell, parentGrid);
+            if (grid.RowCellList == null)
+            {
+                LookupHeaderLoad(grid, parentCell, parentGrid);
+            }
+            else
+            {
+                await LookupHeaderSave(grid, parentCell, parentGrid);
+                return new() { Grid = grid, ParentGrid = parentGrid };
+            }
         }
         // Autocomplete
-        if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete)
+        if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
         {
-            LookupAutocompleteLoad(grid);
+            if (grid.RowCellList == null)
+            {
+                LookupAutocompleteLoad(grid);
+            }
+            else
+            {
+                if (parentCell.DataRowIndex != null && parentCell.FieldName != null)
+                {
+                    // Parameter parentCell to parentGrid cell instance
+                    parentCell = parentGrid.RowCellList?.SelectMany(item => item).Where(item => item.DataRowIndex == parentCell.DataRowIndex && item.FieldName == parentCell.FieldName).FirstOrDefault() ?? parentCell;
+                }
+                LookupAutocompleteSave(grid, parentCell, parentGrid);
+                return new() { Grid = grid, ParentGrid = parentGrid };
+            }
         }
         // Column Lookup
         var parentCellIsColumn = parentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any();
         if (parentCell != null && parentCellIsColumn == true && parentGrid != null)
         {
-            LookupColumnLoad(grid, parentCell, parentGrid);
+            if (grid.RowCellList == null)
+            {
+                LookupColumnLoad(grid, parentCell, parentGrid);
+            }
+            else
+            {
+                await LookupColumnSave(grid, parentCell, parentGrid);
+                return new() { Grid = grid, ParentGrid = parentGrid };
+            }
         }
-        return grid;
+        return new GridLoadDto { Grid = grid };
     }
 
     private void DataLoad(GridDto grid)
@@ -380,42 +428,6 @@
         }
     }
 
-    public async Task<GridSaveDto> Save(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
-    {
-        // Storage
-        if (grid.GridName == "Storage")
-        {
-            await storageGrid.Save(grid, parentCell, parentControl, parentGrid);
-            return new() { Grid = grid, ParentGrid = parentGrid };
-        }
-        if (parentCell == null)
-        {
-            return new() { Grid = DataSave(grid) };
-        }
-        if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
-        {
-            await LookupHeaderSave(grid, parentCell, parentGrid);
-            return new() { Grid = grid, ParentGrid = parentGrid };
-        }
-        var parentCellIsColumn = parentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any();
-        if (parentCell != null && parentCellIsColumn == true && parentGrid != null)
-        {
-            await LookupColumnSave(grid, parentCell, parentGrid);
-            return new() { Grid = grid, ParentGrid = parentGrid };
-        }
-        if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
-        {
-            if (parentCell.DataRowIndex != null && parentCell.FieldName != null)
-            {
-                // Parameter parentCell to parentGrid cell instance
-                parentCell = parentGrid.RowCellList?.SelectMany(item => item).Where(item => item.DataRowIndex == parentCell.DataRowIndex && item.FieldName == parentCell.FieldName).FirstOrDefault() ?? parentCell;
-            }
-            LookupAutocompleteSave(grid, parentCell, parentGrid);
-            return new() { Grid = grid, ParentGrid = parentGrid };
-        }
-        return new() { Grid = grid };
-    }
-
     private List<string> DropDownLoad(string gridName, string fieldName)
     {
         if (gridName == nameof(ProductDto) && fieldName == nameof(ProductDto.StorageFileName))
@@ -431,7 +443,7 @@
     }
 }
 
-public class GridSaveDto
+public class GridLoadDto
 {
     public GridDto Grid { get; set; } = default!;
 
@@ -654,6 +666,19 @@ public class GridStateDto
     public Dictionary<string, string?>? RowKeyMasterList { get; set; }
 
     public GridPaginationDto? Pagination { get; set; }
+
+    public List<FieldSaveDto>? FieldSaveList { get; set; }
+}
+
+public class FieldSaveDto
+{
+    public string? FieldName { get; set; }
+ 
+    public int? DataRowIndex { get; set; }
+
+    public string? Text { get; set; }
+
+    public string? TextModified { get; set; }
 }
 
 public class GridPaginationDto

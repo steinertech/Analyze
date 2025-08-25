@@ -53,7 +53,7 @@ export class ProductDto {
   public price?: number
 }
 
-export class GridSaveDto {
+export class GridLoadDto {
   public grid!: GridDto
   public parentGrid?: GridDto
 }
@@ -153,6 +153,14 @@ export class GridStateDto {
   public rowKeyList?: (string | null)[]
   public rowKeyMasterList?: Record<string, string | null>
   public pagination?: GridPaginationDto
+  public fieldSaveList?: FieldSaveDto[]
+}
+
+export class FieldSaveDto {
+  public dataRowIndex?: number
+  public fieldName?: string
+  public text?: string
+  public textModified?: string
 }
 
 export class GridPaginationDto {
@@ -355,14 +363,6 @@ export class ServerApi {
   }
 
   commandGridLoad(grid: GridDto, parentCell?: GridCellDto, parentControl?: GridControlDto, parentGrid?: GridDto) {
-    return this.post<GridDto>({ commandName: "CommandGridLoad", paramList: [grid, parentCell, parentControl, parentGrid] })
-  }
-
-  commandGridSave(grid: GridDto, parentCell?: GridCellDto, parentControl?: GridControlDto, parentGrid?: GridDto) {
-    return this.post<GridSaveDto>({ commandName: "CommandGridSave", paramList: [grid, parentCell, parentControl, parentGrid] })
-  }
-
-  commandGridSelectDropDown(gridName: string, fieldName: string) {
-    return this.post<string[]>({ commandName: "CommandGridSelectConfig", paramList: [gridName, fieldName] })
+    return this.post<GridLoadDto>({ commandName: "CommandGridLoad", paramList: [grid, parentCell, parentControl, parentGrid] })
   }
 }
