@@ -42,7 +42,7 @@ internal static class ServerApi
                 break;
             // Article
             case nameof(CommandArticle) + nameof(CommandArticle.Add):
-                await new CommandArticle(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbDynamic>()!).Add();
+                await new CommandArticle(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbDynamic>()!, serviceProvider.GetService<TableStorageClient>()!).Add();
                 break;
             // Grid
             case nameof(CommandGrid) + nameof(CommandGrid.Load):

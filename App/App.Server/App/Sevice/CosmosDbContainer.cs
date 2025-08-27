@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos;
 
 /// <summary>
-/// Keeps CosmosDb container conection.
+/// Keeps CosmosDb container connection.
 /// </summary>
 public class CosmosDbContainer
 {
