@@ -2,7 +2,7 @@
 {
     public async Task Add()
     {
-        var list = await UtilTableStorageDynamic.SingleOrDefaultAsync<AirportDto>(tableStorageClient.Client, "Global|AirportDto", "My");
+        var list = await UtilTableStorageDynamic.SelectAsync<AirportDto>(tableStorageClient.Client, "Global|AirportDto");
         return;
 
         await context.UserAuthenticate();
