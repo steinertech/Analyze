@@ -12,6 +12,12 @@
         return UtilCosmosDb.Select<T>(cosmosDbContainer.Container, partitionKey);
     }
 
+    public Task<T?> SelectByIdAsync<T>(string? id, bool isOrganisation = true) where T : DocumentDto
+    {
+        var partitionKey = PartitionKey<T>(isOrganisation);
+        return UtilCosmosDb.SelectByIdAsync<T>(cosmosDbContainer.Container, partitionKey, id);
+    }
+
     public Task<T?> SelectByNameAsync<T>(string? name, bool isOrganisation = true) where T : DocumentDto
     {
         var partitionKey = PartitionKey<T>(isOrganisation);

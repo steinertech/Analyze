@@ -33,7 +33,7 @@ public class CommandContext(IServiceProvider serviceProvider)
     /// <summary>
     /// For this request check user is signed in and has an organisation selected. Throws exception if not.
     /// </summary>
-    public async Task UserAuthenticate()
+    public async Task UserAuthenticateAsync()
     {
         var cosmosDb = serviceProvider.GetService<CosmosDb>()!; // Prevent circular reference.
 

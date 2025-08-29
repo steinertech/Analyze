@@ -2,8 +2,8 @@
 {
     public async Task Add()
     {
-        await context.UserAuthenticate();
-        var article = new ArticleDto { Text = "Banana", Name = Guid.NewGuid().ToString() };
+        await context.UserAuthenticateAsync();
+        var article = new ArticleDto { Id = Guid.NewGuid().ToString(), Text = "Banana", Name = Guid.NewGuid().ToString() };
         
         article = await cosmosDb.InsertAsync(article);
 
@@ -12,12 +12,13 @@
 
         var articleDynamic = new Dictionary<string, object>
             {
+                { "id", Guid.NewGuid().ToString() },
                 { "name", Guid.NewGuid().ToString() },
                 { "text", "Apple" },
                 { "price", 88 },
                 { "new01", "Abc" },
             };
-        var d = await cosmosDbDynamic.InsertAsync<ArticleDto>(articleDynamic);
+         await cosmosDbDynamic.InsertAsync<ArticleDto>(articleDynamic);
     }
 }
 

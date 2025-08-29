@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 public static class UtilCosmosDb
 {
-    public static string Key(Type type, string? name)
+    public static string NameKey(Type type, string? name)
     {
         return type.Name + (string.IsNullOrEmpty(name) ? null : "/" + name);
     }
@@ -17,12 +17,22 @@ public static class UtilCosmosDb
         return result;
     }
 
+    public static async Task<T?> SelectByIdAsync<T>(Container container, string partitionKey, string? id) where T : DocumentDto
+    {
+        IQueryable<T> result = container.GetItemLinqQueryable<T>();
+        result = result.Where(item => item.InternalPartitionKey == partitionKey);
+        result = result.Where(item => item.InternalType == typeof(T).Name);
+        result = result.Where(item => item.Id == id);
+        var item = await result.SingleOrDefaultAsync();
+        return item;
+    }
+
     public static async Task<T?> SelectByNameAsync<T>(Container container, string partitionKey, string? name) where T : DocumentDto
     {
         IQueryable<T> result = container.GetItemLinqQueryable<T>();
         result = result.Where(item => item.InternalPartitionKey == partitionKey);
         result = result.Where(item => item.InternalType == typeof(T).Name);
-        result = result.Where(item => item.InternalKey == UtilCosmosDb.Key(typeof(T), name));
+        result = result.Where(item => item.InternalNameKey == UtilCosmosDb.NameKey(typeof(T), name));
         var item = await result.SingleOrDefaultAsync();
         return item;
     }
@@ -30,7 +40,6 @@ public static class UtilCosmosDb
     public static async Task<T> InsertAsync<T>(Container container, string partitionKey, T item) where T : DocumentDto
     {
         item.InternalPartitionKey = partitionKey;
-        item.Id = Guid.NewGuid().ToString();
         item.InternalEtag = null;
         return await container.UpsertItemAsync(item);
     }
@@ -64,7 +73,7 @@ public static class UtilCosmosDbDynamic
         IQueryable<IDictionary<string, object>> result = container.GetItemLinqQueryable<IDictionary<string, object>>();
         result = result.Where(item => (string)item["partitionKey"] == partitionKey);
         result = result.Where(item => (string)item["type"] == typeof(T).Name);
-        result = result.Where(item => (string)item["key"] == UtilCosmosDb.Key(typeof(T), name));
+        result = result.Where(item => (string)item["Namekey"] == UtilCosmosDb.NameKey(typeof(T), name));
         var item = await result.SingleOrDefaultDynamicAsync();
         return item;
     }
@@ -73,8 +82,7 @@ public static class UtilCosmosDbDynamic
     {
         item["partitionKey"] = partitionKey;
         item["type"] = typeof(T).Name;
-        item["id"] = Guid.NewGuid().ToString();
-        item["key"] = UtilCosmosDb.Key(typeof(T), item.ContainsKey("name") ? (string)item["name"] : null);
+        item["nameKey"] = UtilCosmosDb.NameKey(typeof(T), item.ContainsKey("name") ? (string)item["name"] : null);
         item["_etag"] = null!;
         var result = await container.UpsertItemAsync(item);
         return result.Resource;
@@ -177,12 +185,12 @@ public class DocumentDto
     /// <summary>
     /// Gets or sets Key. This is unique within a partition key (Type/Name).
     /// </summary>
-    [JsonProperty(PropertyName = "key")]
-    internal string? InternalKey
+    [JsonProperty(PropertyName = "nameKey")]
+    internal string? InternalNameKey
     {
         get
         {
-            return UtilCosmosDb.Key(this.GetType(), Name);
+            return UtilCosmosDb.NameKey(this.GetType(), Name);
         }
         set
         {

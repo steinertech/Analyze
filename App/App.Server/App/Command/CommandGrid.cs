@@ -3,8 +3,14 @@
     /// <summary>
     /// Returns loaded grid.
     /// </summary>
-    public async Task<GridLoadDto> Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
+    public async Task<GridLoadResultDto> Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
     {
+        // Article
+        if (grid.GridName == "Article")
+        {
+            await articleGrid.Load(grid, parentCell, parentControl, parentGrid);
+            return new GridLoadResultDto { Grid = grid };
+        }
         if (grid.State?.FieldSaveList?.Count() > 0)
         {
             // Storage
@@ -15,7 +21,7 @@
             }
             if (parentCell == null)
             {
-                var result = new GridLoadDto() { Grid = DataSave(grid) };
+                var result = new GridLoadResultDto() { Grid = DataSave(grid) };
                 if (result.Grid?.State?.FieldSaveList != null)
                 {
                     result.Grid.State.FieldSaveList = null;
@@ -24,23 +30,17 @@
                 return result;
             }
         }
-        // Article
-        if (grid.GridName == "Article")
-        {
-            await articleGrid.Load(grid);
-            return new GridLoadDto { Grid = grid };
-        }
         // Excel
         if (grid.GridName == "Excel")
         {
             await excelGrid.Load(grid);
-            return new GridLoadDto { Grid = grid };
+            return new GridLoadResultDto { Grid = grid };
         }
         // Storage
         if (grid.GridName == "Storage")
         {
             await storageGrid.Load(grid, parentCell, parentControl, parentGrid);
-            return new GridLoadDto { Grid = grid };
+            return new GridLoadResultDto { Grid = grid };
         }
         // Data
         if (parentCell == null)
@@ -92,7 +92,7 @@
                 return new() { Grid = grid, ParentGrid = parentGrid };
             }
         }
-        return new GridLoadDto { Grid = grid };
+        return new GridLoadResultDto { Grid = grid };
     }
 
     private void DataLoad(GridDto grid)
@@ -443,7 +443,7 @@
     }
 }
 
-public class GridLoadDto
+public class GridLoadResultDto
 {
     public GridDto Grid { get; set; } = default!;
 

@@ -2,13 +2,13 @@
 {
     public async Task<string> Download(string fileName)
     {
-        await context.UserAuthenticate();
+        await context.UserAuthenticateAsync();
         return await storage.Download(fileName);
     }
 
     public async Task Upload(string fileName, string data)
     {
-        await context.UserAuthenticate();
+        await context.UserAuthenticateAsync();
         await storage.Upload(fileName, data);
     }
 }
