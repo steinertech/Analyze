@@ -47,6 +47,7 @@
                 var sessionId = Guid.NewGuid().ToString();
                 SessionDto session = new SessionDto
                 {
+                    Id = Guid.NewGuid().ToString(),
                     Name = sessionId,
                     SessionId = sessionId,
                     Email = user.Email,
@@ -64,6 +65,7 @@
     /// </summary>
     public async Task SignUp(UserDto user)
     {
+        user.Id = Guid.NewGuid().ToString();
         user.Name = user.Email;
         user.Email = user.Email;
         user.Password = user.Password;
@@ -71,6 +73,7 @@
         await cosmosDb.InsertAsync(user, isOrganisation: false);
         // New (small) organisation for user. Additional users can be invited later on.
         var organisation = new OrganisationDto();
+        organisation.Id = Guid.NewGuid().ToString();
         organisation.Name = user.Email;
         organisation.EmailList = [user.Email];
         await cosmosDb.InsertAsync(organisation, isOrganisation: false);
