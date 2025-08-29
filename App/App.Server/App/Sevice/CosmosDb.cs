@@ -2,7 +2,7 @@
 {
     private string PartitionKey<T>(bool isOrganisation) where T : DocumentDto
     {
-        var name = isOrganisation == false ? typeof(T).Name : null;
+        var name = isOrganisation == false ? typeof(T).Name : null; // CosmosDb for Organisation one PartitionKey only to lease a read only token to access all data.
         return context.Name(name, isOrganisation);
     }
 
@@ -14,12 +14,8 @@
 
     public Task<T?> SelectByNameAsync<T>(string? name, bool isOrganisation = true) where T : DocumentDto
     {
-        if (string.IsNullOrEmpty(name))
-        {
-            return Task.FromResult<T?>(null);
-        }
         var partitionKey = PartitionKey<T>(isOrganisation);
-        return UtilCosmosDb.Select<T>(cosmosDbContainer.Container, partitionKey, name).SingleOrDefaultAsync();
+        return UtilCosmosDb.SelectByNameAsync<T>(cosmosDbContainer.Container, partitionKey, name);
     }
 
     public async Task<T> InsertAsync<T>(T item, bool isOrganisation = true) where T : DocumentDto
@@ -49,10 +45,16 @@ public class CosmosDbDynamic(CommandContext context, CosmosDbContainer cosmosDbC
         return context.Name(name, isOrganisation);
     }
 
-    public IQueryable<IDictionary<string, object>> Select<T>(string? name = null, bool isOrganisation = true) where T : DocumentDto
+    public IQueryable<IDictionary<string, object>> Select<T>(bool isOrganisation = true) where T : DocumentDto
     {
         var partitionKey = PartitionKey<T>(isOrganisation);
-        return UtilCosmosDbDynamic.Select<T>(cosmosDbContainer.Container, partitionKey, name);
+        return UtilCosmosDbDynamic.Select<T>(cosmosDbContainer.Container, partitionKey);
+    }
+
+    public Task<IDictionary<string, object>?> SelectByNameAsync<T>(string? name, bool isOrganisation = true) where T : DocumentDto
+    {
+        var partitionKey = PartitionKey<T>(isOrganisation);
+        return UtilCosmosDbDynamic.SelectByNameAsync<T>(cosmosDbContainer.Container, partitionKey, name);
     }
 
     public async Task<IDictionary<string, object>> InsertAsync<T>(IDictionary<string, object> item, bool isOrganisation = true) where T : DocumentDto, new()

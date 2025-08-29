@@ -1,7 +1,7 @@
 ﻿using Azure;
 using Azure.Data.Tables;
 
-internal static class UtilTableStorage
+public static class UtilTableStorage
 {
     public static string RowKey(Type type, string? id)
     {
@@ -12,15 +12,10 @@ internal static class UtilTableStorage
         return $"{type.Name}|{id}";
     }
 
-    public static string Filter(Type type, string partitionKey, string? id, FormattableString? filter)
+    public static string Filter(Type type, string partitionKey, FormattableString? filter)
     {
         var result = TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey}");
         result += " and " + TableClient.CreateQueryFilter($"Type eq {type.Name}");
-        if (id != null)
-        {
-            var rowKey = RowKey(type, id);
-            result += " and " + TableClient.CreateQueryFilter($"RowKey eq {rowKey}");
-        }
         if (filter != null)
         {
             result += " and " + TableClient.CreateQueryFilter(filter);
@@ -28,14 +23,22 @@ internal static class UtilTableStorage
         return result;
     }
 
+    public static string FilterById(Type type, string partitionKey, string? id)
+    {
+        var result = Filter(type, partitionKey, null);
+        var rowKey = RowKey(type, id);
+        result += " and " + TableClient.CreateQueryFilter($"RowKey eq {rowKey}");
+        return result;
+    }
+
     public async static Task<List<T>> SelectAsync<T>(TableClient client, string partitionKey, FormattableString? filter = null) where T : TableEntityDto
     {
         // Table Storage does not support LINQ with Async.
-        // Table Storage does not support server side skip take distinct and contains.
-        // Read all into memory.
+        // Table Storage does not support server side functions like skip take distinct and contains.
+        // Read all PartitionKey data to memory for further processing.
 
         // Filter
-        var filterLocal = Filter(typeof(T), partitionKey, null, filter);
+        var filterLocal = Filter(typeof(T), partitionKey, filter);
         // Select
         var result = new List<T>();
         await foreach (var item in client.QueryAsync<T>(filterLocal)) // Select only one property: select: new[] { "Name" }
@@ -45,10 +48,10 @@ internal static class UtilTableStorage
         return result;
     }
 
-    public async static Task<T?> SingleOrDefaultAsync<T>(TableClient client, string partitionKey, string? id) where T : TableEntityDto
+    public async static Task<T?> SelectByIdAsync<T>(TableClient client, string partitionKey, string? id) where T : TableEntityDto
     {
         // Filter
-        var filter = Filter(typeof(T), partitionKey, id, null);
+        var filter = FilterById(typeof(T), partitionKey, id);
         // Select
         var result = new List<T>();
         await foreach (var item in client.QueryAsync<T>(filter)) // Select only one property: select: new[] { "Name" }
@@ -61,7 +64,6 @@ internal static class UtilTableStorage
     public static async Task InsertAsync<T>(TableClient client, string partitionKey, T item) where T : TableEntityDto
     {
         item.PartitionKey = partitionKey;
-        item.Type = typeof(T).Name;
         await client.AddEntityAsync(item);
     }
 
@@ -83,7 +85,7 @@ public static class UtilTableStorageDynamic
     public async static Task<List<Dictionary<string, object>>> SelectAsync<T>(TableClient client, string partitionKey, FormattableString? filter = null) where T : TableEntityDto
     {
         var result = new List<Dictionary<string, object>>();
-        var filterLocal = UtilTableStorage.Filter(typeof(T), partitionKey, null, filter);
+        var filterLocal = UtilTableStorage.Filter(typeof(T), partitionKey, filter);
         await foreach (var item in client.QueryAsync<TableEntity>(filterLocal))
         {
             result.Add(new Dictionary<string, object>(item));
@@ -91,10 +93,10 @@ public static class UtilTableStorageDynamic
         return result;
     }
 
-    public async static Task<Dictionary<string, object>?> SingleOrDefaultAsync<T>(TableClient client, string partitionKey, string? id) where T : TableEntityDto
+    public async static Task<Dictionary<string, object>?> SingleByIdAsync<T>(TableClient client, string partitionKey, string? id) where T : TableEntityDto
     {
         // Filter
-        var filter = UtilTableStorage.Filter(typeof(T), partitionKey, id, null);
+        var filter = UtilTableStorage.FilterById(typeof(T), partitionKey, id);
         // Select
         var result = new List<Dictionary<string, object>>();
         await foreach (var item in client.QueryAsync<TableEntity>(filter)) // Select only one property: select: new[] { "Name" }
@@ -104,21 +106,21 @@ public static class UtilTableStorageDynamic
         return result.SingleOrDefault();
     }
 
-    public static async Task InsertAsync<T>(TableClient client, string partitionKey, Dictionary<string, object> item) where T : TableEntityDto
+    public static async Task InsertAsync<T>(TableClient client, string partitionKey, IDictionary<string, object> item) where T : TableEntityDto
     {
         var entity = new TableEntity(item);
-        entity.PartitionKey = partitionKey;
         var id = entity["Id"]?.ToString();
+        entity.PartitionKey = partitionKey;
         entity.RowKey = UtilTableStorage.RowKey(typeof(T), id);
         entity[nameof(TableEntityDto.Type)] = typeof(T).Name;
         await client.AddEntityAsync(entity);
     }
 
-    public static async Task UpdateAsync<T>(TableClient client, string partitionKey, Dictionary<string, object> item) where T : TableEntityDto
+    public static async Task UpdateAsync<T>(TableClient client, string partitionKey, IDictionary<string, object> item) where T : TableEntityDto
     {
         var entity = new TableEntity(item);
-        entity.PartitionKey = partitionKey;
         var id = entity["Id"]?.ToString();
+        entity.PartitionKey = partitionKey;
         entity.RowKey = UtilTableStorage.RowKey(typeof(T), id);
         entity[nameof(TableEntityDto.Type)] = typeof(T).Name;
         await client.UpdateEntityAsync(entity, ETag.All, TableUpdateMode.Replace);
@@ -128,9 +130,9 @@ public static class UtilTableStorageDynamic
 public partial class TableEntityDto : ITableEntity
 {
     /// <summary>
-    /// Gets or sets Id. This is the primary key.
+    /// Gets or sets Id. This is the primary key. Unique within a partition key (Type/Id).
     /// </summary>
-    public string? Id { get; set; }
+    public string? Id { get; init; }
 
     /// <summary>
     /// Gets or sets Type. This is the class name.
@@ -144,6 +146,7 @@ public partial class TableEntityDto : ITableEntity
         set
         {
             // Can't be changed.
+            UtilServer.Assert(value == GetType().Name);
         }
     }
 
@@ -166,7 +169,6 @@ public partial class TableEntityDto : ITableEntity
             // Can't be changed.
         }
     }
-
 
     public DateTimeOffset? Timestamp { get; set; }
     

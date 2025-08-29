@@ -1,10 +1,7 @@
-﻿public class CommandArticle(CommandContext context, CosmosDb cosmosDb, CosmosDbDynamic cosmosDbDynamic, TableStorageClient tableStorageClient)
+﻿public class CommandArticle(CommandContext context, CosmosDb cosmosDb, CosmosDbDynamic cosmosDbDynamic, TableStorage tableStorage)
 {
     public async Task Add()
     {
-        var list = await UtilTableStorageDynamic.SelectAsync<AirportDto>(tableStorageClient.Client, "Global|AirportDto");
-        return;
-
         await context.UserAuthenticate();
         var article = new ArticleDto { Text = "Banana", Name = Guid.NewGuid().ToString() };
         
@@ -29,9 +26,4 @@ public class ArticleDto : DocumentDto
     public string? Text { get; set; }
 
     public int? Price { get; set; }
-}
-
-public class AirportDto : TableEntityDto
-{
-    public string? Name { get; set; }
 }

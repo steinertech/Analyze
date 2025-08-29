@@ -24,9 +24,10 @@ internal static class UtilServer
         builder.Services.AddSingleton<DataService>(); // Contains state
         builder.Services.AddSingleton<CosmosDbContainer>(); // Contains state
         builder.Services.AddSingleton<TableStorageClient>(); // Contains state
-        // builder.Services.AddSingleton<CosmosDb>();
         builder.Services.AddTransient<CosmosDb>(); // Wrapper
         builder.Services.AddTransient<CosmosDbDynamic>(); // Wrapper
+        builder.Services.AddTransient<TableStorage>(); // Wrapper
+        builder.Services.AddTransient<TableStorageDynamic>(); // Wrapper
         builder.Services.AddSingleton<MemoryGrid>(); // Contains state
         builder.Services.AddSingleton<ExcelGrid>();
         builder.Services.AddTransient<ArticleGrid>();

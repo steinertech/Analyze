@@ -36,11 +36,11 @@ public class CommandContext(IServiceProvider serviceProvider)
     public async Task UserAuthenticate()
     {
         var cosmosDb = serviceProvider.GetService<CosmosDb>()!; // Prevent circular reference.
-        var partitionKeySessionDto = Name(typeof(SessionDto).Name, isOrganisation: false);
 
-        var session = await cosmosDb.SelectByNameAsync<SessionDto>(RequestSessionId, isOrganisation: false);
+        var session = RequestSessionId == null ? null : await cosmosDb.SelectByNameAsync<SessionDto>(RequestSessionId, isOrganisation: false);
         if (session == null || session.IsSignIn != true)
         {
+            // No session or session expired
             ResponseNavigateUrl = "signin";
             throw new Exception("User not signed in!");
         }
@@ -48,6 +48,7 @@ public class CommandContext(IServiceProvider serviceProvider)
         var organisation = await cosmosDb.SelectByNameAsync<OrganisationDto>(session.OrganisationName, isOrganisation: false);
         if (organisation == null)
         {
+            // No organisation selected
             ResponseNavigateUrl = "signin";
             throw new Exception("User not signed in!");
         }
@@ -61,20 +62,20 @@ public class CommandContext(IServiceProvider serviceProvider)
     private string? organisationName;
 
     /// <summary>
-    /// Returns the name in the global scope or in an organisation scope. 
-    /// If organisation scope, the user has to be signed in and has to have selected an organisation. Otherwise throws exception.
+    /// Returns name in global scope or in organisation scope. 
+    /// If organisation scope, user has to be signed in and has to have selected an organisation. Otherwise method throws exception.
     /// </summary>
-    /// <param name="name">A name in the global or an organisation scope.</param>
+    /// <param name="name">Name in global or in organisation scope.</param>
     /// <param name="isOrganisation">Organisation or global scope.</param>
-    internal string Name(string? name = null, bool isOrganisation = true)
+    internal string Name(string? name = null, bool isOrganisation = true, string separator = "/")
     {
         if (isOrganisation == false)
         {
-            return $"{Domain}/Global" + (name == null ? null : $"/{name}");
+            return $"Domain{separator}{Domain}{separator}Global" + (name == null ? null : $"{separator}{name}");
         }
         if (organisationName != null)
         {
-            return $"{Domain}/Organisation/{organisationName}" + (name == null ? null : $"/{name}");
+            return $"Domain{separator}{Domain}{separator}Organisation{separator}{organisationName}" + (name == null ? null : $"{separator}{name}");
         }
         throw new Exception("Request not authenticated!"); // Call method CommandContext.UserSignInOrganisation(); to make sure user is signed in and has an organisation selected.
     }

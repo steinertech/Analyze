@@ -2,23 +2,29 @@
 using Microsoft.Azure.Cosmos.Linq;
 using Newtonsoft.Json;
 
-internal static class UtilCosmosDb
+public static class UtilCosmosDb
 {
     public static string Key(Type type, string? name)
     {
         return type.Name + (string.IsNullOrEmpty(name) ? null : "/" + name);
     }
 
-    public static IQueryable<T> Select<T>(Container container, string partitionKey, string? name = null) where T : DocumentDto
+    public static IQueryable<T> Select<T>(Container container, string partitionKey) where T : DocumentDto
     {
         IQueryable<T> result = container.GetItemLinqQueryable<T>();
         result = result.Where(item => item.InternalPartitionKey == partitionKey);
         result = result.Where(item => item.InternalType == typeof(T).Name);
-        if (name != null)
-        {
-            result = result.Where(item => item.InternalKey == UtilCosmosDb.Key(typeof(T), name));
-        }
         return result;
+    }
+
+    public static async Task<T?> SelectByNameAsync<T>(Container container, string partitionKey, string? name) where T : DocumentDto
+    {
+        IQueryable<T> result = container.GetItemLinqQueryable<T>();
+        result = result.Where(item => item.InternalPartitionKey == partitionKey);
+        result = result.Where(item => item.InternalType == typeof(T).Name);
+        result = result.Where(item => item.InternalKey == UtilCosmosDb.Key(typeof(T), name));
+        var item = await result.SingleOrDefaultAsync();
+        return item;
     }
 
     public static async Task<T> InsertAsync<T>(Container container, string partitionKey, T item) where T : DocumentDto
@@ -45,16 +51,22 @@ internal static class UtilCosmosDb
 
 public static class UtilCosmosDbDynamic
 {
-    public static IQueryable<IDictionary<string, object>> Select<T>(Container container, string partitionKey, string? name = null) where T : DocumentDto
+    public static IQueryable<IDictionary<string, object>> Select<T>(Container container, string partitionKey) where T : DocumentDto
     {
         IQueryable<IDictionary<string, object>> result = container.GetItemLinqQueryable<IDictionary<string, object>>();
         result = result.Where(item => (string)item["partitionKey"] == partitionKey);
         result = result.Where(item => (string)item["type"] == typeof(T).Name);
-        if (name != null)
-        {
-            result = result.Where(item => (string)item["key"] == UtilCosmosDb.Key(typeof(T), name));
-        }
         return result;
+    }
+
+    public static async Task<IDictionary<string, object>?> SelectByNameAsync<T>(Container container, string partitionKey, string? name) where T : DocumentDto
+    {
+        IQueryable<IDictionary<string, object>> result = container.GetItemLinqQueryable<IDictionary<string, object>>();
+        result = result.Where(item => (string)item["partitionKey"] == partitionKey);
+        result = result.Where(item => (string)item["type"] == typeof(T).Name);
+        result = result.Where(item => (string)item["key"] == UtilCosmosDb.Key(typeof(T), name));
+        var item = await result.SingleOrDefaultDynamicAsync();
+        return item;
     }
 
     public static async Task<IDictionary<string, object>> InsertAsync<T>(Container container, string partitionKey, IDictionary<string, object> item) where T : DocumentDto, new()
@@ -152,11 +164,12 @@ public class DocumentDto
         set
         {
             // Can't be changed.
+            UtilServer.Assert(value == GetType().Name);
         }
     }
 
     /// <summary>
-    /// Gets or sets Name. This (Class type + Name) is unique within a partition key. See also property Key.
+    /// Gets or sets Name. This (Class type + Name) is unique within a partition key. Name can be changed. Id not.
     /// </summary>
     [JsonProperty(PropertyName = "name")]
     public string? Name { get; set; }
