@@ -1,7 +1,12 @@
 ﻿using Microsoft.Azure.Cosmos.Linq;
 using System.Linq.Dynamic.Core;
 
-public class ArticleGrid(CommandContext context, CosmosDb cosmosDb)
+public class GridBase
+{
+
+}
+
+public class ArticleGrid(CommandContext context, CosmosDb cosmosDb) : GridBase
 {
     public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
     {
@@ -92,7 +97,7 @@ public class ArticleGrid(CommandContext context, CosmosDb cosmosDb)
         grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = "Text", Text = "Text" });
         grid.AddCell(new() { CellEnum = GridCellEnum.HeaderEmpty, Text = "Command" });
         grid.AddRow();
-        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = "Text", TextPlaceholder = "Search2" });
+        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = "Text", TextPlaceholder = "Search" });
         grid.AddCell(new() { CellEnum = GridCellEnum.FilterEmpty });
         var dataRowIndex = 0;
         if (grid.State?.ButtonCustomClick?.Name == "New")

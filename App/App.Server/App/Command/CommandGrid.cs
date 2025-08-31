@@ -914,3 +914,13 @@ public enum GridControlEnum
     /// </summary>
     Pagination = 20,
 }
+
+public class HeaderLookupDataRowDto
+{
+    public string? Text { get; set; }
+}
+
+public class ColumnLookupDataRowDto
+{
+    public string? FieldName { get; set; }
+}
