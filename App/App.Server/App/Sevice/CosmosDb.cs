@@ -12,7 +12,7 @@
         return UtilCosmosDb.Select<T>(cosmosDbContainer.Container, partitionKey);
     }
 
-    public Task<T?> SelectByIdAsync<T>(string? id, bool isOrganisation = true) where T : DocumentDto
+    public Task<T?> SelectByIdAsync<T>(string id, bool isOrganisation = true) where T : DocumentDto
     {
         var partitionKey = PartitionKey<T>(isOrganisation);
         return UtilCosmosDb.SelectByIdAsync<T>(cosmosDbContainer.Container, partitionKey, id);
@@ -36,10 +36,10 @@
         return await UtilCosmosDb.UpdateAsync(cosmosDbContainer.Container, partitionKey, item);
     }
 
-    public async Task<T> DeleteAsync<T>(T item, bool isOrganisation = true) where T : DocumentDto
+    public async Task<T> DeleteAsync<T>(string id, bool isOrganisation = true) where T : DocumentDto
     {
         var partitionKey = PartitionKey<T>(isOrganisation);
-        return await UtilCosmosDb.DeleteAsync(cosmosDbContainer.Container, partitionKey, item);
+        return await UtilCosmosDb.DeleteAsync<T>(cosmosDbContainer.Container, partitionKey, id);
     }
 }
 

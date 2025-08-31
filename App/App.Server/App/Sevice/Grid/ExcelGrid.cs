@@ -83,7 +83,7 @@ public class ExcelGrid(Configuration configuration)
             foreach (var sheet in file.Value)
             {
                 var rowCount = 0;
-                grid.PaginationGet().PageIndex = grid.State?.Pagination?.PageIndexClick ?? grid.State?.Pagination?.PageIndex ?? 0;
+                grid.PaginationGet().PageIndex = grid.State?.Pagination?.PageIndexDeltaClick ?? grid.State?.Pagination?.PageIndex ?? 0;
                 grid.PaginationGet().PageSize = 10;
                 grid.PaginationGet().PageCount = sheet.Value.Count / grid.PaginationGet().PageSize;
                 foreach (var row in sheet.Value)

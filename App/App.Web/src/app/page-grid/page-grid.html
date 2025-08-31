@@ -75,11 +75,11 @@
       @switch (control.controlEnum) {
       <!-- Button Reload -->
       @case (GridControlEnum.ButtonReload) {
-      <button (click)="clickControl(cell, control)">Reload</button>
+      <button class="frm-button" (click)="clickControl(cell, control)">Reload</button>
       }
       <!-- Button Save -->
       @case (GridControlEnum.ButtonSave) {
-      <button (click)="clickControl(cell, control)">Save</button>
+      <button class="frm-button" (click)="clickControl(cell, control)">Save</button>
       }
       <!-- Button Cancel (Lookup) -->
       @case (GridControlEnum.ButtonLookupCancel) {
@@ -99,7 +99,7 @@
       }
       <!-- Button Custom -->
       @case (GridControlEnum.ButtonCustom) {
-      <button (click)="clickControl(cell, control)">{{control.text ?? 'Button'}}</button>
+      <button class="frm-button-soft" (click)="clickControl(cell, control)">{{control.text ?? 'Button'}}</button>
       }
       <!-- Checkbox SelectMultiAll -->
       @case (GridControlEnum.CheckboxSelectMultiAll) {
@@ -119,8 +119,8 @@
       }
       <!-- Pagination -->
       @case (GridControlEnum.Pagination) {
-      <button (click)="clickPagination((grid?.state?.pagination?.pageIndex ?? 0) - 1)">Previous</button>
-      <button (click)="clickPagination((grid?.state?.pagination?.pageIndex ?? 0) + 1)">Next</button>
+      <button class="frm-button-soft" (click)="clickPagination(-1)">Previous</button>
+      <button class="frm-button-soft" (click)="clickPagination(+1)">Next</button>
       }
       }
       }

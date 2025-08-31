@@ -17,8 +17,9 @@ public static class UtilCosmosDb
         return result;
     }
 
-    public static async Task<T?> SelectByIdAsync<T>(Container container, string partitionKey, string? id) where T : DocumentDto
+    public static async Task<T?> SelectByIdAsync<T>(Container container, string partitionKey, string id) where T : DocumentDto
     {
+        // CosmosDb does not allow id null
         IQueryable<T> result = container.GetItemLinqQueryable<T>();
         result = result.Where(item => item.InternalPartitionKey == partitionKey);
         result = result.Where(item => item.InternalType == typeof(T).Name);
@@ -51,10 +52,10 @@ public static class UtilCosmosDb
         return await container.ReplaceItemAsync(item, item.Id, requestOptions: options);
     }
 
-    public static async Task<T> DeleteAsync<T>(Container container, string partitionKey, T item) where T : DocumentDto
+    public static async Task<T> DeleteAsync<T>(Container container, string partitionKey, string id) where T : DocumentDto
     {
-        item.InternalPartitionKey = partitionKey;
-        return await container.DeleteItemAsync<T>(item.Id, new PartitionKey(item.InternalPartitionKey));
+        // CosmosDb does not allow id null!
+        return await container.DeleteItemAsync<T>(id, new PartitionKey(partitionKey));
     }
 }
 

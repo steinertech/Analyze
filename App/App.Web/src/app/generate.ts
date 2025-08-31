@@ -167,7 +167,7 @@ export class GridPaginationDto {
   public pageIndex?: number
   public pageCount?: number
   public pageSize?: number
-  public pageIndexClick?: number
+  public pageIndexDeltaClick?: number
 }
 
 export class GridStateButtonCustomClickDto {
@@ -258,6 +258,7 @@ export class ServerApi {
   public isPost = signal(false)
 
   private post<T>(request: RequestDto): Observable<T> {
+    this.notificationService.list.update(() => [])
     request.versionClient = UtilClient.versionClient
     return of(0).pipe(
       tap(() => this.postCountAdd(1)),

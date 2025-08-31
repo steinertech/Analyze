@@ -373,7 +373,7 @@ export class PageGrid {
       if (control?.controlEnum == GridControlEnum.ButtonModal) {
         lookup.isModal = true
       }
-      lookup.grid = signal<GridDto>({ gridName: this._grid?.gridName }) 
+      lookup.grid = signal<GridDto>({ gridName: this._grid?.gridName })
       this.lookup = lookup // Lookup open (not yet loaded grid)
       this.serverApi.commandGridLoad(lookup.grid(), lookup.cell, lookup.control, this._grid).subscribe(value => {
         lookup.grid.set(value.grid) // Lookup open (with loaded grid)
@@ -381,15 +381,11 @@ export class PageGrid {
     }
   }
 
-  clickPagination(pageIndexClick?: number) {
+  clickPagination(indexDelta: number) {
     if (this._grid) {
-      if (!this._grid.state) {
-        this._grid.state = {}
-      }
-      if (!this._grid.state.pagination) {
-        this._grid.state.pagination = {}
-      }
-      this._grid.state.pagination.pageIndexClick = pageIndexClick
+      this._grid.state = this._grid.state || {}
+      this._grid.state.pagination = this._grid.state.pagination || {}
+      this._grid.state.pagination.pageIndexDeltaClick = indexDelta
       this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid).subscribe(value => { this.grid.set(value.grid) });
     }
   }

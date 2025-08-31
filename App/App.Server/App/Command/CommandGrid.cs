@@ -451,6 +451,18 @@ public class GridLoadResultDto
     /// Gets or sets ParentGrid. Can be used to reload parent grid when lookup is closed. See also GridControlEnum.ButtonLookupOk;
     /// </summary>
     public GridDto? ParentGrid { get; set; }
+
+    public void ClearResponse()
+    {
+        if (Grid?.State?.ButtonCustomClick != null)
+        {
+            Grid.State.ButtonCustomClick = null;
+        }
+        if (Grid?.State?.Pagination?.PageIndexDeltaClick != null)
+        {
+            Grid.State.Pagination.PageIndexDeltaClick = null;
+        }
+    }
 }
 
 public class GridDto
@@ -537,18 +549,6 @@ public class GridDto
         return RowCellList;
     }
 
-    public void ClearResponse()
-    {
-        if (State?.ButtonCustomClick != null)
-        {
-            State.ButtonCustomClick = null;
-        }
-        if (State?.Pagination?.PageIndexClick != null)
-        {
-            State.Pagination.PageIndexClick = null;
-        }
-    }
-
     public List<GridCellDto> AddRow()
     {
         RowCellList = RowCellList ?? new();
@@ -582,17 +582,16 @@ public class GridDto
                 var emptyList = Enumerable.Repeat<string?>(null, dataRowIndex + 1 - State.RowKeyList.Count).ToList();
                 State.RowKeyList.AddRange(emptyList);
             }
-            var rowKeyOld = State.RowKeyList[dataRowIndex];
-            if (rowKeyOld != null)
+            if (rowKey != null)
             {
-                UtilServer.Assert(rowKeyOld == rowKey, "RowKey invalid!");
+                UtilServer.Assert(State.RowKeyList[dataRowIndex] == null || State.RowKeyList[dataRowIndex] == rowKey, "RowKey invalid!");
+                State.RowKeyList[dataRowIndex] = rowKey;
             }
-            State.RowKeyList[dataRowIndex] = rowKey;
         }
         return cell;
     }
 
-    public GridControlDto AddControl(GridControlDto control)
+    public GridControlDto AddControl(GridControlDto control, int? dataRowIndex = null)
     {
         RowCellList = RowCellList ?? new();
         if (RowCellList.LastOrDefault() == null)
@@ -607,6 +606,11 @@ public class GridDto
         var cell = row.Last();
         cell.ControlList = cell.ControlList ?? [];
         cell.ControlList.Add(control);
+        if (dataRowIndex != null)
+        {
+            UtilServer.Assert(cell.DataRowIndex == null || cell.DataRowIndex == dataRowIndex, "DataRowIndex invalid!");
+            cell.DataRowIndex = dataRowIndex;
+        }
         return control;
     }
 }
@@ -689,7 +693,7 @@ public class GridPaginationDto
     
     public int? PageSize { get; set; }
 
-    public int? PageIndexClick { get; set; }
+    public int? PageIndexDeltaClick { get; set; }
 }
 
 public class GridStateButtonCustomClickDto
@@ -787,7 +791,7 @@ public class GridControlDto
 
     public string? Text { get; set; }
     
-    public string? TextModified { get; set; } // TODO move to state
+    public string? TextModified { get; set; }
 
     public string? Name { get; set; }
 }

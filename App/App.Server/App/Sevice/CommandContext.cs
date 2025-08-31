@@ -35,8 +35,11 @@ public class CommandContext(IServiceProvider serviceProvider)
     /// </summary>
     public async Task UserAuthenticateAsync()
     {
+        if (organisationName != null)
+        {
+            return;
+        }
         var cosmosDb = serviceProvider.GetService<CosmosDb>()!; // Prevent circular reference.
-
         var session = RequestSessionId == null ? null : await cosmosDb.SelectByNameAsync<SessionDto>(RequestSessionId, isOrganisation: false);
         if (session == null || session.IsSignIn != true)
         {

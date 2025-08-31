@@ -7,7 +7,12 @@ import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-page-article',
-  imports: [PageNav, PageNotification, PageGrid, JsonPipe],
+  imports: [
+    PageNav, 
+    PageNotification, 
+    PageGrid, 
+    // JsonPipe
+  ],
   templateUrl: './page-article.html',
   styleUrl: './page-article.css'
 })
@@ -17,10 +22,6 @@ export class PageArticle {
   }
 
   readonly grid = signal<GridDto>({ gridName: 'Article' })
-
-  click() {
-    this.serverApi.commmandArticleAdd()
-  }
 
   ngAfterContentInit() {
     if (this.serverApi.isWindow()) {
