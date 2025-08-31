@@ -2,6 +2,13 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+.frm-width {
+  @apply w-full
+}
+
+.frm-center {
+  @apply text-center
+}
 
 /* https://flowbite.com/docs/components/buttons/ */
 .frm-button {

@@ -53,13 +53,24 @@
           <div><span class="i-filter"></span></div>
           }
           <button (click)="clickLookup(cell)"><span class="i-lookup"></span></button>
-          <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="frm-column-resize">&nbsp;</div>
         </div>
+        <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="frm-column-resize"></div>
+      </div>
+      }
+      <!-- HeaderCommand -->
+      @case (GridCellEnum.HeaderCommand) {
+      <div class="frm-cell-container frm-header">
+        <div class="frm-width frm-center"><b>{{cell.text}}</b></div>
+        <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="frm-column-resize"></div>
       </div>
       }
       <!-- Filter -->
       @case (GridCellEnum.Filter) {
       <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search" class="frm-filter frm-width">
+      }
+      <!-- FilterCommand -->
+      @case (GridCellEnum.FilterCommand) {
+      <div class="frm-filter frm-width">&nbsp;</div>
       }
       <!-- Field Dropdown -->
       @case (GridCellEnum.FieldDropdown) {

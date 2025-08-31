@@ -804,16 +804,26 @@ public enum GridCellEnum
     /// Data field.
     /// </summary>
     Field = 1,
-    
+
     /// <summary>
-    /// Column header.
+    /// Column header for sort and filter lookup.
     /// </summary>
     Header = 2,
+
+    /// <summary>
+    /// Column header empty for example for command delete button. No sort on this column.
+    /// </summary>
+    HeaderCommand = 3,
 
     /// <summary>
     /// Search field.
     /// </summary>
     Filter = 10,
+
+    /// <summary>
+    /// Search field empty for example for command delete button. No search on this column.
+    /// </summary>
+    FilterCommand = 14,
 
     FieldDropdown = 5,
 

@@ -90,9 +90,10 @@ public class ArticleGrid(CommandContext context, CosmosDb cosmosDb)
         grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.ButtonCustom, Text = "New Article", Name = "New" });
         grid.AddRow();
         grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = "Text", Text = "Text" });
-        grid.AddCell(new() { CellEnum = GridCellEnum.Header, Text = "Command" });
+        grid.AddCell(new() { CellEnum = GridCellEnum.HeaderCommand, Text = "Command" });
         grid.AddRow();
         grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = "Text" });
+        grid.AddCell(new() { CellEnum = GridCellEnum.FilterCommand });
         var dataRowIndex = 0;
         if (grid.State?.ButtonCustomClick?.Name == "New")
         {
