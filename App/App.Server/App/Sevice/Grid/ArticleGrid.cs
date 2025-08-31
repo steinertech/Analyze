@@ -12,9 +12,9 @@ public class ArticleGrid(CommandContext context, CosmosDb cosmosDb)
             foreach (var item in grid.State.FieldSaveList)
             {
                 var id = grid.State.RowKeyList![item.DataRowIndex!.Value];
-                if (id == null)
+                if (id == "New")
                 {
-                    var article = new ArticleDto { Id = Guid.NewGuid().ToString(), Text = item.TextModified };
+                    var article = new ArticleDto { Id = Guid.NewGuid().ToString(), Text = item.TextModified, Name = Guid.NewGuid().ToString() };
                     article = await cosmosDb.InsertAsync(article);
                     grid.State.RowKeyList![item.DataRowIndex.Value] = article.Id;
                 }
@@ -58,13 +58,13 @@ public class ArticleGrid(CommandContext context, CosmosDb cosmosDb)
         var rowCount = (await query.CountAsync()).Resource;
         pagination.PageCount = (int)Math.Ceiling((double)rowCount / (double)pagination.PageSize);
         pagination.PageIndex += pagination.PageIndexDeltaClick;
-        if (pagination.PageIndex < 0)
-        {
-            pagination.PageIndex = 0;
-        }
         if (pagination.PageIndex >= pagination.PageCount)
         {
             pagination.PageIndex = pagination.PageCount - 1;
+        }
+        if (pagination.PageIndex < 0)
+        {
+            pagination.PageIndex = 0;
         }
         // Sort
         if (grid.State?.Sort != null)
@@ -90,15 +90,15 @@ public class ArticleGrid(CommandContext context, CosmosDb cosmosDb)
         grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.ButtonCustom, Text = "New Article", Name = "New" });
         grid.AddRow();
         grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = "Text", Text = "Text" });
-        grid.AddCell(new() { CellEnum = GridCellEnum.HeaderCommand, Text = "Command" });
+        grid.AddCell(new() { CellEnum = GridCellEnum.HeaderEmpty, Text = "Command" });
         grid.AddRow();
-        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = "Text" });
-        grid.AddCell(new() { CellEnum = GridCellEnum.FilterCommand });
+        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = "Text", TextPlaceholder = "Search2" });
+        grid.AddCell(new() { CellEnum = GridCellEnum.FilterEmpty });
         var dataRowIndex = 0;
         if (grid.State?.ButtonCustomClick?.Name == "New")
         {
             grid.AddRow();
-            grid.AddCell(new GridCellDto { CellEnum = GridCellEnum.Field, FieldName = "Text", DataRowIndex = dataRowIndex });
+            grid.AddCell(new GridCellDto { CellEnum = GridCellEnum.Field, FieldName = "Text", DataRowIndex = dataRowIndex, TextPlaceholder = "New" }, "New");
             dataRowIndex += 1;
         }
         foreach (var item in list)

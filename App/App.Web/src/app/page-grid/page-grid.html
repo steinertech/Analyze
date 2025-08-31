@@ -19,7 +19,7 @@
         <div><span title="{{cell.iconLeft.tooltip}}" [ngClass]=cell.iconLeft.className></span></div>
         }
         <div class="frm-cell-content">
-          <input class="frm-width" [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)">
+          <input class="frm-width" [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="{{cell.textPlaceholder}}">
         </div>
         @if (cell.iconRight) {
         <div> <span title="{{cell.iconRight.tooltip}}" [ngClass]=cell.iconRight.className></span></div>
@@ -57,8 +57,8 @@
         <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="frm-column-resize"></div>
       </div>
       }
-      <!-- HeaderCommand -->
-      @case (GridCellEnum.HeaderCommand) {
+      <!-- HeaderEmpty -->
+      @case (GridCellEnum.HeaderEmpty) {
       <div class="frm-cell-container frm-header">
         <div class="frm-width frm-center"><b>{{cell.text}}</b></div>
         <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="frm-column-resize"></div>
@@ -66,10 +66,10 @@
       }
       <!-- Filter -->
       @case (GridCellEnum.Filter) {
-      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="Search" class="frm-filter frm-width">
+      <input [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" placeholder="{{cell.textPlaceholder}}" class="frm-filter frm-width">
       }
-      <!-- FilterCommand -->
-      @case (GridCellEnum.FilterCommand) {
+      <!-- FilterEmpty -->
+      @case (GridCellEnum.FilterEmpty) {
       <div class="frm-filter frm-width">&nbsp;</div>
       }
       <!-- Field Dropdown -->

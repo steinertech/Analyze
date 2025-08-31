@@ -89,7 +89,7 @@ export class PageGrid {
         if (index != -1) {
           this._grid.state.fieldSaveList.splice(index) // Remove item
         }
-        if (cell.textModified) {
+        if (cell.textModified != undefined) {
           this._grid.state.fieldSaveList.push({
             fieldName: cell.fieldName,
             dataRowIndex: cell.dataRowIndex,
@@ -280,6 +280,8 @@ export class PageGrid {
           } else {
             this._grid.state.sort = { fieldName: cell.fieldName!, isDesc: false }
           }
+          this._grid.state.pagination = this._grid.state.pagination ?? {}
+          this._grid.state.pagination.pageIndex = 0
           this.serverApi.commandGridLoad(this._grid).subscribe(value => this.grid.set(value.grid)); // Reload
           break
         }

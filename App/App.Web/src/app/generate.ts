@@ -78,6 +78,7 @@ export class GridCellDto {
   public dataRowIndex?: number
   public fieldName?: string
   public text?: string
+  public textPlaceholder?: string
   public textModified?: string
   public dropDownList?: string[]
   public controlList?: GridControlDto[]
@@ -103,10 +104,10 @@ export enum GridCellEnum {
   None = 0,
   Field = 1,
   Header = 2,
-  HeaderCommand = 3,
+  HeaderEmpty = 3,
   FieldDropdown = 5,
   Filter = 10,
-  FilterCommand = 14,
+  FilterEmpty = 14,
   FieldCheckbox = 11,
   FieldAutocomplete = 12,
   CheckboxSelectMulti = 13,

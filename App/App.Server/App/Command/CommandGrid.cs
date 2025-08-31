@@ -750,6 +750,8 @@ public class GridCellDto
 
     public string? Text { get; set; }
 
+    public string? TextPlaceholder { get; set; }
+
     /// <summary>
     /// Gets or sets TextModified. This is from user modified text to save. Empty not null if user deleted text.
     /// </summary>
@@ -813,7 +815,7 @@ public enum GridCellEnum
     /// <summary>
     /// Column header empty for example for command delete button. No sort on this column.
     /// </summary>
-    HeaderCommand = 3,
+    HeaderEmpty = 3,
 
     /// <summary>
     /// Search field.
@@ -823,7 +825,7 @@ public enum GridCellEnum
     /// <summary>
     /// Search field empty for example for command delete button. No search on this column.
     /// </summary>
-    FilterCommand = 14,
+    FilterEmpty = 14,
 
     FieldDropdown = 5,
 
