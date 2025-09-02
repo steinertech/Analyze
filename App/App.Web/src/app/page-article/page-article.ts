@@ -23,9 +23,12 @@ export class PageArticle {
 
   readonly grid = signal<GridDto>({ gridName: 'Article' })
 
+  readonly grid2 = signal<GridDto>({ gridName: 'Article2' })
+
   ngAfterContentInit() {
     if (this.serverApi.isWindow()) {
       this.serverApi.commandGridLoad(this.grid()).subscribe(value => this.grid.set(value.grid));
+      this.serverApi.commandGridLoad(this.grid2()).subscribe(value => this.grid2.set(value.grid));
     }
   }
 }

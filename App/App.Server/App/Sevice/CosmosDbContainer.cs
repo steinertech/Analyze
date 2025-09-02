@@ -8,10 +8,17 @@ public class CosmosDbContainer
     public CosmosDbContainer(Configuration configuration)
     {
         var connectionString = configuration.ConnectionStringCosmosDb;
-        var options = new CosmosClientOptions { SerializerOptions = new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase } };
-        var client = new CosmosClient(connectionString, options);
-        this.Container = client.GetContainer("db", "container");
+        var options = new CosmosClientOptions 
+        { 
+            SerializerOptions = new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase },
+            // ConnectionMode = ConnectionMode.Direct,
+            // MaxRequestsPerTcpConnection = 2,
+            // MaxTcpConnectionsPerEndpoint = 10,
+        };
+        client = new CosmosClient(connectionString, options);
     }
 
-    public Container Container { get; }
+    private readonly CosmosClient client;
+
+    public Container Container =>  client.GetContainer("db", "container");
 }

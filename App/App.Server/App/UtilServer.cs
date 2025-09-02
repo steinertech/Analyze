@@ -31,6 +31,7 @@ internal static class UtilServer
         builder.Services.AddSingleton<MemoryGrid>(); // Contains state
         builder.Services.AddSingleton<ExcelGrid>();
         builder.Services.AddTransient<ArticleGrid>();
+        builder.Services.AddTransient<GridArticle>();
         builder.Services.AddTransient<StorageGrid>(); // Wrapper
         builder.Services.AddScoped<CommandContext>(); // One new instance for every http request
         builder.Services.AddTransient<Storage>(); // Wrapper

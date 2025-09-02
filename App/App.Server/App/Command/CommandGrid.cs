@@ -1,4 +1,4 @@
-﻿public class CommandGrid(MemoryGrid memoryGrid, ExcelGrid excelGrid, StorageGrid storageGrid, ArticleGrid articleGrid)
+﻿public class CommandGrid(MemoryGrid memoryGrid, ExcelGrid excelGrid, StorageGrid storageGrid, ArticleGrid articleGrid, GridArticle gridArticle)
 {
     /// <summary>
     /// Returns loaded grid.
@@ -9,6 +9,12 @@
         if (grid.GridName == "Article")
         {
             await articleGrid.Load(grid, parentCell, parentControl, parentGrid);
+            return new GridLoadResultDto { Grid = grid };
+        }
+        // Article
+        if (grid.GridName == "Article2")
+        {
+            await gridArticle.Load(grid, parentCell, parentControl, parentGrid);
             return new GridLoadResultDto { Grid = grid };
         }
         if (grid.State?.FieldSaveList?.Count() > 0)
@@ -557,7 +563,7 @@ public class GridDto
         return result;
     }
 
-    public GridCellDto AddCell(GridCellDto cell, string? rowKey = null)
+    public GridCellDto AddCell(GridCellDto cell)
     {
         RowCellList = RowCellList ?? new();
         if (RowCellList.LastOrDefault() == null)
@@ -565,30 +571,33 @@ public class GridDto
             RowCellList.Add(new());
         }
         RowCellList.Last().Add(cell);
+        return cell;
+    }
+
+    public GridCellDto AddCell(GridCellDto cell, string? rowKey)
+    {
+        var result = AddCell(cell);
+        UtilServer.Assert(cell.DataRowIndex != null, "DataRowIndex can not be null!");
+        if (State == null)
+        {
+            State = new GridStateDto();
+        }
+        if (State.RowKeyList == null)
+        {
+            State.RowKeyList = new();
+        }
+        var dataRowIndex = cell.DataRowIndex!.Value;
+        if (State.RowKeyList.Count <= dataRowIndex)
+        {
+            var emptyList = Enumerable.Repeat<string?>(null, dataRowIndex + 1 - State.RowKeyList.Count).ToList();
+            State.RowKeyList.AddRange(emptyList);
+        }
         if (rowKey != null)
         {
-            UtilServer.Assert(cell.DataRowIndex != null, "DataRowIndex can not be null!");
-            if (State == null)
-            {
-                State = new GridStateDto();
-            }
-            if (State.RowKeyList == null)
-            {
-                State.RowKeyList = new();
-            }
-            var dataRowIndex = cell.DataRowIndex!.Value;
-            if (State.RowKeyList.Count <= dataRowIndex)
-            {
-                var emptyList = Enumerable.Repeat<string?>(null, dataRowIndex + 1 - State.RowKeyList.Count).ToList();
-                State.RowKeyList.AddRange(emptyList);
-            }
-            if (rowKey != null)
-            {
-                UtilServer.Assert(State.RowKeyList[dataRowIndex] == null || State.RowKeyList[dataRowIndex] == rowKey, "RowKey invalid!");
-                State.RowKeyList[dataRowIndex] = rowKey;
-            }
+            UtilServer.Assert(State.RowKeyList[dataRowIndex] == null || State.RowKeyList[dataRowIndex] == rowKey, "RowKey invalid!");
+            State.RowKeyList[dataRowIndex] = rowKey;
         }
-        return cell;
+        return result;
     }
 
     public GridControlDto AddControl(GridControlDto control, int? dataRowIndex = null)
@@ -915,12 +924,36 @@ public enum GridControlEnum
     Pagination = 20,
 }
 
-public class HeaderLookupDataRowDto
+public class GridHeaderLookupDataRowDto
 {
     public string? Text { get; set; }
 }
 
-public class ColumnLookupDataRowDto
+public class GridColumnLookupDataRowDto
 {
     public string? FieldName { get; set; }
+}
+
+public enum GridColumnEnum
+{
+    None = 0,
+
+    Text = 1,
+    
+    Number = 2,
+    
+    Date = 3,
+}
+
+public class GridColumnDto
+{
+    public string? FieldName { get; set; }
+
+    public GridColumnEnum ColumnEnum { get; set; }
+
+    public bool? IsVisible { get;set; }
+
+    public int? Sort { get; set; }
+
+    public bool? IsRowKey { get; set; }
 }

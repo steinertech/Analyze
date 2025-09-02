@@ -261,10 +261,12 @@ export class ServerApi {
   public isPost = signal(false)
 
   private post<T>(request: RequestDto): Observable<T> {
-    this.notificationService.list.update(() => [])
     request.versionClient = UtilClient.versionClient
     return of(0).pipe(
-      tap(() => this.postCountAdd(1)),
+      tap(() => {
+        this.notificationService.list.update(() => [])
+        this.postCountAdd(1)
+      }),
       // Param withCredentials to send SessionId cookie to server. 
       // Add CORS (not *) https://www.example.com and enable Enable Access-Control-Allow-Credentials on server
       mergeMap(() => {

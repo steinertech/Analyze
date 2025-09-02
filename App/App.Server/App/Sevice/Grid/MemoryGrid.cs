@@ -63,21 +63,21 @@ public class MemoryGrid
         return result;
     }
 
-    public List<HeaderLookupDataRowDto> LoadHeaderLookup(GridDto grid, GridCellDto parentCell)
+    public List<GridHeaderLookupDataRowDto> LoadHeaderLookup(GridDto grid, GridCellDto parentCell)
     {
-        var result = new List<HeaderLookupDataRowDto>();
+        var result = new List<GridHeaderLookupDataRowDto>();
         if (parentCell.FieldName != null)
         {
             var query = productList.AsQueryable();
-            result = query.Select(parentCell.FieldName).ToDynamicList().Select(item => ((object)item)?.ToString()).Distinct().Select(item => new HeaderLookupDataRowDto { Text = item }).ToList();
+            result = query.Select(parentCell.FieldName).ToDynamicList().Select(item => ((object)item)?.ToString()).Distinct().Select(item => new GridHeaderLookupDataRowDto { Text = item }).ToList();
         }
         result = Load(result, grid);
         return result;
     }
 
-    public List<ColumnLookupDataRowDto> LoadColumnLookup(GridDto grid, GridCellDto parentCell)
+    public List<GridColumnLookupDataRowDto> LoadColumnLookup(GridDto grid, GridCellDto parentCell)
     {
-        var result = new List<ColumnLookupDataRowDto>();
+        var result = new List<GridColumnLookupDataRowDto>();
         var propertyInfoList = typeof(ProductDto).GetProperties();
         foreach (var propertyInfo in propertyInfoList)
         {

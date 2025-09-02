@@ -3,10 +3,97 @@ using System.Linq.Dynamic.Core;
 
 public class GridBase
 {
+    protected virtual Task<List<GridColumnDto>> LoadColumnList()
+    {
+        var result = new List<GridColumnDto>();
+        return Task.FromResult(result);
+    }
 
+    protected virtual Task<List<GridHeaderLookupDataRowDto>> LoadHeaderLookup()
+    {
+        var result = new List<GridHeaderLookupDataRowDto>();
+        return Task.FromResult(result);
+    }
+
+    protected virtual Task<List<Dictionary<string, object>>> LoadRowList(GridDto grid)
+    {
+        var result = new List<Dictionary<string, object>>();
+        return Task.FromResult(result);
+    }
+
+    protected Task Render(GridDto grid, List<Dictionary<string, object>> rowList, List<GridColumnDto> columnList)
+    {
+        grid.Clear();
+        var columnRowKey = columnList.Where(item => item.IsRowKey == true).SingleOrDefault();
+        var dataRowIndex = 0;
+        foreach (var row in rowList)
+        {
+            grid.AddRow();
+            foreach (var column in columnList.OrderBy(item => item.Sort))
+            {
+                var text = row[column.FieldName!].ToString();
+                if (columnRowKey == null)
+                {
+                    grid.AddCell(new GridCellDto { CellEnum = GridCellEnum.Field, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                }
+                else
+                {
+                    var rowKey = row[columnRowKey.FieldName!].ToString();
+                    grid.AddCell(new GridCellDto { CellEnum = GridCellEnum.Field, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex }, rowKey);
+                }
+            }
+            dataRowIndex += 1;
+        }
+        return Task.CompletedTask;
+    }
+
+    public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
+    {
+        var rowList = await LoadRowList(grid);
+        var columnList = await LoadColumnList();
+        await Render(grid, rowList, columnList);
+    }
 }
 
-public class ArticleGrid(CommandContext context, CosmosDb cosmosDb) : GridBase
+public class GridArticle : GridBase
+{
+    protected override Task<List<GridColumnDto>> LoadColumnList()
+    {
+        var result = new List<GridColumnDto>
+        {
+            new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Number, IsRowKey = true },
+            new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text },
+            new() { FieldName = "Price", ColumnEnum = GridColumnEnum.Number },
+            new() { FieldName = "Quantity", ColumnEnum = GridColumnEnum.Number },
+            new() { FieldName = "Date", ColumnEnum = GridColumnEnum.Date }
+        };
+        return Task.FromResult(result);
+    }
+
+    protected override Task<List<Dictionary<string, object>>> LoadRowList(GridDto grid)
+    {
+        var result = new List<Dictionary<string, object>>
+        {
+            new() {
+                { "Id", 1 },
+                { "Text", "Apple" },
+                { "Price", 88.20 },
+                { "Quantity", 2 },
+                { "Date", "2025-09-02" }
+            },
+            new() {
+                { "Id", 2 },
+                { "Text", "Banana" },
+                { "Price", 88.20 },
+                { "Quantity", 2 },
+                { "Date", "2025-09-02" }
+            },
+        };
+        return Task.FromResult(result);
+    }
+}
+
+public class ArticleGrid(CommandContext context, CosmosDb cosmosDb)
 {
     public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
     {
@@ -17,7 +104,7 @@ public class ArticleGrid(CommandContext context, CosmosDb cosmosDb) : GridBase
             foreach (var item in grid.State.FieldSaveList)
             {
                 var id = grid.State.RowKeyList![item.DataRowIndex!.Value];
-                if (id == "New")
+                if (id == null)
                 {
                     var article = new ArticleDto { Id = Guid.NewGuid().ToString(), Text = item.TextModified, Name = Guid.NewGuid().ToString() };
                     article = await cosmosDb.InsertAsync(article);
@@ -103,7 +190,7 @@ public class ArticleGrid(CommandContext context, CosmosDb cosmosDb) : GridBase
         if (grid.State?.ButtonCustomClick?.Name == "New")
         {
             grid.AddRow();
-            grid.AddCell(new GridCellDto { CellEnum = GridCellEnum.Field, FieldName = "Text", DataRowIndex = dataRowIndex, TextPlaceholder = "New" }, "New");
+            grid.AddCell(new GridCellDto { CellEnum = GridCellEnum.Field, FieldName = "Text", DataRowIndex = dataRowIndex, TextPlaceholder = "New" }, null);
             dataRowIndex += 1;
         }
         foreach (var item in list)
@@ -125,5 +212,5 @@ public class ArticleDto : DocumentDto
 {
     public string? Text { get; set; }
 
-    public int? Price { get; set; }
+    public double? Price { get; set; }
 }
