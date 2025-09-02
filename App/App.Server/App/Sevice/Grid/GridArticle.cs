@@ -15,7 +15,7 @@ public class GridBase
         return Task.FromResult(result);
     }
 
-    protected virtual Task<List<Dictionary<string, object>>> LoadRowList(GridDto grid)
+    protected virtual Task<List<Dictionary<string, object>>> LoadRowList(GridDto grid, List<GridStateFilterDto> filterList, GridStateSortDto? sort)
     {
         var result = new List<Dictionary<string, object>>();
         return Task.FromResult(result);
@@ -24,7 +24,23 @@ public class GridBase
     protected Task Render(GridDto grid, List<Dictionary<string, object>> rowList, List<GridColumnDto> columnList)
     {
         grid.Clear();
+        // ColumnSortList
+        var columnSortList = columnList.OrderBy(item => item.Sort).ToList();
+        // RowKey
         var columnRowKey = columnList.Where(item => item.IsRowKey == true).SingleOrDefault();
+        // Header
+        grid.AddRow();
+        foreach (var column in columnSortList)
+        {
+            grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = column.FieldName, Text = column.FieldName });
+        }
+        // Filter
+        grid.AddRow();
+        foreach (var column in columnSortList)
+        {
+            grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = column.FieldName, TextPlaceholder = "Search" });
+        }
+        // Data
         var dataRowIndex = 0;
         foreach (var row in rowList)
         {
@@ -49,7 +65,7 @@ public class GridBase
 
     public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
     {
-        var rowList = await LoadRowList(grid);
+        var rowList = await LoadRowList(grid, grid.State?.FilterList ?? new List<GridStateFilterDto>(), grid.State?.Sort);
         var columnList = await LoadColumnList();
         await Render(grid, rowList, columnList);
     }
@@ -70,25 +86,36 @@ public class GridArticle2 : GridBase
         return Task.FromResult(result);
     }
 
-    protected override Task<List<Dictionary<string, object>>> LoadRowList(GridDto grid)
+    protected override Task<List<Dictionary<string, object>>> LoadRowList(GridDto grid, List<GridStateFilterDto> filterList, GridStateSortDto? sort)
     {
-        var result = new List<Dictionary<string, object>>
+        // Data
+        var list = new List<Dictionary<string, object>>
         {
-            new() {
-                { "Id", 1 },
-                { "Text", "Apple" },
-                { "Price", 88.20 },
-                { "Quantity", 2 },
-                { "Date", "2025-09-02" }
-            },
-            new() {
-                { "Id", 2 },
-                { "Text", "Banana" },
-                { "Price", 88.20 },
-                { "Quantity", 2 },
-                { "Date", "2025-09-02" }
-            },
+            new() { { "Id", 1 }, { "Text", "01 Apple" }, { "Price", 88.20 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
+            new() { { "Id", 2 }, { "Text", "02 Banana" }, { "Price", 3.20 }, { "Quantity", 7 }, { "Date", "2025-09-02" } },
+            new() { { "Id", 3 }, { "Text", "03 Cherry" }, { "Price", 18.20 }, { "Quantity", 12 }, { "Date", "2025-09-02" } },
+            new() { { "Id", 4 }, { "Text", "04 Red" }, { "Price", 2.10 }, { "Quantity", 1 }, { "Date", "2025-09-02" } },
+            new() { { "Id", 5 }, { "Text", "05 Green" }, { "Price", 2.20 }, { "Quantity", 1 }, { "Date", "2025-09-02" } },
+            new() { { "Id", 6 }, { "Text", "06 Blue" }, { "Price", 2.90 }, { "Quantity", 1 }, { "Date", "2025-09-02" } },
+            new() { { "Id", 7 }, { "Text", "07 Hello" }, { "Price", 10.90 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
+            new() { { "Id", 8 }, { "Text", "08 World" }, { "Price", 10.90 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
+            new() { { "Id", 9 }, { "Text", "08 World" }, { "Price", 12.20 }, { "Quantity", 4 }, { "Date", "2025-09-02" } }
         };
+        // Query
+        var query = list.AsQueryable();
+        // Filter
+        foreach (var filter in filterList)
+        {
+            var fieldName = filter.FieldName!;
+            query = query.Where(item => (item![fieldName!].ToString() ?? "").ToLower().Contains(filter.Text) == true);
+        }
+        // Sort
+        if (sort != null)
+        {
+            query = query.OrderBy($"""{sort.FieldName}{(sort.IsDesc ? " DESC" : "")}""");
+        }
+        // Result
+        var result = query.ToList();
         return Task.FromResult(result);
     }
 }
