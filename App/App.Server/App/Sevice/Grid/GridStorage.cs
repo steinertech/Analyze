@@ -1,4 +1,4 @@
-﻿public class StorageGrid(Configuration configuration)
+﻿public class GridStorage(Configuration configuration)
 {
     private async Task Load(GridDto grid)
     {

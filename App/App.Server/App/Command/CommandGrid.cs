@@ -1,4 +1,4 @@
-﻿public class CommandGrid(MemoryGrid memoryGrid, ExcelGrid excelGrid, StorageGrid storageGrid, ArticleGrid articleGrid, GridArticle gridArticle)
+﻿public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage storageGrid, GridArticle articleGrid, GridArticle2 gridArticle)
 {
     /// <summary>
     /// Returns loaded grid.

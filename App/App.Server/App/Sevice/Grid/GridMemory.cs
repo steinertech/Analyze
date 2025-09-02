@@ -1,8 +1,8 @@
 ﻿using System.Linq.Dynamic.Core;
 
-public class MemoryGrid
+public class GridMemory
 {
-    public MemoryGrid()
+    public GridMemory()
     {
         productList = new List<ProductDto>
         {

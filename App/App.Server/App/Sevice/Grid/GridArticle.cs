@@ -55,7 +55,7 @@ public class GridBase
     }
 }
 
-public class GridArticle : GridBase
+public class GridArticle2 : GridBase
 {
     protected override Task<List<GridColumnDto>> LoadColumnList()
     {
@@ -93,7 +93,7 @@ public class GridArticle : GridBase
     }
 }
 
-public class ArticleGrid(CommandContext context, CosmosDb cosmosDb)
+public class GridArticle(CommandContext context, CosmosDb cosmosDb)
 {
     public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
     {

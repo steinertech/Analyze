@@ -28,11 +28,11 @@ internal static class UtilServer
         builder.Services.AddTransient<CosmosDbDynamic>(); // Wrapper
         builder.Services.AddTransient<TableStorage>(); // Wrapper
         builder.Services.AddTransient<TableStorageDynamic>(); // Wrapper
-        builder.Services.AddSingleton<MemoryGrid>(); // Contains state
-        builder.Services.AddSingleton<ExcelGrid>();
-        builder.Services.AddTransient<ArticleGrid>();
+        builder.Services.AddSingleton<GridMemory>(); // Contains state
+        builder.Services.AddSingleton<GridExcel>();
         builder.Services.AddTransient<GridArticle>();
-        builder.Services.AddTransient<StorageGrid>(); // Wrapper
+        builder.Services.AddTransient<GridArticle2>();
+        builder.Services.AddTransient<GridStorage>(); // Wrapper
         builder.Services.AddScoped<CommandContext>(); // One new instance for every http request
         builder.Services.AddTransient<Storage>(); // Wrapper
 

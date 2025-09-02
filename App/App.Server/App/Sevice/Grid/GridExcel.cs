@@ -1,7 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
-public class ExcelGrid(Configuration configuration)
+public class GridExcel(Configuration configuration)
 {
     private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
