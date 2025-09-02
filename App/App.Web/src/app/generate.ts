@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http"
-import { Injectable, signal } from "@angular/core"
+import { inject, Injectable, signal } from "@angular/core"
 import { catchError, firstValueFrom, map, mergeMap, Observable, of, tap } from "rxjs"
 import { Router } from "@angular/router"
 import { NotificationDto, NotificationEnum, NotificationService } from "./notification.service"
@@ -7,12 +7,14 @@ import { UtilClient } from "./util-client"
 
 export class RequestDto {
   public commandName!: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public paramList?: any[]
   public developmentSessionId?: string
   public versionClient?: string
 }
 
 export class ResponseDto {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public result?: any
   public exceptionText?: string
   public navigateUrl?: string
@@ -203,9 +205,9 @@ export class GridStateFilterMultiDto {
   providedIn: 'root',
 })
 export class ServerApi {
-  constructor(private httpClient: HttpClient, private router: Router, private notificationService: NotificationService) {
-
-  }
+  private httpClient = inject(HttpClient)
+  private router = inject(Router)
+  private notificationService = inject(NotificationService)
 
   public isWindow() {
     return typeof window !== "undefined"
@@ -214,7 +216,7 @@ export class ServerApi {
   private isLocalhost() {
     let result = false
     if (this.isWindow()) {
-      let hostname = window.location.hostname
+      const hostname = window.location.hostname
       result =
         hostname == "localhost" || // Running in VS code
         hostname == '127.0.0.1' // Running with http-server (ng build --localize)
@@ -225,7 +227,7 @@ export class ServerApi {
   private isLocalhostGitHubCodeSpace() {
     let result = false
     if (this.isWindow()) {
-      let hostname = window.location.hostname
+      const hostname = window.location.hostname
       result =
         hostname.endsWith('github.dev') // Running on GitHub CodeSpace
     }
@@ -234,9 +236,9 @@ export class ServerApi {
 
   /** Returns configuration based on client domain. */
   private configuration() {
-    let partList = window.location.hostname.split('.')
+    const partList = window.location.hostname.split('.')
     partList[0] = 'api' // www.example.com to api.example.com
-    let urlApi = partList.join('.') + '/api/data'
+    const urlApi = partList.join('.') + '/api/data'
     let result = { serverUrl: 'https://' + urlApi, isDevelopment: false }
     if (this.isLocalhost()) {
       result = { serverUrl: 'http://localhost:7138/api/data', isDevelopment: true }
@@ -270,7 +272,7 @@ export class ServerApi {
       // Param withCredentials to send SessionId cookie to server. 
       // Add CORS (not *) https://www.example.com and enable Enable Access-Control-Allow-Credentials on server
       mergeMap(() => {
-        let configuration = this.configuration()
+        const configuration = this.configuration()
         if (configuration.isDevelopment) {
           request.developmentSessionId = localStorage.getItem('developmentSessionId') ?? undefined
         }
@@ -299,7 +301,7 @@ export class ServerApi {
           }),
           map(value => {
             this.postCountAdd(-1);
-            return <T>value.result
+            return value.result as T
           }),
           catchError(error => {
             this.postCountAdd(-1);

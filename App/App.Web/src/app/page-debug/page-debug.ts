@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PageNav } from '../page-nav/page-nav';
 import { PageNotification } from "../page-notification/page-notification";
 import { NotificationEnum, NotificationService } from '../notification.service';
@@ -10,8 +10,7 @@ import { NotificationEnum, NotificationService } from '../notification.service';
   styleUrl: './page-debug.css'
 })
 export class PageDebug {
-  constructor(private notificationService : NotificationService) {
-  }
+  private notificationService = inject(NotificationService)
   
   click() {
     this.notificationService.add(NotificationEnum.Info, "Hello Notification");

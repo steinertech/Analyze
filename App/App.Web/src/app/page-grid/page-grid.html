@@ -10,7 +10,7 @@
   @for (cellList of grid?.rowCellList; track $index;) {
   <tr>
     @for (cell of cellList; let cellIndex = $index; track $index;) {
-    <td [attr.colspan]="cell.colSpan" [attr.rowspan]="cell.rowSpan" (mousedown)="cellClick(cell)" (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.frm-mouse-enter]="cellIsMouseEnter(cell)==true" [class.frm-select]="cellIsSelect(cell)==true">
+    <td [attr.colspan]="cell.colSpan" [attr.rowspan]="cell.rowSpan" (mousedown)="cellClick(cell)" (mouseenter)="cellMouseEnter(cell)" (mouseleave)="cellMouseLeave(cell)" [class.frm-mouse-enter]="cellIsMouseEnter(cell)===true" [class.frm-select]="cellIsSelect(cell)===true">
       @switch (cell.cellEnum) {
       <!-- Field -->
       @case (GridCellEnum.Field) {
@@ -32,21 +32,21 @@
       }
       <!-- Field Checkbox -->
       @case (GridCellEnum.FieldCheckbox) {
-      <input [ngModel]="cellTextGet(cell) == 'true'" (ngModelChange)="cellTextSet(cell, $event)" type="checkbox">
+      <input [ngModel]="cellTextGet(cell)==='true'" (ngModelChange)="cellTextSet(cell, $event)" type="checkbox">
       }
       <!-- Checkbox SelectMulti -->
       @case (GridCellEnum.CheckboxSelectMulti) {
-      <input [ngModel]="cellTextGet(cell) == 'true'" (ngModelChange)="cellTextSet(cell, $event ? 'true' : 'false')" type="checkbox">
+      <input [ngModel]="cellTextGet(cell)==='true'" (ngModelChange)="cellTextSet(cell, $event ? 'true' : 'false')" type="checkbox">
       }
       <!-- Header -->
       @case (GridCellEnum.Header) {
       <div class="frm-cell-container frm-header">
         <button class="frm-cell-content frm-pointer" (click)="click(cell)"><b>{{cell.text}}</b></button>
         <div class="frm-cell-icon">
-          @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == false) {
+          @if (grid?.state?.sort?.fieldName===cell.fieldName && grid?.state?.sort?.isDesc===false) {
           <div><span class="i-sortup"></span></div>
           }
-          @if (grid?.state?.sort?.fieldName == cell.fieldName && grid?.state?.sort?.isDesc == true) {
+          @if (grid?.state?.sort?.fieldName===cell.fieldName && grid?.state?.sort?.isDesc===true) {
           <div><span class="i-sortdown"></span></div>
           }
           @if (isFilterMulti(cell.fieldName)) {
@@ -114,7 +114,7 @@
       }
       <!-- Checkbox SelectMultiAll -->
       @case (GridControlEnum.CheckboxSelectMultiAll) {
-      <input [ngModel]="cellTextGetControl(cell, control) == 'true'" (ngModelChange)="cellTextSetControl(cell, control, $event.toString())" type="checkbox">
+      <input [ngModel]="cellTextGetControl(cell, control)==='true'" (ngModelChange)="cellTextSetControl(cell, control, $event.toString())" type="checkbox">
       }
       <!-- Label Custom -->
       @case (GridControlEnum.LabelCustom) {

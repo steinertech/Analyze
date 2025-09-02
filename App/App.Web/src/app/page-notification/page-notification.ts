@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NotificationDto, NotificationEnum, NotificationService } from '../notification.service';
 
 @Component({
@@ -8,8 +8,7 @@ import { NotificationDto, NotificationEnum, NotificationService } from '../notif
   styleUrl: './page-notification.css'
 })
 export class PageNotification {
-  constructor(protected notificationService: NotificationService) {
-  }
+  protected notificationService = inject(NotificationService)
 
   NotificationEnum = NotificationEnum
 

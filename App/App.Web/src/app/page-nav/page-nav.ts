@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { BreakpointObserver, LayoutModule } from '@angular/cdk/layout';
 import { RouterModule } from '@angular/router';
 import { DataService } from '../data.service';
@@ -11,8 +11,12 @@ import { ServerApi } from '../generate';
   styleUrl: './page-nav.css'
 })
 export class PageNav {
-  constructor(observer: BreakpointObserver, protected dataService: DataService, protected serverApi: ServerApi) {
-    observer.observe(['(max-width: 640px)']).subscribe(result => { // See also https://v2.tailwindcss.com/docs/responsive-design
+  private observer = inject(BreakpointObserver)
+  protected dataService = inject(DataService)
+  protected serverApi = inject(ServerApi)
+
+  constructor() {
+    this.observer.observe(['(max-width: 640px)']).subscribe(result => { // See also https://v2.tailwindcss.com/docs/responsive-design
       if (!result.matches) {
         // User increased window size over break point
         this.isShow.set(false);

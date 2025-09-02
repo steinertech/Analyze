@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, Input, signal, ViewChild, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Input, signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridDto, ServerApi } from '../generate';
 import { UtilClient } from '../util-client';
@@ -15,7 +15,9 @@ import { UtilClient } from '../util-client';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageGrid {
-  constructor(private serverApi: ServerApi) {
+  private serverApi = inject(ServerApi)
+
+  constructor() {
     effect(() => {
       // console.log('Update _grid')
       this._grid = this.grid()
@@ -85,7 +87,7 @@ export class PageGrid {
         this._grid.state.fieldSaveList = []
       }
       if (cell.fieldName && cell.dataRowIndex != undefined) {
-        let index = this._grid.state.fieldSaveList.findIndex(item => item.fieldName == cell.fieldName && item.dataRowIndex == cell.dataRowIndex)
+        const index = this._grid.state.fieldSaveList.findIndex(item => item.fieldName == cell.fieldName && item.dataRowIndex == cell.dataRowIndex)
         if (index != -1) {
           this._grid.state.fieldSaveList.splice(index) // Remove item
         }
@@ -139,7 +141,7 @@ export class PageGrid {
         }
         // CheckBox
         case GridCellEnum.FieldCheckbox: {
-          let valueText = value ? 'true' : 'false'
+          const valueText = value ? 'true' : 'false'
           cell.textModified = cell.text != valueText ? valueText : undefined
           this.cellTextSetSave(cell)
           break
@@ -176,10 +178,8 @@ export class PageGrid {
               this._grid.state.isSelectMultiList = []
             }
             if (this._grid.rowCellList) {
-              for (let rowIndex = 0; rowIndex < this._grid.rowCellList.length; rowIndex++) {
-                let row = this._grid.rowCellList[rowIndex]
-                for (let cellIndex = 0; cellIndex < row.length; cellIndex++) {
-                  let cell = row[cellIndex]
+              for (const row of this._grid.rowCellList) {
+                for (const cell of row) {
                   if (cell.cellEnum == GridCellEnum.CheckboxSelectMulti && cell.dataRowIndex != undefined) {
                     this._grid.state.isSelectMultiList[cell.dataRowIndex] = value == 'true'
                   }
@@ -236,7 +236,7 @@ export class PageGrid {
   cellClick(cell: GridCellDto) {
     if (this._grid) {
       if (cell.dataRowIndex != undefined) {
-        let dataRowIndex = cell.dataRowIndex
+        const dataRowIndex = cell.dataRowIndex
         if (!this._grid.state) {
           this._grid.state = {}
         }
@@ -253,7 +253,7 @@ export class PageGrid {
             }
             // Set rowKey on detail grid
             if (this._grid?.gridName && this._grid.state?.rowKeyList) {
-              let rowKey = this._grid.state?.rowKeyList[dataRowIndex]
+              const rowKey = this._grid.state?.rowKeyList[dataRowIndex]
               item._grid.state.rowKeyMasterList[this._grid?.gridName] = rowKey
             }
             // Reload detail grid
@@ -337,9 +337,11 @@ export class PageGrid {
               this.parent._grid.state = {}
             }
             if (!this.parent._grid.state.sort) {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
               this.parent._grid.state.sort = { fieldName: this.parent.lookup?.cell?.fieldName!, isDesc: false }
             }
             if (this.parent._grid.state.sort.fieldName != this.parent.lookup?.cell?.fieldName) {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
               this.parent._grid.state.sort = { fieldName: this.parent.lookup?.cell?.fieldName!, isDesc: false }
             }
             else {
@@ -371,7 +373,7 @@ export class PageGrid {
 
   async clickLookup(cell: GridCellDto, control?: GridControlDto) {
     if (this._grid) {
-      let lookup = <Lookup>{ cell: cell, control: control }
+      const lookup = { cell: cell, control: control } as Lookup
 
       if (control?.controlEnum == GridControlEnum.ButtonModal) {
         lookup.isModal = true
@@ -406,8 +408,8 @@ export class PageGrid {
 
   @ViewChild('tableRef') tableRef!: ElementRef;
 
-  @HostListener('document:mouseup', ['$event'])
-  onMouseUp(event: MouseEvent) {
+  @HostListener('document:mouseup')
+  onMouseUp() {
     if (this.resize) {
       this.resize = undefined
     }
@@ -416,13 +418,13 @@ export class PageGrid {
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     if (this.resize) {
-      let columnWidthDiff = event.clientX - (this.resize.cellClientX ?? 0)
+      const columnWidthDiff = event.clientX - (this.resize.cellClientX ?? 0)
       if (this._grid?.state?.columnWidthList) {
-        let widhtDiff = 100 / this.resize.tableWidth * columnWidthDiff
+        const widhtDiff = 100 / this.resize.tableWidth * columnWidthDiff
         let widthSum = 0
-        let columnList = [...this.resize.columnWidthList]
+        const columnList = [...this.resize.columnWidthList]
         for (let i = 0; i < columnList.length; i++) {
-          let width = columnList[i]!
+          const width = columnList[i]!
           if (i == columnList.length - 1) {
             // Column last
             columnList[i] = UtilClient.MathRound100(100 - widthSum) // 100.00 - 80.04 = 19.959999999999994 !
@@ -436,7 +438,7 @@ export class PageGrid {
                 columnList[i] = UtilClient.MathRound100(width + UtilClient.MathFloor100(widhtDiff))
               } else {
                 // Column right to resize
-                let widthRight = this.resize.columnWidthList.slice(this.resize.columnIndex + 1).reduce((sum, value) => sum! + value!, 0)!
+                const widthRight = this.resize.columnWidthList.slice(this.resize.columnIndex + 1).reduce((sum, value) => sum! + value!, 0)!
                 columnList[i] = UtilClient.MathRound100(width - UtilClient.MathFloor100(widhtDiff / widthRight * this.resize.columnWidthList[i]!))
               }
             }
@@ -461,10 +463,10 @@ export class PageGrid {
       tableWidth: this.tableRef.nativeElement.clientWidth,
       columnWidthList: []
     }
-    let table = this.tableRef.nativeElement
+    const table = this.tableRef.nativeElement
     // ColumnCount
-    for (let rowIndex = 0; rowIndex < table.rows.length; rowIndex++) {
-      this.resize.columnCount = Math.max(this.resize.columnCount, table.rows[rowIndex].cells.length)
+    for (const row of table.rows) {
+      this.resize.columnCount = Math.max(this.resize.columnCount, row.cells.length)
     }
     this.resize.tableWidth = this.tableRef.nativeElement.clientWidth
     if (this._grid) {
@@ -475,9 +477,9 @@ export class PageGrid {
         this._grid.state.columnWidthList = []
       }
       if (this._grid.state.columnWidthList.length < this.resize.columnCount) {
-        let widthAvg = UtilClient.MathFloor100(100 / this.resize.columnCount)
+        const widthAvg = UtilClient.MathFloor100(100 / this.resize.columnCount)
         let widthSum = 0
-        let columnWidthList = this._grid.state.columnWidthList
+        const columnWidthList = this._grid.state.columnWidthList
         for (let i = 0; i < this.resize.columnCount; i++) {
           if (i < this.resize.columnCount - 1) {
             columnWidthList[i] = widthAvg

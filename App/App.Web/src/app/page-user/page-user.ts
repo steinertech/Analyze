@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { AfterContentInit, Component, inject, OnInit } from '@angular/core';
 import { PageNav } from '../page-nav/page-nav';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ServerApi, UserDto } from '../generate';
+import { ServerApi } from '../generate';
 import { PageNotification } from "../page-notification/page-notification";
 import { DataService } from '../data.service';
 
@@ -17,9 +17,10 @@ import { DataService } from '../data.service';
   templateUrl: './page-user.html',
   styleUrl: './page-user.css'
 })
-export class PageUser {
-  constructor(private serverApi: ServerApi, private router: Router, protected dataService: DataService) {
-  }
+export class PageUser implements OnInit, AfterContentInit {
+  private serverApi = inject(ServerApi)
+  private router = inject(Router)
+  protected dataService = inject(DataService)
 
   userModeEnum: UserModeEnum = UserModeEnum.None
 
@@ -52,7 +53,7 @@ export class PageUser {
   async click() {
     if (this.userModeEnum == UserModeEnum.SignIn) {
       // SignIn
-      await this.serverApi.commmandUserSignIn(<UserDto>{ email: this.userEmail, password: this.userPassword })
+      await this.serverApi.commmandUserSignIn({ email: this.userEmail, password: this.userPassword })
       await this.dataService.userSignUpdate()
       if (this.dataService.userSign()) {
         this.serverApi.navigate('/')
@@ -60,7 +61,7 @@ export class PageUser {
     }
     if (this.userModeEnum == UserModeEnum.SignUp) {
       // SignUp
-      await this.serverApi.commmandUserSignUp(<UserDto>{ email: this.userEmail, password: this.userPassword })
+      await this.serverApi.commmandUserSignUp({ email: this.userEmail, password: this.userPassword })
     }
   }
 }

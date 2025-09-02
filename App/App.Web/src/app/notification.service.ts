@@ -4,9 +4,9 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root'
 })
 export class NotificationService {
-  list = signal(<NotificationDto[]>[]);
+  list = signal([] as NotificationDto[]);
   add(notificationEnum: NotificationEnum, text: string) {
-    let notification = new NotificationDto();
+    const notification = new NotificationDto();
     notification.notificationEnum = notificationEnum;
     notification.text = text;
     this.list.update(value => {

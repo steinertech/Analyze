@@ -1,4 +1,4 @@
-import { Component, signal, Signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { PageNav } from '../page-nav/page-nav';
 import { ComponentDto, ServerApi } from '../generate';
 import { DataService } from '../data.service';
@@ -19,10 +19,10 @@ import { PageNotification } from "../page-notification/page-notification";
   styleUrl: './page-about.css'
 })
 export class PageAbout {
-  text = $localize`:@@debugKeyTs:Hello Ts (Native)`
+  private serverApi = inject(ServerApi)
+  public dataService = inject(DataService)
 
-  constructor(private serverApi: ServerApi, public dataService: DataService) {
-  }
+  text = $localize`:@@debugKeyTs:Hello Ts (Native)`
 
   versionClient: string = UtilClient.versionClient
 
@@ -30,8 +30,10 @@ export class PageAbout {
 
   readonly componentDto = signal<ComponentDto | undefined>(undefined)
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly debugDto = signal<any>(undefined)
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly storageContent = signal<any>(undefined)
 
   click() {

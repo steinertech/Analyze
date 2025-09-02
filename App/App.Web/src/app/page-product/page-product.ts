@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { GridDto, ServerApi } from '../generate';
-import { DataService } from '../data.service';
 import { PageGrid } from '../page-grid/page-grid';
 import { PageNav } from '../page-nav/page-nav';
 import { PageNotification } from "../page-notification/page-notification";
@@ -16,9 +15,8 @@ import { PageNotification } from "../page-notification/page-notification";
   styleUrl: './page-product.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageProduct {
-  constructor(private serverApi: ServerApi, private dataService: DataService) {
-  }
+export class PageProduct implements AfterContentInit {
+  private serverApi = inject(ServerApi)
 
   readonly grid = signal<GridDto>({ gridName: 'ProductDto' })
   readonly gridExcel = signal<GridDto>({ gridName: 'Excel' })

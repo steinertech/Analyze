@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { ServerApi, UserDto } from './generate';
 import { Observable, of } from 'rxjs';
 
@@ -7,7 +7,9 @@ import { Observable, of } from 'rxjs';
 })
 export class DataService {
 
-  constructor(private serverApi: ServerApi) {
+  private serverApi = inject(ServerApi)
+
+  constructor() {
     if (this.serverApi.isWindow()) {
       this.userSignUpdate()
     }
@@ -20,7 +22,7 @@ export class DataService {
     if (!result) {
       console.log("Get File", fileName)
       if (this.serverApi.isWindow()) {
-        let serverApi = this.serverApi
+        const serverApi = this.serverApi
         this.storageDownloadList.set(fileName, serverApi.commandStorageDownload(fileName))
       } else {
         this.storageDownloadList.set(fileName, this.storageDownloadEmpty);
@@ -33,8 +35,8 @@ export class DataService {
   /** Currently signed in in user  */
   userSign = signal<UserDto | undefined>(undefined)
   async userSignUpdate() {
-    let serverApi = this.serverApi
-    let userSign = await serverApi.commmandUserSignStatus()
+    const serverApi = this.serverApi
+    const userSign = await serverApi.commmandUserSignStatus()
     this.userSign.set(userSign)
   }
 }

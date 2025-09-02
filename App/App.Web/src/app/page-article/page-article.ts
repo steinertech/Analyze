@@ -1,9 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { AfterContentInit, Component, inject, signal } from '@angular/core';
 import { PageNav } from "../page-nav/page-nav";
 import { PageNotification } from "../page-notification/page-notification";
 import { GridDto, ServerApi } from '../generate';
 import { PageGrid } from "../page-grid/page-grid";
-import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-page-article',
@@ -16,10 +15,8 @@ import { JsonPipe } from '@angular/common';
   templateUrl: './page-article.html',
   styleUrl: './page-article.css'
 })
-export class PageArticle {
-  constructor(private serverApi: ServerApi) {
-    serverApi.commmandUserSignOut
-  }
+export class PageArticle implements AfterContentInit {
+  private serverApi = inject(ServerApi)
 
   readonly grid = signal<GridDto>({ gridName: 'Article' })
 

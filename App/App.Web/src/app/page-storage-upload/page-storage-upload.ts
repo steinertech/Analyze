@@ -1,4 +1,4 @@
-import { Component, NgZone } from '@angular/core';
+import { Component, inject, NgZone } from '@angular/core';
 import { ServerApi } from '../generate';
 
 @Component({
@@ -8,16 +8,16 @@ import { ServerApi } from '../generate';
   styleUrl: './page-storage-upload.css'
 })
 export class PageStorageUpload {
-  constructor(private serverApi: ServerApi, private ngZone: NgZone) { 
-  }
+  private serverApi = inject(ServerApi)
+  private ngZone = inject(NgZone)
 
   onFileSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     const files = target.files;
 
     if (files && files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        this.storageUpload(files[i]);
+      for (const file of files) {
+        this.storageUpload(file);
       }
     }
     (event.target as HTMLInputElement).value = "" // Necessary to select and upload same file multiple times.
@@ -31,8 +31,8 @@ export class PageStorageUpload {
     event.preventDefault();
 
     if (event.dataTransfer?.files.length) {
-      for (let i = 0; i < event.dataTransfer.files.length; i++) {
-        this.storageUpload(event.dataTransfer.files[i]);
+      for (const file of event.dataTransfer.files) {
+        this.storageUpload(file);
       }
     }
   }
@@ -42,6 +42,7 @@ export class PageStorageUpload {
     const reader = new FileReader()
     reader.readAsDataURL(file)
     reader.onload = () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
       const base64String = reader.result?.toString().split(",")[1]!
       this.ngZone.run(() =>{
         this.serverApi.commmandStorageUpload(file.name, base64String).subscribe();
