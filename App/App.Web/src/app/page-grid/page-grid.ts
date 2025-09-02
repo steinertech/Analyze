@@ -101,7 +101,7 @@ export class PageGrid {
     }
   }
 
-  cellTextSet(cell: GridCellDto, value: string) {
+  async cellTextSet(cell: GridCellDto, value: string) {
     if (this._grid) {
       switch (cell.cellEnum) {
         // Field
@@ -133,7 +133,8 @@ export class PageGrid {
           } else {
             this._grid.state.filterList[index].text = value
           }
-          this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid).subscribe(value => this.grid.set(value.grid)); // Reload // TODO Debounce
+          const load = await this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid)
+          this.grid.set(load.grid) // Reload // TODO Debounce
           break
         }
         // CheckBox
@@ -242,7 +243,7 @@ export class PageGrid {
         this._grid.state.isSelectList = []
         this._grid.state.isSelectList[cell.dataRowIndex] = true
         // Reload detail data grids
-        this.detailList?.forEach(item => {
+        this.detailList?.forEach(async item => {
           if (item._grid) {
             if (!item._grid.state) {
               item._grid.state = {}
@@ -256,7 +257,8 @@ export class PageGrid {
               item._grid.state.rowKeyMasterList[this._grid?.gridName] = rowKey
             }
             // Reload detail grid
-            this.serverApi.commandGridLoad(item._grid, item.parent?.lookup?.cell, item.parent?.lookup?.control, item.parent?._grid).subscribe(value => item.grid.set(value.grid));
+            const load = await this.serverApi.commandGridLoad(item._grid, item.parent?.lookup?.cell, item.parent?.lookup?.control, item.parent?._grid)
+            item.grid.set(load.grid);
           }
         })
       }
@@ -264,7 +266,7 @@ export class PageGrid {
   }
 
   /** Default click for GridCell */
-  click(cell: GridCellDto) {
+  async click(cell: GridCellDto) {
     if (this._grid) {
       switch (cell.cellEnum) {
         // Header
@@ -282,34 +284,33 @@ export class PageGrid {
           }
           this._grid.state.pagination = this._grid.state.pagination ?? {}
           this._grid.state.pagination.pageIndex = 0
-          this.serverApi.commandGridLoad(this._grid).subscribe(value => this.grid.set(value.grid)); // Reload
+          const load = await this.serverApi.commandGridLoad(this._grid)
+          this.grid.set(load.grid); // Reload
           break
         }
       }
     }
   }
 
-  clickControl(cell: GridCellDto, control: GridControlDto) {
+  async clickControl(cell: GridCellDto, control: GridControlDto) {
     if (this._grid) {
       switch (control.controlEnum) {
         // Button Reload
         case GridControlEnum.ButtonReload: {
           this._grid.state = undefined // Clear state
           this.lookupClose()
-          this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid).subscribe(value => {
-            this.grid.set(value.grid) // Reload
-          });
+          const load = await this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid)
+          this.grid.set(load.grid) // Reload
           break
         }
         // Button Save
         case GridControlEnum.ButtonSave: {
           this.lookupClose()
-          this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid).subscribe(value => {
-            this.grid.set(value.grid)
-            if (this.parent?._grid && value.parentGrid) {
-              this.parent.grid.set(value.parentGrid)
-            }
-          });
+          const load = await this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid)
+          this.grid.set(load.grid)
+          if (this.parent?._grid && load.parentGrid) {
+            this.parent.grid.set(load.parentGrid)
+          }
           break
         }
         // Button Cancel (Lookup)
@@ -320,13 +321,12 @@ export class PageGrid {
         // Button Ok (Lookup)
         case GridControlEnum.ButtonLookupOk: {
           if (this.parent?._grid) {
-            this.serverApi.commandGridLoad(this._grid, this.parent.lookup?.cell, this.parent.lookup?.control, this.parent._grid).subscribe(value => {
-              this.grid.set(value.grid) // Lookup to be closed
-              if (this.parent?._grid && value.parentGrid) {
-                this.parent.grid.set(value.parentGrid) // Parent reload
-              }
-              this.parent?.lookupClose()
-            });
+            const load = await this.serverApi.commandGridLoad(this._grid, this.parent.lookup?.cell, this.parent.lookup?.control, this.parent._grid)
+            this.grid.set(load.grid) // Lookup to be closed
+            if (this.parent?._grid && load.parentGrid) {
+              this.parent.grid.set(load.parentGrid) // Parent reload
+            }
+            this.parent?.lookupClose()
           }
           break
         }
@@ -361,14 +361,15 @@ export class PageGrid {
             this._grid.state = {}
           }
           this._grid.state.buttonCustomClick = { name: control.name, dataRowIndex: cell.dataRowIndex, fieldName: cell.fieldName }
-          this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid).subscribe(value => this.grid.set(value.grid));
+          const load = await this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid)
+          this.grid.set(load.grid);
           break
         }
       }
     }
   }
 
-  clickLookup(cell: GridCellDto, control?: GridControlDto) {
+  async clickLookup(cell: GridCellDto, control?: GridControlDto) {
     if (this._grid) {
       let lookup = <Lookup>{ cell: cell, control: control }
 
@@ -377,18 +378,18 @@ export class PageGrid {
       }
       lookup.grid = signal<GridDto>({ gridName: this._grid?.gridName })
       this.lookup = lookup // Lookup open (not yet loaded grid)
-      this.serverApi.commandGridLoad(lookup.grid(), lookup.cell, lookup.control, this._grid).subscribe(value => {
-        lookup.grid.set(value.grid) // Lookup open (with loaded grid)
-      });
+      const load = await this.serverApi.commandGridLoad(lookup.grid(), lookup.cell, lookup.control, this._grid)
+      lookup.grid.set(load.grid) // Lookup open (with loaded grid)
     }
   }
 
-  clickPagination(indexDelta: number) {
+  async clickPagination(indexDelta: number) {
     if (this._grid) {
       this._grid.state = this._grid.state || {}
       this._grid.state.pagination = this._grid.state.pagination || {}
       this._grid.state.pagination.pageIndexDeltaClick = indexDelta
-      this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid).subscribe(value => { this.grid.set(value.grid) });
+      const load = await this.serverApi.commandGridLoad(this._grid, this.parent?.lookup?.cell, this.parent?.lookup?.control, this.parent?._grid)
+      this.grid.set(load.grid);
     }
   }
 

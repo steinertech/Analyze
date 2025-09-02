@@ -264,7 +264,7 @@ export class ServerApi {
     request.versionClient = UtilClient.versionClient
     return of(0).pipe(
       tap(() => {
-        this.notificationService.list.update(() => [])
+        // this.notificationService.list.update(() => []) // TODO Can not empty list. There might be multiple sequential requests on same page.
         this.postCountAdd(1)
       }),
       // Param withCredentials to send SessionId cookie to server. 
@@ -368,7 +368,7 @@ export class ServerApi {
     return await firstValueFrom(this.post<void>({ commandName: "CommandArticleAdd", paramList: [] }))
   }
 
-  commandGridLoad(grid: GridDto, parentCell?: GridCellDto, parentControl?: GridControlDto, parentGrid?: GridDto) {
-    return this.post<GridLoadDto>({ commandName: "CommandGridLoad", paramList: [grid, parentCell, parentControl, parentGrid] })
+  async commandGridLoad(grid: GridDto, parentCell?: GridCellDto, parentControl?: GridControlDto, parentGrid?: GridDto) {
+    return await firstValueFrom(this.post<GridLoadDto>({ commandName: "CommandGridLoad", paramList: [grid, parentCell, parentControl, parentGrid] }))
   }
 }

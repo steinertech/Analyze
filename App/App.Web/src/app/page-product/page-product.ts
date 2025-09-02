@@ -11,7 +11,7 @@ import { PageNotification } from "../page-notification/page-notification";
     PageNav,
     PageGrid,
     PageNotification
-],
+  ],
   templateUrl: './page-product.html',
   styleUrl: './page-product.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,11 +24,13 @@ export class PageProduct {
   readonly gridExcel = signal<GridDto>({ gridName: 'Excel' })
   readonly gridStorage = signal<GridDto>({ gridName: 'Storage' })
 
-  ngAfterContentInit() {
+  async ngAfterContentInit() {
     if (this.serverApi.isWindow()) {
-      this.serverApi.commandGridLoad(this.grid()).subscribe(value => this.grid.set(value.grid));
+      const load = await this.serverApi.commandGridLoad(this.grid())
+      this.grid.set(load.grid)
       // this.serverApi.commandGridLoad(this.gridExcel).subscribe(value => this.gridExcel = value);
-      this.serverApi.commandGridLoad(this.gridStorage()).subscribe(value => this.gridStorage.set(value.grid));
+      const loadStorage = await this.serverApi.commandGridLoad(this.gridStorage())
+      this.gridStorage.set(loadStorage.grid)
     }
   }
 }

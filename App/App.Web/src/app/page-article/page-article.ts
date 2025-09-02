@@ -8,9 +8,9 @@ import { JsonPipe } from '@angular/common';
 @Component({
   selector: 'app-page-article',
   imports: [
-    PageNav, 
-    PageNotification, 
-    PageGrid, 
+    PageNav,
+    PageNotification,
+    PageGrid,
     // JsonPipe
   ],
   templateUrl: './page-article.html',
@@ -25,10 +25,14 @@ export class PageArticle {
 
   readonly grid2 = signal<GridDto>({ gridName: 'Article2' })
 
-  ngAfterContentInit() {
+  async ngAfterContentInit() {
     if (this.serverApi.isWindow()) {
-      this.serverApi.commandGridLoad(this.grid()).subscribe(value => this.grid.set(value.grid));
-      this.serverApi.commandGridLoad(this.grid2()).subscribe(value => this.grid2.set(value.grid));
+      const [load, load2] = await Promise.all([
+        this.serverApi.commandGridLoad(this.grid()),
+        this.serverApi.commandGridLoad(this.grid2())
+      ])
+      this.grid.set(load.grid);
+      this.grid2.set(load2.grid);
     }
   }
 }
