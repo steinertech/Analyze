@@ -114,8 +114,11 @@ internal static class UtilServer
             // Session
             if (context.ResponseSessionId != null)
             {
-                req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, CookieOptions());
-                if (configuration.IsDevelopment)
+                if (configuration.IsDevelopment == false)
+                {
+                    req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, CookieOptions());
+                }
+                else
                 {
                     responseDto.DevelopmentSessionId = context.ResponseSessionId;
                 }
@@ -123,8 +126,11 @@ internal static class UtilServer
             // CacheId
             if (context.CacheId != null)
             {
-                req.HttpContext.Response.Cookies.Append("CacheId", context.CacheId, CookieOptions());
-                if (configuration.IsDevelopment)
+                if (configuration.IsDevelopment == false)
+                {
+                    req.HttpContext.Response.Cookies.Append("CacheId", context.CacheId, CookieOptions());
+                }
+                else
                 {
                     responseDto.DevelopmentCacheId = context.CacheId;
                 }

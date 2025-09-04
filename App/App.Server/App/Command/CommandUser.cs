@@ -1,4 +1,4 @@
-﻿public class CommandUser(CosmosDb cosmosDb, CosmosDbCache cosmosDbCache, CommandContext context)
+﻿public class CommandUser(CosmosDb cosmosDb, CosmosDbCache cosmosDbCache, CommandContext context, Configuration configuration)
 {
     /// <summary>
     /// Returns UserDto. This is the currently signed in user.
@@ -26,6 +26,7 @@
     /// </summary>
     public async Task SignIn(UserDto user)
     {
+        context.NotificationAdd($"IsDevelopment={configuration.IsDevelopment}; IsCache={configuration.IsCache}; IsCacheShared={configuration.IsCacheShared};", NotificationEnum.Info);
         user.Name = user.Email;
         user.Email = user.Email;
         user.Password = user.Password;

@@ -29,16 +29,16 @@ internal static class ServerApi
                 break;
             // User
             case nameof(CommandUser) + nameof(CommandUser.SignStatus):
-                responseDto.Result = await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!).SignStatus();
+                responseDto.Result = await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<Configuration>()!).SignStatus();
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignIn):
-                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!).SignIn(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
+                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<Configuration>()!).SignIn(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignUp):
-                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!).SignUp(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
+                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<Configuration>()!).SignUp(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignOut):
-                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!).SignOut();
+                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<Configuration>()!).SignOut();
                 break;
             // Grid
             case nameof(CommandGrid) + nameof(CommandGrid.Load):
