@@ -1,4 +1,4 @@
-﻿public class CommandUser(CosmosDb cosmosDb, CommandContext context)
+﻿public class CommandUser(CosmosDb cosmosDb, CosmosDbCache cosmosDbCache, CommandContext context)
 {
     /// <summary>
     /// Returns UserDto. This is the currently signed in user.
@@ -7,7 +7,7 @@
     {
         UserDto? result = null;
         var sessionId = context.RequestSessionId;
-        var session = await cosmosDb.SelectByNameAsync<SessionDto>(sessionId, isOrganisation: false);
+        var session = await cosmosDbCache.SelectByNameAsync<SessionDto>(sessionId, isOrganisation: false);
         if (session != null)
         {
             if (session.IsSignIn == true)
@@ -65,17 +65,22 @@
     /// </summary>
     public async Task SignUp(UserDto user)
     {
-        user.Id = Guid.NewGuid().ToString();
-        user.Name = user.Email;
-        user.Email = user.Email;
-        user.Password = user.Password;
+        var userLocal = new UserDto 
+        { 
+            Id = Guid.NewGuid().ToString(),
+            Name = user.Email,
+            Email = user.Email,
+            Password = user.Password,
+        };
         // SignUp
         await cosmosDb.InsertAsync(user, isOrganisation: false);
         // New (small) organisation for user. Additional users can be invited later on.
-        var organisation = new OrganisationDto();
-        organisation.Id = Guid.NewGuid().ToString();
-        organisation.Name = user.Email;
-        organisation.EmailList = [user.Email];
+        var organisation = new OrganisationDto
+        { 
+            Id = Guid.NewGuid().ToString(),
+            Name = user.Email,
+            EmailList = [user.Email],
+        };
         await cosmosDb.InsertAsync(organisation, isOrganisation: false);
         // Navigate
         context.ResponseNavigateUrl = "signup-email"; // Email has been sent to activate.
@@ -84,12 +89,13 @@
     public async Task SignOut()
     {
         var sessionId = context.RequestSessionId;
-        var session = await cosmosDb.SelectByNameAsync<SessionDto>(sessionId, isOrganisation: false);
+        var session = await cosmosDbCache.SelectByNameAsync<SessionDto>(sessionId, isOrganisation: false);
         if (session != null)
         {
             session.IsSignIn = false;
             await cosmosDb.UpdateAsync(session, isOrganisation: false);
             // await cosmosDb.DeleteAsync(session, isOrganisation: false);
+            await cosmosDbCache.RemoveByNameAsync<SessionDto>(sessionId, isOrganisation: false);
         }
     }
 }

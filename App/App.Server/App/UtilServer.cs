@@ -25,6 +25,7 @@ internal static class UtilServer
         builder.Services.AddSingleton<CosmosDbContainer>(); // Contains state
         builder.Services.AddSingleton<TableStorageClient>(); // Contains state
         builder.Services.AddTransient<CosmosDb>(); // Wrapper
+        builder.Services.AddTransient<CosmosDbCache>(); // Wrapper
         builder.Services.AddTransient<CosmosDbDynamic>(); // Wrapper
         builder.Services.AddTransient<TableStorage>(); // Wrapper
         builder.Services.AddTransient<TableStorageDynamic>(); // Wrapper
@@ -35,6 +36,10 @@ internal static class UtilServer
         builder.Services.AddTransient<GridStorage>(); // Wrapper
         builder.Services.AddScoped<CommandContext>(); // One new instance for every http request
         builder.Services.AddTransient<Storage>(); // Wrapper
+        
+        // Cache
+        builder.Services.AddTransient<Cache>(); // Wrapper
+        builder.Services.AddDistributedMemoryCache(); // TODO Redis
 
         builder.Services.AddControllers().AddJsonOptions(configure =>
         {
@@ -46,6 +51,18 @@ internal static class UtilServer
         UtilServer.JsonConfigure(jssonOptions);
 
         builder.Services.AddSingleton(jssonOptions);
+    }
+
+    private static CookieOptions CookieOptions()
+    {
+        var result = new CookieOptions
+        {
+            HttpOnly = true, // JavaScript can not access cookie
+            SameSite = SameSiteMode.Strict, // api.example.com and www.example.com are the same site. Not considered to be a third party cookie which can be blocked.
+            Secure = true,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        };
+        return result;
     }
 
     /// <summary>
@@ -70,9 +87,12 @@ internal static class UtilServer
         context.Domain = new Uri(req.Headers.Origin!).Host;
         // context.DomainNameServer = req.Host.Host; // Not used
         context.RequestSessionId = req.Cookies["SessionId"];
+        context.CacheId = req.Cookies["CacheId"];
         if (configuration.IsDevelopment)
         {
+            // For Development stored in Dto not in HttpOnly cookie.
             context.RequestSessionId = requestDto.DevelopmentSessionId;
+            context.CacheId = requestDto.DevelopmentCacheId;
         }
         ResponseDto responseDto;
         var isReload = requestDto.VersionClient != null && requestDto.VersionClient != UtilServer.VersionServer;
@@ -94,17 +114,19 @@ internal static class UtilServer
             // Session
             if (context.ResponseSessionId != null)
             {
-                var options = new CookieOptions
-                {
-                    HttpOnly = true, // JavaScript can not access cookie
-                    SameSite = SameSiteMode.Strict, // api.example.com and www.example.com are the same site. Not considered to be a third party cookie which can be blocked.
-                    Secure = true,
-                    Expires = DateTimeOffset.UtcNow.AddDays(7)
-                };
-                req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, options);
+                req.HttpContext.Response.Cookies.Append("SessionId", context.ResponseSessionId, CookieOptions());
                 if (configuration.IsDevelopment)
                 {
                     responseDto.DevelopmentSessionId = context.ResponseSessionId;
+                }
+            }
+            // CacheId
+            if (context.CacheId != null)
+            {
+                req.HttpContext.Response.Cookies.Append("CacheId", context.CacheId, CookieOptions());
+                if (configuration.IsDevelopment)
+                {
+                    responseDto.DevelopmentCacheId = context.CacheId;
                 }
             }
         }
@@ -137,6 +159,13 @@ internal static class UtilServer
         {
             Modifiers = { UtilServer.JsonConfigure }
         };
+    }
+
+    public static JsonSerializerOptions JsonOptions()
+    {
+        var result = new JsonSerializerOptions();
+        JsonConfigure(result);
+        return result;
     }
 
     /// <summary>

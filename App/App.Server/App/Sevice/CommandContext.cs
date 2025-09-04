@@ -22,7 +22,7 @@ public class CommandContext(IServiceProvider serviceProvider)
             }
             return domain;
         }
-        set
+        internal set
         {
             domain = value;
         }
@@ -39,8 +39,8 @@ public class CommandContext(IServiceProvider serviceProvider)
         {
             return;
         }
-        var cosmosDb = serviceProvider.GetService<CosmosDb>()!; // Prevent circular reference.
-        var session = RequestSessionId == null ? null : await cosmosDb.SelectByNameAsync<SessionDto>(RequestSessionId, isOrganisation: false);
+        var cosmosDbCache = serviceProvider.GetService<CosmosDbCache>()!; // Prevent circular reference.
+        var session = RequestSessionId == null ? null : await cosmosDbCache.SelectByNameAsync<SessionDto>(RequestSessionId, isOrganisation: false);
         if (session == null || session.IsSignIn != true)
         {
             // No session or session expired
@@ -48,7 +48,7 @@ public class CommandContext(IServiceProvider serviceProvider)
             throw new Exception("User not signed in!");
         }
         var partitionKeyOrganisationDto = Name(typeof(OrganisationDto).Name, isOrganisation: false);
-        var organisation = await cosmosDb.SelectByNameAsync<OrganisationDto>(session.OrganisationName, isOrganisation: false);
+        var organisation = await cosmosDbCache.SelectByNameAsync<OrganisationDto>(session.OrganisationName, isOrganisation: false);
         if (organisation == null)
         {
             // No organisation selected
@@ -98,7 +98,7 @@ public class CommandContext(IServiceProvider serviceProvider)
     /// <summary>
     /// Gets or sets ResponseSessionId.
     /// </summary>
-    public string? ResponseSessionId { get; set; }
+    public string? ResponseSessionId { get; internal set; }
 
     public void NotificationAdd(string text, NotificationEnum notificationEnum = NotificationEnum.None)
     {
@@ -108,4 +108,9 @@ public class CommandContext(IServiceProvider serviceProvider)
         }
         NotificationList.Add(new NotificationDto { NotificationEnum = notificationEnum, Text = text });
     }
+
+    /// <summary>
+    /// Gets or sets CacheId. Used for not shared cache.
+    /// </summary>
+    public string? CacheId { get; internal set; }
 }

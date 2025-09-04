@@ -146,7 +146,7 @@ public class DocumentDto
     /// Gets or sets id. This is the primary key. Unique within a partition key.
     /// </summary>
     [JsonProperty(PropertyName = "id")]
-    public string? Id { get; internal set; }
+    public string? Id { get; init; }
 
     /// <summary>
     /// Gets or sets _etag. Used for concurrency.

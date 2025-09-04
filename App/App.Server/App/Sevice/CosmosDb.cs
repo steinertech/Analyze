@@ -2,7 +2,7 @@
 {
     private string PartitionKey<T>(bool isOrganisation) where T : DocumentDto
     {
-        var name = isOrganisation == false ? typeof(T).Name : null; // CosmosDb for Organisation one PartitionKey only to lease a read only token to access all data.
+        var name = isOrganisation == false ? typeof(T).Name : null; // CosmosDb for one Organisation one PartitionKey only. Lease a read only token to access all data.
         return context.Name(name, isOrganisation);
     }
 

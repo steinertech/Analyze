@@ -14,6 +14,11 @@ public class RequestDto
     /// </summary>
     public string? DevelopmentSessionId { get; set; }
 
+    /// <summary>
+    /// Gets or sets DevelopmentCacheId. Used only in development mode. For example GitHub Codespaces.
+    /// </summary>
+    public string? DevelopmentCacheId { get; set; }
+
     public string? VersionClient { get; set; }
 }
 
@@ -36,7 +41,12 @@ public class ResponseDto
     /// Gets or sets DevelopmentSessionId. Used only in development mode. For example GitHub Codespaces.
     /// </summary>
     public string? DevelopmentSessionId { get; set; }
-    
+
+    /// <summary>
+    /// Gets or sets DevelopmentCacheId. Used only in development mode. For example GitHub Codespaces.
+    /// </summary>
+    public string? DevelopmentCacheId { get; set; }
+
     public bool? IsReload { get; set; }
 }
 

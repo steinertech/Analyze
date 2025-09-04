@@ -10,6 +10,7 @@ export class RequestDto {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public paramList?: any[]
   public developmentSessionId?: string
+  public developmentCacheId?: string
   public versionClient?: string
 }
 
@@ -20,6 +21,7 @@ export class ResponseDto {
   public navigateUrl?: string
   public notificationList?: NotificationDto[]
   public developmentSessionId?: string
+  public developmentCacheId?: string
   public isReload?: boolean
 }
 
@@ -275,6 +277,7 @@ export class ServerApi {
         const configuration = this.configuration()
         if (configuration.isDevelopment) {
           request.developmentSessionId = localStorage.getItem('developmentSessionId') ?? undefined
+          request.developmentCacheId = localStorage.getItem('developmentCacheId') ?? undefined
         }
         return this.httpClient.post<ResponseDto>(configuration.serverUrl, request, { withCredentials: configuration.isDevelopment == false }).pipe(
           tap(value => {
@@ -282,6 +285,9 @@ export class ServerApi {
             if (configuration.isDevelopment) {
               if (value.developmentSessionId) {
                 localStorage.setItem('developmentSessionId', value.developmentSessionId)
+              }
+              if (value.developmentCacheId) {
+                localStorage.setItem('developmentCacheId', value.developmentCacheId)
               }
             }
             // NavigateUrl
