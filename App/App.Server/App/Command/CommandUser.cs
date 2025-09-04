@@ -74,7 +74,7 @@
             Password = user.Password,
         };
         // SignUp
-        await cosmosDb.InsertAsync(user, isOrganisation: false);
+        await cosmosDb.InsertAsync(userLocal, isOrganisation: false);
         // New (small) organisation for user. Additional users can be invited later on.
         var organisation = new OrganisationDto
         { 

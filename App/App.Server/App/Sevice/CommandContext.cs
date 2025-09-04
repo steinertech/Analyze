@@ -113,4 +113,9 @@ public class CommandContext(IServiceProvider serviceProvider)
     /// Gets or sets CacheId. Used for not shared cache.
     /// </summary>
     public string? CacheId { get; internal set; }
+
+    /// <summary>
+    /// Gets or sets CacheCount. Number of times cached data was used for this request.
+    /// </summary>
+    public int? CacheCount { get; internal set; }
 }

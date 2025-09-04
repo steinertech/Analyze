@@ -14,6 +14,7 @@ export class NotificationService {
       return value
     })
   }
+  cacheCount = signal<number | undefined>(undefined)
 }
 
 export enum NotificationEnum {

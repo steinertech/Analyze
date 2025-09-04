@@ -23,6 +23,7 @@ export class ResponseDto {
   public developmentSessionId?: string
   public developmentCacheId?: string
   public isReload?: boolean
+  public cacheCount?: number
 }
 
 export class ComponentDto {
@@ -270,6 +271,7 @@ export class ServerApi {
       tap(() => {
         // this.notificationService.list.update(() => []) // TODO Can not empty list. There might be multiple sequential requests on same page.
         this.postCountAdd(1)
+        this.notificationService.cacheCount.update(() => undefined)
       }),
       // Param withCredentials to send SessionId cookie to server. 
       // Add CORS (not *) https://www.example.com and enable Enable Access-Control-Allow-Credentials on server
@@ -304,6 +306,7 @@ export class ServerApi {
                 return list
               })
             }
+            this.notificationService.cacheCount.update(() => value.cacheCount)
           }),
           map(value => {
             this.postCountAdd(-1);

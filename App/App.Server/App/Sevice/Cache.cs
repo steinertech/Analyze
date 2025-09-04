@@ -40,6 +40,7 @@ public class Cache(IDistributedCache cache, Configuration configuration, Command
         var json = await cache.GetStringAsync(key);
         if (json != null)
         {
+            context.CacheCount = context.CacheCount + 1 ?? 1;
             result = JsonSerializer.Deserialize<T>(json, UtilServer.JsonOptions());
         }
         return result;

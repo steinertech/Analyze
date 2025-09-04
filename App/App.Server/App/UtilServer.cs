@@ -86,11 +86,15 @@ internal static class UtilServer
         var configuration = serviceProvider.GetService<Configuration>()!;
         context.Domain = new Uri(req.Headers.Origin!).Host;
         // context.DomainNameServer = req.Host.Host; // Not used
-        context.RequestSessionId = req.Cookies["SessionId"];
-        context.CacheId = req.Cookies["CacheId"];
-        if (configuration.IsDevelopment)
+        if (configuration.IsDevelopment == false)
         {
-            // For Development stored in Dto not in HttpOnly cookie.
+            // Get session from HttpOnly cookie
+            context.RequestSessionId = req.Cookies["SessionId"];
+            context.CacheId = req.Cookies["CacheId"];
+        }
+        else
+        { 
+            // Get session from Dto
             context.RequestSessionId = requestDto.DevelopmentSessionId;
             context.CacheId = requestDto.DevelopmentCacheId;
         }
@@ -135,6 +139,7 @@ internal static class UtilServer
                     responseDto.DevelopmentCacheId = context.CacheId;
                 }
             }
+            responseDto.CacheCount = context.CacheCount;
         }
         catch (Exception exception)
         {

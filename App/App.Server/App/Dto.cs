@@ -48,6 +48,11 @@ public class ResponseDto
     public string? DevelopmentCacheId { get; set; }
 
     public bool? IsReload { get; set; }
+
+    /// <summary>
+    /// Gets or sets CacheCount. Number of times cached data was used for this request.
+    /// </summary>
+    public int? CacheCount { get; internal set; }
 }
 
 public enum NotificationEnum

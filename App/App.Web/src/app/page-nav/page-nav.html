@@ -86,9 +86,9 @@
     }
   </nav>
 
-    @if(dataService.userSign()) {
-    <div class="text-right w-full bg-blue-200">{{dataService.userSign()?.email}}</div>
-    }
+  @if(dataService.userSign()) {
+  <div class="text-right w-full bg-blue-200">{{dataService.userSign()?.email}}</div>
+  }
   <div class="h-2">
     @if(serverApi.isPost()) {
     <div class="w-full bg-blue-500 animate-pulse h-2"></div>

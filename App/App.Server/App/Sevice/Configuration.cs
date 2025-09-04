@@ -19,7 +19,8 @@ public class Configuration
 
     /// <summary>
     /// Gets IsDevelopment. If true, running for example on GitHub Codespaces. 
-    /// See also files secrets.json and local.settings.json
+    /// See also files secrets.json and local.settings.json and generate.ts method configuration()
+    /// IsDevelopment has to be identically on client and server BEFORE first request.
     /// </summary>
     public bool IsDevelopment { get; }
 

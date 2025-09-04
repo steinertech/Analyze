@@ -15,7 +15,6 @@
         }
         result = await cosmosDb.SelectByNameAsync<T>(name, isOrganisation);
         await cache.SetAsync(Key(typeof(T), name, isOrganisation), result);
-        var d = await cache.GetAsync<T>(Key(typeof(T), name, isOrganisation));
         return result;
     }
 
