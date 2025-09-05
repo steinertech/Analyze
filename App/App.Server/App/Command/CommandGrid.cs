@@ -563,6 +563,18 @@ public class GridDto
         return result;
     }
 
+    public GridCellDto AddCellControl(int? colSpan = null)
+    {
+        RowCellList = RowCellList ?? new();
+        if (RowCellList.LastOrDefault() == null)
+        {
+            RowCellList.Add(new());
+        }
+        var cell = new GridCellDto() { CellEnum = GridCellEnum.Control, ColSpan = colSpan };
+        RowCellList.Last().Add(cell);
+        return cell;
+    }
+
     public GridCellDto AddCell(GridCellDto cell)
     {
         RowCellList = RowCellList ?? new();

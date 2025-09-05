@@ -84,21 +84,21 @@
       @case (GridCellEnum.Control) {
       @for (control of cell.controlList; track $index;) {
       @switch (control.controlEnum) {
-      <!-- Button Reload -->
-      @case (GridControlEnum.ButtonReload) {
-      <button class="frm-button" (click)="clickControl(cell, control)">Reload</button>
-      }
       <!-- Button Save -->
       @case (GridControlEnum.ButtonSave) {
       <button class="frm-button" (click)="clickControl(cell, control)">Save</button>
       }
-      <!-- Button Cancel (Lookup) -->
-      @case (GridControlEnum.ButtonLookupCancel) {
-      <button (click)="clickControl(cell, control)">Cancel</button>
+      <!-- Button Reload -->
+      @case (GridControlEnum.ButtonReload) {
+      <button class="frm-button" (click)="clickControl(cell, control)">Reload</button>
       }
       <!-- Button Ok (Lookup) -->
       @case (GridControlEnum.ButtonLookupOk) {
-      <button (click)="clickControl(cell, control)">Ok</button>
+      <button class="frm-button" (click)="clickControl(cell, control)">Ok</button>
+      }
+      <!-- Button Cancel (Lookup) -->
+      @case (GridControlEnum.ButtonLookupCancel) {
+      <button class="frm-button-soft" (click)="clickControl(cell, control)">Cancel</button>
       }
       <!-- Button Sort (Lookup) -->
       @case (GridControlEnum.ButtonLookupSort) {

@@ -9,38 +9,32 @@ public class GridBase
         return Task.FromResult(result);
     }
 
-    protected virtual Task<List<GridHeaderLookupDataRowDto>> LoadHeaderLookup()
-    {
-        var result = new List<GridHeaderLookupDataRowDto>();
-        return Task.FromResult(result);
-    }
-
     protected virtual Task<List<Dictionary<string, object>>> LoadRowList(GridDto grid, List<GridStateFilterDto> filterList, GridStateSortDto? sort)
     {
         var result = new List<Dictionary<string, object>>();
         return Task.FromResult(result);
     }
 
-    protected Task Render(GridDto grid, List<Dictionary<string, object>> rowList, List<GridColumnDto> columnList)
+    protected void Render(GridDto grid, List<Dictionary<string, object>> rowList, List<GridColumnDto> columnList)
     {
         grid.Clear();
         // ColumnSortList
         var columnSortList = columnList.OrderBy(item => item.Sort).ToList();
         // RowKey
         var columnRowKey = columnList.Where(item => item.IsRowKey == true).SingleOrDefault();
-        // Header
+        // Render Header
         grid.AddRow();
         foreach (var column in columnSortList)
         {
             grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = column.FieldName, Text = column.FieldName });
         }
-        // Filter
+        // Render Filter
         grid.AddRow();
         foreach (var column in columnSortList)
         {
             grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = column.FieldName, TextPlaceholder = "Search" });
         }
-        // Data
+        // Render Data
         var dataRowIndex = 0;
         foreach (var row in rowList)
         {
@@ -60,14 +54,54 @@ public class GridBase
             }
             dataRowIndex += 1;
         }
-        return Task.CompletedTask;
+    }
+
+    private void RenderHeaderLookup(GridDto grid, string fieldName, List<string?> rowList)
+    {
+        grid.Clear();
+        // Render Filter
+        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = fieldName, TextPlaceholder = "Search", ColSpan = 2 });
+        // Render Select All
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll });
+        grid.AddCellControl();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "(Select All)" });
+        // Render Data
+        var dataRowIndex = 0;
+        foreach (var row in rowList)
+        {
+            grid.AddRow();
+            grid.AddCell(new() { CellEnum = GridCellEnum.CheckboxSelectMulti });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = row });
+            dataRowIndex += 1;
+        }
+        // Render Pagination
+        grid.AddRow();
+        grid.AddCellControl(2);
+        grid.AddControl(new() { ControlEnum = GridControlEnum.Pagination });
+        // Render Ok, Cancel
+        grid.AddRow();
+        grid.AddCellControl(2);
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
     }
 
     public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
     {
-        var rowList = await LoadRowList(grid, grid.State?.FilterList ?? new List<GridStateFilterDto>(), grid.State?.Sort);
-        var columnList = await LoadColumnList();
-        await Render(grid, rowList, columnList);
+        // Grid
+        if (parentCell == null)
+        {
+            var rowList = await LoadRowList(grid, grid.State?.FilterList ?? new List<GridStateFilterDto>(), grid.State?.Sort);
+            var columnList = await LoadColumnList();
+            Render(grid, rowList, columnList);
+        }
+        // Grid Header Lookup
+        if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
+        {
+            var rowList = await LoadRowList(parentGrid, grid.State?.FilterList ?? new List<GridStateFilterDto>(), grid.State?.Sort);
+            var result = rowList.Select(item => item[parentCell.FieldName!].ToString()).Distinct().ToList();
+            RenderHeaderLookup(grid, parentCell.FieldName!, result);
+        }
     }
 }
 
