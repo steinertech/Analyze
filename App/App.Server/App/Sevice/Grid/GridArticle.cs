@@ -16,10 +16,10 @@ public class GridArticle2 : GridBase
         return Task.FromResult(result);
     }
 
-    protected override Task<List<Dictionary<string, object>>> LoadDataRowList(GridDto grid, List<GridStateFilterDto> filterList, GridStateSortDto? sort, GridPaginationDto pagination)
+    protected override async Task<List<Dictionary<string, object?>>> LoadDataRowList(GridDto grid, string? headerLookupFieldName)
     {
         // Data
-        var list = new List<Dictionary<string, object>>
+        var list = new List<Dictionary<string, object?>>
         {
             new() { { "Id", 1 }, { "Text", "01 Apple" }, { "Price", 88.20 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
             new() { { "Id", 2 }, { "Text", "02 Banana" }, { "Price", 3.20 }, { "Quantity", 7 }, { "Date", "2025-09-02" } },
@@ -33,20 +33,8 @@ public class GridArticle2 : GridBase
         };
         // Query
         var query = list.AsQueryable();
-        // Filter
-        foreach (var filter in filterList)
-        {
-            var fieldName = filter.FieldName!;
-            query = query.Where(item => (item![fieldName!].ToString() ?? "").ToLower().Contains(filter.Text) == true);
-        }
-        // Sort
-        if (sort != null)
-        {
-            query = query.OrderBy($"""{sort.FieldName}{(sort.IsDesc ? " DESC" : "")}""");
-        }
-        // Result
-        var result = query.ToList();
-        return Task.FromResult(result);
+        var result = await UtilGrid.LoadDataRowList(grid, query, headerLookupFieldName);
+        return result;
     }
 }
 
