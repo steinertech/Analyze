@@ -103,6 +103,8 @@ public static class UtilGrid
         // Render Pagination
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.Pagination });
+        //
+        RenderCalcColSpan(grid);
     }
 
     /// <summary>
@@ -112,7 +114,7 @@ public static class UtilGrid
     {
         grid.Clear();
         // Render Filter
-        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = headerLookupFieldName, TextPlaceholder = "Search", ColSpan = 2 });
+        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = headerLookupFieldName, TextPlaceholder = "Search" });
         // Render Select All
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll });
@@ -129,12 +131,42 @@ public static class UtilGrid
         }
         // Render Pagination
         grid.AddRow();
-        grid.AddCellControl(2);
         grid.AddControl(new() { ControlEnum = GridControlEnum.Pagination });
         // Render Ok, Cancel
         grid.AddRow();
-        grid.AddCellControl(2);
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+        //
+        RenderCalcColSpan(grid);
+    }
+
+    /// <summary>
+    /// Calc ColSpan of last cell.
+    private static void RenderCalcColSpan(GridDto grid)
+    {
+        if (grid.RowCellList != null)
+        {
+            var cellCountMax = 0;
+            foreach (var row in grid.RowCellList)
+            {
+                cellCountMax = Math.Max(cellCountMax, row.Count());
+            }
+            foreach (var row in grid.RowCellList)
+            {
+                var colCount = 0;
+                GridCellDto? cellLast = null;
+                foreach (var cell in row)
+                {
+                    colCount += cell.ColSpan.GetValueOrDefault(1);
+                    cellLast = cell;
+                }
+                if (cellLast != null)
+                {
+                    cellLast.ColSpan = cellLast.ColSpan.GetValueOrDefault(1) + (cellCountMax - colCount);
+                    cellLast.ColSpan = cellLast.ColSpan == 1 ? null : cellLast.ColSpan;
+                    UtilServer.Assert(cellLast.ColSpan == null || cellLast.ColSpan > 0);
+                }
+            }
+        }
     }
 }
