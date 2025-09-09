@@ -3,16 +3,21 @@ using System.Linq.Dynamic.Core;
 
 public class GridArticle2 : GridBase
 {
-    protected override Task<List<GridColumnDto>> LoadColumnList()
+    protected override Task<List<GridColumnDto>> LoadColumnList(GridDto grid)
     {
         var result = new List<GridColumnDto>
         {
-            new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Number, IsRowKey = true },
-            new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text },
-            new() { FieldName = "Price", ColumnEnum = GridColumnEnum.Number },
-            new() { FieldName = "Quantity", ColumnEnum = GridColumnEnum.Number },
-            new() { FieldName = "Date", ColumnEnum = GridColumnEnum.Date }
+            new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Number, IsRowKey = true, Sort = 1 },
+            new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, Sort = 2 },
+            new() { FieldName = "Price", ColumnEnum = GridColumnEnum.Number, Sort = 3 },
+            new() { FieldName = "Quantity", ColumnEnum = GridColumnEnum.Number, Sort = 4 },
+            new() { FieldName = "Date", ColumnEnum = GridColumnEnum.Date, Sort = 5 }
         };
+        if (grid.State?.ColumnList != null)
+        {
+            result = result.Where(item => grid.State.ColumnList.Contains(item.FieldName!)).ToList();
+        }
+        result = result.OrderBy(item => item.Sort).ToList();
         return Task.FromResult(result);
     }
 

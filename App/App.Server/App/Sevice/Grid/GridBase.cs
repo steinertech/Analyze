@@ -3,7 +3,7 @@
     /// <summary>
     /// Returns column list to render grid.
     /// </summary>
-    protected virtual Task<List<GridColumnDto>> LoadColumnList()
+    protected virtual Task<List<GridColumnDto>> LoadColumnList(GridDto grid)
     {
         var result = new List<GridColumnDto>();
         return Task.FromResult(result);
@@ -18,38 +18,44 @@
         return Task.FromResult(result);
     }
 
-    public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
+    public async Task<GridLoadResultDto> Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
     {
         if (parentCell == null)
         {
             // Load Grid
-            var columnList = await LoadColumnList();
+            var columnList = await LoadColumnList(grid);
             var dataRowList = await LoadDataRowList(grid, null);
             UtilGrid.Render(grid, dataRowList, columnList);
+            return new() { Grid = grid };
         }
-        else
+        if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null && parentCell.FieldName != null)
         {
-            if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null && parentCell.FieldName != null)
+            // Load Grid Header Lookup
+            var dataRowList = await LoadDataRowList(grid, headerLookupFieldName: parentCell.FieldName);
+            UtilGrid.RenderCheckboxLookup(grid, dataRowList, fieldName: parentCell.FieldName);
+            return new() { Grid = grid };
+        }
+        // Grid Column
+        if (parentGrid != null && parentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any() == true)
+        {
+            if (grid.RowCellList != null)
             {
-                // Load Grid Header Lookup
-                var dataRowList = await LoadDataRowList(grid, headerLookupFieldName: parentCell.FieldName);
-                UtilGrid.RenderHeaderLookup(grid, dataRowList, headerLookupFieldName: parentCell.FieldName);
+                // Save Grid Column
+                UtilGrid.SaveColumnLookup(grid, parentGrid);
+                var columnList = await LoadColumnList(parentGrid);
+                var dataRowList = await LoadDataRowList(parentGrid, null);
+                UtilGrid.Render(parentGrid, dataRowList, columnList);
+                return new() { ParentGrid = parentGrid };
             }
-            else
             {
-                if (parentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any() == true)
-                {
-                    // Load Grid Column Picker
-                    var query = (await LoadColumnList()).Select(item => new Dictionary<string, object?> { { "FieldName", item.FieldName } }).AsQueryable();
-                    var dataRowList = await UtilGrid.LoadDataRowList(grid, query, null);
-                    UtilGrid.RenderHeaderLookup(grid, dataRowList, "FieldName");
-                }
-                else
-                {
-                    throw new Exception("Load failed!");
-                }
+                // Load Grid Column
+                var query = (await LoadColumnList(grid)).Select(item => new Dictionary<string, object?> { { "FieldName", item.FieldName } }).AsQueryable();
+                var dataRowList = await UtilGrid.LoadDataRowList(grid, query, null);
+                UtilGrid.RenderCheckboxLookup(grid, dataRowList, "FieldName");
+                return new() { Grid = grid };
             }
         }
+        throw new Exception("Load failed!");
     }
 }
 
