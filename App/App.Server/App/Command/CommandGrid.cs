@@ -14,8 +14,8 @@
         // Article
         if (grid.GridName == "Article2")
         {
-            await gridArticle.Load(grid, parentCell, parentControl, parentGrid);
-            return new GridLoadResultDto { Grid = grid };
+            var result = await gridArticle.Load(grid, parentCell, parentControl, parentGrid);
+            return result;
         }
         if (grid.State?.FieldSaveList?.Count() > 0)
         {
@@ -106,7 +106,7 @@
         var propertyInfoList = typeof(ProductDto).GetProperties().ToList();
         if (grid.State?.ColumnList?.Count > 0)
         {
-            var columnList = grid.State.ColumnList.Select(item => item.FieldName);
+            var columnList = grid.State.ColumnList;
             propertyInfoList = propertyInfoList.Where(item => columnList.Contains(item.Name)).ToList();
         }
         grid.RowCellList = [];
@@ -210,7 +210,7 @@
         // Data
         var list = memoryGrid.LoadColumnLookup(grid, parentCell);
         grid.State.IsSelectMultiList.AddRange(new bool?[list.Count]);
-        var columnList = parentGrid.State?.ColumnList?.Select(item => item.FieldName).ToList();
+        var columnList = parentGrid.State?.ColumnList?.Select(item => item).ToList();
         for (int i = 0; i < list.Count; i++)
         {
             var item = list[i];
@@ -409,14 +409,12 @@
             parentGrid.State = new GridStateDto();
         }
         parentGrid.State.ColumnList = new();
-        int i = 0;
         foreach (var cell in grid.RowCellList!.SelectMany(item => item).Where(item => item.CellEnum == GridCellEnum.Field && item.DataRowIndex != null))
         {
             var isSelect = grid.State!.IsSelectMultiList![cell.DataRowIndex ?? -1];
             if (isSelect == true)
             {
-                parentGrid.State.ColumnList.Add(new GridStateColumnDto { FieldName = cell.Text!, OrderBy = i });
-                i++;
+                parentGrid.State.ColumnList.Add(cell.Text!);
             }
         }
         await Load(parentGrid, null, null, null); // TODO Column on lookup. For example filter would be missing.
@@ -665,10 +663,20 @@ public class GridStateDto
     /// </summary>
     public List<bool?>? IsSelectMultiList { get; set; }
 
+    public bool? IsSelectMultiGet(int index)
+    {
+        bool? result = null;
+        if (index < IsSelectMultiList?.Count)
+        {
+            result = IsSelectMultiList[index];
+        }
+        return result;
+    }
+
     /// <summary>
     /// Gets or sets ColumnList. This is the list columns to display. If null, display all columns.
     /// </summary>
-    public List<GridStateColumnDto>? ColumnList { get; set; }
+    public List<string>? ColumnList { get; set; }
 
     /// <summary>
     /// Gets or sets ColumnWidthList. Used to resize columns.
@@ -724,13 +732,6 @@ public class GridStateButtonCustomClickDto
     public int? DataRowIndex { get; set; }
 
     public string? FieldName { get; set; }
-}
-
-public class GridStateColumnDto
-{
-    public string FieldName { get; set; } = default!;
-
-    public int OrderBy {  get; set; }
 }
 
 public class GridStateSortDto

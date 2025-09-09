@@ -12,6 +12,8 @@ public static class UtilGrid
         grid.State ??= new();
         grid.State.FilterList ??= new();
         var filterList = grid.State.FilterList;
+        grid.State.FilterMultiList ??= new();
+        var filterMultiList = grid.State.FilterMultiList;
         grid.State.Pagination ??= new();
         var pagination = grid.State.Pagination;
         pagination.PageSize ??= 3;
@@ -24,10 +26,23 @@ public static class UtilGrid
             var fieldName = filter.FieldName!;
             query = query.Where(item => (item![fieldName!]!.ToString() ?? "").ToLower().Contains(filter.Text.ToLower()) == true);
         }
+        // FilterMulti
+        if (grid.State?.FilterMultiList != null)
+        {
+            foreach (var filterMulti in grid.State.FilterMultiList)
+            {
+                var textListLower = filterMulti.TextList.Select(item => item.ToLower()).ToList();
+                query = query.Where($"@0.Contains(Convert.ToString({filterMulti.FieldName}).ToLower())", textListLower);
+            }
+        }
         // HeaderLookupFieldName (Distinct)
         if (headerLookupFieldName != null)
         {
-            query = query.Select(item => new Dictionary<string, object?> { { headerLookupFieldName, item[headerLookupFieldName] } }).Distinct();
+            query = query
+                .Select(item => item[headerLookupFieldName])
+                .Distinct()
+                .OrderBy(item => item)
+                .Select(item => new Dictionary<string, object?> { { headerLookupFieldName, item } });
         }
         // Pagination (PageCount)
         var rowCount = await query.CountAsync();
@@ -53,6 +68,26 @@ public static class UtilGrid
         // Result
         var result = query.ToList();
         return result;
+    }
+
+    public static void SaveHeaderLookup(GridDto grid)
+    {
+
+    }
+
+    public static void SaveColumnLookup(GridDto grid, GridDto parentGrid)
+    {
+        grid.State ??= new();
+        parentGrid.State ??= new();
+        parentGrid.State.ColumnList ??= new();
+        foreach (var cell in grid.RowCellList!.SelectMany(item => item).Where(item => item.CellEnum == GridCellEnum.Field && item.DataRowIndex != null))
+        {
+            var isSelect = grid.State.IsSelectMultiGet(cell.DataRowIndex ?? -1) == true;
+            if (isSelect)
+            {
+                parentGrid.State.ColumnList.Add(cell.Text!);
+            }
+        }
     }
 
     /// <summary>
@@ -108,13 +143,13 @@ public static class UtilGrid
     }
 
     /// <summary>
-    /// Render header lookup data grid.
+    /// Render checkbox lookup data grid. For header and column lookup.
     /// </summary>
-    public static void RenderHeaderLookup(GridDto grid, List<Dictionary<string, object?>> dataRowList, string headerLookupFieldName)
+    public static void RenderCheckboxLookup(GridDto grid, List<Dictionary<string, object?>> dataRowList, string fieldName)
     {
         grid.Clear();
         // Render Filter
-        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = headerLookupFieldName, TextPlaceholder = "Search" });
+        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = fieldName, TextPlaceholder = "Search" });
         // Render Select All
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll });
@@ -125,8 +160,8 @@ public static class UtilGrid
         foreach (var dataRow in dataRowList)
         {
             grid.AddRow();
-            grid.AddCell(new() { CellEnum = GridCellEnum.CheckboxSelectMulti });
-            grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = dataRow[headerLookupFieldName]?.ToString() });
+            grid.AddCell(new() { CellEnum = GridCellEnum.CheckboxSelectMulti, DataRowIndex = dataRowIndex });
+            grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = dataRow[fieldName]?.ToString(), DataRowIndex = dataRowIndex }); // TODO Readonly
             dataRowIndex += 1;
         }
         // Render Pagination
