@@ -93,9 +93,9 @@ public static class UtilGrid
         grid.State ??= new();
         parentGrid.State ??= new();
         parentGrid.State.FilterMultiList ??= new();
+        var textList = new List<string?>();
         if (grid.State.IsSelectMultiList != null && grid.State.RowKeyList != null)
         {
-            var textList = new List<string?>();
             for (int index = 0; index < grid.State.IsSelectMultiList.Count; index++)
             {
                 if (grid.State.IsSelectMultiList[index] == true)
@@ -104,11 +104,11 @@ public static class UtilGrid
                     textList.Add(text);
                 }
             }
-            parentGrid.State.FilterMultiList = parentGrid.State.FilterMultiList.Where(item => item.FieldName != fieldName).ToList();
-            if (textList.Count > 0)
-            {
-                parentGrid.State.FilterMultiList.Add(new GridStateFilterMultiDto { FieldName = fieldName, TextList = textList });
-            }
+        }
+        parentGrid.State.FilterMultiList = parentGrid.State.FilterMultiList.Where(item => item.FieldName != fieldName).ToList();
+        if (textList.Count > 0)
+        {
+            parentGrid.State.FilterMultiList.Add(new GridStateFilterMultiDto { FieldName = fieldName, TextList = textList });
         }
     }
 
