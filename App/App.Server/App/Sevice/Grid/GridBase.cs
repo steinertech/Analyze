@@ -3,7 +3,7 @@
     /// <summary>
     /// Returns column list to render grid.
     /// </summary>
-    protected virtual Task<List<GridColumnDto>> LoadColumnList()
+    protected virtual Task<List<GridColumnDto>> LoadColumnList(GridDto grid)
     {
         var result = new List<GridColumnDto>();
         return Task.FromResult(result);
@@ -23,7 +23,7 @@
         if (request.ParentCell == null)
         {
             // Load Grid
-            var columnList = await LoadColumnList();
+            var columnList = await LoadColumnList(request.Grid);
             var dataRowList = await LoadDataRowList(request.Grid, null);
             UtilGrid.Render(request.Grid, dataRowList, columnList);
         }
@@ -31,18 +31,34 @@
         {
             if (request.ParentCell?.CellEnum == GridCellEnum.Header && request.ParentGrid != null && request.ParentCell.FieldName != null)
             {
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk && request.ParentGrid != null)
+                {
+                    UtilGrid.SaveHeaderLookup(request.Grid, request.ParentGrid, request.ParentCell.FieldName);
+                    var parentColumnList = await LoadColumnList(request.ParentGrid);
+                    var parentDataRowList = await LoadDataRowList(request.ParentGrid, null);
+                    UtilGrid.Render(request.ParentGrid, parentDataRowList, parentColumnList);
+                    return new GridResponseDto { ParentGrid = request.ParentGrid };
+                }
                 // Load Grid Header Lookup
                 var dataRowList = await LoadDataRowList(request.Grid, headerLookupFieldName: request.ParentCell.FieldName);
-                UtilGrid.RenderHeaderLookup(request.Grid, dataRowList, headerLookupFieldName: request.ParentCell.FieldName);
+                UtilGrid.RenderCheckboxLookup(request.Grid, dataRowList, fieldName: request.ParentCell.FieldName);
             }
             else
             {
                 if (request.ParentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any() == true)
                 {
-                    // Load Grid Column Picker
-                    var query = (await LoadColumnList()).Select(item => new Dictionary<string, object?> { { "FieldName", item.FieldName } }).AsQueryable();
+                    if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk && request.ParentGrid != null)
+                    {
+                        UtilGrid.SaveColumnLookup(request.Grid, request.ParentGrid);
+                        var parentColumnList = await LoadColumnList(request.ParentGrid);
+                        var parentDataRowList = await LoadDataRowList(request.ParentGrid, null);
+                        UtilGrid.Render(request.ParentGrid, parentDataRowList, parentColumnList);
+                        return new GridResponseDto { ParentGrid = request.ParentGrid };
+                    }
+                    // Load Grid Column
+                    var query = (await LoadColumnList(request.Grid)).Select(item => new Dictionary<string, object?> { { "FieldName", item.FieldName } }).AsQueryable();
                     var dataRowList = await UtilGrid.LoadDataRowList(request.Grid, query, null);
-                    UtilGrid.RenderHeaderLookup(request.Grid, dataRowList, "FieldName");
+                    UtilGrid.RenderCheckboxLookup(request.Grid, dataRowList, "FieldName");
                 }
                 else
                 {

@@ -327,7 +327,7 @@ export class PageGrid {
         // Button Ok (Lookup)
         case GridControlEnum.ButtonLookupOk: {
           if (this.parent?._grid) {
-            const response = await this.serverApi.commandGridLoad({ grid: this._grid, parentCell: this.parent._lookup?.cell, parentControl: this.parent._lookup?.control, parentGrid: this.parent._grid })
+            const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent._lookup?.cell, parentControl: this.parent._lookup?.control, parentGrid: this.parent._grid })
             this.grid.set(response.grid) // Lookup to be closed
             if (this.parent?._grid && response.parentGrid) {
               this.parent.grid.set(response.parentGrid) // Parent reload

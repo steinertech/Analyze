@@ -37,7 +37,7 @@ public class GridMemory
         {
             foreach (var filterMulti in grid.State.FilterMultiList)
             {
-                var textListLower = filterMulti.TextList.Select(item => item.ToLower()).ToList();
+                var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
                 query = query.Where($"@0.Contains(Convert.ToString({filterMulti.FieldName}).ToLower())", textListLower);
             }
         }

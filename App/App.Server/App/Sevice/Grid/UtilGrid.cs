@@ -12,6 +12,8 @@ public static class UtilGrid
         grid.State ??= new();
         grid.State.FilterList ??= new();
         var filterList = grid.State.FilterList;
+        grid.State.FilterMultiList ??= new();
+        var filterMultiList = grid.State.FilterMultiList;
         grid.State.Pagination ??= new();
         var pagination = grid.State.Pagination;
         pagination.PageSize ??= 3;
@@ -23,6 +25,15 @@ public static class UtilGrid
         {
             var fieldName = filter.FieldName!;
             query = query.Where(item => (item![fieldName!]!.ToString() ?? "").ToLower().Contains(filter.Text.ToLower()) == true);
+        }
+        // FilterMulti
+        if (grid.State?.FilterMultiList != null)
+        {
+            foreach (var filterMulti in grid.State.FilterMultiList)
+            {
+                var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
+                query = query.Where($"@0.Contains(Convert.ToString({filterMulti.FieldName}).ToLower())", textListLower);
+            }
         }
         // HeaderLookupFieldName (Distinct)
         if (headerLookupFieldName != null)
@@ -57,6 +68,48 @@ public static class UtilGrid
         // Result
         var result = query.ToList();
         return result;
+    }
+
+    public static void SaveColumnLookup(GridDto grid, GridDto parentGrid)
+    {
+        grid.State ??= new();
+        parentGrid.State ??= new();
+        parentGrid.State.ColumnList ??= new();
+        if (grid.State.IsSelectMultiList != null && grid.State.RowKeyList != null)
+        {
+            for (int index = 0; index < grid.State.IsSelectMultiList.Count; index++)
+            {
+                if (grid.State.IsSelectMultiList[index] == true)
+                {
+                    var text = grid.State.RowKeyList[index];
+                    parentGrid.State.ColumnList.Add(text!);
+                }
+            }
+        }
+    }
+
+    public static void SaveHeaderLookup(GridDto grid, GridDto parentGrid, string fieldName)
+    {
+        grid.State ??= new();
+        parentGrid.State ??= new();
+        parentGrid.State.FilterMultiList ??= new();
+        if (grid.State.IsSelectMultiList != null && grid.State.RowKeyList != null)
+        {
+            var textList = new List<string?>();
+            for (int index = 0; index < grid.State.IsSelectMultiList.Count; index++)
+            {
+                if (grid.State.IsSelectMultiList[index] == true)
+                {
+                    var text = grid.State.RowKeyList[index];
+                    textList.Add(text);
+                }
+            }
+            parentGrid.State.FilterMultiList = parentGrid.State.FilterMultiList.Where(item => item.FieldName != fieldName).ToList();
+            if (textList.Count > 0)
+            {
+                parentGrid.State.FilterMultiList.Add(new GridStateFilterMultiDto { FieldName = fieldName, TextList = textList });
+            }
+        }
     }
 
     /// <summary>
@@ -112,13 +165,13 @@ public static class UtilGrid
     }
 
     /// <summary>
-    /// Render header lookup data grid.
+    /// Render checkbox lookup data grid. For header and column lookup.
     /// </summary>
-    public static void RenderHeaderLookup(GridDto grid, List<Dictionary<string, object?>> dataRowList, string headerLookupFieldName)
+    public static void RenderCheckboxLookup(GridDto grid, List<Dictionary<string, object?>> dataRowList, string fieldName)
     {
         grid.Clear();
         // Render Filter
-        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = headerLookupFieldName, TextPlaceholder = "Search" });
+        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = fieldName, TextPlaceholder = "Search" });
         // Render Select All
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll });
@@ -129,8 +182,9 @@ public static class UtilGrid
         foreach (var dataRow in dataRowList)
         {
             grid.AddRow();
-            grid.AddCell(new() { CellEnum = GridCellEnum.CheckboxSelectMulti });
-            grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = dataRow[headerLookupFieldName]?.ToString() });
+            var text = dataRow[fieldName]?.ToString();
+            grid.AddCell(new() { CellEnum = GridCellEnum.CheckboxSelectMulti, DataRowIndex = dataRowIndex }, text);
+            grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = text });
             dataRowIndex += 1;
         }
         // Render Pagination

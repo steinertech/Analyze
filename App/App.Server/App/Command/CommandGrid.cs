@@ -106,7 +106,7 @@
         var propertyInfoList = typeof(ProductDto).GetProperties().ToList();
         if (grid.State?.ColumnList?.Count > 0)
         {
-            var columnList = grid.State.ColumnList.Select(item => item.FieldName);
+            var columnList = grid.State.ColumnList;
             propertyInfoList = propertyInfoList.Where(item => columnList.Contains(item.Name)).ToList();
         }
         grid.RowCellList = [];
@@ -210,7 +210,7 @@
         // Data
         var list = memoryGrid.LoadColumnLookup(grid, parentCell);
         grid.State.IsSelectMultiList.AddRange(new bool?[list.Count]);
-        var columnList = parentGrid.State?.ColumnList?.Select(item => item.FieldName).ToList();
+        var columnList = parentGrid.State?.ColumnList;
         for (int i = 0; i < list.Count; i++)
         {
             var item = list[i];
@@ -415,7 +415,7 @@
             var isSelect = grid.State!.IsSelectMultiList![cell.DataRowIndex ?? -1];
             if (isSelect == true)
             {
-                parentGrid.State.ColumnList.Add(new GridStateColumnDto { FieldName = cell.Text!, OrderBy = i });
+                parentGrid.State.ColumnList.Add(cell.Text!);
                 i++;
             }
         }
@@ -604,7 +604,7 @@ public class GridDto
     public GridCellDto AddCell(GridCellDto cell, string? rowKey)
     {
         var result = AddCell(cell);
-        UtilServer.Assert(cell.DataRowIndex != null, "DataRowIndex can not be null!");
+        UtilServer.Assert(cell.DataRowIndex != null, "Cell DataRowIndex can not be null when used with RowKey!");
         if (State == null)
         {
             State = new GridStateDto();
@@ -680,10 +680,20 @@ public class GridStateDto
     /// </summary>
     public List<bool?>? IsSelectMultiList { get; set; }
 
+    public bool? IsSelectMultiGet(int index)
+    {
+        bool? result = null;
+        if (index < IsSelectMultiList?.Count)
+        {
+            result = IsSelectMultiList[index];
+        }
+        return result;
+    }
+
     /// <summary>
     /// Gets or sets ColumnList. This is the list columns to display. If null, display all columns.
     /// </summary>
-    public List<GridStateColumnDto>? ColumnList { get; set; }
+    public List<string>? ColumnList { get; set; }
 
     /// <summary>
     /// Gets or sets ColumnWidthList. Used to resize columns.
@@ -741,13 +751,6 @@ public class GridStateButtonCustomClickDto
     public string? FieldName { get; set; }
 }
 
-public class GridStateColumnDto
-{
-    public string FieldName { get; set; } = default!;
-
-    public int OrderBy {  get; set; }
-}
-
 public class GridStateSortDto
 {
     public string FieldName { get; set; } = default!;
@@ -766,7 +769,7 @@ public class GridStateFilterMultiDto
 {
     public string FieldName { get; set; } = default!;
 
-    public List<string> TextList { get; set; } = default!;
+    public List<string?> TextList { get; set; } = default!;
 }
 
 /// <summary>
