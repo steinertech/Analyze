@@ -27,7 +27,11 @@ public static class UtilGrid
         // HeaderLookupFieldName (Distinct)
         if (headerLookupFieldName != null)
         {
-            query = query.Select(item => new Dictionary<string, object?> { { headerLookupFieldName, item[headerLookupFieldName] } }).Distinct();
+            query = query
+                .Select(item => item[headerLookupFieldName])
+                .Distinct()
+                .OrderBy(item => item)
+                .Select(item => new Dictionary<string, object?> { { headerLookupFieldName, item } });
         }
         // Pagination (PageCount)
         var rowCount = await query.CountAsync();
