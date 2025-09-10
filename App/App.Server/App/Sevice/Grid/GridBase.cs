@@ -18,31 +18,31 @@
         return Task.FromResult(result);
     }
 
-    public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
+    public async Task<GridResponseDto> Load(GridRequestDto request)
     {
-        if (parentCell == null)
+        if (request.ParentCell == null)
         {
             // Load Grid
             var columnList = await LoadColumnList();
-            var dataRowList = await LoadDataRowList(grid, null);
-            UtilGrid.Render(grid, dataRowList, columnList);
+            var dataRowList = await LoadDataRowList(request.Grid, null);
+            UtilGrid.Render(request.Grid, dataRowList, columnList);
         }
         else
         {
-            if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null && parentCell.FieldName != null)
+            if (request.ParentCell?.CellEnum == GridCellEnum.Header && request.ParentGrid != null && request.ParentCell.FieldName != null)
             {
                 // Load Grid Header Lookup
-                var dataRowList = await LoadDataRowList(grid, headerLookupFieldName: parentCell.FieldName);
-                UtilGrid.RenderHeaderLookup(grid, dataRowList, headerLookupFieldName: parentCell.FieldName);
+                var dataRowList = await LoadDataRowList(request.Grid, headerLookupFieldName: request.ParentCell.FieldName);
+                UtilGrid.RenderHeaderLookup(request.Grid, dataRowList, headerLookupFieldName: request.ParentCell.FieldName);
             }
             else
             {
-                if (parentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any() == true)
+                if (request.ParentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any() == true)
                 {
                     // Load Grid Column Picker
                     var query = (await LoadColumnList()).Select(item => new Dictionary<string, object?> { { "FieldName", item.FieldName } }).AsQueryable();
-                    var dataRowList = await UtilGrid.LoadDataRowList(grid, query, null);
-                    UtilGrid.RenderHeaderLookup(grid, dataRowList, "FieldName");
+                    var dataRowList = await UtilGrid.LoadDataRowList(request.Grid, query, null);
+                    UtilGrid.RenderHeaderLookup(request.Grid, dataRowList, "FieldName");
                 }
                 else
                 {
@@ -50,6 +50,6 @@
                 }
             }
         }
+        return new GridResponseDto { Grid = request.Grid };
     }
 }
-

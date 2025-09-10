@@ -276,6 +276,17 @@ export class ServerApi {
 
   private post<T>(request: RequestDto): Observable<T> {
     request.versionClient = UtilClient.versionClient
+    // Grid RowCellList
+    if (request.commandName == 'CommandGridLoad') {
+      const gridRequest = structuredClone((<GridRequestDto>request.paramList![0]))
+      if (gridRequest.grid.rowCellList) {
+        gridRequest.grid.rowCellList = undefined
+      }
+      if (gridRequest.parentGrid?.rowCellList) {
+        gridRequest.parentGrid.rowCellList = undefined
+      }
+      request.paramList![0] = gridRequest
+    }
     return of(0).pipe(
       tap(() => {
         // this.notificationService.list.update(() => []) // TODO Can not empty list. There might be multiple sequential requests on same page.

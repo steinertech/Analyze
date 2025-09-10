@@ -14,8 +14,8 @@
         // Article
         if (request.Grid.GridName == "Article2")
         {
-            await gridArticle.Load(request.Grid, request.ParentCell, request.ParentControl, request.ParentGrid);
-            return new GridResponseDto { Grid = request.Grid };
+            var response = await gridArticle.Load(request);
+            return response;
         }
         if (request.Grid.State?.FieldSaveList?.Count() > 0)
         {
