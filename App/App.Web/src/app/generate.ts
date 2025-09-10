@@ -58,7 +58,16 @@ export class ProductDto {
   public price?: number
 }
 
-export class GridLoadDto {
+export class GridRequestDto {
+  public grid!: GridDto
+  public parentGrid?: GridDto
+  public cell?: GridCellDto
+  public control?: GridControlDto
+  public parentCell?: GridCellDto
+  public parentControl?: GridControlDto
+}
+
+export class GridResponseDto {
   public grid!: GridDto
   public parentGrid?: GridDto
 }
@@ -379,7 +388,7 @@ export class ServerApi {
     return await firstValueFrom(this.post<void>({ commandName: "CommandArticleAdd", paramList: [] }))
   }
 
-  async commandGridLoad(grid: GridDto, parentCell?: GridCellDto, parentControl?: GridControlDto, parentGrid?: GridDto) {
-    return await firstValueFrom(this.post<GridLoadDto>({ commandName: "CommandGridLoad", paramList: [grid, parentCell, parentControl, parentGrid] }))
+  async commandGridLoad(request: GridRequestDto) {
+    return await firstValueFrom(this.post<GridResponseDto>({ commandName: "CommandGridLoad", paramList: [request] }))
   }
 }

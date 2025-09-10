@@ -109,9 +109,9 @@ internal static class UtilServer
             }
             // Run
             responseDto = await ServerApi.Run(requestDto, jsonOptions, serviceProvider);
-            if (responseDto.Result is GridLoadResultDto gridLoadResult)
+            if (responseDto.Result is GridResponseDto gridResponse)
             {
-                gridLoadResult.ClearResponse();
+                gridResponse.ClearResponse();
             }
             responseDto.NavigateUrl = context.ResponseNavigateUrl;
             responseDto.NotificationList = context.NotificationList;

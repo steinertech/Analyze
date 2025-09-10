@@ -24,11 +24,11 @@ export class PageProduct implements AfterContentInit {
 
   async ngAfterContentInit() {
     if (this.serverApi.isWindow()) {
-      const load = await this.serverApi.commandGridLoad(this.grid())
-      this.grid.set(load.grid)
+      const response = await this.serverApi.commandGridLoad({ grid: this.grid() })
+      this.grid.set(response.grid)
       // this.serverApi.commandGridLoad(this.gridExcel).subscribe(value => this.gridExcel = value);
-      const loadStorage = await this.serverApi.commandGridLoad(this.gridStorage())
-      this.gridStorage.set(loadStorage.grid)
+      const responseStorage = await this.serverApi.commandGridLoad({ grid: this.gridStorage() })
+      this.gridStorage.set(responseStorage.grid)
     }
   }
 }

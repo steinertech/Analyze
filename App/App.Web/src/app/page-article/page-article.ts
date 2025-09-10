@@ -25,8 +25,8 @@ export class PageArticle implements AfterContentInit {
   async ngAfterContentInit() {
     if (this.serverApi.isWindow()) {
       const [load, load2] = await Promise.all([
-        this.serverApi.commandGridLoad(this.grid()),
-        this.serverApi.commandGridLoad(this.grid2())
+        this.serverApi.commandGridLoad({ grid: this.grid() }),
+        this.serverApi.commandGridLoad({ grid: this.grid2() })
       ])
       this.grid.set(load.grid);
       this.grid2.set(load2.grid);

@@ -3,102 +3,102 @@
     /// <summary>
     /// Returns loaded grid.
     /// </summary>
-    public async Task<GridLoadResultDto> Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
+    public async Task<GridResponseDto> Load(GridRequestDto request)
     {
         // Article
-        if (grid.GridName == "Article")
+        if (request.Grid.GridName == "Article")
         {
-            await articleGrid.Load(grid, parentCell, parentControl, parentGrid);
-            return new GridLoadResultDto { Grid = grid };
+            await articleGrid.Load(request.Grid, request.ParentCell, request.ParentControl, request.ParentGrid);
+            return new GridResponseDto { Grid = request.Grid };
         }
         // Article
-        if (grid.GridName == "Article2")
+        if (request.Grid.GridName == "Article2")
         {
-            await gridArticle.Load(grid, parentCell, parentControl, parentGrid);
-            return new GridLoadResultDto { Grid = grid };
+            await gridArticle.Load(request.Grid, request.ParentCell, request.ParentControl, request.ParentGrid);
+            return new GridResponseDto { Grid = request.Grid };
         }
-        if (grid.State?.FieldSaveList?.Count() > 0)
+        if (request.Grid.State?.FieldSaveList?.Count() > 0)
         {
             // Storage
-            if (grid.GridName == "Storage")
+            if (request.Grid.GridName == "Storage")
             {
-                await storageGrid.Save(grid, parentCell, parentControl, parentGrid);
-                return new() { Grid = grid, ParentGrid = parentGrid };
+                await storageGrid.Save(request.Grid, request.ParentCell, request.ParentControl, request.ParentGrid);
+                return new() { Grid = request.Grid, ParentGrid = request.ParentGrid };
             }
-            if (parentCell == null)
+            if (request.ParentCell == null)
             {
-                var result = new GridLoadResultDto() { Grid = DataSave(grid) };
+                var result = new GridResponseDto() { Grid = DataSave(request.Grid) };
                 if (result.Grid?.State?.FieldSaveList != null)
                 {
                     result.Grid.State.FieldSaveList = null;
                 }
-                await Load(grid, parentCell, parentControl, parentGrid);
+                await Load(request);
                 return result;
             }
         }
         // Excel
-        if (grid.GridName == "Excel")
+        if (request.Grid.GridName == "Excel")
         {
-            await excelGrid.Load(grid);
-            return new GridLoadResultDto { Grid = grid };
+            await excelGrid.Load(request.Grid);
+            return new GridResponseDto { Grid = request.Grid };
         }
         // Storage
-        if (grid.GridName == "Storage")
+        if (request.Grid.GridName == "Storage")
         {
-            await storageGrid.Load(grid, parentCell, parentControl, parentGrid);
-            return new GridLoadResultDto { Grid = grid };
+            await storageGrid.Load(request.Grid, request.ParentCell, request.ParentControl, request.ParentGrid);
+            return new GridResponseDto { Grid = request.Grid };
         }
         // Data
-        if (parentCell == null)
+        if (request.ParentCell == null)
         {
-            DataLoad(grid);
+            DataLoad(request.Grid);
         }
         // Header Lookup
-        if (parentCell?.CellEnum == GridCellEnum.Header && parentGrid != null)
+        if (request.ParentCell?.CellEnum == GridCellEnum.Header && request.ParentGrid != null)
         {
-            if (grid.RowCellList == null)
+            if (request.Grid.RowCellList == null)
             {
-                LookupHeaderLoad(grid, parentCell, parentGrid);
+                LookupHeaderLoad(request.Grid, request.ParentCell, request.ParentGrid);
             }
             else
             {
-                await LookupHeaderSave(grid, parentCell, parentGrid);
-                return new() { Grid = grid, ParentGrid = parentGrid };
+                await LookupHeaderSave(request.Grid, request.ParentCell, request.ParentGrid);
+                return new() { Grid = request.Grid, ParentGrid = request.ParentGrid };
             }
         }
         // Autocomplete
-        if (parentCell?.CellEnum == GridCellEnum.FieldAutocomplete && parentGrid != null)
+        if (request.ParentCell?.CellEnum == GridCellEnum.FieldAutocomplete && request.ParentGrid != null)
         {
-            if (grid.RowCellList == null)
+            if (request.Grid.RowCellList == null)
             {
-                LookupAutocompleteLoad(grid);
+                LookupAutocompleteLoad(request.Grid);
             }
             else
             {
-                if (parentCell.DataRowIndex != null && parentCell.FieldName != null)
+                if (request.ParentCell.DataRowIndex != null && request.ParentCell.FieldName != null)
                 {
                     // Parameter parentCell to parentGrid cell instance
-                    parentCell = parentGrid.RowCellList?.SelectMany(item => item).Where(item => item.DataRowIndex == parentCell.DataRowIndex && item.FieldName == parentCell.FieldName).FirstOrDefault() ?? parentCell;
+                    request.ParentCell = request.ParentGrid.RowCellList?.SelectMany(item => item).Where(item => item.DataRowIndex == request.ParentCell.DataRowIndex && item.FieldName == request.ParentCell.FieldName).FirstOrDefault() ?? request.ParentCell;
                 }
-                LookupAutocompleteSave(grid, parentCell, parentGrid);
-                return new() { Grid = grid, ParentGrid = parentGrid };
+                LookupAutocompleteSave(request.Grid, request.ParentCell, request.ParentGrid);
+                return new() { Grid = request.Grid, ParentGrid = request.ParentGrid };
             }
         }
         // Column Lookup
-        var parentCellIsColumn = parentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any();
-        if (parentCell != null && parentCellIsColumn == true && parentGrid != null)
+        var parentCellIsColumn = request.ParentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any();
+        if (request.ParentCell != null && parentCellIsColumn == true && request.ParentGrid != null)
         {
-            if (grid.RowCellList == null)
+            if (request.Grid.RowCellList == null)
             {
-                LookupColumnLoad(grid, parentCell, parentGrid);
+                LookupColumnLoad(request.Grid, request.ParentCell, request.ParentGrid);
             }
             else
             {
-                await LookupColumnSave(grid, parentCell, parentGrid);
-                return new() { Grid = grid, ParentGrid = parentGrid };
+                await LookupColumnSave(request.Grid, request.ParentCell, request.ParentGrid);
+                return new() { Grid = request.Grid, ParentGrid = request.ParentGrid };
             }
         }
-        return new GridLoadResultDto { Grid = grid };
+        return new GridResponseDto { Grid = request.Grid };
     }
 
     private void DataLoad(GridDto grid)
@@ -399,7 +399,7 @@
                 }
             }
         }
-        await Load(parentGrid, null, null, null);
+        await Load(new() { Grid = parentGrid });
     }
 
     private async Task LookupColumnSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
@@ -419,7 +419,7 @@
                 i++;
             }
         }
-        await Load(parentGrid, null, null, null); // TODO Column on lookup. For example filter would be missing.
+        await Load(new() { Grid = parentGrid }); // TODO Column on lookup. For example filter would be missing.
     }
 
     /// <summary>
@@ -449,7 +449,22 @@
     }
 }
 
-public class GridLoadResultDto
+public class GridRequestDto
+{
+    public GridDto Grid { get; set; } = default!;
+
+    public GridCellDto? Cell { get; set; }
+
+    public GridControlDto? Control { get; set; }
+
+    public GridCellDto? ParentCell { get; set; }
+
+    public GridControlDto? ParentControl { get; set; }
+
+    public GridDto? ParentGrid { get; set; }
+}
+
+public class GridResponseDto
 {
     public GridDto Grid { get; set; } = default!;
 
