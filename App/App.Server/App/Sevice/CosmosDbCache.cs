@@ -26,8 +26,8 @@
 
 public class CosmosDbDynamicCache(CosmosDb cosmosDb, Cache cache)
 {
-    public Task<IDictionary<string, object>?> SelectByNameAsync<T>(string? name, bool isOrganisation = true) where T : DocumentDto
+    public Task<IDictionary<string, object?>?> SelectByNameAsync<T>(string? name, bool isOrganisation = true) where T : DocumentDto
     {
-        return Task.FromResult<IDictionary<string, object>?>(null); // TODO
+        return Task.FromResult<IDictionary<string, object?>?>(null); // TODO
     }
 }

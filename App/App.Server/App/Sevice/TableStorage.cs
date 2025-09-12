@@ -44,19 +44,19 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
         return context.Name(name, isOrganisation);
     }
 
-    public Task<List<Dictionary<string, object>>> SelectAsync<T>(FormattableString? filter = null, bool isOrganisation = true) where T : TableEntityDto
+    public Task<List<Dictionary<string, object?>>> SelectAsync<T>(FormattableString? filter = null, bool isOrganisation = true) where T : TableEntityDto
     {
         var partitionKey = PartitionKey<T>(isOrganisation);
         return UtilTableStorageDynamic.SelectAsync<T>(tableStorageClient.Client, partitionKey, filter);
     }
 
-    public Task<Dictionary<string, object>?> SelectByIdAsync<T>(string? id, bool isOrganisation = true) where T : TableEntityDto
+    public Task<Dictionary<string, object?>?> SelectByIdAsync<T>(string? id, bool isOrganisation = true) where T : TableEntityDto
     {
         var partitionKey = PartitionKey<T>(isOrganisation);
         return UtilTableStorageDynamic.SingleByIdAsync<T>(tableStorageClient.Client, partitionKey, id);
     }
 
-    public async Task InsertAsync<T>(IDictionary<string, object> item, bool isOrganisation = true) where T : TableEntityDto, new()
+    public async Task InsertAsync<T>(IDictionary<string, object?> item, bool isOrganisation = true) where T : TableEntityDto, new()
     {
         var partitionKey = PartitionKey<T>(isOrganisation);
         await UtilTableStorageDynamic.InsertAsync<T>(tableStorageClient.Client, partitionKey, item);

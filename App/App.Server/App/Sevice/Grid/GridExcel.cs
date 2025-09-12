@@ -8,7 +8,7 @@ public class GridExcel(Configuration configuration)
     /// <summary>
     /// (FileName, SheetName, RowIndex, ColName, CellValue)
     /// </summary>
-    private Dictionary<string, Dictionary<string, Dictionary<uint, Dictionary<string, object>>>> list = new Dictionary<string, Dictionary<string, Dictionary<uint, Dictionary<string, object>>>>();
+    private Dictionary<string, Dictionary<string, Dictionary<uint, Dictionary<string, object?>>>> list = new Dictionary<string, Dictionary<string, Dictionary<uint, Dictionary<string, object?>>>>();
 
     private bool isInit = false;
 
@@ -95,7 +95,7 @@ public class GridExcel(Configuration configuration)
                         foreach (var cell in row.Value)
                         {
                             var value = cell.Value;
-                            grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = value.ToString(), DataRowIndex = rowCount -1 });
+                            grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = value?.ToString(), DataRowIndex = rowCount -1 });
                         }
                     }
                 }

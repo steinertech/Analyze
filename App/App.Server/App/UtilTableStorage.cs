@@ -82,31 +82,31 @@ public static class UtilTableStorage
 
 public static class UtilTableStorageDynamic
 {
-    public async static Task<List<Dictionary<string, object>>> SelectAsync<T>(TableClient client, string partitionKey, FormattableString? filter = null) where T : TableEntityDto
+    public async static Task<List<Dictionary<string, object?>>> SelectAsync<T>(TableClient client, string partitionKey, FormattableString? filter = null) where T : TableEntityDto
     {
-        var result = new List<Dictionary<string, object>>();
+        var result = new List<Dictionary<string, object?>>();
         var filterLocal = UtilTableStorage.Filter(typeof(T), partitionKey, filter);
         await foreach (var item in client.QueryAsync<TableEntity>(filterLocal))
         {
-            result.Add(new Dictionary<string, object>(item));
+            result.Add(new Dictionary<string, object?>(item));
         }
         return result;
     }
 
-    public async static Task<Dictionary<string, object>?> SingleByIdAsync<T>(TableClient client, string partitionKey, string? id) where T : TableEntityDto
+    public async static Task<Dictionary<string, object?>?> SingleByIdAsync<T>(TableClient client, string partitionKey, string? id) where T : TableEntityDto
     {
         // Filter
         var filter = UtilTableStorage.FilterById(typeof(T), partitionKey, id);
         // Select
-        var result = new List<Dictionary<string, object>>();
+        var result = new List<Dictionary<string, object?>>();
         await foreach (var item in client.QueryAsync<TableEntity>(filter)) // Select only one property: select: new[] { "Name" }
         {
-            result.Add(new Dictionary<string, object>(item));
+            result.Add(new Dictionary<string, object?>(item));
         }
         return result.SingleOrDefault();
     }
 
-    public static async Task InsertAsync<T>(TableClient client, string partitionKey, IDictionary<string, object> item) where T : TableEntityDto
+    public static async Task InsertAsync<T>(TableClient client, string partitionKey, IDictionary<string, object?> item) where T : TableEntityDto
     {
         var entity = new TableEntity(item);
         var id = entity["Id"]?.ToString();
@@ -116,7 +116,7 @@ public static class UtilTableStorageDynamic
         await client.AddEntityAsync(entity);
     }
 
-    public static async Task UpdateAsync<T>(TableClient client, string partitionKey, IDictionary<string, object> item) where T : TableEntityDto
+    public static async Task UpdateAsync<T>(TableClient client, string partitionKey, IDictionary<string, object?> item) where T : TableEntityDto
     {
         var entity = new TableEntity(item);
         var id = entity["Id"]?.ToString();
