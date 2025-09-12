@@ -104,10 +104,14 @@ public static class UtilGrid
         {
             for (int index = 0; index < grid.State.IsSelectMultiList.Count; index++)
             {
+                var text = grid.State.RowKeyList[index]!;
                 if (grid.State.IsSelectMultiList[index] == true)
                 {
-                    var text = grid.State.RowKeyList[index];
-                    parentGrid.State.ColumnList.Add(text!);
+                    parentGrid.State.ColumnList.Add(text);
+                }
+                else
+                {
+                    parentGrid.State.ColumnList.Remove(text);
                 }
             }
         }

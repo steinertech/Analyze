@@ -32,7 +32,7 @@ public class GridArticle2 : GridBase
             new() { { "Id", 8 }, { "Text", "08 World" }, { "Price", 10.90 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
             new() { { "Id", 9 }, { "Text", "08 World" }, { "Price", 12.20 }, { "Quantity", 4 }, { "Date", "2025-09-02" } }
         };
-        // Query
+        // Apply (filter, sort and pagination)
         var result = await UtilGrid.LoadDataRowList(dataRowList, grid, lookupFieldName);
         return result;
     }
