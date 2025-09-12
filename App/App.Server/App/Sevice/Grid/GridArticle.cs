@@ -3,9 +3,10 @@ using System.Linq.Dynamic.Core;
 
 public class GridArticle2 : GridBase
 {
-    protected override Task<List<GridColumnDto>> LoadColumnList(GridDto grid)
+    protected override Task<GridConfig> LoadConfig()
     {
-        var result = new List<GridColumnDto>
+        GridConfig result = new() { ColumnList = new() };
+        result.ColumnList = new List<GridColumn>
         {
             new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Number, IsRowKey = true, Sort = 1 },
             new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, Sort = 2 },
@@ -13,18 +14,13 @@ public class GridArticle2 : GridBase
             new() { FieldName = "Quantity", ColumnEnum = GridColumnEnum.Number, Sort = 4 },
             new() { FieldName = "Date", ColumnEnum = GridColumnEnum.Date, Sort = 5 }
         };
-        if (grid.State?.ColumnList != null)
-        {
-            result = result.Where(item => grid.State.ColumnList.Contains(item.FieldName!)).ToList();
-        }
-        result = result.OrderBy(item => item.Sort).ToList();
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dictionary<string, object?>>> LoadDataRowList(GridDto grid, string? headerLookupFieldName)
+    protected override async Task<List<Dictionary<string, object?>>> LoadDataRowList(GridDto grid, string? lookupFieldName)
     {
         // Data
-        var list = new List<Dictionary<string, object?>>
+        var dataRowList = new List<Dictionary<string, object?>>
         {
             new() { { "Id", 1 }, { "Text", "01 Apple" }, { "Price", 88.20 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
             new() { { "Id", 2 }, { "Text", "02 Banana" }, { "Price", 3.20 }, { "Quantity", 7 }, { "Date", "2025-09-02" } },
@@ -37,8 +33,7 @@ public class GridArticle2 : GridBase
             new() { { "Id", 9 }, { "Text", "08 World" }, { "Price", 12.20 }, { "Quantity", 4 }, { "Date", "2025-09-02" } }
         };
         // Query
-        var query = list.AsQueryable();
-        var result = await UtilGrid.LoadDataRowList(grid, query, headerLookupFieldName);
+        var result = await UtilGrid.LoadDataRowList(dataRowList, grid, lookupFieldName);
         return result;
     }
 }

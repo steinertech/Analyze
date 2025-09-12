@@ -975,13 +975,33 @@ public enum GridColumnEnum
     Date = 3,
 }
 
-public class GridColumnDto
+public class GridConfig
+{
+    /// <summary>
+    /// Gets or sets ColumnList. This is all columns.
+    /// </summary>
+    public List<GridColumn> ColumnList { get; set; } = default!;
+
+    /// <summary>
+    /// Returns column list to render data grid.
+    /// </summary>
+    public List<GridColumn> ColumnListGet(GridDto grid)
+    {
+        var result = ColumnList;
+        if (grid.State?.ColumnList?.Count > 0)
+        {
+            result = result.Where(item => grid.State?.ColumnList?.Contains(item.FieldName!) == true).ToList();
+        }
+        result = result.OrderBy(item => item.Sort).ToList();
+        return result;
+    }
+}
+
+public class GridColumn
 {
     public string? FieldName { get; set; }
 
     public GridColumnEnum ColumnEnum { get; set; }
-
-    public bool? IsVisible { get;set; }
 
     public int? Sort { get; set; }
 

@@ -3,11 +3,36 @@ using System.Linq.Dynamic.Core;
 
 public static class UtilGrid
 {
-    /// <summary>
-    /// Returns data row list (filter, sort and pagination) from query to render data grid.
-    /// </summary>
-    public static async Task<List<Dictionary<string, object?>>> LoadDataRowList(GridDto grid, IQueryable<Dictionary<string, object?>> query, string? headerLookupFieldName)
+    public static List<Dictionary<string, object?>> DynamicFrom<T>(List<T> dataRowList, Action<T, Dictionary<string, object?>> convert)
     {
+        var result = new List<Dictionary<string, object?>>();
+        foreach (var dataRow in dataRowList)
+        {
+            var dataRowDictionary = new Dictionary<string, object?>();
+            convert(dataRow, dataRowDictionary);
+            result.Add(dataRowDictionary);
+        }
+        return result;
+    }
+
+    public static List<T> DynamicTo<T>(List<Dictionary<string, object?>> dataRowList, Action<Dictionary<string, object?>, T> convert) where T : new()
+    {
+        var result = new List<T>();
+        foreach (var dataRowDictionary in dataRowList)
+        {
+            var dataRow = new T();
+            convert(dataRowDictionary, dataRow);
+            result.Add(dataRow);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Returns data row list with applied (filter, sort and pagination) to render data grid.
+    /// </summary>
+    public static async Task<List<Dictionary<string, object?>>> LoadDataRowList(List<Dictionary<string, object?>> dataRowList, GridDto grid, string? lookupFieldName)
+    {
+        var query = dataRowList.AsQueryable();
         // Init Filter, Pagination
         grid.State ??= new();
         grid.State.FilterList ??= new();
@@ -35,14 +60,14 @@ public static class UtilGrid
                 query = query.Where($"@0.Contains(Convert.ToString({filterMulti.FieldName}).ToLower())", textListLower);
             }
         }
-        // HeaderLookupFieldName (Distinct)
-        if (headerLookupFieldName != null)
+        // LookupFieldName (Distinct)
+        if (lookupFieldName != null)
         {
             query = query
-                .Select(item => item[headerLookupFieldName])
+                .Select(item => item[lookupFieldName])
                 .Distinct()
                 .OrderBy(item => item)
-                .Select(item => new Dictionary<string, object?> { { headerLookupFieldName, item } });
+                .Select(item => new Dictionary<string, object?> { { lookupFieldName, item } });
         }
         // Pagination (PageCount)
         var rowCount = await query.CountAsync();
@@ -115,7 +140,7 @@ public static class UtilGrid
     /// <summary>
     /// Render data grid.
     /// </summary>
-    public static void Render(GridDto grid, List<Dictionary<string, object?>> dataRowList, List<GridColumnDto> columnList)
+    public static void Render(GridDto grid, List<Dictionary<string, object?>> dataRowList, List<GridColumn> columnList)
     {
         grid.Clear();
         // ColumnSortList
@@ -194,7 +219,7 @@ public static class UtilGrid
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
-        //
+        // Calc ColSpan
         RenderCalcColSpan(grid);
     }
 
