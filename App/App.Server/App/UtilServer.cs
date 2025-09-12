@@ -244,3 +244,17 @@ internal static class UtilServer
         }
     }
 }
+
+public class Dynamic : Dictionary<string, object?>
+{
+    public Dynamic()
+    {
+        
+    }
+
+    public Dynamic(IDictionary<string, object?> dictionary) 
+        : base(dictionary)
+    {
+        
+    }
+}

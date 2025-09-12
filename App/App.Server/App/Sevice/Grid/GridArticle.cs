@@ -17,10 +17,10 @@ public class GridArticle2 : GridBase
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dictionary<string, object?>>> LoadDataRowList(GridDto grid, string? lookupFieldName)
+    protected override async Task<List<Dynamic>> LoadDataRowList(GridDto grid, string? lookupFieldName)
     {
         // Data
-        var dataRowList = new List<Dictionary<string, object?>>
+        var dataRowList = new List<Dynamic>
         {
             new() { { "Id", 1 }, { "Text", "01 Apple" }, { "Price", 88.20 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
             new() { { "Id", 2 }, { "Text", "02 Banana" }, { "Price", 3.20 }, { "Quantity", 7 }, { "Date", "2025-09-02" } },

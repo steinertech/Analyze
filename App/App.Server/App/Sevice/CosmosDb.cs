@@ -51,19 +51,19 @@ public class CosmosDbDynamic(CommandContext context, CosmosDbContainer cosmosDbC
         return context.Name(name, isOrganisation);
     }
 
-    public IQueryable<IDictionary<string, object?>> Select<T>(bool isOrganisation = true) where T : DocumentDto
+    public IQueryable<Dynamic> Select<T>(bool isOrganisation = true) where T : DocumentDto
     {
         var partitionKey = PartitionKey<T>(isOrganisation);
         return UtilCosmosDbDynamic.Select<T>(cosmosDbContainer.Container, partitionKey);
     }
 
-    public Task<IDictionary<string, object?>?> SelectByNameAsync<T>(string? name, bool isOrganisation = true) where T : DocumentDto
+    public Task<Dynamic?> SelectByNameAsync<T>(string? name, bool isOrganisation = true) where T : DocumentDto
     {
         var partitionKey = PartitionKey<T>(isOrganisation);
         return UtilCosmosDbDynamic.SelectByNameAsync<T>(cosmosDbContainer.Container, partitionKey, name);
     }
 
-    public async Task<IDictionary<string, object?>> InsertAsync<T>(IDictionary<string, object?> item, bool isOrganisation = true) where T : DocumentDto, new()
+    public async Task<Dynamic> InsertAsync<T>(Dynamic item, bool isOrganisation = true) where T : DocumentDto, new()
     {
         var partitionKey = PartitionKey<T>(isOrganisation);
         return await UtilCosmosDbDynamic.InsertAsync<T>(cosmosDbContainer.Container, partitionKey, item);

@@ -8,7 +8,7 @@ public class GridExcel(Configuration configuration)
     /// <summary>
     /// (FileName, SheetName, RowIndex, ColName, CellValue)
     /// </summary>
-    private Dictionary<string, Dictionary<string, Dictionary<uint, Dictionary<string, object?>>>> list = new Dictionary<string, Dictionary<string, Dictionary<uint, Dictionary<string, object?>>>>();
+    private Dictionary<string, Dictionary<string, Dictionary<uint, Dynamic>>> list = new Dictionary<string, Dictionary<string, Dictionary<uint, Dynamic>>>();
 
     private bool isInit = false;
 

@@ -27,9 +27,9 @@
     /// <summary>
     /// Returns data row list to render grid.
     /// </summary>
-    protected virtual Task<List<Dictionary<string, object?>>> LoadDataRowList(GridDto grid, string? lookupFieldName)
+    protected virtual Task<List<Dynamic>> LoadDataRowList(GridDto grid, string? lookupFieldName)
     {
-        var result = new List<Dictionary<string, object?>>();
+        var result = new List<Dynamic>();
         return Task.FromResult(result);
     }
 

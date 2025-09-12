@@ -3,19 +3,19 @@ using System.Linq.Dynamic.Core;
 
 public static class UtilGrid
 {
-    public static List<Dictionary<string, object?>> DynamicFrom<T>(List<T> dataRowList, Action<T, Dictionary<string, object?>> convert)
+    public static List<Dynamic> DynamicFrom<T>(List<T> dataRowList, Action<T, Dynamic> convert)
     {
-        var result = new List<Dictionary<string, object?>>();
+        var result = new List<Dynamic>();
         foreach (var dataRow in dataRowList)
         {
-            var dataRowDictionary = new Dictionary<string, object?>();
+            var dataRowDictionary = new Dynamic();
             convert(dataRow, dataRowDictionary);
             result.Add(dataRowDictionary);
         }
         return result;
     }
 
-    public static List<T> DynamicTo<T>(List<Dictionary<string, object?>> dataRowList, Action<Dictionary<string, object?>, T> convert) where T : new()
+    public static List<T> DynamicTo<T>(List<Dynamic> dataRowList, Action<Dynamic, T> convert) where T : new()
     {
         var result = new List<T>();
         foreach (var dataRowDictionary in dataRowList)
@@ -30,7 +30,7 @@ public static class UtilGrid
     /// <summary>
     /// Returns data row list with applied (filter, sort and pagination) to render data grid.
     /// </summary>
-    public static async Task<List<Dictionary<string, object?>>> LoadDataRowList(List<Dictionary<string, object?>> dataRowList, GridDto grid, string? lookupFieldName)
+    public static async Task<List<Dynamic>> LoadDataRowList(List<Dynamic> dataRowList, GridDto grid, string? lookupFieldName)
     {
         var query = dataRowList.AsQueryable();
         // Init Filter, Pagination
@@ -67,7 +67,7 @@ public static class UtilGrid
                 .Select(item => item[lookupFieldName])
                 .Distinct()
                 .OrderBy(item => item)
-                .Select(item => new Dictionary<string, object?> { { lookupFieldName, item } });
+                .Select(item => new Dynamic { { lookupFieldName, item } });
         }
         // Pagination (PageCount)
         var rowCount = await query.CountAsync();
@@ -140,7 +140,7 @@ public static class UtilGrid
     /// <summary>
     /// Render data grid.
     /// </summary>
-    public static void Render(GridDto grid, List<Dictionary<string, object?>> dataRowList, List<GridColumn> columnList)
+    public static void Render(GridDto grid, List<Dynamic> dataRowList, List<GridColumn> columnList)
     {
         grid.Clear();
         // ColumnSortList
@@ -192,7 +192,7 @@ public static class UtilGrid
     /// <summary>
     /// Render checkbox lookup data grid. For header and column lookup.
     /// </summary>
-    public static void RenderCheckboxLookup(GridDto grid, List<Dictionary<string, object?>> dataRowList, string fieldName)
+    public static void RenderCheckboxLookup(GridDto grid, List<Dynamic> dataRowList, string fieldName)
     {
         grid.Clear();
         // Render Filter

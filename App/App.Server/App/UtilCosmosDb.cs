@@ -61,17 +61,17 @@ public static class UtilCosmosDb
 
 public static class UtilCosmosDbDynamic
 {
-    public static IQueryable<IDictionary<string, object?>> Select<T>(Container container, string partitionKey) where T : DocumentDto
+    public static IQueryable<Dynamic> Select<T>(Container container, string partitionKey) where T : DocumentDto
     {
-        IQueryable<IDictionary<string, object?>> result = container.GetItemLinqQueryable<IDictionary<string, object?>>();
+        IQueryable<Dynamic> result = container.GetItemLinqQueryable<Dynamic>();
         result = result.Where(item => (string?)item["partitionKey"] == partitionKey);
         result = result.Where(item => (string?)item["type"] == typeof(T).Name);
         return result;
     }
 
-    public static async Task<IDictionary<string, object?>?> SelectByNameAsync<T>(Container container, string partitionKey, string? name) where T : DocumentDto
+    public static async Task<Dynamic?> SelectByNameAsync<T>(Container container, string partitionKey, string? name) where T : DocumentDto
     {
-        IQueryable<IDictionary<string, object?>> result = container.GetItemLinqQueryable<IDictionary<string, object?>>();
+        IQueryable<Dynamic> result = container.GetItemLinqQueryable<Dynamic>();
         result = result.Where(item => (string?)item["partitionKey"] == partitionKey);
         result = result.Where(item => (string?)item["type"] == typeof(T).Name);
         result = result.Where(item => (string?)item["Namekey"] == UtilCosmosDb.NameKey(typeof(T), name));
@@ -79,7 +79,7 @@ public static class UtilCosmosDbDynamic
         return item;
     }
 
-    public static async Task<IDictionary<string, object?>> InsertAsync<T>(Container container, string partitionKey, IDictionary<string, object?> item) where T : DocumentDto, new()
+    public static async Task<Dynamic> InsertAsync<T>(Container container, string partitionKey, Dynamic item) where T : DocumentDto, new()
     {
         item["partitionKey"] = partitionKey;
         item["type"] = typeof(T).Name;
@@ -117,7 +117,7 @@ public static class UtilCosmosDbExtension
 
 public static class UtilCosmosDbDynamicExtension
 {
-    public static async Task<List<T>> ToListAsync<T>(this IQueryable<T> querable) where T : IDictionary<string, object?>
+    public static async Task<List<T>> ToListAsync<T>(this IQueryable<T> querable) where T : Dynamic
     {
         var result = new List<T>();
         using var feed = querable.ToFeedIterator();
@@ -132,7 +132,7 @@ public static class UtilCosmosDbDynamicExtension
         return result;
     }
 
-    public static async Task<T?> SingleOrDefaultDynamicAsync<T>(this IQueryable<T> querable) where T : IDictionary<string, object?>
+    public static async Task<T?> SingleOrDefaultDynamicAsync<T>(this IQueryable<T> querable) where T : Dynamic
     {
         var list = await querable.ToListAsync();
         var result = list.SingleOrDefault();
