@@ -17,7 +17,7 @@ public class GridArticle2 : GridBase
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> LoadDataRowList(GridDto grid, string? lookupFieldName)
+    protected override async Task<List<Dynamic>> LoadDataRowList(GridDto grid, string? filterFieldName)
     {
         // Data
         var dataRowList = new List<Dynamic>
@@ -33,7 +33,7 @@ public class GridArticle2 : GridBase
             new() { { "Id", 9 }, { "Text", "08 World" }, { "Price", 12.20 }, { "Quantity", 4 }, { "Date", "2025-09-02" } }
         };
         // Apply (filter, sort and pagination)
-        var result = await UtilGrid.LoadDataRowList(dataRowList, grid, lookupFieldName);
+        var result = await UtilGrid.LoadDataRowList(dataRowList, grid, filterFieldName);
         return result;
     }
 }

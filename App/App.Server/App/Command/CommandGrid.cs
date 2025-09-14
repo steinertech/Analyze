@@ -53,16 +53,16 @@
         {
             DataLoad(request.Grid);
         }
-        // Header Lookup
+        // Filter Lookup
         if (request.ParentCell?.CellEnum == GridCellEnum.Header && request.ParentGrid != null)
         {
             if (request.Grid.RowCellList == null)
             {
-                LookupHeaderLoad(request.Grid, request.ParentCell, request.ParentGrid);
+                LookupFilterLoad(request.Grid, request.ParentCell, request.ParentGrid);
             }
             else
             {
-                await LookupHeaderSave(request.Grid, request.ParentCell, request.ParentGrid);
+                await LookupFilterSave(request.Grid, request.ParentCell, request.ParentGrid);
                 return new() { Grid = request.Grid, ParentGrid = request.ParentGrid };
             }
         }
@@ -237,7 +237,7 @@
         });
     }
 
-    private void LookupHeaderLoad(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private void LookupFilterLoad(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         grid.RowCellList = [];
         grid.RowCellList.Add(new List<GridCellDto>());
@@ -266,7 +266,7 @@
         }
         grid.State.IsSelectMultiList = new();
         // Data
-        var list = memoryGrid.LoadHeaderLookup(grid, parentCell);
+        var list = memoryGrid.LoadFilterLookup(grid, parentCell);
         grid.State.IsSelectMultiList.AddRange(new bool?[list.Count]);
         var filterMulti = parentGrid.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == parentCell.FieldName);
         for (int i = 0; i < list.Count; i++)
@@ -351,7 +351,7 @@
         return grid;
     }
 
-    private async Task LookupHeaderSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private async Task LookupFilterSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
     {
         if (parentGrid.State == null)
         {
@@ -954,7 +954,7 @@ public enum GridControlEnum
     Pagination = 20,
 }
 
-public class GridHeaderLookupDataRowDto
+public class GridFilterLookupDataRowDto
 {
     public string? Text { get; set; }
 }

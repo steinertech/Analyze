@@ -63,13 +63,13 @@ public class GridMemory
         return result;
     }
 
-    public List<GridHeaderLookupDataRowDto> LoadHeaderLookup(GridDto grid, GridCellDto parentCell)
+    public List<GridFilterLookupDataRowDto> LoadFilterLookup(GridDto grid, GridCellDto parentCell)
     {
-        var result = new List<GridHeaderLookupDataRowDto>();
+        var result = new List<GridFilterLookupDataRowDto>();
         if (parentCell.FieldName != null)
         {
             var query = productList.AsQueryable();
-            result = query.Select(parentCell.FieldName).ToDynamicList().Select(item => ((object)item)?.ToString()).Distinct().Select(item => new GridHeaderLookupDataRowDto { Text = item }).ToList();
+            result = query.Select(parentCell.FieldName).ToDynamicList().Select(item => ((object)item)?.ToString()).Distinct().Select(item => new GridFilterLookupDataRowDto { Text = item }).ToList();
         }
         result = Load(result, grid);
         return result;

@@ -30,7 +30,10 @@ public static class UtilGrid
     /// <summary>
     /// Returns data row list with applied (filter, sort and pagination) to render data grid.
     /// </summary>
-    public static async Task<List<Dynamic>> LoadDataRowList(List<Dynamic> dataRowList, GridDto grid, string? lookupFieldName)
+    /// <param name="dataRowList">DataRowList (or query).</param>
+    /// <param name="grid">Grid with state to apply (filter, sort and pagination).</param>
+    /// <param name="filterFieldName">Used to render filter lookup data grid.</param>
+    public static async Task<List<Dynamic>> LoadDataRowList(List<Dynamic> dataRowList, GridDto grid, string? filterFieldName)
     {
         var query = dataRowList.AsQueryable();
         // Init Filter, Pagination
@@ -60,14 +63,14 @@ public static class UtilGrid
                 query = query.Where($"@0.Contains(Convert.ToString({filterMulti.FieldName}).ToLower())", textListLower);
             }
         }
-        // LookupFieldName (Distinct)
-        if (lookupFieldName != null)
+        // FilterFieldName (Distinct)
+        if (filterFieldName != null)
         {
             query = query
-                .Select(item => item[lookupFieldName])
+                .Select(item => item[filterFieldName])
                 .Distinct()
                 .OrderBy(item => item)
-                .Select(item => new Dynamic { { lookupFieldName, item } });
+                .Select(item => new Dynamic { { filterFieldName, item } });
         }
         // Pagination (PageCount)
         var rowCount = await query.CountAsync();
@@ -117,27 +120,41 @@ public static class UtilGrid
         }
     }
 
-    public static void SaveHeaderLookup(GridDto grid, GridDto parentGrid, string fieldName)
+    public static void SaveFilterLookup(GridDto grid, GridDto parentGrid, string fieldName)
     {
         grid.State ??= new();
         parentGrid.State ??= new();
         parentGrid.State.FilterMultiList ??= new();
-        var textList = new List<string?>();
+        var textList = new List<(string? Text, bool IsSelect)>();
         if (grid.State.IsSelectMultiList != null && grid.State.RowKeyList != null)
         {
             for (int index = 0; index < grid.State.IsSelectMultiList.Count; index++)
             {
-                if (grid.State.IsSelectMultiList[index] == true)
-                {
-                    var text = grid.State.RowKeyList[index];
-                    textList.Add(text);
-                }
+                var text = grid.State.RowKeyList[index];
+                bool isSelect = grid.State.IsSelectMultiList[index] == true;
+                textList.Add((text, isSelect));
             }
         }
-        parentGrid.State.FilterMultiList = parentGrid.State.FilterMultiList.Where(item => item.FieldName != fieldName).ToList();
-        if (textList.Count > 0)
+        var filterMulti = parentGrid.State.FilterMultiList.SingleOrDefault(item => item.FieldName == fieldName);
+        if (filterMulti == null)
         {
-            parentGrid.State.FilterMultiList.Add(new GridStateFilterMultiDto { FieldName = fieldName, TextList = textList });
+            parentGrid.State.FilterMultiList.Add(new GridStateFilterMultiDto() { FieldName = fieldName, TextList = new List<string?>() });
+        }
+        filterMulti = parentGrid.State.FilterMultiList.Single(item => item.FieldName == fieldName);
+        foreach (var item in textList)
+        {
+            if (item.IsSelect && !filterMulti.TextList.Contains(item.Text))
+            {
+                filterMulti.TextList.Add(item.Text);
+            }
+            if (!item.IsSelect && filterMulti.TextList.Contains(item.Text))
+            {
+                filterMulti.TextList.Remove(item.Text);
+            }
+        }
+        if (filterMulti.TextList.Count == 0)
+        {
+            parentGrid.State.FilterMultiList.Remove(filterMulti);
         }
     }
 
@@ -194,9 +211,9 @@ public static class UtilGrid
     }
 
     /// <summary>
-    /// Render checkbox lookup data grid. For header and column lookup.
+    /// Render lookup data grid. For filter and column lookup.
     /// </summary>
-    public static void RenderCheckboxLookup(GridDto grid, List<Dynamic> dataRowList, string fieldName)
+    public static void RenderLookup(GridDto grid, List<Dynamic> dataRowList, string fieldName)
     {
         grid.Clear();
         // Render Filter

@@ -27,7 +27,7 @@
     /// <summary>
     /// Returns data row list to render grid.
     /// </summary>
-    protected virtual Task<List<Dynamic>> LoadDataRowList(GridDto grid, string? lookupFieldName)
+    protected virtual Task<List<Dynamic>> LoadDataRowList(GridDto grid, string? filterFieldName)
     {
         var result = new List<Dynamic>();
         return Task.FromResult(result);
@@ -48,15 +48,25 @@
             {
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk && request.ParentGrid != null)
                 {
-                    UtilGrid.SaveHeaderLookup(request.Grid, request.ParentGrid, request.ParentCell.FieldName);
+                    UtilGrid.SaveFilterLookup(request.Grid, request.ParentGrid, request.ParentCell.FieldName);
                     var parentColumnList = (await LoadConfig()).ColumnListGet(request.ParentGrid);
                     var parentDataRowList = await LoadDataRowList(request.ParentGrid, null);
                     UtilGrid.Render(request.ParentGrid, parentDataRowList, parentColumnList);
                     return new GridResponseDto { ParentGrid = request.ParentGrid };
                 }
-                // Load Grid Header Lookup
-                var dataRowList = await LoadDataRowList(request.Grid, lookupFieldName: request.ParentCell.FieldName);
-                UtilGrid.RenderCheckboxLookup(request.Grid, dataRowList, fieldName: request.ParentCell.FieldName);
+                // Load Grid Filter Lookup
+                var fieldName = request.ParentCell.FieldName;
+                var dataRowList = await LoadDataRowList(request.Grid, filterFieldName: fieldName);
+                request.Grid.State ??= new();
+                request.Grid.State.IsSelectMultiList = new();
+                var filterMulti = request.ParentGrid?.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == fieldName);
+                foreach (var dataRow in dataRowList)
+                {
+                    var text = dataRow[fieldName]?.ToString();
+                    bool isSelect = filterMulti?.TextList.Contains(text) == true;
+                    request.Grid.State.IsSelectMultiList.Add(isSelect);
+                }
+                UtilGrid.RenderLookup(request.Grid, dataRowList, fieldName: fieldName);
             }
             else
             {
@@ -81,7 +91,7 @@
                         bool isSelect = request.ParentGrid?.State?.ColumnList?.Contains(fieldName) == true;
                         request.Grid.State.IsSelectMultiList.Add(isSelect);
                     }
-                    UtilGrid.RenderCheckboxLookup(request.Grid, dataRowListDynamic, "FieldName");
+                    UtilGrid.RenderLookup(request.Grid, dataRowListDynamic, "FieldName");
                 }
                 else
                 {
