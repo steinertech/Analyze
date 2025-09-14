@@ -17,9 +17,9 @@
     {
         var config = await LoadConfig();
         var result = config.ColumnList;
-        // Apply (filter, sort and pagination)
+        // Apply (filter, sort and pagination) from grid.
         var resultDynamic = UtilGrid.DynamicFrom(result, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
-        resultDynamic = await UtilGrid.LoadDataRowList(resultDynamic, grid, null);
+        resultDynamic = await UtilGrid.LoadDataRowList(resultDynamic, grid, null, null);
         result = UtilGrid.DynamicTo<GridColumn>(resultDynamic, (dataRowFrom, dataRowTo) => { dataRowTo.FieldName = dataRowFrom["FieldName"]?.ToString(); });
         return result;
     }
@@ -27,7 +27,7 @@
     /// <summary>
     /// Returns data row list to render grid.
     /// </summary>
-    protected virtual Task<List<Dynamic>> LoadDataRowList(GridDto grid, string? filterFieldName)
+    protected virtual Task<List<Dynamic>> LoadDataRowList(GridDto grid, string? filterFieldName, GridConfig? config)
     {
         var result = new List<Dynamic>();
         return Task.FromResult(result);
@@ -35,70 +35,60 @@
 
     public async Task<GridResponseDto> Load(GridRequestDto request)
     {
+        // Load Grid
         if (request.ParentCell == null)
         {
-            // Load Grid
-            var columnList = (await LoadConfig()).ColumnListGet(request.Grid);
-            var dataRowList = await LoadDataRowList(request.Grid, null);
+            var config = await LoadConfig();
+            var columnList = config.ColumnListGet(request.Grid);
+            var dataRowList = await LoadDataRowList(request.Grid, null, config);
             UtilGrid.Render(request.Grid, dataRowList, columnList);
+            return new GridResponseDto { Grid = request.Grid };
         }
-        else
+        // Lookup Filter
+        if (request.ParentCell?.CellEnum == GridCellEnum.Header && request.ParentCell.FieldName != null && request.ParentGrid != null )
         {
-            if (request.ParentCell?.CellEnum == GridCellEnum.Header && request.ParentGrid != null && request.ParentCell.FieldName != null)
+            if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
             {
-                if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk && request.ParentGrid != null)
-                {
-                    UtilGrid.SaveFilterLookup(request.Grid, request.ParentGrid, request.ParentCell.FieldName);
-                    var parentColumnList = (await LoadConfig()).ColumnListGet(request.ParentGrid);
-                    var parentDataRowList = await LoadDataRowList(request.ParentGrid, null);
-                    UtilGrid.Render(request.ParentGrid, parentDataRowList, parentColumnList);
-                    return new GridResponseDto { ParentGrid = request.ParentGrid };
-                }
-                // Load Grid Filter Lookup
-                var fieldName = request.ParentCell.FieldName;
-                var dataRowList = await LoadDataRowList(request.Grid, filterFieldName: fieldName);
-                request.Grid.State ??= new();
-                request.Grid.State.IsSelectMultiList = new();
-                var filterMulti = request.ParentGrid?.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == fieldName);
-                foreach (var dataRow in dataRowList)
-                {
-                    var text = dataRow[fieldName]?.ToString();
-                    bool isSelect = filterMulti?.TextList.Contains(text) == true;
-                    request.Grid.State.IsSelectMultiList.Add(isSelect);
-                }
-                UtilGrid.RenderLookup(request.Grid, dataRowList, fieldName: fieldName);
+                // Lookup Filter Save
+                UtilGrid.LookupFilterSave(request.Grid, request.ParentGrid, request.ParentCell.FieldName);
+                var config = await LoadConfig();
+                var columnList = config.ColumnListGet(request.ParentGrid);
+                var dataRowList = await LoadDataRowList(request.ParentGrid, null, null);
+                UtilGrid.Render(request.ParentGrid, dataRowList, columnList);
+                return new GridResponseDto { ParentGrid = request.ParentGrid };
             }
-            else
             {
-                if (request.ParentCell?.ControlList?.Where(item => item.ControlEnum == GridControlEnum.ButtonColumn).Any() == true)
-                {
-                    if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk && request.ParentGrid != null)
-                    {
-                        UtilGrid.SaveColumnLookup(request.Grid, request.ParentGrid);
-                        var parentColumnList = (await LoadConfig()).ColumnListGet(request.ParentGrid);
-                        var parentDataRowList = await LoadDataRowList(request.ParentGrid, null);
-                        UtilGrid.Render(request.ParentGrid, parentDataRowList, parentColumnList);
-                        return new GridResponseDto { ParentGrid = request.ParentGrid };
-                    }
-                    // Load Grid Column
-                    var dataRowList = await LoadColumnList(request.Grid);
-                    var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
-                    request.Grid.State ??= new();
-                    request.Grid.State.IsSelectMultiList = new();
-                    foreach (var dataRow in dataRowListDynamic)
-                    {
-                        var fieldName = dataRow["FieldName"];
-                        bool isSelect = request.ParentGrid?.State?.ColumnList?.Contains(fieldName) == true;
-                        request.Grid.State.IsSelectMultiList.Add(isSelect);
-                    }
-                    UtilGrid.RenderLookup(request.Grid, dataRowListDynamic, "FieldName");
-                }
-                else
-                {
-                    throw new Exception("Load failed!");
-                }
+                // Lookup Filter Load
+                var fieldName = request.ParentCell.FieldName;
+                var config = await LoadConfig();
+                var dataRowList = await LoadDataRowList(request.Grid, filterFieldName: fieldName, null);
+                UtilGrid.LookupFilterLoad(request.ParentGrid, request.Grid, dataRowList, fieldName);
+                UtilGrid.RenderLookup(request.Grid, dataRowList, fieldName: fieldName);
+                return new GridResponseDto { Grid = request.Grid };
             }
         }
-        return new GridResponseDto { Grid = request.Grid };
+        // Lookup Column
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonColumn && request.ParentGrid != null)
+        {
+            if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
+            {
+                // Lookup Column Save
+                UtilGrid.LookupColumnSave(request.Grid, request.ParentGrid);
+                var config = await LoadConfig();
+                var columnList = config.ColumnListGet(request.ParentGrid);
+                var dataRowList = await LoadDataRowList(request.ParentGrid, null, null);
+                UtilGrid.Render(request.ParentGrid, dataRowList, columnList);
+                return new GridResponseDto { ParentGrid = request.ParentGrid };
+            }
+            {
+                // Lookup Column Load
+                var dataRowList = await LoadColumnList(request.Grid);
+                var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
+                UtilGrid.LookupColumnLoad(request.ParentGrid, request.Grid, dataRowListDynamic);
+                UtilGrid.RenderLookup(request.Grid, dataRowListDynamic, "FieldName");
+                return new GridResponseDto { Grid = request.Grid };
+            }
+        }
+        throw new Exception("Load failed!");
     }
 }

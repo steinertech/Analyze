@@ -983,6 +983,11 @@ public class GridConfig
     public List<GridColumn> ColumnList { get; set; } = default!;
 
     /// <summary>
+    /// Gets or sets PageSize. This is the number of rows in one page.
+    /// </summary>
+    public int? PageSize { get; set; }
+
+    /// <summary>
     /// Returns column list to render data grid.
     /// </summary>
     public List<GridColumn> ColumnListGet(GridDto grid)

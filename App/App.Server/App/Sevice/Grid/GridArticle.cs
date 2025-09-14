@@ -14,10 +14,11 @@ public class GridArticle2 : GridBase
             new() { FieldName = "Quantity", ColumnEnum = GridColumnEnum.Number, Sort = 4 },
             new() { FieldName = "Date", ColumnEnum = GridColumnEnum.Date, Sort = 5 }
         };
+        result.PageSize = 4;
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> LoadDataRowList(GridDto grid, string? filterFieldName)
+    protected override async Task<List<Dynamic>> LoadDataRowList(GridDto grid, string? filterFieldName, GridConfig? config)
     {
         // Data
         var dataRowList = new List<Dynamic>
@@ -33,7 +34,7 @@ public class GridArticle2 : GridBase
             new() { { "Id", 9 }, { "Text", "08 World" }, { "Price", 12.20 }, { "Quantity", 4 }, { "Date", "2025-09-02" } }
         };
         // Apply (filter, sort and pagination)
-        var result = await UtilGrid.LoadDataRowList(dataRowList, grid, filterFieldName);
+        var result = await UtilGrid.LoadDataRowList(dataRowList, grid, filterFieldName, config);
         return result;
     }
 }

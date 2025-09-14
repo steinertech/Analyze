@@ -33,7 +33,7 @@ public static class UtilGrid
     /// <param name="dataRowList">DataRowList (or query).</param>
     /// <param name="grid">Grid with state to apply (filter, sort and pagination).</param>
     /// <param name="filterFieldName">Used to render filter lookup data grid.</param>
-    public static async Task<List<Dynamic>> LoadDataRowList(List<Dynamic> dataRowList, GridDto grid, string? filterFieldName)
+    public static async Task<List<Dynamic>> LoadDataRowList(List<Dynamic> dataRowList, GridDto grid, string? filterFieldName, GridConfig? config)
     {
         var query = dataRowList.AsQueryable();
         // Init Filter, Pagination
@@ -44,7 +44,7 @@ public static class UtilGrid
         var filterMultiList = grid.State.FilterMultiList;
         grid.State.Pagination ??= new();
         var pagination = grid.State.Pagination;
-        pagination.PageSize ??= 3;
+        pagination.PageSize ??= config?.PageSize ?? 3;
         pagination.PageIndex ??= 0;
         pagination.PageIndexDeltaClick ??= 0;
         var sort = grid.State.Sort;
@@ -98,7 +98,25 @@ public static class UtilGrid
         return result;
     }
 
-    public static void SaveColumnLookup(GridDto grid, GridDto parentGrid)
+    /// <summary>
+    /// Load parent grid state to lookup grid.
+    /// </summary>
+    public static void LookupColumnLoad(GridDto parentGrid, GridDto grid, List<Dynamic> dataRowList)
+    {
+        grid.State ??= new();
+        grid.State.IsSelectMultiList = new();
+        foreach (var dataRow in dataRowList)
+        {
+            var fieldName = dataRow["FieldName"];
+            bool isSelect = parentGrid?.State?.ColumnList?.Contains(fieldName) == true;
+            grid.State.IsSelectMultiList.Add(isSelect);
+        }
+    }
+
+    /// <summary>
+    /// Save lookup column state to parent grid.
+    /// </summary>
+    public static void LookupColumnSave(GridDto grid, GridDto parentGrid)
     {
         grid.State ??= new();
         parentGrid.State ??= new();
@@ -120,7 +138,26 @@ public static class UtilGrid
         }
     }
 
-    public static void SaveFilterLookup(GridDto grid, GridDto parentGrid, string fieldName)
+    /// <summary>
+    /// Load filter state from parent grid to lookup grid.
+    /// </summary>
+    public static void LookupFilterLoad(GridDto parentGrid, GridDto grid, List<Dynamic> dataRowList, string fieldName)
+    {
+        grid.State ??= new();
+        grid.State.IsSelectMultiList = new();
+        var filterMulti = parentGrid.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == fieldName);
+        foreach (var dataRow in dataRowList)
+        {
+            var text = dataRow[fieldName]?.ToString();
+            bool isSelect = filterMulti?.TextList.Contains(text) == true;
+            grid.State.IsSelectMultiList.Add(isSelect);
+        }
+    }
+
+    /// <summary>
+    /// Save filter state from lookup grid to parent grid.
+    /// </summary>
+    public static void LookupFilterSave(GridDto grid, GridDto parentGrid, string fieldName)
     {
         grid.State ??= new();
         parentGrid.State ??= new();
