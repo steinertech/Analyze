@@ -278,7 +278,7 @@ export class ServerApi {
     request.versionClient = UtilClient.versionClient
     // Grid RowCellList
     if (request.commandName == 'CommandGridLoad') {
-      const gridRequest = structuredClone((<GridRequestDto>request.paramList![0]))
+      const gridRequest = structuredClone(request.paramList![0] as GridRequestDto)
       if (gridRequest.grid.rowCellList) {
         gridRequest.grid.rowCellList = undefined
       }
