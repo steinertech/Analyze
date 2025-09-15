@@ -47,18 +47,42 @@
         // Lookup Filter
         if (request.ParentCell?.CellEnum == GridCellEnum.Header && request.ParentCell.FieldName != null && request.ParentGrid != null )
         {
+            // Button Ok
             if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
             {
-                // Lookup Filter Save
+                // Filter Save (State)
                 UtilGrid.LookupFilterSave(request.Grid, request.ParentGrid, request.ParentCell.FieldName);
+                // Parent Grid Load
                 var config = await LoadConfig();
                 var columnList = config.ColumnListGet(request.ParentGrid);
                 var dataRowList = await LoadDataRowList(request.ParentGrid, null, null);
                 UtilGrid.Render(request.ParentGrid, dataRowList, columnList);
                 return new GridResponseDto { ParentGrid = request.ParentGrid };
             }
+            // Pagination
+            if (request.Control?.ControlEnum == GridControlEnum.Pagination)
             {
-                // Lookup Filter Load
+                // Filter Save (State)
+                var isSave = UtilGrid.LookupFilterSave(request.Grid, request.ParentGrid, request.ParentCell.FieldName);
+                // Filter Load
+                var config = await LoadConfig();
+                {
+                    var fieldName = request.ParentCell.FieldName;
+                    var dataRowList = await LoadDataRowList(request.Grid, filterFieldName: fieldName, null);
+                    UtilGrid.LookupFilterLoad(request.ParentGrid, request.Grid, dataRowList, fieldName);
+                    UtilGrid.RenderLookup(request.Grid, dataRowList, fieldName: fieldName);
+                }
+                // Parent Grid Load
+                if (isSave)
+                {
+                    var columnList = config.ColumnListGet(request.ParentGrid);
+                    var dataRowList = await LoadDataRowList(request.ParentGrid, null, null);
+                    UtilGrid.Render(request.ParentGrid, dataRowList, columnList);
+                }
+                return new GridResponseDto { Grid = request.Grid, ParentGrid = isSave ? request.ParentGrid : null };
+            }
+            // Lookup Filter Load
+            {
                 var fieldName = request.ParentCell.FieldName;
                 var config = await LoadConfig();
                 var dataRowList = await LoadDataRowList(request.Grid, filterFieldName: fieldName, null);

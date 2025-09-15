@@ -130,8 +130,8 @@
       }
       <!-- Pagination -->
       @case (GridControlEnum.Pagination) {
-      <button class="frm-button-soft" (click)="clickPagination(-1)">Previous</button>
-      <button class="frm-button-soft" (click)="clickPagination(+1)">Next</button>
+      <button class="frm-button-soft" (click)="clickPagination(cell, control, -1)">Previous</button>
+      <button class="frm-button-soft" (click)="clickPagination(cell, control, +1)">Next</button>
       }
       }
       }

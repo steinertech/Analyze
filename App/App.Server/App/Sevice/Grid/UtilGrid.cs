@@ -157,8 +157,10 @@ public static class UtilGrid
     /// <summary>
     /// Save filter state from lookup grid to parent grid.
     /// </summary>
-    public static void LookupFilterSave(GridDto grid, GridDto parentGrid, string fieldName)
+    /// <returns>Returns true, if something changed.</returns>
+    public static bool LookupFilterSave(GridDto grid, GridDto parentGrid, string fieldName)
     {
+        var result = false;
         grid.State ??= new();
         parentGrid.State ??= new();
         parentGrid.State.FilterMultiList ??= new();
@@ -182,10 +184,12 @@ public static class UtilGrid
         {
             if (item.IsSelect && !filterMulti.TextList.Contains(item.Text))
             {
+                result = true;
                 filterMulti.TextList.Add(item.Text);
             }
             if (!item.IsSelect && filterMulti.TextList.Contains(item.Text))
             {
+                result = true;
                 filterMulti.TextList.Remove(item.Text);
             }
         }
@@ -193,6 +197,7 @@ public static class UtilGrid
         {
             parentGrid.State.FilterMultiList.Remove(filterMulti);
         }
+        return result;
     }
 
     /// <summary>
