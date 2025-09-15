@@ -141,8 +141,11 @@ export class PageGrid {
           } else {
             this._grid.state.filterList[index].text = value
           }
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-          this.grid.set(response.grid) // Reload // TODO Debounce
+          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: undefined, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
+          this.grid.set(response.grid) // TODO Debounce
+          if (this.parent?._grid && response.parentGrid) {
+            this.parent.grid.set(response.parentGrid)
+          }
           break
         }
         // CheckBox

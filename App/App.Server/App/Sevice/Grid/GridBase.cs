@@ -59,8 +59,8 @@
                 UtilGrid.Render(request.ParentGrid, dataRowList, columnList);
                 return new GridResponseDto { ParentGrid = request.ParentGrid };
             }
-            // Pagination
-            if (request.Control?.ControlEnum == GridControlEnum.Pagination)
+            // Pagination, Filter
+            if (request.Control?.ControlEnum == GridControlEnum.Pagination || request.Cell?.CellEnum == GridCellEnum.Filter)
             {
                 // Filter Save (State)
                 var isSave = UtilGrid.LookupFilterSave(request.Grid, request.ParentGrid, request.ParentCell.FieldName);
