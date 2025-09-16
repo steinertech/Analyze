@@ -109,6 +109,22 @@ export class PageGrid {
     }
   }
 
+  cellTextSetTimeout?: NodeJS.Timeout
+  async cellTextSetDebounce(cell: GridCellDto, value: string) {
+    if (!this.cellTextSetTimeout) {
+      await this.cellTextSet(cell, value) // Immediateley
+      this.cellTextSetTimeout = setTimeout(async () => {
+        this.cellTextSetTimeout = undefined
+      }, 300)
+    } else {
+      clearTimeout(this.cellTextSetTimeout) // Remove pending one
+      this.cellTextSetTimeout = setTimeout(async () => {
+        await this.cellTextSet(cell, value)
+        this.cellTextSetTimeout = undefined
+      }, 300)
+    }
+  }
+
   async cellTextSet(cell: GridCellDto, value: string) {
     if (this._grid) {
       switch (cell.cellEnum) {

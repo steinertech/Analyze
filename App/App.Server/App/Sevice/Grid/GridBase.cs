@@ -45,7 +45,7 @@
             return new GridResponseDto { Grid = request.Grid };
         }
         // Lookup Filter
-        if (request.ParentCell?.CellEnum == GridCellEnum.Header && request.ParentCell.FieldName != null && request.ParentGrid != null )
+        if (request.ParentCell?.CellEnum == GridCellEnum.Header && request.ParentCell.FieldName != null && request.ParentGrid != null)
         {
             // Button Ok
             if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
@@ -96,13 +96,32 @@
         {
             if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
             {
-                // Lookup Column Save
+                // Lookup Column Save (State)
                 UtilGrid.LookupColumnSave(request.Grid, request.ParentGrid);
                 var config = await LoadConfig();
                 var columnList = config.ColumnListGet(request.ParentGrid);
                 var dataRowList = await LoadDataRowList(request.ParentGrid, null, null);
                 UtilGrid.Render(request.ParentGrid, dataRowList, columnList);
                 return new GridResponseDto { ParentGrid = request.ParentGrid };
+            }
+            if (request.Control?.ControlEnum == GridControlEnum.Pagination)
+            {
+                // Lookup Column Save (State)
+                {
+                    UtilGrid.LookupColumnSave(request.Grid, request.ParentGrid);
+                    var config = await LoadConfig();
+                    var columnList = config.ColumnListGet(request.ParentGrid);
+                    var dataRowList = await LoadDataRowList(request.ParentGrid, null, null);
+                    UtilGrid.Render(request.ParentGrid, dataRowList, columnList);
+                }
+                // Lookup Column Load
+                {
+                    var dataRowList = await LoadColumnList(request.Grid);
+                    var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
+                    UtilGrid.LookupColumnLoad(request.ParentGrid, request.Grid, dataRowListDynamic);
+                    UtilGrid.RenderLookup(request.Grid, dataRowListDynamic, "FieldName");
+                }
+                return new GridResponseDto { Grid = request.Grid, ParentGrid = request.ParentGrid };
             }
             {
                 // Lookup Column Load
