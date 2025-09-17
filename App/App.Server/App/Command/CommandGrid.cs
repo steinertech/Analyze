@@ -680,15 +680,7 @@ public class GridStateDto
     /// </summary>
     public List<bool?>? IsSelectMultiList { get; set; }
 
-    public bool? IsSelectMultiGet(int index)
-    {
-        bool? result = null;
-        if (index < IsSelectMultiList?.Count)
-        {
-            result = IsSelectMultiList[index];
-        }
-        return result;
-    }
+    public bool? IsSelectMultiAll { get; set; }
 
     /// <summary>
     /// Gets or sets ColumnList. This is the list columns to display. If null, display all columns.
@@ -770,6 +762,8 @@ public class GridStateFilterMultiDto
     public string FieldName { get; set; } = default!;
 
     public List<string?> TextList { get; set; } = default!;
+
+    public bool IsSelectMultiAll { get; set; }
 }
 
 /// <summary>
@@ -837,6 +831,9 @@ public class GridControlDto
     public string? Name { get; set; }
 }
 
+/// <summary>
+/// Grid cell is data column related. For example data field.
+/// </summary>
 public enum GridCellEnum
 {
     None = 0,
@@ -889,6 +886,9 @@ public enum GridCellEnum
     Control = 16,
 }
 
+/// <summary>
+/// Grid control is not data related. For example lookup grid cancel button.
+/// </summary>
 public enum GridControlEnum
 {
     None = 0,

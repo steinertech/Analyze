@@ -164,6 +164,7 @@ export class GridStateDto {
   public isMouseEnterList?: (boolean | null)[]
   public isSelectList?: (boolean | null)[]
   public isSelectMultiList?: (boolean | null)[]
+  public isSelectMultiAll?: (boolean | null)
   public columnList?: GridStateColumnDto[]
   public columnWidthList?: (number | null)[]
   public buttonCustomClick?: GridStateButtonCustomClickDto

@@ -152,6 +152,7 @@ public static class UtilGrid
             bool isSelect = filterMulti?.TextList.Contains(text) == true;
             grid.State.IsSelectMultiList.Add(isSelect);
         }
+        grid.State.IsSelectMultiAll = filterMulti?.IsSelectMultiAll == true;
     }
 
     /// <summary>
@@ -180,6 +181,12 @@ public static class UtilGrid
             parentGrid.State.FilterMultiList.Add(new GridStateFilterMultiDto() { FieldName = fieldName, TextList = new List<string?>() });
         }
         filterMulti = parentGrid.State.FilterMultiList.Single(item => item.FieldName == fieldName);
+        var isSelectMultiAll = grid.State.IsSelectMultiAll == true;
+        if (filterMulti.IsSelectMultiAll != isSelectMultiAll)
+        {
+            filterMulti.IsSelectMultiAll = isSelectMultiAll;
+            result = true;
+        }
         foreach (var item in textList)
         {
             if (item.IsSelect && !filterMulti.TextList.Contains(item.Text))
@@ -262,7 +269,7 @@ public static class UtilGrid
         grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = fieldName, TextPlaceholder = "Search" });
         // Render Select All
         grid.AddRow();
-        grid.AddControl(new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll, Text = grid.State?.IsSelectMultiAll?.ToString() });
         grid.AddCellControl();
         grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "(Select All)" });
         // Render Data

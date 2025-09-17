@@ -80,6 +80,10 @@ export class PageGrid {
       case GridControlEnum.FieldCustom: {
         return control.text
       }
+      // SelectMultiAll
+      case GridControlEnum.CheckboxSelectMultiAll: {
+        return this._grid?.state?.isSelectMultiAll?.toString()
+      }
     }
     return undefined
   }
@@ -202,6 +206,7 @@ export class PageGrid {
             if (!this._grid.state.isSelectMultiList) {
               this._grid.state.isSelectMultiList = []
             }
+            this._grid.state.isSelectMultiAll = value == 'true'
             if (this._grid.rowCellList) {
               for (const row of this._grid.rowCellList) {
                 for (const cell of row) {
