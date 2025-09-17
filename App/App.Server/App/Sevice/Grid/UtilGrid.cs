@@ -200,7 +200,7 @@ public static class UtilGrid
                 filterMulti.TextList.Remove(item.Text);
             }
         }
-        if (filterMulti.TextList.Count == 0)
+        if (filterMulti.TextList.Count == 0 && filterMulti.IsSelectMultiAll == false)
         {
             parentGrid.State.FilterMultiList.Remove(filterMulti);
         }
