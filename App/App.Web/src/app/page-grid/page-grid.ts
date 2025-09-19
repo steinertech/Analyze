@@ -82,7 +82,7 @@ export class PageGrid {
       }
       // SelectMultiAll
       case GridControlEnum.CheckboxSelectMultiAll: {
-        return this._grid?.state?.isSelectMultiAll?.toString()
+        return this._grid?.state?.isSelectMultiAll ? 'true' : false
       }
     }
     return undefined
@@ -162,7 +162,7 @@ export class PageGrid {
             this._grid.state.filterList[index].text = value
           }
           const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: undefined, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-          this.grid.set(response.grid) // TODO Debounce
+          this.grid.set(response.grid)
           if (this.parent?._grid && response.parentGrid) {
             this.parent.grid.set(response.parentGrid)
           }
@@ -203,10 +203,11 @@ export class PageGrid {
             if (!this._grid.state) {
               this._grid.state = {}
             }
+            this._grid.state.isSelectMultiAll = value == 'true'
+            /*
             if (!this._grid.state.isSelectMultiList) {
               this._grid.state.isSelectMultiList = []
             }
-            this._grid.state.isSelectMultiAll = value == 'true'
             if (this._grid.rowCellList) {
               for (const row of this._grid.rowCellList) {
                 for (const cell of row) {
@@ -216,6 +217,7 @@ export class PageGrid {
                 }
               }
             }
+            */
           }
           break
         }
@@ -403,13 +405,16 @@ export class PageGrid {
 
   async clickLookup(cell: GridCellDto, control?: GridControlDto) {
     if (this._grid) {
-      const lookup = { cell: cell, control: control } as Lookup
-
+      if (this.lookup() == undefined) {
+        this.lookup.set({} as Lookup) // Lookup open (not yet loaded grid)
+      }
+      const lookup = this.lookup()!
+      lookup.cell = cell
+      lookup.control = control
+      lookup.grid ??= signal<GridDto>({ gridName: this._grid?.gridName })
       if (control?.controlEnum == GridControlEnum.ButtonModal) {
         lookup.isModal = true
       }
-      lookup.grid = signal<GridDto>({ gridName: this._grid?.gridName })
-      this.lookup.set(lookup) // Lookup open (not yet loaded grid)
       const response = await this.serverApi.commandGridLoad({ grid: lookup.grid(), parentCell: lookup.cell, parentControl: lookup.control, parentGrid: this._grid })
       lookup.grid.set(response.grid) // Lookup open (with loaded grid)
     }

@@ -146,13 +146,13 @@ public static class UtilGrid
         grid.State ??= new();
         grid.State.IsSelectMultiList = new();
         var filterMulti = parentGrid.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == fieldName);
+        grid.State.IsSelectMultiAll = filterMulti?.IsSelectMultiAll == true;
         foreach (var dataRow in dataRowList)
         {
             var text = dataRow[fieldName]?.ToString();
             bool isSelect = filterMulti?.TextList.Contains(text) == true;
             grid.State.IsSelectMultiList.Add(isSelect);
         }
-        grid.State.IsSelectMultiAll = filterMulti?.IsSelectMultiAll == true;
     }
 
     /// <summary>
