@@ -145,6 +145,7 @@ public static class UtilGrid
         grid.State.IsSelectMultiList = new();
         var filterMulti = parentGrid.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == fieldName);
         grid.State.IsSelectMultiAll = filterMulti?.IsSelectMultiAll == false ? false : true;
+        grid.State.IsSelectMultiIndeterminate = filterMulti?.TextList.Count() > 0 ? true : false;
         var isSelectMultiAll = grid.State.IsSelectMultiAll == true;
         foreach (var dataRow in dataRowList)
         {

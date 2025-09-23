@@ -683,6 +683,11 @@ public class GridStateDto
     public bool? IsSelectMultiAll { get; set; }
 
     /// <summary>
+    /// Gets or sets IsSelectMultiIndeterminate. If true, three state checkbox shows indeterminate state.
+    /// </summary>
+    public bool? IsSelectMultiIndeterminate { get; set; }
+
+    /// <summary>
     /// Gets or sets ColumnList. This is the list columns to display. If null, display all columns.
     /// </summary>
     public List<string>? ColumnList { get; set; }

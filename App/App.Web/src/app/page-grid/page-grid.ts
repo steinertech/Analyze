@@ -88,6 +88,16 @@ export class PageGrid {
     return undefined
   }
 
+  cellTextGetControlIndeterminate(cell: GridCellDto, control: GridControlDto) {
+    switch (control.controlEnum) {
+      // SelectMultiAll
+      case GridControlEnum.CheckboxSelectMultiAll: {
+        return this._grid?.state?.isSelectMultiIndeterminate ? 'true' : false
+      }
+    }
+    return undefined
+  }
+
   cellTextSetSave(cell: GridCellDto) {
     if (this._grid) {
       if (!this._grid.state) {
