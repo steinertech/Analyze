@@ -204,10 +204,7 @@ export class PageGrid {
               this._grid.state = {}
             }
             this._grid.state.isSelectMultiAll = value == 'true'
-            /*
-            if (!this._grid.state.isSelectMultiList) {
-              this._grid.state.isSelectMultiList = []
-            }
+            this._grid.state.isSelectMultiList ??= []
             if (this._grid.rowCellList) {
               for (const row of this._grid.rowCellList) {
                 for (const cell of row) {
@@ -217,7 +214,6 @@ export class PageGrid {
                 }
               }
             }
-            */
           }
           break
         }

@@ -188,16 +188,17 @@ public static class UtilGrid
         if (filterMulti.IsSelectMultiAll != isSelectMultiAll)
         {
             filterMulti.IsSelectMultiAll = isSelectMultiAll;
+            filterMulti.TextList = new();
             result = true;
         }
         foreach (var item in textList)
         {
-            if (item.IsSelect && !filterMulti.TextList.Contains(item.Text))
+            if ((item.IsSelect ^ isSelectMultiAll) && !filterMulti.TextList.Contains(item.Text))
             {
                 result = true;
                 filterMulti.TextList.Add(item.Text);
             }
-            if (!item.IsSelect && filterMulti.TextList.Contains(item.Text))
+            if (!(item.IsSelect ^ isSelectMultiAll) && filterMulti.TextList.Contains(item.Text))
             {
                 result = true;
                 filterMulti.TextList.Remove(item.Text);
