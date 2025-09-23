@@ -761,8 +761,14 @@ public class GridStateFilterMultiDto
 {
     public string FieldName { get; set; } = default!;
 
+    /// <summary>
+    /// Gets TextList. Contains from user clicked filter lookup entries accross pagination. See also IsSelectMultiAll.
+    /// </summary>
     public List<string?> TextList { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets IsSelectMultiAll. If true, include. If false, exclude TextList entries.
+    /// </summary>
     public bool IsSelectMultiAll { get; set; }
 }
 

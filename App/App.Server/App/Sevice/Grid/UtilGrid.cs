@@ -55,13 +55,11 @@ public static class UtilGrid
             query = query.Where(item => (item![fieldName!]!.ToString() ?? "").ToLower().Contains(filter.Text.ToLower()) == true);
         }
         // FilterMulti
-        if (grid.State?.FilterMultiList != null)
+        foreach (var filterMulti in grid.State.FilterMultiList)
         {
-            foreach (var filterMulti in grid.State.FilterMultiList)
-            {
-                var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
-                query = query.Where($"@0.Contains(Convert.ToString({filterMulti.FieldName}).ToLower())", textListLower);
-            }
+            var isInclude = filterMulti.IsSelectMultiAll ? "!" : ""; // Include or exclude
+            var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
+            query = query.Where($"{isInclude}@0.Contains(Convert.ToString({filterMulti.FieldName}).ToLower())", textListLower);
         }
         // FilterFieldName (Distinct)
         if (filterFieldName != null)
@@ -146,11 +144,16 @@ public static class UtilGrid
         grid.State ??= new();
         grid.State.IsSelectMultiList = new();
         var filterMulti = parentGrid.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == fieldName);
-        grid.State.IsSelectMultiAll = filterMulti?.IsSelectMultiAll == true;
+        grid.State.IsSelectMultiAll = filterMulti?.IsSelectMultiAll == false ? false : true;
+        var isSelectMultiAll = grid.State.IsSelectMultiAll == true;
         foreach (var dataRow in dataRowList)
         {
             var text = dataRow[fieldName]?.ToString();
-            bool isSelect = filterMulti?.TextList.Contains(text) == true;
+            bool isSelect = isSelectMultiAll;
+            if (filterMulti?.TextList.Contains(text) == true)
+            {
+                isSelect = !isSelect;
+            }
             grid.State.IsSelectMultiList.Add(isSelect);
         }
     }
@@ -178,7 +181,7 @@ public static class UtilGrid
         var filterMulti = parentGrid.State.FilterMultiList.SingleOrDefault(item => item.FieldName == fieldName);
         if (filterMulti == null)
         {
-            parentGrid.State.FilterMultiList.Add(new GridStateFilterMultiDto() { FieldName = fieldName, TextList = new List<string?>() });
+            parentGrid.State.FilterMultiList.Add(new GridStateFilterMultiDto() { FieldName = fieldName, TextList = new List<string?>(), IsSelectMultiAll = true });
         }
         filterMulti = parentGrid.State.FilterMultiList.Single(item => item.FieldName == fieldName);
         var isSelectMultiAll = grid.State.IsSelectMultiAll == true;
@@ -200,7 +203,7 @@ public static class UtilGrid
                 filterMulti.TextList.Remove(item.Text);
             }
         }
-        if (filterMulti.TextList.Count == 0 && filterMulti.IsSelectMultiAll == false)
+        if (filterMulti.TextList.Count == 0 && filterMulti.IsSelectMultiAll == true)
         {
             parentGrid.State.FilterMultiList.Remove(filterMulti);
         }
