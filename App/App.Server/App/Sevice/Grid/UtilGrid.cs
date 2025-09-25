@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.Cosmos.Linq;
+﻿using Azure.Core;
+using DocumentFormat.OpenXml.Office.CustomUI;
+using Microsoft.Azure.Cosmos.Linq;
 using System.Linq.Dynamic.Core;
 
 public static class UtilGrid
@@ -33,7 +35,7 @@ public static class UtilGrid
     /// <param name="dataRowList">DataRowList (or query).</param>
     /// <param name="grid">Grid with state to apply (filter, sort and pagination).</param>
     /// <param name="filterFieldName">Used to render filter lookup data grid.</param>
-    public static async Task<List<Dynamic>> LoadDataRowList(List<Dynamic> dataRowList, GridDto grid, string? filterFieldName, GridConfig? config)
+    public static async Task<List<Dynamic>> GridLoad(List<Dynamic> dataRowList, GridDto grid, string? filterFieldName, GridConfig? config)
     {
         var query = dataRowList.AsQueryable();
         // Init Filter, Pagination
@@ -93,6 +95,26 @@ public static class UtilGrid
         // Result
         var result = query.ToList();
         return result;
+    }
+
+    /// <summary>
+    /// Save grid state to dataRowList.
+    /// </summary>
+    public static void GridSave(GridDto grid, List<Dynamic> dataRowList, GridConfig config)
+    {
+        if (grid.State?.FieldSaveList != null && grid.State.RowKeyList != null)
+        {
+            foreach (var field in grid.State.FieldSaveList)
+            {
+                var rowKey = grid.State.RowKeyList[field.DataRowIndex!.Value];
+                Dynamic dataRow = dataRowList.Single(item => item[config.FieldNameRowKey]?.ToString() == rowKey);
+                var configColumn = config.ColumnList.Single(item => item.FieldName == field.FieldName);
+                if (configColumn.IsAllowModify == true)
+                {
+                    dataRow[field.FieldName!] = field.TextModified; // TODO Convert data type
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -191,13 +213,14 @@ public static class UtilGrid
     /// <summary>
     /// Render data grid.
     /// </summary>
-    public static void Render(GridDto grid, List<Dynamic> dataRowList, List<GridColumn> columnList)
+    public static void Render(GridDto grid, List<Dynamic> dataRowList, GridConfig config)
     {
         grid.Clear();
+        var columnList = config.ColumnListGet(grid);
         // ColumnSortList
         var columnSortList = columnList.OrderBy(item => item.Sort).ToList();
         // RowKey
-        var columnRowKey = columnList.Where(item => item.IsRowKey == true).SingleOrDefault();
+        var columnRowKey = columnList.Where(item => item.FieldName == config.FieldNameRowKey).SingleOrDefault();
         // Render Column
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonColumn });
@@ -236,6 +259,10 @@ public static class UtilGrid
         // Render Pagination
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.Pagination });
+        // Render Save
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
         //
         RenderCalcColSpan(grid);
     }

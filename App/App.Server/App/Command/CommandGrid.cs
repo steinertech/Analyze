@@ -1008,6 +1008,11 @@ public class GridConfig
     /// Gets or sets PageSize. This is the number of rows in one page.
     /// </summary>
     public int? PageSize { get; set; }
+
+    /// <summary>
+    /// Gets or sets FieldNameRowKey. This is the key to identifiy a data record.
+    /// </summary>
+    public string FieldNameRowKey { get; set; } = "Id";
 }
 
 public class GridColumn
@@ -1018,5 +1023,5 @@ public class GridColumn
 
     public int? Sort { get; set; }
 
-    public bool? IsRowKey { get; set; }
+    public bool? IsAllowModify { get; set; }
 }

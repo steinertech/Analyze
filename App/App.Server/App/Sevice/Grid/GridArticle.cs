@@ -3,38 +3,45 @@ using System.Linq.Dynamic.Core;
 
 public class GridArticle2 : GridBase
 {
-    protected override Task<GridConfig> LoadConfig()
+    protected override Task<GridConfig> Config()
     {
         GridConfig result = new() { ColumnList = new() };
         result.ColumnList = new List<GridColumn>
         {
-            new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Number, IsRowKey = true, Sort = 1 },
-            new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, Sort = 2 },
-            new() { FieldName = "Price", ColumnEnum = GridColumnEnum.Number, Sort = 3 },
-            new() { FieldName = "Quantity", ColumnEnum = GridColumnEnum.Number, Sort = 4 },
+            new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Number, Sort = 1 },
+            new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, Sort = 2, IsAllowModify = true },
+            new() { FieldName = "Price", ColumnEnum = GridColumnEnum.Number, Sort = 3, IsAllowModify = true },
+            new() { FieldName = "Quantity", ColumnEnum = GridColumnEnum.Number, Sort = 4, IsAllowModify = true },
             new() { FieldName = "Date", ColumnEnum = GridColumnEnum.Date, Sort = 5 }
         };
         result.PageSize = 4;
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> LoadDataRowList(GridDto grid, string? filterFieldName, GridConfig? config)
+    private List<Dynamic> dataRowList = new List<Dynamic>
+    {
+        new () { { "Id", 1 }, { "Text", "01 Apple" }, { "Price", 88.20 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
+        new() { { "Id", 2 }, { "Text", "02 Banana" }, { "Price", 3.20 }, { "Quantity", 7 }, { "Date", "2025-09-02" } },
+        new() { { "Id", 3 }, { "Text", "03 Cherry" }, { "Price", 18.20 }, { "Quantity", 12 }, { "Date", "2025-09-02" } },
+        new() { { "Id", 4 }, { "Text", "04 Red" }, { "Price", 2.10 }, { "Quantity", 1 }, { "Date", "2025-09-02" } },
+        new() { { "Id", 5 }, { "Text", "05 Green" }, { "Price", 2.20 }, { "Quantity", 1 }, { "Date", "2025-09-02" } },
+        new() { { "Id", 6 }, { "Text", "06 Blue" }, { "Price", 2.90 }, { "Quantity", 1 }, { "Date", "2025-09-02" } },
+        new() { { "Id", 7 }, { "Text", "07 Hello" }, { "Price", 10.90 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
+        new() { { "Id", 8 }, { "Text", "08 World" }, { "Price", 10.90 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
+        new() { { "Id", 9 }, { "Text", "08 World" }, { "Price", 12.20 }, { "Quantity", 4 }, { "Date", "2025-09-02" } }
+    };
+
+    protected override Task<List<Dynamic>?> GridSave(GridDto grid, Func<Task<List<Dynamic>>> load, GridConfig config)
+    {
+        return base.GridSave(grid, load, config);
+    }
+
+    protected override async Task<List<Dynamic>> GridLoad(GridDto grid, string? filterFieldName, GridConfig? config)
     {
         // Data
-        var dataRowList = new List<Dynamic>
-        {
-            new() { { "Id", 1 }, { "Text", "01 Apple" }, { "Price", 88.20 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
-            new() { { "Id", 2 }, { "Text", "02 Banana" }, { "Price", 3.20 }, { "Quantity", 7 }, { "Date", "2025-09-02" } },
-            new() { { "Id", 3 }, { "Text", "03 Cherry" }, { "Price", 18.20 }, { "Quantity", 12 }, { "Date", "2025-09-02" } },
-            new() { { "Id", 4 }, { "Text", "04 Red" }, { "Price", 2.10 }, { "Quantity", 1 }, { "Date", "2025-09-02" } },
-            new() { { "Id", 5 }, { "Text", "05 Green" }, { "Price", 2.20 }, { "Quantity", 1 }, { "Date", "2025-09-02" } },
-            new() { { "Id", 6 }, { "Text", "06 Blue" }, { "Price", 2.90 }, { "Quantity", 1 }, { "Date", "2025-09-02" } },
-            new() { { "Id", 7 }, { "Text", "07 Hello" }, { "Price", 10.90 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
-            new() { { "Id", 8 }, { "Text", "08 World" }, { "Price", 10.90 }, { "Quantity", 2 }, { "Date", "2025-09-02" } },
-            new() { { "Id", 9 }, { "Text", "08 World" }, { "Price", 12.20 }, { "Quantity", 4 }, { "Date", "2025-09-02" } }
-        };
+        var dataRowList = this.dataRowList;
         // Apply (filter, sort and pagination)
-        var result = await UtilGrid.LoadDataRowList(dataRowList, grid, filterFieldName, config);
+        var result = await UtilGrid.GridLoad(dataRowList, grid, filterFieldName, config);
         return result;
     }
 }

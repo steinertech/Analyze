@@ -32,7 +32,7 @@ internal static class UtilServer
         builder.Services.AddSingleton<GridMemory>(); // Contains state
         builder.Services.AddSingleton<GridExcel>();
         builder.Services.AddTransient<GridArticle>();
-        builder.Services.AddTransient<GridArticle2>();
+        builder.Services.AddSingleton<GridArticle2>(); // Contains state
         builder.Services.AddTransient<GridStorage>(); // Wrapper
         builder.Services.AddScoped<CommandContext>(); // One new instance for every http request
         builder.Services.AddTransient<Storage>(); // Wrapper
