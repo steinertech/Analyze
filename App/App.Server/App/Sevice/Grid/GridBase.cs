@@ -97,7 +97,7 @@
             if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
             {
                 // Lookup Column Save (State)
-                UtilGrid.LookupColumnSave(request.Grid, request.ParentGrid);
+                UtilGrid.LookupFilterSave(request.Grid, request.ParentGrid, "FieldName", isFilterColumn: true);
                 var config = await LoadConfig();
                 var columnList = config.ColumnListGet(request.ParentGrid);
                 var dataRowList = await LoadDataRowList(request.ParentGrid, null, null);
@@ -108,7 +108,7 @@
             {
                 // Lookup Column Save (State)
                 {
-                    UtilGrid.LookupColumnSave(request.Grid, request.ParentGrid);
+                    UtilGrid.LookupFilterSave(request.Grid, request.ParentGrid, "FieldName", isFilterColumn: true);
                     var config = await LoadConfig();
                     var columnList = config.ColumnListGet(request.ParentGrid);
                     var dataRowList = await LoadDataRowList(request.ParentGrid, null, null);
@@ -118,7 +118,7 @@
                 {
                     var dataRowList = await LoadColumnList(request.Grid);
                     var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
-                    UtilGrid.LookupColumnLoad(request.ParentGrid, request.Grid, dataRowListDynamic);
+                    UtilGrid.LookupFilterLoad(request.ParentGrid, request.Grid, dataRowListDynamic, "FieldName", isFilterColumn: true);
                     UtilGrid.RenderLookup(request.Grid, dataRowListDynamic, "FieldName");
                 }
                 return new GridResponseDto { Grid = request.Grid, ParentGrid = request.ParentGrid };
@@ -127,7 +127,7 @@
                 // Lookup Column Load
                 var dataRowList = await LoadColumnList(request.Grid);
                 var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
-                UtilGrid.LookupColumnLoad(request.ParentGrid, request.Grid, dataRowListDynamic);
+                UtilGrid.LookupFilterLoad(request.ParentGrid, request.Grid, dataRowListDynamic, "FieldName", isFilterColumn: true);
                 UtilGrid.RenderLookup(request.Grid, dataRowListDynamic, "FieldName");
                 return new GridResponseDto { Grid = request.Grid };
             }

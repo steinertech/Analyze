@@ -688,9 +688,14 @@ public class GridStateDto
     public bool? IsSelectMultiIndeterminate { get; set; }
 
     /// <summary>
-    /// Gets or sets ColumnList. This is the list columns to display. If null, display all columns.
+    /// Gets or sets ColumnList. This is the list of columns to display. If null, display all columns.
     /// </summary>
     public List<string>? ColumnList { get; set; }
+
+    /// <summary>
+    /// Gets or sets ColumnFilterMulti. This is the columns to include or exclude from GridConfig.ColumnList.
+    /// </summary>
+    public GridStateFilterMultiDto? ColumnFilterMulti { get; set; }
 
     /// <summary>
     /// Gets or sets ColumnWidthList. Used to resize columns.
@@ -772,9 +777,9 @@ public class GridStateFilterMultiDto
     public List<string?> TextList { get; set; } = default!;
 
     /// <summary>
-    /// Gets or sets IsSelectMultiAll. If true, include. If false, exclude TextList entries.
+    /// Gets or sets IsSelectAll. If true, include. If false, exclude TextList entries.
     /// </summary>
-    public bool IsSelectMultiAll { get; set; }
+    public bool IsSelectAll { get; set; }
 }
 
 /// <summary>

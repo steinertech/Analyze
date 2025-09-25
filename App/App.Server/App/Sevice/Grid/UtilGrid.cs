@@ -57,7 +57,7 @@ public static class UtilGrid
         // FilterMulti
         foreach (var filterMulti in grid.State.FilterMultiList)
         {
-            var isInclude = filterMulti.IsSelectMultiAll ? "!" : ""; // Include or exclude
+            var isInclude = filterMulti.IsSelectAll ? "!" : ""; // Include or exclude
             var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
             query = query.Where($"{isInclude}@0.Contains(Convert.ToString({filterMulti.FieldName}).ToLower())", textListLower);
         }
@@ -97,61 +97,29 @@ public static class UtilGrid
     }
 
     /// <summary>
-    /// Load parent grid state to lookup grid.
-    /// </summary>
-    public static void LookupColumnLoad(GridDto parentGrid, GridDto grid, List<Dynamic> dataRowList)
-    {
-        grid.State ??= new();
-        grid.State.IsSelectMultiList = new();
-        foreach (var dataRow in dataRowList)
-        {
-            var fieldName = dataRow["FieldName"];
-            bool isSelect = parentGrid?.State?.ColumnList?.Contains(fieldName) == true;
-            grid.State.IsSelectMultiList.Add(isSelect);
-        }
-    }
-
-    /// <summary>
-    /// Save lookup column state to parent grid.
-    /// </summary>
-    public static void LookupColumnSave(GridDto grid, GridDto parentGrid)
-    {
-        grid.State ??= new();
-        parentGrid.State ??= new();
-        parentGrid.State.ColumnList ??= new();
-        if (grid.State.IsSelectMultiList != null && grid.State.RowKeyList != null)
-        {
-            for (int index = 0; index < grid.State.IsSelectMultiList.Count; index++)
-            {
-                var text = grid.State.RowKeyList[index]!;
-                if (grid.State.IsSelectMultiList[index] == true)
-                {
-                    parentGrid.State.ColumnList.Add(text);
-                }
-                else
-                {
-                    parentGrid.State.ColumnList.Remove(text);
-                }
-            }
-        }
-    }
-
-    /// <summary>
     /// Load filter state from parent grid to lookup grid.
     /// </summary>
-    public static void LookupFilterLoad(GridDto parentGrid, GridDto grid, List<Dynamic> dataRowList, string fieldName)
+    public static void LookupFilterLoad(GridDto parentGrid, GridDto grid, List<Dynamic> dataRowList, string fieldName, bool isFilterColumn = false)
     {
         grid.State ??= new();
         grid.State.IsSelectMultiList = new();
-        var filterMulti = parentGrid.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == fieldName);
-        grid.State.IsSelectMultiAll = filterMulti?.IsSelectMultiAll == false ? false : true;
-        grid.State.IsSelectMultiIndeterminate = filterMulti?.TextList.Count() > 0 ? true : false;
+        GridStateFilterMultiDto? filter;
+        if (isFilterColumn == false)
+        {
+            filter = parentGrid.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == fieldName);
+        }
+        else
+        {
+            filter = parentGrid.State?.ColumnFilterMulti;
+        }
+        grid.State.IsSelectMultiAll = filter?.IsSelectAll == false ? false : true;
+        grid.State.IsSelectMultiIndeterminate = filter?.TextList.Count() > 0 ? true : false;
         var isSelectMultiAll = grid.State.IsSelectMultiAll == true;
         foreach (var dataRow in dataRowList)
         {
             var text = dataRow[fieldName]?.ToString();
             bool isSelect = isSelectMultiAll;
-            if (filterMulti?.TextList.Contains(text) == true)
+            if (filter?.TextList.Contains(text) == true)
             {
                 isSelect = !isSelect;
             }
@@ -163,7 +131,7 @@ public static class UtilGrid
     /// Save filter state from lookup grid to parent grid.
     /// </summary>
     /// <returns>Returns true, if something changed.</returns>
-    public static bool LookupFilterSave(GridDto grid, GridDto parentGrid, string fieldName)
+    public static bool LookupFilterSave(GridDto grid, GridDto parentGrid, string fieldName, bool isFilterColumn = false)
     {
         var result = false;
         grid.State ??= new();
@@ -179,35 +147,44 @@ public static class UtilGrid
                 textList.Add((text, isSelect));
             }
         }
-        var filterMulti = parentGrid.State.FilterMultiList.SingleOrDefault(item => item.FieldName == fieldName);
-        if (filterMulti == null)
+        GridStateFilterMultiDto? filter;
+        if (isFilterColumn == false)
         {
-            parentGrid.State.FilterMultiList.Add(new GridStateFilterMultiDto() { FieldName = fieldName, TextList = new List<string?>(), IsSelectMultiAll = true });
+            filter = parentGrid.State.FilterMultiList.SingleOrDefault(item => item.FieldName == fieldName);
+            if (filter == null)
+            {
+                parentGrid.State.FilterMultiList.Add(new() { FieldName = fieldName, TextList = new List<string?>(), IsSelectAll = true });
+            }
+            filter = parentGrid.State.FilterMultiList.Single(item => item.FieldName == fieldName);
         }
-        filterMulti = parentGrid.State.FilterMultiList.Single(item => item.FieldName == fieldName);
-        var isSelectMultiAll = grid.State.IsSelectMultiAll == true;
-        if (filterMulti.IsSelectMultiAll != isSelectMultiAll)
+        else
         {
-            filterMulti.IsSelectMultiAll = isSelectMultiAll;
-            filterMulti.TextList = new();
+            parentGrid.State.ColumnFilterMulti ??= new();
+            filter = parentGrid.State.ColumnFilterMulti;
+        }
+        var isSelectMultiAll = grid.State.IsSelectMultiAll == true;
+        if (filter.IsSelectAll != isSelectMultiAll)
+        {
+            filter.IsSelectAll = isSelectMultiAll;
+            filter.TextList = new();
             result = true;
         }
         foreach (var item in textList)
         {
-            if ((item.IsSelect ^ isSelectMultiAll) && !filterMulti.TextList.Contains(item.Text))
+            if ((item.IsSelect ^ isSelectMultiAll) && !filter.TextList.Contains(item.Text))
             {
                 result = true;
-                filterMulti.TextList.Add(item.Text);
+                filter.TextList.Add(item.Text);
             }
-            if (!(item.IsSelect ^ isSelectMultiAll) && filterMulti.TextList.Contains(item.Text))
+            if (!(item.IsSelect ^ isSelectMultiAll) && filter.TextList.Contains(item.Text))
             {
                 result = true;
-                filterMulti.TextList.Remove(item.Text);
+                filter.TextList.Remove(item.Text);
             }
         }
-        if (filterMulti.TextList.Count == 0 && filterMulti.IsSelectMultiAll == true)
+        if (filter.TextList.Count == 0 && filter.IsSelectAll == true)
         {
-            parentGrid.State.FilterMultiList.Remove(filterMulti);
+            parentGrid.State.FilterMultiList.Remove(filter);
         }
         return result;
     }
