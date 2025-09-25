@@ -998,14 +998,7 @@ public class GridConfig
         if (grid.State?.ColumnFilterMulti != null)
         {
             var isSelectAll = grid.State.ColumnFilterMulti.IsSelectAll;
-            if (isSelectAll)
-            {
-                result = result.Where(item => !grid.State.ColumnFilterMulti.TextList.Contains(item.FieldName)).ToList();
-            }
-            else
-            {
-                result = result.Where(item => grid.State.ColumnFilterMulti.TextList.Contains(item.FieldName)).ToList();
-            }
+            result = result.Where(item => isSelectAll ^ grid.State.ColumnFilterMulti.TextList.Contains(item.FieldName)).ToList();
         }
         result = result.OrderBy(item => item.Sort).ToList();
         return result;
