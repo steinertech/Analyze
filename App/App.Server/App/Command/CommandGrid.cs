@@ -690,7 +690,7 @@ public class GridStateDto
     /// <summary>
     /// Gets or sets ColumnList. This is the list of columns to display. If null, display all columns.
     /// </summary>
-    public List<string>? ColumnList { get; set; }
+    public List<string>? ColumnList { get; set; } // TODO Remove
 
     /// <summary>
     /// Gets or sets ColumnFilterMulti. This is the columns to include or exclude from GridConfig.ColumnList.

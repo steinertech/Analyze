@@ -88,7 +88,13 @@ export class PageGrid {
     switch (control.controlEnum) {
       // SelectMultiAll
       case GridControlEnum.CheckboxSelectMultiAll: {
-        return this._grid?.state?.isSelectMultiIndeterminate ? 'true' : false
+        let result = this._grid?.state?.isSelectMultiIndeterminate
+        if (this._grid?.state?.isSelectMultiList) {
+          const values = Object.values(this._grid?.state?.isSelectMultiList)
+          const isIndeterminate = !values.every((value, index, list) => index > 0 && value == list[index - 1] ? true : index == 0)
+          result = isIndeterminate ? true : result
+        }
+        return result ? 'true' : 'false'
       }
     }
     return undefined
