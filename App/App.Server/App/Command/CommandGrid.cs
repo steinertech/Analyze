@@ -990,23 +990,31 @@ public class GridConfig
     public List<GridColumn> ColumnList { get; set; } = default!;
 
     /// <summary>
-    /// Gets or sets PageSize. This is the number of rows in one page.
-    /// </summary>
-    public int? PageSize { get; set; }
-
-    /// <summary>
     /// Returns column list to render data grid.
     /// </summary>
     public List<GridColumn> ColumnListGet(GridDto grid)
     {
         var result = ColumnList;
-        if (grid.State?.ColumnList?.Count > 0)
+        if (grid.State?.ColumnFilterMulti != null)
         {
-            result = result.Where(item => grid.State?.ColumnList?.Contains(item.FieldName!) == true).ToList();
+            var isSelectAll = grid.State.ColumnFilterMulti.IsSelectAll;
+            if (isSelectAll)
+            {
+                result = result.Where(item => !grid.State.ColumnFilterMulti.TextList.Contains(item.FieldName)).ToList();
+            }
+            else
+            {
+                result = result.Where(item => grid.State.ColumnFilterMulti.TextList.Contains(item.FieldName)).ToList();
+            }
         }
         result = result.OrderBy(item => item.Sort).ToList();
         return result;
     }
+
+    /// <summary>
+    /// Gets or sets PageSize. This is the number of rows in one page.
+    /// </summary>
+    public int? PageSize { get; set; }
 }
 
 public class GridColumn

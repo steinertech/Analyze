@@ -276,6 +276,7 @@ public static class UtilGrid
 
     /// <summary>
     /// Calc ColSpan of last cell.
+    /// </summary>
     private static void RenderCalcColSpan(GridDto grid)
     {
         if (grid.RowCellList != null)
