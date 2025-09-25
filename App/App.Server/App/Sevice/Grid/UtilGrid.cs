@@ -54,11 +54,11 @@ public static class UtilGrid
             query = query.Where(item => (item![fieldName!]!.ToString() ?? "").ToLower().Contains(text.ToLower()) == true);
         }
         // FilterMulti
-        foreach (var filterMulti in grid.State.FilterMultiList)
+        foreach (var (fieldName, filterMulti) in grid.State.FilterMultiList)
         {
             var isInclude = filterMulti.IsSelectAll ? "!" : ""; // Include or exclude
             var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
-            query = query.Where($"{isInclude}@0.Contains(Convert.ToString({filterMulti.FieldName}).ToLower())", textListLower);
+            query = query.Where($"{isInclude}@0.Contains(Convert.ToString({fieldName}).ToLower())", textListLower);
         }
         // FilterFieldName (Distinct)
         if (filterFieldName != null)
@@ -105,7 +105,7 @@ public static class UtilGrid
         GridStateFilterMultiDto? filter;
         if (isFilterColumn == false)
         {
-            filter = parentGrid.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == fieldName);
+            filter = parentGrid.State?.FilterMultiList != null && parentGrid.State.FilterMultiList.TryGetValue(fieldName, out var resultFilter) ? resultFilter : null;
         }
         else
         {
@@ -149,12 +149,12 @@ public static class UtilGrid
         GridStateFilterMultiDto? filter;
         if (isFilterColumn == false)
         {
-            filter = parentGrid.State.FilterMultiList.SingleOrDefault(item => item.FieldName == fieldName);
+            filter = parentGrid.State.FilterMultiList.TryGetValue(fieldName, out var resultFilter) ? resultFilter : null;
             if (filter == null)
             {
-                parentGrid.State.FilterMultiList.Add(new() { FieldName = fieldName, TextList = new List<string?>(), IsSelectAll = true });
+                filter = new() { TextList = new List<string?>(), IsSelectAll = true };
+                parentGrid.State.FilterMultiList[fieldName] = filter;
             }
-            filter = parentGrid.State.FilterMultiList.Single(item => item.FieldName == fieldName);
         }
         else
         {
@@ -183,7 +183,7 @@ public static class UtilGrid
         }
         if (filter.TextList.Count == 0 && filter.IsSelectAll == true)
         {
-            parentGrid.State.FilterMultiList.Remove(filter);
+            parentGrid.State.FilterMultiList.Remove(fieldName);
         }
         return result;
     }

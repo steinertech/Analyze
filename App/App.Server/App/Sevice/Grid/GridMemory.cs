@@ -35,10 +35,10 @@ public class GridMemory
         // FilterMany
         if (grid.State?.FilterMultiList != null)
         {
-            foreach (var filterMulti in grid.State.FilterMultiList)
+            foreach (var (fieldName, filterMulti) in grid.State.FilterMultiList)
             {
                 var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
-                query = query.Where($"@0.Contains(Convert.ToString({filterMulti.FieldName}).ToLower())", textListLower);
+                query = query.Where($"@0.Contains(Convert.ToString({fieldName}).ToLower())", textListLower);
             }
         }
         // Sort

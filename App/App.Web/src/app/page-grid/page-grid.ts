@@ -434,7 +434,7 @@ export class PageGrid {
 
   isFilterMulti(fieldName?: string) {
     if (fieldName) {
-      return (this._grid?.state?.filterMultiList?.map(item => item.fieldName).indexOf(fieldName) ?? - 1) >= 0
+      return this._grid?.state?.filterMultiList && fieldName in this._grid?.state?.filterMultiList
     }
     return false
   }

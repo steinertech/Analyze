@@ -268,14 +268,14 @@
         // Data
         var list = memoryGrid.LoadFilterLookup(grid, parentCell);
         grid.State.IsSelectMultiList.AddRange(new bool?[list.Count]);
-        var filterMulti = parentGrid.State?.FilterMultiList?.SingleOrDefault(item => item.FieldName == parentCell.FieldName);
+        var filter = parentGrid.State?.FilterMultiList != null && parentCell.FieldName != null && parentGrid.State.FilterMultiList.TryGetValue(parentCell.FieldName, out var resultFilter) ? resultFilter : null;
         for (int i = 0; i < list.Count; i++)
         {
             var item = list[i];
             grid.RowCellList.Add(new List<GridCellDto>());
             grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = i, CellEnum = GridCellEnum.CheckboxSelectMulti });
             grid.RowCellList.Last().Add(new GridCellDto { Text = item.Text, DataRowIndex = i, CellEnum = GridCellEnum.Field });
-            if (filterMulti != null && item.Text != null && filterMulti.TextList.Contains(item.Text))
+            if (filter != null && item.Text != null && filter.TextList.Contains(item.Text))
             {
                 grid.State.IsSelectMultiList[i] = true;
             }
@@ -370,13 +370,13 @@
             var fieldName = parentCell.FieldName;
             if (fieldName != null) 
             {
-                var filterMulti = parentGrid.State.FilterMultiList.SingleOrDefault(item => item.FieldName == fieldName);
-                if (filterMulti == null)
+                var filter = parentGrid.State.FilterMultiList.TryGetValue(fieldName, out var resultFilter) ? resultFilter : null;
+                if (filter == null)
                 {
-                    filterMulti = new() { FieldName = fieldName, TextList = new() };
-                    parentGrid.State.FilterMultiList.Add(filterMulti);
+                    filter = new() { TextList = new() };
+                    parentGrid.State.FilterMultiList[fieldName] = filter;
                 }
-                filterMulti.TextList.Clear();
+                filter.TextList.Clear();
                 for (int dataRowIndex = 0; dataRowIndex < grid.State.IsSelectMultiList.Count; dataRowIndex++)
                 {
                     var isSelect = grid.State.IsSelectMultiList[dataRowIndex];
@@ -388,14 +388,14 @@
                             var text = cell.Text;
                             if (text != null)
                             {
-                                filterMulti.TextList.Add(text);
+                                filter.TextList.Add(text);
                             }
                         }
                     }
                 }
-                if (filterMulti.TextList.Count == 0)
+                if (filter.TextList.Count == 0)
                 {
-                    parentGrid.State.FilterMultiList.Remove(filterMulti);
+                    parentGrid.State.FilterMultiList.Remove(fieldName);
                 }
             }
         }
@@ -661,9 +661,9 @@ public class GridStateDto
     public Dictionary<string, string>? FilterList { get; set; }
 
     /// <summary>
-    /// (FieldName)
+    /// (FieldName, GridStateFilterMultiDto)
     /// </summary>
-    public List<GridStateFilterMultiDto>? FilterMultiList { get; set; }
+    public Dictionary<string, GridStateFilterMultiDto>? FilterMultiList { get; set; }
 
     /// <summary>
     /// (DataRowIndex)
@@ -762,8 +762,6 @@ public class GridStateSortDto
 
 public class GridStateFilterMultiDto
 {
-    public string FieldName { get; set; } = default!;
-
     /// <summary>
     /// Gets TextList. Contains from user clicked filter lookup entries accross pagination. See also IsSelectMultiAll.
     /// </summary>
