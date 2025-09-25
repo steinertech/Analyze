@@ -87,9 +87,9 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
         // Filter
         if (grid.State?.FilterList != null)
         {
-            foreach (var filter in grid.State.FilterList)
+            foreach (var (fieldName, text) in grid.State.FilterList)
             {
-                query = query.Where($"{filter.FieldName}.ToLower().Contains(@0)", filter.Text.ToLower());
+                query = query.Where($"{fieldName}.ToLower().Contains(@0)", text.ToLower());
             }
         }
         // PageCount

@@ -159,7 +159,7 @@ export class GridDto {
 
 export class GridStateDto {
   public sort?: GridStateSortDto
-  public filterList?: GridStateFilterDto[]
+  public filterList?: Record<string, string>
   public filterMultiList?: GridStateFilterMultiDto[]
   public isMouseEnterList?: (boolean | null)[]
   public isSelectList?: (boolean | null)[]

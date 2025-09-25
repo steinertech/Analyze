@@ -656,9 +656,9 @@ public class GridStateDto
     public GridStateSortDto? Sort { get; set; } // public List<GridStateSortDto> SortList { get; set; }
 
     /// <summary>
-    /// (FieldName)
+    /// (FieldName, Text)
     /// </summary>
-    public List<GridStateFilterDto>? FilterList { get; set; }
+    public Dictionary<string, string>? FilterList { get; set; }
 
     /// <summary>
     /// (FieldName)
@@ -758,13 +758,6 @@ public class GridStateSortDto
     public string FieldName { get; set; } = default!;
 
     public bool IsDesc { get; set; }
-}
-
-public class GridStateFilterDto
-{
-    public string FieldName { get; set; } = default!;
-
-    public string Text { get; set; } = default!;
 }
 
 public class GridStateFilterMultiDto

@@ -49,10 +49,9 @@ public static class UtilGrid
         pagination.PageIndexDeltaClick ??= 0;
         var sort = grid.State.Sort;
         // Filter
-        foreach (var filter in grid.State.FilterList)
+        foreach (var (fieldName, text) in grid.State.FilterList)
         {
-            var fieldName = filter.FieldName!;
-            query = query.Where(item => (item![fieldName!]!.ToString() ?? "").ToLower().Contains(filter.Text.ToLower()) == true);
+            query = query.Where(item => (item![fieldName!]!.ToString() ?? "").ToLower().Contains(text.ToLower()) == true);
         }
         // FilterMulti
         foreach (var filterMulti in grid.State.FilterMultiList)

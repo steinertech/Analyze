@@ -50,10 +50,6 @@ export class PageGrid {
       case GridCellEnum.Field: {
         return cell.textModified ?? cell.text
       }
-      // Filter
-      case GridCellEnum.Filter: {
-        return this._grid?.state?.filterList?.find(value => value.fieldName == cell.fieldName)?.text
-      }
       // Field Checkbox
       case GridCellEnum.FieldCheckbox: {
         return cell.textModified ?? cell.text
@@ -159,17 +155,10 @@ export class PageGrid {
           if (!this._grid.state) {
             this._grid.state = {}
           }
-          if (!this._grid.state.filterList) {
-            this._grid.state.filterList = []
-          }
-          let index = this._grid.state.filterList.findIndex(value => value.fieldName == cell.fieldName)
-          if (index == -1) {
-            index = this._grid.state.filterList.push({ fieldName: cell.fieldName!, text: undefined! }) - 1 // Add
-          }
+          this._grid.state.filterList ??= {}
+          this._grid.state.filterList[cell.fieldName!] = value
           if (value == '') {
-            this._grid.state.filterList.splice(index, 1) // Remove
-          } else {
-            this._grid.state.filterList[index].text = value
+            delete this._grid.state.filterList[cell.fieldName!] // Remove
           }
           const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: undefined, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
           this.grid.set(response.grid)
