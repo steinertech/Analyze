@@ -440,7 +440,7 @@ export class PageGrid {
 
   isFilterMulti(fieldName?: string) {
     if (fieldName) {
-      return this._grid?.state?.filterMultiList && fieldName in this._grid?.state?.filterMultiList
+      return this._grid?.state?.filterMultiList && fieldName in this._grid.state.filterMultiList
     }
     return false
   }
