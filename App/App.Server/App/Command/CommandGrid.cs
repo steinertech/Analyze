@@ -977,9 +977,11 @@ public enum GridColumnEnum
 
     Text = 1,
     
-    Number = 2,
+    Int = 2,
+
+    Double = 3,
     
-    Date = 3,
+    Date = 4,
 }
 
 public class GridConfig

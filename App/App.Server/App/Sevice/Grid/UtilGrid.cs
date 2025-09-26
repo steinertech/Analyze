@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using DocumentFormat.OpenXml.Office.CustomUI;
 using Microsoft.Azure.Cosmos.Linq;
+using System.Globalization;
 using System.Linq.Dynamic.Core;
 
 public static class UtilGrid
@@ -112,7 +113,33 @@ public static class UtilGrid
                 var configColumn = config.ColumnList.Single(item => item.FieldName == field.FieldName);
                 if (configColumn.IsAllowModify)
                 {
-                    dataRow[field.FieldName!] = field.TextModified; // TODO Convert data type
+                    var text = field.TextModified;
+                    object? value;
+                    if (string.IsNullOrEmpty(text))
+                    {
+                        value = null;
+                    }
+                    else
+                    {
+                        switch (configColumn.ColumnEnum)
+                        {
+                            case GridColumnEnum.Text:
+                                value = text;
+                                break;
+                            case GridColumnEnum.Int:
+                                value = int.Parse(text);
+                                break;
+                            case GridColumnEnum.Double:
+                                value = double.Parse(text);
+                                break;
+                            case GridColumnEnum.Date:
+                                value = DateTime.ParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                                break;
+                            default:
+                                throw new Exception("Type unknown!");
+                        }
+                    }
+                    dataRow[field.FieldName!] = value;
                 }
             }
         }
@@ -346,7 +373,7 @@ public static class UtilGrid
         {
             grid.AddRow();
             var text = dataRow[fieldName]?.ToString();
-            grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = text, DataRowIndex = dataRowIndex });
+            grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = text, DataRowIndex = dataRowIndex }, rowKey: text);
             dataRowIndex += 1;
         }
         // Render Pagination

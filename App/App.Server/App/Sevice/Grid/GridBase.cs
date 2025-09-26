@@ -152,9 +152,28 @@
         if (request.ParentCell?.CellEnum == GridCellEnum.FieldAutocomplete && request.ParentCell.FieldName != null)
         {
             var fieldName = request.ParentCell.FieldName;
-            var dataRowList = await GridLoad(request.Grid, fieldNameDistinct: fieldName, null);
-            UtilGrid.RenderAutocomplete(request.Grid, dataRowList, fieldName: fieldName);
-            return new GridResponseDto { Grid = request.Grid };
+            if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk && request.Grid.State?.IsSelectList != null && request.Grid.State.RowKeyList != null && request.ParentGrid?.State != null)
+            {
+                var dataRowIndex = request.Grid.State.IsSelectList.Select((item, index) => (Value: item, Index: index)).Single(item => item.Value == true).Index;
+                var text = request.Grid.State.RowKeyList[dataRowIndex];
+                request.ParentGrid.State.FieldSaveList ??= new();
+                request.ParentGrid.State.FieldSaveList.Add(new() { DataRowIndex = request.ParentCell.DataRowIndex, FieldName = fieldName, Text = request.ParentCell.Text, TextModified = text });
+                var config = await Config();
+                var load = async () => await GridLoad(request.ParentGrid, null, config);
+                var dataRowList = await GridSave(request.ParentGrid, load, config);
+                if (dataRowList == null)
+                {
+                    dataRowList = await load();
+                }
+                UtilGrid.Render(request.ParentGrid, dataRowList, config);
+                request.ParentGrid.State.FieldSaveList = null;
+                return new GridResponseDto { ParentGrid = request.ParentGrid };
+            }
+            {
+                var dataRowList = await GridLoad(request.Grid, fieldNameDistinct: fieldName, null);
+                UtilGrid.RenderAutocomplete(request.Grid, dataRowList, fieldName: fieldName);
+                return new GridResponseDto { Grid = request.Grid };
+            }
         }
         throw new Exception("Load failed!");
     }

@@ -8,10 +8,10 @@ public class GridArticle2 : GridBase
         GridConfig result = new() { ColumnList = new() };
         result.ColumnList = new List<GridColumn>
         {
-            new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Number, Sort = 1 },
+            new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Int, Sort = 1 },
             new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, Sort = 2, IsAllowModify = true },
-            new() { FieldName = "Price", ColumnEnum = GridColumnEnum.Number, Sort = 3, IsAllowModify = true },
-            new() { FieldName = "Quantity", ColumnEnum = GridColumnEnum.Number, Sort = 4, IsAllowModify = true, IsAutocomplete = true },
+            new() { FieldName = "Price", ColumnEnum = GridColumnEnum.Double, Sort = 3, IsAllowModify = true },
+            new() { FieldName = "Quantity", ColumnEnum = GridColumnEnum.Int, Sort = 4, IsAllowModify = true, IsAutocomplete = true },
             new() { FieldName = "Date", ColumnEnum = GridColumnEnum.Date, Sort = 5 }
         };
         result.PageSize = 4;
