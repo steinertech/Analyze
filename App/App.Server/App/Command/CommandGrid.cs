@@ -1023,5 +1023,7 @@ public class GridColumn
 
     public int? Sort { get; set; }
 
-    public bool? IsAllowModify { get; set; }
+    public bool IsAllowModify { get; set; }
+
+    public bool IsAutocomplete { get; set; }
 }

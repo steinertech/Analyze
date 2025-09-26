@@ -27,7 +27,7 @@
     /// <summary>
     /// Returns data row list to render grid.
     /// </summary>
-    protected virtual Task<List<Dynamic>> GridLoad(GridDto grid, string? filterFieldName, GridConfig? config)
+    protected virtual Task<List<Dynamic>> GridLoad(GridDto grid, string? fieldNameDistinct, GridConfig? config)
     {
         var result = new List<Dynamic>();
         return Task.FromResult(result);
@@ -87,7 +87,7 @@
                 var config = await Config();
                 {
                     var fieldName = request.ParentCell.FieldName;
-                    var dataRowList = await GridLoad(request.Grid, filterFieldName: fieldName, null);
+                    var dataRowList = await GridLoad(request.Grid, fieldNameDistinct: fieldName, null);
                     UtilGrid.LookupFilterLoad(request.ParentGrid, request.Grid, dataRowList, fieldName);
                     UtilGrid.RenderLookup(request.Grid, dataRowList, fieldName: fieldName);
                 }
@@ -103,7 +103,7 @@
             {
                 var fieldName = request.ParentCell.FieldName;
                 var config = await Config();
-                var dataRowList = await GridLoad(request.Grid, filterFieldName: fieldName, null);
+                var dataRowList = await GridLoad(request.Grid, fieldNameDistinct: fieldName, null);
                 UtilGrid.LookupFilterLoad(request.ParentGrid, request.Grid, dataRowList, fieldName);
                 UtilGrid.RenderLookup(request.Grid, dataRowList, fieldName: fieldName);
                 return new GridResponseDto { Grid = request.Grid };
@@ -147,6 +147,14 @@
                 UtilGrid.RenderLookup(request.Grid, dataRowListDynamic, "FieldName");
                 return new GridResponseDto { Grid = request.Grid };
             }
+        }
+        // Autocomplete
+        if (request.ParentCell?.CellEnum == GridCellEnum.FieldAutocomplete && request.ParentCell.FieldName != null)
+        {
+            var fieldName = request.ParentCell.FieldName;
+            var dataRowList = await GridLoad(request.Grid, fieldNameDistinct: fieldName, null);
+            UtilGrid.RenderAutocomplete(request.Grid, dataRowList, fieldName: fieldName);
+            return new GridResponseDto { Grid = request.Grid };
         }
         throw new Exception("Load failed!");
     }

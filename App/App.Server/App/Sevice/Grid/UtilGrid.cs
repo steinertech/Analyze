@@ -34,8 +34,9 @@ public static class UtilGrid
     /// </summary>
     /// <param name="dataRowList">DataRowList (or query).</param>
     /// <param name="grid">Grid with state to apply (filter, sort and pagination).</param>
-    /// <param name="filterFieldName">Used to render filter lookup data grid.</param>
-    public static async Task<List<Dynamic>> GridLoad(List<Dynamic> dataRowList, GridDto grid, string? filterFieldName, GridConfig? config)
+    /// <param name="fieldNameDistinct">Used for example for filter lookup data grid. Returns one column grid.</param>
+    /// <param name="config">Used for example for PageSize.</param>
+    public static async Task<List<Dynamic>> GridLoad(List<Dynamic> dataRowList, GridDto grid, string? fieldNameDistinct, GridConfig? config)
     {
         var query = dataRowList.AsQueryable();
         // Init Filter, Pagination
@@ -63,13 +64,13 @@ public static class UtilGrid
             query = query.Where($"{isInclude}@0.Contains(Convert.ToString({fieldName}).ToLower())", textListLower);
         }
         // FilterFieldName (Distinct)
-        if (filterFieldName != null)
+        if (fieldNameDistinct != null)
         {
             query = query
-                .Select(item => item[filterFieldName])
+                .Select(item => item[fieldNameDistinct])
                 .Distinct()
                 .OrderBy(item => item)
-                .Select(item => new Dynamic { { filterFieldName, item } });
+                .Select(item => new Dynamic { { fieldNameDistinct, item } });
         }
         // Pagination (PageCount)
         var rowCount = await query.CountAsync();
@@ -109,7 +110,7 @@ public static class UtilGrid
                 var rowKey = grid.State.RowKeyList[field.DataRowIndex!.Value];
                 Dynamic dataRow = dataRowList.Single(item => item[config.FieldNameRowKey]?.ToString() == rowKey);
                 var configColumn = config.ColumnList.Single(item => item.FieldName == field.FieldName);
-                if (configColumn.IsAllowModify == true)
+                if (configColumn.IsAllowModify)
                 {
                     dataRow[field.FieldName!] = field.TextModified; // TODO Convert data type
                 }
@@ -241,17 +242,18 @@ public static class UtilGrid
         foreach (var dataRow in dataRowList)
         {
             grid.AddRow();
-            foreach (var column in columnList.OrderBy(item => item.Sort))
+            foreach (var column in columnList.OrderBy(item => item.Sort).ThenBy(item => item.FieldName))
             {
                 var text = dataRow[column.FieldName!]?.ToString();
+                var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
                 if (columnRowKey == null)
                 {
-                    grid.AddCell(new GridCellDto { CellEnum = GridCellEnum.Field, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
                 }
                 else
                 {
                     var rowKey = dataRow[columnRowKey.FieldName!]?.ToString();
-                    grid.AddCell(new GridCellDto { CellEnum = GridCellEnum.Field, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex }, rowKey);
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex }, rowKey);
                 }
             }
             dataRowIndex += 1;
@@ -330,5 +332,31 @@ public static class UtilGrid
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Render autocomplete data grid.
+    /// </summary>
+    public static void RenderAutocomplete(GridDto grid, List<Dynamic> dataRowList, string fieldName)
+    {
+        grid.Clear();
+        // Render Data
+        var dataRowIndex = 0;
+        foreach (var dataRow in dataRowList)
+        {
+            grid.AddRow();
+            var text = dataRow[fieldName]?.ToString();
+            grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = text, DataRowIndex = dataRowIndex });
+            dataRowIndex += 1;
+        }
+        // Render Pagination
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.Pagination });
+        // Render Ok, Cancel
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+        // Calc ColSpan
+        RenderCalcColSpan(grid);
     }
 }
