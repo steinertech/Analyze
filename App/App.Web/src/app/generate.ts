@@ -168,7 +168,6 @@ export class GridStateDto {
   public isSelectMultiIndeterminate?: (boolean | null)
   public columnList?: GridStateColumnDto[]
   public columnWidthList?: (number | null)[]
-  public buttonCustomClick?: GridStateButtonCustomClickDto
   public rowKeyList?: (string | null)[]
   public rowKeyMasterList?: Record<string, string | null>
   public pagination?: GridPaginationDto
@@ -187,12 +186,6 @@ export class GridPaginationDto {
   public pageCount?: number
   public pageSize?: number
   public pageIndexDeltaClick?: number
-}
-
-export class GridStateButtonCustomClickDto {
-  public name?: string
-  public dataRowIndex?: number
-  public fieldName?: string
 }
 
 export class GridStateColumnDto {

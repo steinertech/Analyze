@@ -59,7 +59,7 @@
         }
     }
 
-    private async Task Save(GridDto grid)
+    private async Task Save(GridDto grid, GridRequestDto request)
     {
         // Save Rename
         var cellList = grid.CellList().Where(item => item.TextModified != null).ToList();
@@ -68,7 +68,7 @@
             await UtilStorage.Rename(configuration.ConnectionStringStorage, item.Text!, item.TextModified!);
         }
         // Button Create Folder
-        if (grid.State?.ButtonCustomClick?.Name == "CreateFolder")
+        if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control.Name == "CreateFolder")
         {
             var control = grid.ControlModifiedList().SingleOrDefault();
             if (control != null)
@@ -78,11 +78,11 @@
         }
     }
 
-    public async Task Save(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
+    public async Task Save(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid, GridRequestDto request)
     {
         if (parentCell == null)
         {
-            await Save(grid);
+            await Save(grid, request);
             await Load(grid, parentCell, parentControl, parentGrid);
         }
         else

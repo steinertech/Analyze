@@ -245,6 +245,17 @@ internal static class UtilServer
     }
 }
 
+public enum DynamicEnum
+{
+    None = 0,
+
+    Update = 1,
+    
+    Insert = 2,
+
+    Delete = 3,
+}
+
 public class Dynamic : Dictionary<string, object?>
 {
     public Dynamic()
@@ -257,4 +268,6 @@ public class Dynamic : Dictionary<string, object?>
     {
         
     }
+
+    public DynamicEnum DynamicEnum { get; set; }
 }

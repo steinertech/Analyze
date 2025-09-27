@@ -33,10 +33,10 @@
         return Task.FromResult(result);
     }
 
-    protected virtual async Task<List<Dynamic>?> GridSave(GridDto grid, Func<Task<List<Dynamic>>> load, GridConfig config)
+    protected virtual async Task<List<Dynamic>> GridSave(GridDto grid, Func<Task<List<Dynamic>>> load, GridConfig config)
     {
         var dataRowList = await load();
-        UtilGrid.GridSave(grid, dataRowList, config);
+        dataRowList = UtilGrid.GridSave(grid, dataRowList, config);
         return dataRowList;
     }
 
@@ -61,6 +61,10 @@
         {
             var config = await Config();
             var dataRowList = await GridLoad(request.Grid, null, config.PageSize);
+            if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom)
+            {
+                dataRowList.Insert(0, new());
+            }
             UtilGrid.Render(request.Grid, dataRowList, config);
             return new GridResponseDto { Grid = request.Grid };
         }

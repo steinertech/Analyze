@@ -1,6 +1,4 @@
-﻿using Azure.Core;
-using DocumentFormat.OpenXml.Office.CustomUI;
-using Microsoft.Azure.Cosmos.Linq;
+﻿using Microsoft.Azure.Cosmos.Linq;
 using System.Globalization;
 using System.Linq.Dynamic.Core;
 
@@ -63,7 +61,7 @@ public static class UtilGrid
             var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
             query = query.Where($"{isInclude}@0.Contains(Convert.ToString({fieldName}).ToLower())", textListLower);
         }
-        // FilterFieldName (Distinct)
+        // FieldName (Distinct)
         if (fieldNameDistinct != null)
         {
             query = query
@@ -101,14 +99,27 @@ public static class UtilGrid
     /// <summary>
     /// Save grid state to dataRowList.
     /// </summary>
-    public static void GridSave(GridDto grid, List<Dynamic> dataRowList, GridConfig config)
+    /// <returns>Returns updated dataRowList.</returns>
+    public static List<Dynamic> GridSave(GridDto grid, List<Dynamic> dataRowList, GridConfig config)
     {
         if (grid.State?.FieldSaveList != null && grid.State.RowKeyList != null)
         {
             foreach (var field in grid.State.FieldSaveList)
             {
                 var rowKey = grid.State.RowKeyList[field.DataRowIndex!.Value];
-                Dynamic dataRow = dataRowList.Single(item => item[config.FieldNameRowKey]?.ToString() == rowKey);
+                Dynamic dataRow;
+                if (rowKey == null)
+                {
+                    // User added new data row.
+                    dataRow = new() { DynamicEnum = DynamicEnum.Insert };
+                    dataRowList.Insert(0, dataRow);
+                }
+                else
+                {
+                    // User modified existing data row.
+                    dataRow = dataRowList.Single(item => item.ContainsKey(config.FieldNameRowKey) && item[config.FieldNameRowKey]?.ToString() == rowKey);
+                    dataRow.DynamicEnum = DynamicEnum.Update;
+                }
                 var configColumn = config.ColumnList.Single(item => item.FieldName == field.FieldName);
                 if (configColumn.IsAllowModify)
                 {
@@ -142,6 +153,7 @@ public static class UtilGrid
                 }
             }
         }
+        return dataRowList;
     }
 
     /// <summary>
@@ -251,6 +263,10 @@ public static class UtilGrid
         // Render Column
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonColumn });
+        if (config.IsAllowNew)
+        {
+            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "New", Name = "New" });
+        }
         // Render Header
         grid.AddRow();
         foreach (var column in columnSortList)
@@ -270,7 +286,7 @@ public static class UtilGrid
             grid.AddRow();
             foreach (var column in columnList.OrderBy(item => item.Sort).ThenBy(item => item.FieldName))
             {
-                var text = dataRow[column.FieldName!]?.ToString();
+                var text = dataRow.ContainsKey(column.FieldName!) ? dataRow[column.FieldName!]?.ToString() : null;
                 var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
                 if (columnRowKey == null)
                 {
@@ -278,8 +294,8 @@ public static class UtilGrid
                 }
                 else
                 {
-                    var rowKey = dataRow[columnRowKey.FieldName!]?.ToString();
-                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex }, rowKey);
+                    var rowKey = dataRow.ContainsKey(columnRowKey.FieldName!) ? dataRow[columnRowKey.FieldName!]?.ToString() : null;
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
                 }
             }
             dataRowIndex += 1;

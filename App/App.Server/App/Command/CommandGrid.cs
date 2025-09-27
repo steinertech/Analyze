@@ -8,7 +8,7 @@
         // Article
         if (request.Grid.GridName == "Article")
         {
-            await articleGrid.Load(request.Grid, request.ParentCell, request.ParentControl, request.ParentGrid);
+            await articleGrid.Load(request.Grid, request.ParentCell, request.ParentControl, request.ParentGrid, request);
             return new GridResponseDto { Grid = request.Grid };
         }
         // Article
@@ -22,7 +22,7 @@
             // Storage
             if (request.Grid.GridName == "Storage")
             {
-                await storageGrid.Save(request.Grid, request.ParentCell, request.ParentControl, request.ParentGrid);
+                await storageGrid.Save(request.Grid, request.ParentCell, request.ParentControl, request.ParentGrid, request);
                 return new() { Grid = request.Grid, ParentGrid = request.ParentGrid };
             }
             if (request.ParentCell == null)
@@ -451,16 +451,34 @@
 
 public class GridRequestDto
 {
+    /// <summary>
+    /// Gets Grid. This is the request grid sender.
+    /// </summary>
     public GridDto Grid { get; set; } = default!;
 
+    /// <summary>
+    /// Gets Cell. This is the request cell sender.
+    /// </summary>
     public GridCellDto? Cell { get; set; }
 
+    /// <summary>
+    /// Gets Control. This is the request control sender.
+    /// </summary>
     public GridControlDto? Control { get; set; }
 
+    /// <summary>
+    /// Gets ParentCell. This is the lookup parent cell.
+    /// </summary>
     public GridCellDto? ParentCell { get; set; }
 
+    /// <summary>
+    /// Gets ParentControl. This is the lookup parent control.
+    /// </summary>
     public GridControlDto? ParentControl { get; set; }
 
+    /// <summary>
+    /// Gets ParentGrid. This is the lookup parent grid.
+    /// </summary>
     public GridDto? ParentGrid { get; set; }
 }
 
@@ -475,10 +493,6 @@ public class GridResponseDto
 
     public void ClearResponse()
     {
-        if (Grid?.State?.ButtonCustomClick != null)
-        {
-            Grid.State.ButtonCustomClick = null;
-        }
         if (Grid?.State?.Pagination?.PageIndexDeltaClick != null)
         {
             Grid.State.Pagination.PageIndexDeltaClick = null;
@@ -703,11 +717,6 @@ public class GridStateDto
     public List<double?>? ColumnWidthList { get; set; }
 
     /// <summary>
-    /// Gets or sets ButtonCustomClick. User clicked button. Process it in Grid.Save();
-    /// </summary>
-    public GridStateButtonCustomClickDto? ButtonCustomClick { get; set; }
-
-    /// <summary>
     /// Gets or sets RowKeyList. This is typically the data primary key. (DataRowIndex, RowKey)
     /// </summary>
     public List<string?>? RowKeyList { get; set; }
@@ -740,15 +749,6 @@ public class GridPaginationDto
     public int? PageCount { get; set; }
     
     public int? PageIndexDeltaClick { get; set; }
-}
-
-public class GridStateButtonCustomClickDto
-{
-    public string? Name { get; set; }
-
-    public int? DataRowIndex { get; set; }
-
-    public string? FieldName { get; set; }
 }
 
 public class GridStateSortDto
@@ -1028,6 +1028,8 @@ public class GridConfig
     /// Gets or sets FieldNameRowKey. This is the key to identifiy a data record.
     /// </summary>
     public string FieldNameRowKey { get; set; } = "Id";
+
+    public bool IsAllowNew { get; set; } = false;
 }
 
 public class GridColumn

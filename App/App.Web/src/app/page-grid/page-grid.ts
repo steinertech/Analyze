@@ -395,8 +395,7 @@ export class PageGrid {
           if (!this._grid.state) {
             this._grid.state = {}
           }
-          this._grid.state.buttonCustomClick = { name: control.name, dataRowIndex: cell.dataRowIndex, fieldName: cell.fieldName }
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
+          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
           this.grid.set(response.grid);
           break
         }

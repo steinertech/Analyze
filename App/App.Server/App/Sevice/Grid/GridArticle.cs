@@ -14,6 +14,7 @@ public class GridArticle2 : GridBase
             new() { FieldName = "Quantity", ColumnEnum = GridColumnEnum.Int, Sort = 4, IsAllowModify = true, IsAutocomplete = true },
             new() { FieldName = "Date", ColumnEnum = GridColumnEnum.Date, Sort = 5 }
         };
+        result.IsAllowNew = true;
         return Task.FromResult(result);
     }
 
@@ -30,9 +31,35 @@ public class GridArticle2 : GridBase
         new() { { "Id", 9 }, { "Text", "08 World" }, { "Price", 12.20 }, { "Quantity", 4 }, { "Date", "2025-09-02" } }
     };
 
-    protected override Task<List<Dynamic>?> GridSave(GridDto grid, Func<Task<List<Dynamic>>> load, GridConfig config)
+    protected override async Task<List<Dynamic>> GridSave(GridDto grid, Func<Task<List<Dynamic>>> load, GridConfig config)
     {
-        return base.GridSave(grid, load, config);
+        var result = await base.GridSave(grid, load, config);
+        foreach (var dataRow in result)
+        {
+            switch (dataRow.DynamicEnum)
+            {
+                case DynamicEnum.Update:
+                    {
+                        var index = dataRowList.Select((item, index) => (Value: item, Index: index)).Single(item => item.Value["Id"] == dataRow["Id"]).Index;
+                        dataRowList[index] = dataRow;
+                        break;
+                    }
+                case DynamicEnum.Insert:
+                    {
+                        dataRow["Id"] = dataRowList.Select(item => (int)item["Id"]!).Max() + 1;
+                        dataRowList.Add(dataRow);
+                        break;
+                    }
+                case DynamicEnum.Delete:
+                    {
+                        var index = dataRowList.Select((item, index) => (Value: item, Index: index)).Single(item => item.Value["Id"] == dataRow["Id"]).Index;
+                        dataRowList.RemoveAt(index);
+                        break;
+                    }
+            }
+            dataRow.DynamicEnum = DynamicEnum.None;
+        }
+        return result;
     }
 
     protected override async Task<List<Dynamic>> GridLoad(GridDto grid, string? fieldNameDistinct, int pageSize)
@@ -47,7 +74,7 @@ public class GridArticle2 : GridBase
 
 public class GridArticle(CommandContext context, CosmosDb cosmosDb)
 {
-    public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
+    public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid, GridRequestDto request)
     {
         await context.UserAuthenticateAsync();
         // Save
@@ -71,17 +98,17 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
             }
             grid.State.FieldSaveList = null;
         }
-        if (grid.State?.ButtonCustomClick?.Name == "Delete")
+        if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control.Name == "Delete")
         {
-            var id = grid.State!.RowKeyList![grid.State.ButtonCustomClick.DataRowIndex!.Value]!;
+            var id = grid.State!.RowKeyList![request.Cell!.DataRowIndex!.Value]!;
             await cosmosDb.DeleteAsync<ArticleDto>(id);
             context.NotificationAdd("Article deleted", NotificationEnum.Success);
         }
         // Load
-        await Load(grid);
+        await Load(grid, request);
     }
 
-    private async Task Load(GridDto grid)
+    private async Task Load(GridDto grid, GridRequestDto request)
     {
         grid.State ??= new();
         grid.State.Pagination ??= new();
@@ -139,7 +166,7 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
         grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = "Text", TextPlaceholder = "Search" });
         grid.AddCell(new() { CellEnum = GridCellEnum.FilterEmpty });
         var dataRowIndex = 0;
-        if (grid.State?.ButtonCustomClick?.Name == "New")
+        if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control.Name == "New")
         {
             grid.AddRow();
             grid.AddCell(new GridCellDto { CellEnum = GridCellEnum.Field, FieldName = "Text", DataRowIndex = dataRowIndex, TextPlaceholder = "New" }, null);
