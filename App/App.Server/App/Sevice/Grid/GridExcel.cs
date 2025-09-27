@@ -84,12 +84,12 @@ public class GridExcel(Configuration configuration)
             {
                 var rowCount = 0;
                 grid.PaginationGet().PageIndex = grid.State?.Pagination?.PageIndexDeltaClick ?? grid.State?.Pagination?.PageIndex ?? 0;
-                grid.PaginationGet().PageSize = 10;
-                grid.PaginationGet().PageCount = sheet.Value.Count / grid.PaginationGet().PageSize;
+                var pageSize = 10; // grid.PaginationGet().PageSize = 10;
+                grid.PaginationGet().PageCount = sheet.Value.Count / pageSize;
                 foreach (var row in sheet.Value)
                 {
                     rowCount += 1;
-                    if ((rowCount - 1) >= grid.PaginationGet().PageIndex * grid.PaginationGet().PageSize && (rowCount -1) < (grid.PaginationGet().PageIndex + 1) * grid.PaginationGet().PageSize)
+                    if ((rowCount - 1) >= grid.PaginationGet().PageIndex * pageSize && (rowCount -1) < (grid.PaginationGet().PageIndex + 1) * pageSize)
                     {
                         grid.AddRow();
                         foreach (var cell in row.Value)

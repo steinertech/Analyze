@@ -14,7 +14,6 @@ public class GridArticle2 : GridBase
             new() { FieldName = "Quantity", ColumnEnum = GridColumnEnum.Int, Sort = 4, IsAllowModify = true, IsAutocomplete = true },
             new() { FieldName = "Date", ColumnEnum = GridColumnEnum.Date, Sort = 5 }
         };
-        result.PageSize = 4;
         return Task.FromResult(result);
     }
 
@@ -36,12 +35,12 @@ public class GridArticle2 : GridBase
         return base.GridSave(grid, load, config);
     }
 
-    protected override async Task<List<Dynamic>> GridLoad(GridDto grid, string? filterFieldName, GridConfig? config)
+    protected override async Task<List<Dynamic>> GridLoad(GridDto grid, string? fieldNameDistinct, int pageSize)
     {
         // Data
         var dataRowList = this.dataRowList;
         // Apply (filter, sort and pagination)
-        var result = await UtilGrid.GridLoad(dataRowList, grid, filterFieldName, config);
+        var result = await UtilGrid.GridLoad(dataRowList, grid, fieldNameDistinct, pageSize);
         return result;
     }
 }
@@ -87,7 +86,7 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
         grid.State ??= new();
         grid.State.Pagination ??= new();
         var pagination = grid.State.Pagination;
-        pagination.PageSize ??= 3;
+        var pageSize = 3; // pagination.PageSize ??= 3;
         pagination.PageIndex ??= 0;
         pagination.PageIndexDeltaClick ??= 0;
         var query = cosmosDb.Select<ArticleDto>();
@@ -101,7 +100,7 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
         }
         // PageCount
         var rowCount = (await query.CountAsync()).Resource;
-        pagination.PageCount = (int)Math.Ceiling((double)rowCount / (double)pagination.PageSize);
+        pagination.PageCount = (int)Math.Ceiling((double)rowCount / (double)3);
         pagination.PageIndex += pagination.PageIndexDeltaClick;
         if (pagination.PageIndex >= pagination.PageCount)
         {
@@ -125,8 +124,8 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
         }
         // Pagination
         query = query
-            .Skip(pagination.PageIndex.Value * pagination.PageSize.Value)
-            .Take(pagination.PageSize.Value);
+            .Skip(pagination.PageIndex.Value * pageSize)
+            .Take(pageSize);
         var list = await query.ToListAsync();
         // Render
         grid.Clear();

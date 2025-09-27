@@ -739,8 +739,6 @@ public class GridPaginationDto
 
     public int? PageCount { get; set; }
     
-    public int? PageSize { get; set; }
-
     public int? PageIndexDeltaClick { get; set; }
 }
 
@@ -1007,9 +1005,24 @@ public class GridConfig
     }
 
     /// <summary>
-    /// Gets or sets PageSize. This is the number of rows in one page.
+    /// Gets or sets PageSize. Number of rows in one page.
     /// </summary>
-    public int? PageSize { get; set; }
+    public int PageSize { get; set; } = 2;
+
+    /// <summary>
+    /// Gets or sets PageSize. Number of rows in one page in lookup filter.
+    /// </summary>
+    public int PageSizeFilter { get; set; } = 3;
+
+    /// <summary>
+    /// Gets or sets PageSize. Number of rows in one page in lookup column.
+    /// </summary>
+    public int PageSizeColumn { get; set; } = 4;
+
+    /// <summary>
+    /// Gets or sets PageSize. Number of rows in one page in lookup autocomplete.
+    /// </summary>
+    public int PageSizeAutocomplete { get; set; } = 5;
 
     /// <summary>
     /// Gets or sets FieldNameRowKey. This is the key to identifiy a data record.

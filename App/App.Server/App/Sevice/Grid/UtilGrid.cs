@@ -37,7 +37,7 @@ public static class UtilGrid
     /// <param name="grid">Grid with state to apply (filter, sort and pagination).</param>
     /// <param name="fieldNameDistinct">Used for example for filter lookup data grid. Returns one column grid.</param>
     /// <param name="config">Used for example for PageSize.</param>
-    public static async Task<List<Dynamic>> GridLoad(List<Dynamic> dataRowList, GridDto grid, string? fieldNameDistinct, GridConfig? config)
+    public static async Task<List<Dynamic>> GridLoad(List<Dynamic> dataRowList, GridDto grid, string? fieldNameDistinct, int pageSize)
     {
         var query = dataRowList.AsQueryable();
         // Init Filter, Pagination
@@ -48,7 +48,6 @@ public static class UtilGrid
         var filterMultiList = grid.State.FilterMultiList;
         grid.State.Pagination ??= new();
         var pagination = grid.State.Pagination;
-        pagination.PageSize ??= config?.PageSize ?? 3;
         pagination.PageIndex ??= 0;
         pagination.PageIndexDeltaClick ??= 0;
         var sort = grid.State.Sort;
@@ -75,7 +74,7 @@ public static class UtilGrid
         }
         // Pagination (PageCount)
         var rowCount = await query.CountAsync();
-        pagination.PageCount = (int)Math.Ceiling((double)rowCount / (double)pagination.PageSize!);
+        pagination.PageCount = (int)Math.Ceiling((double)rowCount / (double)pageSize!);
         pagination.PageIndex += pagination.PageIndexDeltaClick;
         if (pagination.PageIndex >= pagination.PageCount)
         {
@@ -92,8 +91,8 @@ public static class UtilGrid
         }
         // Pagination
         query = query
-            .Skip(pagination.PageIndex!.Value * pagination.PageSize.Value)
-            .Take(pagination.PageSize.Value);
+            .Skip(pagination.PageIndex!.Value * pageSize)
+            .Take(pageSize);
         // Result
         var result = query.ToList();
         return result;
