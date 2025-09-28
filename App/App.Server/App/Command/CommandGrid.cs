@@ -375,7 +375,7 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
                 var filter = parentGrid.State.FilterMultiList.TryGetValue(fieldName, out var resultFilter) ? resultFilter : null;
                 if (filter == null)
                 {
-                    filter = new() { TextList = new() };
+                    filter = new();
                     parentGrid.State.FilterMultiList[fieldName] = filter;
                 }
                 filter.TextList.Clear();
@@ -770,7 +770,7 @@ public class GridStateFilterMultiDto
     /// <summary>
     /// Gets TextList. Contains from user clicked filter lookup entries accross pagination. See also IsSelectMultiAll.
     /// </summary>
-    public List<string?> TextList { get; set; } = default!;
+    public List<string?> TextList { get; set; } = new();
 
     /// <summary>
     /// Gets or sets IsSelectAll. If true, include. If false, exclude TextList entries.

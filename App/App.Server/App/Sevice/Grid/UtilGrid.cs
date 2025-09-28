@@ -223,7 +223,7 @@ public static class UtilGrid
             filter = parentGrid.State.FilterMultiList.TryGetValue(fieldName, out var resultFilter) ? resultFilter : null;
             if (filter == null)
             {
-                filter = new() { TextList = new List<string?>(), IsSelectAll = true };
+                filter = new() { IsSelectAll = true };
                 parentGrid.State.FilterMultiList[fieldName] = filter;
             }
         }
