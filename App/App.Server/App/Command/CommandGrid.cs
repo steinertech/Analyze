@@ -482,6 +482,11 @@ public class GridRequestDto
     /// Gets ParentGrid. This is the lookup parent grid.
     /// </summary>
     public GridDto? ParentGrid { get; set; }
+
+    public GridRequestDto Parent()
+    {
+        return new() { Grid = ParentGrid ?? throw new Exception() };
+    }
 }
 
 public class GridResponseDto
@@ -1002,7 +1007,7 @@ public class GridConfig
             var isSelectAll = grid.State.ColumnFilterMulti.IsSelectAll;
             result = result.Where(item => isSelectAll ^ grid.State.ColumnFilterMulti.TextList.Contains(item.FieldName)).ToList();
         }
-        result = result.OrderBy(item => item.Sort).ToList();
+        result = result.OrderBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
         return result;
     }
 

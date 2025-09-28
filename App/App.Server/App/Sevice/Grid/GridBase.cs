@@ -166,7 +166,7 @@
                 request.ParentGrid.State.FieldSaveList ??= new();
                 request.ParentGrid.State.FieldSaveList.Add(new() { DataRowIndex = request.ParentCell.DataRowIndex, FieldName = fieldName, Text = request.ParentCell.Text, TextModified = text });
                 var config = await Config();
-                await GridSave(request, config);
+                await GridSave(request.Parent(), config);
                 var dataRowList = await GridLoad(request.ParentGrid, null, config.PageSize);
                 UtilGrid.Render(request.ParentGrid, dataRowList, config);
                 request.ParentGrid.State.FieldSaveList = null;

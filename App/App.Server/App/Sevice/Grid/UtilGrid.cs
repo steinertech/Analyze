@@ -266,10 +266,8 @@ public static class UtilGrid
     {
         grid.Clear();
         var columnList = config.ColumnListGet(grid);
-        // ColumnSortList
-        var columnSortList = columnList.OrderBy(item => item.Sort).ToList();
         // RowKey
-        var columnRowKey = columnList.Where(item => item.FieldName == config.FieldNameRowKey).SingleOrDefault();
+        var columnRowKey = config.ColumnList.Where(item => item.FieldName == config.FieldNameRowKey).SingleOrDefault();
         // Render Column
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonColumn });
@@ -279,7 +277,7 @@ public static class UtilGrid
         }
         // Render Header
         grid.AddRow();
-        foreach (var column in columnSortList)
+        foreach (var column in columnList)
         {
             grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = column.FieldName, Text = column.FieldName });
         }
@@ -289,7 +287,7 @@ public static class UtilGrid
         }
         // Render Filter
         grid.AddRow();
-        foreach (var column in columnSortList)
+        foreach (var column in columnList)
         {
             grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = column.FieldName, TextPlaceholder = "Search" });
         }
@@ -302,7 +300,7 @@ public static class UtilGrid
         foreach (var dataRow in dataRowList)
         {
             grid.AddRow();
-            foreach (var column in columnList.OrderBy(item => item.Sort).ThenBy(item => item.FieldName))
+            foreach (var column in columnList)
             {
                 var text = dataRow[column.FieldName]?.ToString();
                 var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;

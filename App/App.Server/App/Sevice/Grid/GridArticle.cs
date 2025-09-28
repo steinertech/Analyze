@@ -53,12 +53,12 @@ public class GridArticle2 : GridBase
                 case DynamicEnum.Insert:
                     {
                         var dest = Dynamic.Create(config);
-                        dest["Id"] = destList.Select(item => (int)item["Id"]!).DefaultIfEmpty().Max() + 1;
                         foreach (var (fieldName, value) in source)
                         {
                             var valueDest = value;
                             dest[fieldName] = valueDest;
                         }
+                        dest["Id"] = destList.Select(item => (int)item["Id"]!).DefaultIfEmpty().Max() + 1;
                         destList.Add(dest);
                     }
                     break;
