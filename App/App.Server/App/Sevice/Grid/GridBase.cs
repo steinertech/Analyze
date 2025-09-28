@@ -33,7 +33,7 @@
         return Task.FromResult(result);
     }
 
-    protected virtual Task GridSave(GridDto grid, GridConfig config)
+    protected virtual Task GridSave(GridRequestDto request, GridConfig config)
     {
         return Task.CompletedTask;
     }
@@ -44,10 +44,19 @@
         if (request.Grid.State?.FieldSaveList?.Count() > 0)
         {
             var config = await Config();
-            await GridSave(request.Grid, config);
+            await GridSave(request, config);
             var dataRowList = await GridLoad(request.Grid, null, config.PageSize);
             UtilGrid.Render(request.Grid, dataRowList, config);
             request.Grid.State.FieldSaveList = null;
+            return new GridResponseDto { Grid = request.Grid };
+        }
+        // Save (Delete)
+        if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "Delete")
+        {
+            var config = await Config();
+            await GridSave(request, config);
+            var dataRowList = await GridLoad(request.Grid, null, config.PageSize);
+            UtilGrid.Render(request.Grid, dataRowList, config);
             return new GridResponseDto { Grid = request.Grid };
         }
         // Load Grid
@@ -55,7 +64,7 @@
         {
             var config = await Config();
             var dataRowList = await GridLoad(request.Grid, null, config.PageSize);
-            if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom)
+            if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
             {
                 dataRowList.Insert(0, Dynamic.Create(config));
             }
@@ -157,7 +166,7 @@
                 request.ParentGrid.State.FieldSaveList ??= new();
                 request.ParentGrid.State.FieldSaveList.Add(new() { DataRowIndex = request.ParentCell.DataRowIndex, FieldName = fieldName, Text = request.ParentCell.Text, TextModified = text });
                 var config = await Config();
-                await GridSave(request.ParentGrid, config);
+                await GridSave(request, config);
                 var dataRowList = await GridLoad(request.ParentGrid, null, config.PageSize);
                 UtilGrid.Render(request.ParentGrid, dataRowList, config);
                 request.ParentGrid.State.FieldSaveList = null;

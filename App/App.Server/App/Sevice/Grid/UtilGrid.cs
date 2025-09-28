@@ -100,36 +100,66 @@ public static class UtilGrid
     /// Save grid state to data row list.
     /// </summary>
     /// <returns>Returns data rows to save to database. Data rows contain only fields which changed values and RowKey.</returns>
-    public static List<Dynamic> GridSave(GridDto grid, GridConfig config)
+    public static List<Dynamic> GridSave(GridRequestDto request, GridConfig config)
     {
         var result = new List<Dynamic>();
-        if (grid.State?.FieldSaveList != null && grid.State.RowKeyList != null)
+        // Update, Insert
+        if (request.Grid.State?.FieldSaveList != null && request.Grid.State.RowKeyList != null)
         {
-            foreach (var field in grid.State.FieldSaveList)
+            foreach (var field in request.Grid.State.FieldSaveList)
             {
-                var rowKey = grid.State.RowKeyList[field.DataRowIndex!.Value];
-                var dataRow = result.SingleOrDefault(item => item[config.FieldNameRowKey]?.ToString() == rowKey);
-                if (dataRow == null)
-                {
-                    dataRow = new Dynamic();
-                    result.Add(dataRow);
-                }
+                var rowKey = request.Grid.State.RowKeyList[field.DataRowIndex!.Value];
+                var configColumn = config.ColumnList.Single(item => item.FieldName == field.FieldName);
                 if (rowKey == null)
                 {
-                    // User added new data row.
-                    dataRow.DynamicEnum = DynamicEnum.Insert;
+                    if (config.IsAllowNew)
+                    {
+                        // User added new data row.
+                        var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
+                        if (dataRow == null)
+                        {
+                            dataRow = new Dynamic();
+                            result.Add(dataRow);
+                            dataRow.DynamicEnum = DynamicEnum.Insert;
+                        }
+                        if (configColumn.IsAllowModify)
+                        {
+                            var text = field.TextModified;
+                            dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
+                        }
+                    }
                 }
                 else
                 {
                     // User modified existing data row.
-                    dataRow.DynamicEnum = DynamicEnum.Update;
+                    var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
+                    if (dataRow == null)
+                    {
+                        dataRow = new Dynamic();
+                        result.Add(dataRow);
+                        dataRow.DynamicEnum = DynamicEnum.Update;
+                        dataRow.RowKey = rowKey;
+                    }
+                    if (configColumn.IsAllowModify)
+                    {
+                        var text = field.TextModified;
+                        dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
+                    }
                 }
-                var configColumn = config.ColumnList.Single(item => item.FieldName == field.FieldName);
-                if (configColumn.IsAllowModify)
+            }
+        }
+        else
+        {
+            // Delete
+            if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control.Name == "Delete" && request.Grid.State?.RowKeyList != null)
+            {
+                var rowKey = request.Grid.State.RowKeyList[request.Cell!.DataRowIndex!.Value];
+                if (config.IsAllowDelete)
                 {
-                    var text = field.TextModified;
-                    dataRow[config.FieldNameRowKey] = config.ConvertFrom(config.FieldNameRowKey, rowKey);
-                    dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
+                    var dataRow = new Dynamic();
+                    result.Add(dataRow);
+                    dataRow.DynamicEnum = DynamicEnum.Delete;
+                    dataRow.RowKey = rowKey;
                 }
             }
         }
@@ -253,11 +283,19 @@ public static class UtilGrid
         {
             grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = column.FieldName, Text = column.FieldName });
         }
+        if (config.IsAllowDelete)
+        {
+            grid.AddCell(new() { CellEnum = GridCellEnum.HeaderEmpty, Text = "Command" });
+        }
         // Render Filter
         grid.AddRow();
         foreach (var column in columnSortList)
         {
             grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = column.FieldName, TextPlaceholder = "Search" });
+        }
+        if (config.IsAllowDelete)
+        {
+            grid.AddCell(new() { CellEnum = GridCellEnum.FilterEmpty });
         }
         // Render Data
         var dataRowIndex = 0;
@@ -277,6 +315,10 @@ public static class UtilGrid
                     var rowKey = dataRow[columnRowKey.FieldName]?.ToString();
                     grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
                 }
+            }
+            if (config.IsAllowDelete)
+            {
+                grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" }, dataRowIndex);
             }
             dataRowIndex += 1;
         }

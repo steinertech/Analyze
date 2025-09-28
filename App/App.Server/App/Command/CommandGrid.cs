@@ -1033,6 +1033,8 @@ public class GridConfig
 
     public bool IsAllowNew { get; set; } = false;
 
+    public bool IsAllowDelete { get; set; } = false;
+
     public string? ConvertTo(string fieldName, object value)
     {
         var result = value?.ToString();

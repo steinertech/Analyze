@@ -283,4 +283,6 @@ public class Dynamic : Dictionary<string, object?>
     }
 
     public DynamicEnum DynamicEnum { get; set; }
+
+    public string? RowKey { get; set; }
 }
