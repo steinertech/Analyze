@@ -1,4 +1,6 @@
-﻿public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage storageGrid, GridArticle articleGrid, GridArticle2 gridArticle)
+﻿using System.Globalization;
+
+public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage storageGrid, GridArticle articleGrid, GridArticle2 gridArticle)
 {
     /// <summary>
     /// Returns loaded grid.
@@ -1030,11 +1032,45 @@ public class GridConfig
     public string FieldNameRowKey { get; set; } = "Id";
 
     public bool IsAllowNew { get; set; } = false;
+
+    public string? ConvertTo(string fieldName, object value)
+    {
+        var result = value?.ToString();
+        return result == "" ? null : result;
+    }
+
+    public object? ConvertFrom(string fieldName, string? value)
+    {
+        var columnEnum = ColumnList.Single(item => item.FieldName == fieldName).ColumnEnum;
+        if (value == null)
+        {
+            return null;
+        }
+        object? result;
+        switch (columnEnum)
+        {
+            case GridColumnEnum.Text:
+                result = value;
+                break;
+            case GridColumnEnum.Int:
+                result = int.Parse(value);
+                break;
+            case GridColumnEnum.Double:
+                result = double.Parse(value);
+                break;
+            case GridColumnEnum.Date:
+                result = DateTime.ParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                break;
+            default:
+                throw new Exception("Type unknown!");
+        }
+        return result;
+    }
 }
 
 public class GridColumn
 {
-    public string? FieldName { get; set; }
+    public string FieldName { get; set; } = default!;
 
     public GridColumnEnum ColumnEnum { get; set; }
 

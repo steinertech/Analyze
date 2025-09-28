@@ -52,7 +52,7 @@ public static class UtilGrid
         // Filter
         foreach (var (fieldName, text) in grid.State.FilterList)
         {
-            query = query.Where(item => (item![fieldName!]!.ToString() ?? "").ToLower().Contains(text.ToLower()) == true);
+            query = query.Where(item => (item[fieldName]!.ToString() ?? "").ToLower().Contains(text.ToLower()) == true);
         }
         // FilterMulti
         foreach (var (fieldName, filterMulti) in grid.State.FilterMultiList)
@@ -97,63 +97,43 @@ public static class UtilGrid
     }
 
     /// <summary>
-    /// Save grid state to dataRowList.
+    /// Save grid state to data row list.
     /// </summary>
-    /// <returns>Returns updated dataRowList.</returns>
-    public static List<Dynamic> GridSave(GridDto grid, List<Dynamic> dataRowList, GridConfig config)
+    /// <returns>Returns data rows to save to database. Data rows contain only fields which changed values and RowKey.</returns>
+    public static List<Dynamic> GridSave(GridDto grid, GridConfig config)
     {
+        var result = new List<Dynamic>();
         if (grid.State?.FieldSaveList != null && grid.State.RowKeyList != null)
         {
             foreach (var field in grid.State.FieldSaveList)
             {
                 var rowKey = grid.State.RowKeyList[field.DataRowIndex!.Value];
-                Dynamic dataRow;
+                var dataRow = result.SingleOrDefault(item => item[config.FieldNameRowKey]?.ToString() == rowKey);
+                if (dataRow == null)
+                {
+                    dataRow = new Dynamic();
+                    result.Add(dataRow);
+                }
                 if (rowKey == null)
                 {
                     // User added new data row.
-                    dataRow = new() { DynamicEnum = DynamicEnum.Insert };
-                    dataRowList.Insert(0, dataRow);
+                    dataRow.DynamicEnum = DynamicEnum.Insert;
                 }
                 else
                 {
                     // User modified existing data row.
-                    dataRow = dataRowList.Single(item => item.ContainsKey(config.FieldNameRowKey) && item[config.FieldNameRowKey]?.ToString() == rowKey);
                     dataRow.DynamicEnum = DynamicEnum.Update;
                 }
                 var configColumn = config.ColumnList.Single(item => item.FieldName == field.FieldName);
                 if (configColumn.IsAllowModify)
                 {
                     var text = field.TextModified;
-                    object? value;
-                    if (string.IsNullOrEmpty(text))
-                    {
-                        value = null;
-                    }
-                    else
-                    {
-                        switch (configColumn.ColumnEnum)
-                        {
-                            case GridColumnEnum.Text:
-                                value = text;
-                                break;
-                            case GridColumnEnum.Int:
-                                value = int.Parse(text);
-                                break;
-                            case GridColumnEnum.Double:
-                                value = double.Parse(text);
-                                break;
-                            case GridColumnEnum.Date:
-                                value = DateTime.ParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                                break;
-                            default:
-                                throw new Exception("Type unknown!");
-                        }
-                    }
-                    dataRow[field.FieldName!] = value;
+                    dataRow[config.FieldNameRowKey] = config.ConvertFrom(config.FieldNameRowKey, rowKey);
+                    dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
                 }
             }
         }
-        return dataRowList;
+        return result;
     }
 
     /// <summary>
@@ -286,7 +266,7 @@ public static class UtilGrid
             grid.AddRow();
             foreach (var column in columnList.OrderBy(item => item.Sort).ThenBy(item => item.FieldName))
             {
-                var text = dataRow.ContainsKey(column.FieldName!) ? dataRow[column.FieldName!]?.ToString() : null;
+                var text = dataRow[column.FieldName]?.ToString();
                 var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
                 if (columnRowKey == null)
                 {
@@ -294,7 +274,7 @@ public static class UtilGrid
                 }
                 else
                 {
-                    var rowKey = dataRow.ContainsKey(columnRowKey.FieldName!) ? dataRow[columnRowKey.FieldName!]?.ToString() : null;
+                    var rowKey = dataRow[columnRowKey.FieldName]?.ToString();
                     grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
                 }
             }

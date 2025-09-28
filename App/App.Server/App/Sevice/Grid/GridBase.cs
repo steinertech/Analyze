@@ -20,7 +20,7 @@
         // Apply (filter, sort and pagination) from grid.
         var resultDynamic = UtilGrid.DynamicFrom(result, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
         resultDynamic = await UtilGrid.GridLoad(resultDynamic, grid, null, config.PageSizeColumn);
-        result = UtilGrid.DynamicTo<GridColumn>(resultDynamic, (dataRowFrom, dataRowTo) => { dataRowTo.FieldName = dataRowFrom["FieldName"]?.ToString(); });
+        result = UtilGrid.DynamicTo<GridColumn>(resultDynamic, (dataRowFrom, dataRowTo) => { dataRowTo.FieldName = dataRowFrom["FieldName"]?.ToString()!; });
         return result;
     }
 
@@ -33,11 +33,9 @@
         return Task.FromResult(result);
     }
 
-    protected virtual async Task<List<Dynamic>> GridSave(GridDto grid, Func<Task<List<Dynamic>>> load, GridConfig config)
+    protected virtual Task GridSave(GridDto grid, GridConfig config)
     {
-        var dataRowList = await load();
-        dataRowList = UtilGrid.GridSave(grid, dataRowList, config);
-        return dataRowList;
+        return Task.CompletedTask;
     }
 
     public async Task<GridResponseDto> Load(GridRequestDto request)
@@ -46,12 +44,8 @@
         if (request.Grid.State?.FieldSaveList?.Count() > 0)
         {
             var config = await Config();
-            var load = async () => await GridLoad(request.Grid, null, config.PageSize);
-            var dataRowList = await GridSave(request.Grid, load, config);
-            if (dataRowList == null)
-            {
-                dataRowList = await load();
-            }
+            await GridSave(request.Grid, config);
+            var dataRowList = await GridLoad(request.Grid, null, config.PageSize);
             UtilGrid.Render(request.Grid, dataRowList, config);
             request.Grid.State.FieldSaveList = null;
             return new GridResponseDto { Grid = request.Grid };
@@ -63,7 +57,7 @@
             var dataRowList = await GridLoad(request.Grid, null, config.PageSize);
             if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom)
             {
-                dataRowList.Insert(0, new());
+                dataRowList.Insert(0, Dynamic.Create(config));
             }
             UtilGrid.Render(request.Grid, dataRowList, config);
             return new GridResponseDto { Grid = request.Grid };
@@ -163,12 +157,8 @@
                 request.ParentGrid.State.FieldSaveList ??= new();
                 request.ParentGrid.State.FieldSaveList.Add(new() { DataRowIndex = request.ParentCell.DataRowIndex, FieldName = fieldName, Text = request.ParentCell.Text, TextModified = text });
                 var config = await Config();
-                var load = async () => await GridLoad(request.ParentGrid, null, config.PageSize);
-                var dataRowList = await GridSave(request.ParentGrid, load, config);
-                if (dataRowList == null)
-                {
-                    dataRowList = await load();
-                }
+                await GridSave(request.ParentGrid, config);
+                var dataRowList = await GridLoad(request.ParentGrid, null, config.PageSize);
                 UtilGrid.Render(request.ParentGrid, dataRowList, config);
                 request.ParentGrid.State.FieldSaveList = null;
                 return new GridResponseDto { ParentGrid = request.ParentGrid };

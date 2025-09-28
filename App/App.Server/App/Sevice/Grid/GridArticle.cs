@@ -31,35 +31,39 @@ public class GridArticle2 : GridBase
         new() { { "Id", 9 }, { "Text", "08 World" }, { "Price", 12.20 }, { "Quantity", 4 }, { "Date", "2025-09-02" } }
     };
 
-    protected override async Task<List<Dynamic>> GridSave(GridDto grid, Func<Task<List<Dynamic>>> load, GridConfig config)
+    protected override Task GridSave(GridDto grid, GridConfig config)
     {
-        var result = await base.GridSave(grid, load, config);
-        foreach (var dataRow in result)
+        var sourceList = UtilGrid.GridSave(grid, config);
+        var destList = dataRowList;
+        foreach (var source in sourceList)
         {
-            switch (dataRow.DynamicEnum)
+            switch (source.DynamicEnum)
             {
                 case DynamicEnum.Update:
+                    var index = destList.Select((item, index) => (Value: item, Index: index)).Single(item => object.Equals(item.Value["Id"], source["Id"])).Index;
+                    foreach (var (fieldName, value) in source)
                     {
-                        var index = dataRowList.Select((item, index) => (Value: item, Index: index)).Single(item => item.Value["Id"] == dataRow["Id"]).Index;
-                        dataRowList[index] = dataRow;
-                        break;
+                        destList[index][fieldName] = value;
                     }
+                    break;
                 case DynamicEnum.Insert:
+                    var dest = Dynamic.Create(config);
+                    foreach (var (fieldName, value) in source)
                     {
-                        dataRow["Id"] = dataRowList.Select(item => (int)item["Id"]!).Max() + 1;
-                        dataRowList.Add(dataRow);
-                        break;
+                        var valueDest = value;
+                        if (fieldName == config.FieldNameRowKey)
+                        {
+                            valueDest = destList.Select(item => (int)item["Id"]!).Max() + 1;
+                        }
+                        dest[fieldName] = valueDest;
                     }
+                    destList.Add(dest);
+                    break;
                 case DynamicEnum.Delete:
-                    {
-                        var index = dataRowList.Select((item, index) => (Value: item, Index: index)).Single(item => item.Value["Id"] == dataRow["Id"]).Index;
-                        dataRowList.RemoveAt(index);
-                        break;
-                    }
+                    break;
             }
-            dataRow.DynamicEnum = DynamicEnum.None;
         }
-        return result;
+        return Task.CompletedTask;
     }
 
     protected override async Task<List<Dynamic>> GridLoad(GridDto grid, string? fieldNameDistinct, int pageSize)

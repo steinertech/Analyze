@@ -269,5 +269,18 @@ public class Dynamic : Dictionary<string, object?>
         
     }
 
+    /// <summary>
+    /// Returns Dynamic data row with all fields.
+    /// </summary>
+    public static Dynamic Create(GridConfig config)
+    {
+        var result = new Dynamic();
+        foreach (var column in config.ColumnList)
+        {
+            result.Add(column.FieldName, null);
+        }
+        return result;
+    }
+
     public DynamicEnum DynamicEnum { get; set; }
 }
