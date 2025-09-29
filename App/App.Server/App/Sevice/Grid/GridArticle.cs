@@ -75,12 +75,12 @@ public class GridArticle2 : GridBase
         return Task.CompletedTask;
     }
 
-    protected override async Task<List<Dynamic>> GridLoad(GridDto grid, string? fieldNameDistinct, int pageSize)
+    protected override async Task<List<Dynamic>> GridLoad(GridRequestDto request, string? fieldNameDistinct, int pageSize)
     {
         // Data
         var dataRowList = this.dataRowList;
         // Apply (filter, sort and pagination)
-        var result = await UtilGrid.GridLoad(dataRowList, grid, fieldNameDistinct, pageSize);
+        var result = await UtilGrid.GridLoad(request, dataRowList, fieldNameDistinct, pageSize);
         return result;
     }
 }

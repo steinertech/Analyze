@@ -30,12 +30,12 @@ public static class UtilGrid
     /// <summary>
     /// Returns data row list with applied (filter, sort and pagination) to render data grid.
     /// </summary>
+    /// <param name="request">Grid with state to apply (filter, sort and pagination).</param>
     /// <param name="dataRowList">DataRowList (or query).</param>
-    /// <param name="grid">Grid with state to apply (filter, sort and pagination).</param>
     /// <param name="fieldNameDistinct">Used for example for filter lookup data grid. Returns one column grid.</param>
-    /// <param name="config">Used for example for PageSize.</param>
-    public static async Task<List<Dynamic>> GridLoad(List<Dynamic> dataRowList, GridDto grid, string? fieldNameDistinct, int pageSize)
+    public static async Task<List<Dynamic>> GridLoad(GridRequestDto request, List<Dynamic> dataRowList, string? fieldNameDistinct, int pageSize)
     {
+        var grid = request.Grid;
         var query = dataRowList.AsQueryable();
         // Init Filter, Pagination
         grid.State ??= new();
@@ -168,8 +168,10 @@ public static class UtilGrid
     /// <summary>
     /// Load filter state from parent grid to lookup grid.
     /// </summary>
-    public static void LookupFilterLoad(GridDto parentGrid, GridDto grid, List<Dynamic> dataRowList, string fieldName, bool isFilterColumn = false)
+    public static void LookupFilterLoad(GridRequestDto request, List<Dynamic> dataRowList, string fieldName, bool isFilterColumn = false)
     {
+        var grid = request.Grid;
+        var parentGrid = request.ParentGrid!;
         grid.State ??= new();
         grid.State.IsSelectMultiList = new();
         GridStateFilterMultiDto? filter;
@@ -200,8 +202,10 @@ public static class UtilGrid
     /// Save filter state from lookup grid to parent grid.
     /// </summary>
     /// <returns>Returns true, if something changed.</returns>
-    public static bool LookupFilterSave(GridDto grid, GridDto parentGrid, string fieldName, bool isFilterColumn = false)
+    public static bool LookupFilterSave(GridRequestDto request, string fieldName, bool isFilterColumn = false)
     {
+        var grid = request.Grid;
+        var parentGrid = request.ParentGrid!;
         var result = false;
         grid.State ??= new();
         parentGrid.State ??= new();
@@ -261,8 +265,9 @@ public static class UtilGrid
     /// <summary>
     /// Render data grid.
     /// </summary>
-    public static void Render(GridDto grid, List<Dynamic> dataRowList, GridConfig config)
+    public static void Render(GridRequestDto request, List<Dynamic> dataRowList, GridConfig config)
     {
+        var grid = request.Grid;
         grid.Clear();
         var columnList = config.ColumnListGet(grid);
         // RowKey
@@ -335,14 +340,15 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
         //
-        RenderCalcColSpan(grid);
+        RenderCalcColSpan(request);
     }
 
     /// <summary>
     /// Render lookup data grid. For filter and column lookup.
     /// </summary>
-    public static void RenderLookup(GridDto grid, List<Dynamic> dataRowList, string fieldName)
+    public static void RenderLookup(GridRequestDto request, List<Dynamic> dataRowList, string fieldName)
     {
+        var grid = request.Grid;
         grid.Clear();
         // Render Filter
         grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = fieldName, TextPlaceholder = "Search" });
@@ -369,14 +375,15 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
         // Calc ColSpan
-        RenderCalcColSpan(grid);
+        RenderCalcColSpan(request);
     }
 
     /// <summary>
     /// Calc ColSpan of last cell.
     /// </summary>
-    private static void RenderCalcColSpan(GridDto grid)
+    private static void RenderCalcColSpan(GridRequestDto request)
     {
+        var grid = request.Grid;
         if (grid.RowCellList != null)
         {
             var cellCountMax = 0;
@@ -406,8 +413,9 @@ public static class UtilGrid
     /// <summary>
     /// Render autocomplete data grid.
     /// </summary>
-    public static void RenderAutocomplete(GridDto grid, List<Dynamic> dataRowList, string fieldName)
+    public static void RenderAutocomplete(GridRequestDto request, List<Dynamic> dataRowList, string fieldName)
     {
+        var grid = request.Grid;
         grid.Clear();
         // Render Data
         var dataRowIndex = 0;
@@ -426,6 +434,6 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
         // Calc ColSpan
-        RenderCalcColSpan(grid);
+        RenderCalcColSpan(request);
     }
 }

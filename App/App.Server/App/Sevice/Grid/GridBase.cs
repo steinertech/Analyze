@@ -13,13 +13,13 @@
     /// Returns column list for lookup grid.
     /// </summary>
     /// <param name="grid">Grid with state (filter, sort and pagination) to apply.</param>
-    protected virtual async Task<List<GridColumn>> ColumnList(GridDto grid)
+    protected virtual async Task<List<GridColumn>> ColumnList(GridRequestDto request)
     {
         var config = await Config();
         var result = config.ColumnList;
         // Apply (filter, sort and pagination) from grid.
         var resultDynamic = UtilGrid.DynamicFrom(result, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
-        resultDynamic = await UtilGrid.GridLoad(resultDynamic, grid, null, config.PageSizeColumn);
+        resultDynamic = await UtilGrid.GridLoad(request, resultDynamic, null, config.PageSizeColumn);
         result = UtilGrid.DynamicTo<GridColumn>(resultDynamic, (dataRowFrom, dataRowTo) => { dataRowTo.FieldName = dataRowFrom["FieldName"]?.ToString()!; });
         return result;
     }
@@ -27,7 +27,7 @@
     /// <summary>
     /// Returns data row list to render grid.
     /// </summary>
-    protected virtual Task<List<Dynamic>> GridLoad(GridDto grid, string? fieldNameDistinct, int pageSize)
+    protected virtual Task<List<Dynamic>> GridLoad(GridRequestDto request, string? fieldNameDistinct, int pageSize)
     {
         var result = new List<Dynamic>();
         return Task.FromResult(result);
@@ -45,8 +45,8 @@
         {
             var config = await Config();
             await GridSave(request, config);
-            var dataRowList = await GridLoad(request.Grid, null, config.PageSize);
-            UtilGrid.Render(request.Grid, dataRowList, config);
+            var dataRowList = await GridLoad(request, null, config.PageSize);
+            UtilGrid.Render(request, dataRowList, config);
             request.Grid.State.FieldSaveList = null;
             return new GridResponseDto { Grid = request.Grid };
         }
@@ -55,8 +55,8 @@
         {
             var config = await Config();
             await GridSave(request, config);
-            var dataRowList = await GridLoad(request.Grid, null, config.PageSize);
-            UtilGrid.Render(request.Grid, dataRowList, config);
+            var dataRowList = await GridLoad(request, null, config.PageSize);
+            UtilGrid.Render(request, dataRowList, config);
             return new GridResponseDto { Grid = request.Grid };
         }
         // Save (Delete) Modal
@@ -75,20 +75,20 @@
             var requestParent = new GridRequestDto { Grid = request.ParentGrid, Cell = request.ParentCell, Control = request.ParentControl };
             var config = await Config();
             await GridSave(request.Parent(), config);
-            var dataRowList = await GridLoad(request.ParentGrid, null, config.PageSize);
-            UtilGrid.Render(request.ParentGrid, dataRowList, config);
+            var dataRowList = await GridLoad(request, null, config.PageSize);
+            UtilGrid.Render(request.Parent(), dataRowList, config);
             return new GridResponseDto { ParentGrid = request.ParentGrid };
         }
         // Load Grid
         if (request.ParentCell == null)
         {
             var config = await Config();
-            var dataRowList = await GridLoad(request.Grid, null, config.PageSize);
+            var dataRowList = await GridLoad(request, null, config.PageSize);
             if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
             {
                 dataRowList.Insert(0, Dynamic.Create(config));
             }
-            UtilGrid.Render(request.Grid, dataRowList, config);
+            UtilGrid.Render(request, dataRowList, config);
             return new GridResponseDto { Grid = request.Grid };
         }
         // Lookup Filter
@@ -98,31 +98,31 @@
             if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
             {
                 // Filter Save (State)
-                UtilGrid.LookupFilterSave(request.Grid, request.ParentGrid, request.ParentCell.FieldName);
+                UtilGrid.LookupFilterSave(request, request.ParentCell.FieldName);
                 // Parent Grid Load
                 var config = await Config();
-                var dataRowList = await GridLoad(request.ParentGrid, null, config.PageSize);
-                UtilGrid.Render(request.ParentGrid, dataRowList, config);
+                var dataRowList = await GridLoad(request.Parent(), null, config.PageSize);
+                UtilGrid.Render(request.Parent(), dataRowList, config);
                 return new GridResponseDto { ParentGrid = request.ParentGrid };
             }
             // Pagination, Filter
             if (request.Control?.ControlEnum == GridControlEnum.Pagination || request.Cell?.CellEnum == GridCellEnum.Filter)
             {
                 // Filter Save (State)
-                var isSave = UtilGrid.LookupFilterSave(request.Grid, request.ParentGrid, request.ParentCell.FieldName);
+                var isSave = UtilGrid.LookupFilterSave(request, request.ParentCell.FieldName);
                 // Filter Load
                 var config = await Config();
                 {
                     var fieldName = request.ParentCell.FieldName;
-                    var dataRowList = await GridLoad(request.Grid, fieldNameDistinct: fieldName, config.PageSizeFilter);
-                    UtilGrid.LookupFilterLoad(request.ParentGrid, request.Grid, dataRowList, fieldName);
-                    UtilGrid.RenderLookup(request.Grid, dataRowList, fieldName: fieldName);
+                    var dataRowList = await GridLoad(request, fieldNameDistinct: fieldName, config.PageSizeFilter);
+                    UtilGrid.LookupFilterLoad(request, dataRowList, fieldName);
+                    UtilGrid.RenderLookup(request, dataRowList, fieldName: fieldName);
                 }
                 // Parent Grid Load
                 if (isSave)
                 {
-                    var dataRowList = await GridLoad(request.ParentGrid, null, config.PageSize);
-                    UtilGrid.Render(request.ParentGrid, dataRowList, config);
+                    var dataRowList = await GridLoad(request.Parent(), null, config.PageSize);
+                    UtilGrid.Render(request.Parent(), dataRowList, config);
                 }
                 return new GridResponseDto { Grid = request.Grid, ParentGrid = isSave ? request.ParentGrid : null };
             }
@@ -130,9 +130,9 @@
             {
                 var fieldName = request.ParentCell.FieldName;
                 var config = await Config();
-                var dataRowList = await GridLoad(request.Grid, fieldNameDistinct: fieldName, config.PageSizeFilter);
-                UtilGrid.LookupFilterLoad(request.ParentGrid, request.Grid, dataRowList, fieldName);
-                UtilGrid.RenderLookup(request.Grid, dataRowList, fieldName: fieldName);
+                var dataRowList = await GridLoad(request, fieldNameDistinct: fieldName, config.PageSizeFilter);
+                UtilGrid.LookupFilterLoad(request, dataRowList, fieldName);
+                UtilGrid.RenderLookup(request, dataRowList, fieldName: fieldName);
                 return new GridResponseDto { Grid = request.Grid };
             }
         }
@@ -142,36 +142,36 @@
             if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
             {
                 // Lookup Column Save (State)
-                UtilGrid.LookupFilterSave(request.Grid, request.ParentGrid, "FieldName", isFilterColumn: true);
+                UtilGrid.LookupFilterSave(request, "FieldName", isFilterColumn: true);
                 var config = await Config();
-                var dataRowList = await GridLoad(request.ParentGrid, null, config.PageSize);
-                UtilGrid.Render(request.ParentGrid, dataRowList, config);
+                var dataRowList = await GridLoad(request.Parent(), null, config.PageSize);
+                UtilGrid.Render(request.Parent(), dataRowList, config);
                 return new GridResponseDto { ParentGrid = request.ParentGrid };
             }
             if (request.Control?.ControlEnum == GridControlEnum.Pagination)
             {
                 // Lookup Column Save (State)
                 {
-                    UtilGrid.LookupFilterSave(request.Grid, request.ParentGrid, "FieldName", isFilterColumn: true);
+                    UtilGrid.LookupFilterSave(request, "FieldName", isFilterColumn: true);
                     var config = await Config();
-                    var dataRowList = await GridLoad(request.ParentGrid, null, config.PageSize);
-                    UtilGrid.Render(request.ParentGrid, dataRowList, config);
+                    var dataRowList = await GridLoad(request.Parent(), null, config.PageSize);
+                    UtilGrid.Render(request.Parent(), dataRowList, config);
                 }
                 // Lookup Column Load
                 {
-                    var dataRowList = await ColumnList(request.Grid);
+                    var dataRowList = await ColumnList(request);
                     var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
-                    UtilGrid.LookupFilterLoad(request.ParentGrid, request.Grid, dataRowListDynamic, "FieldName", isFilterColumn: true);
-                    UtilGrid.RenderLookup(request.Grid, dataRowListDynamic, "FieldName");
+                    UtilGrid.LookupFilterLoad(request, dataRowListDynamic, "FieldName", isFilterColumn: true);
+                    UtilGrid.RenderLookup(request, dataRowListDynamic, "FieldName");
                 }
                 return new GridResponseDto { Grid = request.Grid, ParentGrid = request.ParentGrid };
             }
             {
                 // Lookup Column Load
-                var dataRowList = await ColumnList(request.Grid);
+                var dataRowList = await ColumnList(request);
                 var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
-                UtilGrid.LookupFilterLoad(request.ParentGrid, request.Grid, dataRowListDynamic, "FieldName", isFilterColumn: true);
-                UtilGrid.RenderLookup(request.Grid, dataRowListDynamic, "FieldName");
+                UtilGrid.LookupFilterLoad(request, dataRowListDynamic, "FieldName", isFilterColumn: true);
+                UtilGrid.RenderLookup(request, dataRowListDynamic, "FieldName");
                 return new GridResponseDto { Grid = request.Grid };
             }
         }
@@ -187,15 +187,15 @@
                 request.ParentGrid.State.FieldSaveList.Add(new() { DataRowIndex = request.ParentCell.DataRowIndex, FieldName = fieldName, Text = request.ParentCell.Text, TextModified = text });
                 var config = await Config();
                 await GridSave(request.Parent(), config);
-                var dataRowList = await GridLoad(request.ParentGrid, null, config.PageSize);
-                UtilGrid.Render(request.ParentGrid, dataRowList, config);
+                var dataRowList = await GridLoad(request.Parent(), null, config.PageSize);
+                UtilGrid.Render(request.Parent(), dataRowList, config);
                 request.ParentGrid.State.FieldSaveList = null;
                 return new GridResponseDto { ParentGrid = request.ParentGrid };
             }
             {
                 var config = await Config();
-                var dataRowList = await GridLoad(request.Grid, fieldNameDistinct: fieldName, config.PageSizeAutocomplete);
-                UtilGrid.RenderAutocomplete(request.Grid, dataRowList, fieldName: fieldName);
+                var dataRowList = await GridLoad(request, fieldNameDistinct: fieldName, config.PageSizeAutocomplete);
+                UtilGrid.RenderAutocomplete(request, dataRowList, fieldName: fieldName);
                 return new GridResponseDto { Grid = request.Grid };
             }
         }
