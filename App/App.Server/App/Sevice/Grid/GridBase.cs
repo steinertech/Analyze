@@ -59,6 +59,26 @@
             UtilGrid.Render(request.Grid, dataRowList, config);
             return new GridResponseDto { Grid = request.Grid };
         }
+        // Save (Delete) Modal
+        if (request.Control?.ControlEnum == GridControlEnum.ButtonModal && request.Control.Name == "Delete")
+        {
+            request.Grid.Clear();
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "Delete row?" });
+            request.Grid.AddRow();
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk, Name = "Delete" });
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+            return new GridResponseDto { Grid = request.Grid };
+        }
+        // Save (Delete) Modal
+        if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk && request.Control.Name == "Delete" && request.ParentGrid != null)
+        {
+            var requestParent = new GridRequestDto { Grid = request.ParentGrid, Cell = request.ParentCell, Control = request.ParentControl };
+            var config = await Config();
+            await GridSave(request.Parent(), config);
+            var dataRowList = await GridLoad(request.ParentGrid, null, config.PageSize);
+            UtilGrid.Render(request.ParentGrid, dataRowList, config);
+            return new GridResponseDto { ParentGrid = request.ParentGrid };
+        }
         // Load Grid
         if (request.ParentCell == null)
         {

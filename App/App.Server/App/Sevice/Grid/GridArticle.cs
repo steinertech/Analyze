@@ -16,6 +16,7 @@ public class GridArticle2 : GridBase
         };
         result.IsAllowNew = true;
         result.IsAllowDelete = true;
+        result.IsAllowDeleteConfirm = true;
         return Task.FromResult(result);
     }
 

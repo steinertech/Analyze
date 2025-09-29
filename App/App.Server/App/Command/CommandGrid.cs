@@ -485,7 +485,7 @@ public class GridRequestDto
 
     public GridRequestDto Parent()
     {
-        return new() { Grid = ParentGrid ?? throw new Exception() };
+        return new() { Grid = ParentGrid ?? throw new Exception(), Cell = ParentCell, Control = ParentControl };
     }
 }
 
@@ -1039,6 +1039,8 @@ public class GridConfig
     public bool IsAllowNew { get; set; } = false;
 
     public bool IsAllowDelete { get; set; } = false;
+    
+    public bool IsAllowDeleteConfirm { get; set; } = false;
 
     public string? ConvertTo(string fieldName, object value)
     {

@@ -415,7 +415,7 @@ export class PageGrid {
       if (control?.controlEnum == GridControlEnum.ButtonModal) {
         lookup.isModal = true
       }
-      const response = await this.serverApi.commandGridLoad({ grid: lookup.grid(), parentCell: lookup.cell, parentControl: lookup.control, parentGrid: this._grid })
+      const response = await this.serverApi.commandGridLoad({ grid: lookup.grid(), cell: cell, control: control, parentCell: lookup.cell, parentControl: lookup.control, parentGrid: this._grid })
       lookup.grid.set(response.grid) // Lookup open (with loaded grid)
     }
   }

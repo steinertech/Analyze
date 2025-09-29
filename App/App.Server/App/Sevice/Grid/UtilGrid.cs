@@ -1,5 +1,4 @@
 ﻿using Microsoft.Azure.Cosmos.Linq;
-using System.Globalization;
 using System.Linq.Dynamic.Core;
 
 public static class UtilGrid
@@ -151,7 +150,7 @@ public static class UtilGrid
         else
         {
             // Delete
-            if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control.Name == "Delete" && request.Grid.State?.RowKeyList != null)
+            if ((request.Control?.ControlEnum == GridControlEnum.ButtonCustom || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete" && request.Grid.State?.RowKeyList != null)
             {
                 var rowKey = request.Grid.State.RowKeyList[request.Cell!.DataRowIndex!.Value];
                 if (config.IsAllowDelete)
@@ -314,9 +313,17 @@ public static class UtilGrid
                     grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
                 }
             }
+            // Render Delete
             if (config.IsAllowDelete)
             {
-                grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" }, dataRowIndex);
+                if (config.IsAllowDeleteConfirm == false)
+                {
+                    grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" }, dataRowIndex);
+                }
+                else
+                {
+                    grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.ButtonModal, Text = "Delete", Name = "Delete" }, dataRowIndex);
+                }
             }
             dataRowIndex += 1;
         }
