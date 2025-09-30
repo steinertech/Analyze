@@ -108,7 +108,7 @@ public static class UtilGrid
             foreach (var field in request.Grid.State.FieldSaveList)
             {
                 var rowKey = request.Grid.State.RowKeyList[field.DataRowIndex!.Value];
-                var configColumn = config.ColumnList.Single(item => item.FieldName == field.FieldName);
+                var configColumn = config.ColumnGet(field.FieldName!);
                 if (rowKey == null)
                 {
                     if (config.IsAllowNew)

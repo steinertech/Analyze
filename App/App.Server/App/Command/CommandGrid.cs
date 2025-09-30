@@ -991,10 +991,28 @@ public enum GridColumnEnum
 
 public class GridConfig
 {
+    private Dictionary<string, GridColumn> columnList = new();
+
     /// <summary>
     /// Gets or sets ColumnList. This is all columns.
     /// </summary>
-    public List<GridColumn> ColumnList { get; set; } = default!;
+    public List<GridColumn> ColumnList
+    {
+        get
+        {
+            return columnList.Values.ToList();
+        }
+        set
+        {
+            columnList = new(value.Select(item => new KeyValuePair<string, GridColumn>(item.FieldName, item)));
+        }
+    }
+
+    public GridColumn ColumnGet(string fieldName)
+    {
+        return columnList[fieldName];
+    }
+
 
     /// <summary>
     /// Returns column list to render data grid.
@@ -1050,7 +1068,7 @@ public class GridConfig
 
     public object? ConvertFrom(string fieldName, string? value)
     {
-        var columnEnum = ColumnList.Single(item => item.FieldName == fieldName).ColumnEnum;
+        var columnEnum = ColumnGet(fieldName).ColumnEnum;
         if (value == null)
         {
             return null;

@@ -12,7 +12,7 @@
     /// <summary>
     /// Returns column list for lookup grid.
     /// </summary>
-    /// <param name="grid">Grid with state (filter, sort and pagination) to apply.</param>
+    /// <param name="request">Grid with state (filter, sort and pagination) to apply.</param>
     protected virtual async Task<List<GridColumn>> ColumnList(GridRequestDto request)
     {
         var config = await Config();
