@@ -126,7 +126,7 @@
       }
       <!-- Button Modal -->
       @case (GridControlEnum.ButtonModal) {
-      <button (click)="clickLookup(cell, control)">{{control.text ?? 'Button'}}</button>
+      <button class="frm-button-soft" (click)="clickLookup(cell, control)">{{control.text ?? 'Button'}}</button>
       }
       <!-- Pagination -->
       @case (GridControlEnum.Pagination) {

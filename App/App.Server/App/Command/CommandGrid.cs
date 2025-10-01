@@ -994,7 +994,7 @@ public class GridConfig
     private Dictionary<string, GridColumn> columnList = new();
 
     /// <summary>
-    /// Gets or sets ColumnList. This is all columns.
+    /// Gets or sets ColumnList. This is all data grid columns.
     /// </summary>
     public List<GridColumn> ColumnList
     {
@@ -1008,6 +1008,9 @@ public class GridConfig
         }
     }
 
+    /// <summary>
+    /// Returns data column by name.
+    /// </summary>
     public GridColumn ColumnGet(string fieldName)
     {
         return columnList[fieldName];
@@ -1015,7 +1018,7 @@ public class GridConfig
 
 
     /// <summary>
-    /// Returns column list to render data grid.
+    /// Returns sorted column list to render data grid.
     /// </summary>
     public List<GridColumn> ColumnListGet(GridDto grid)
     {
@@ -1057,6 +1060,11 @@ public class GridConfig
     public bool IsAllowNew { get; set; } = false;
 
     public bool IsAllowDelete { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets IsAllowEditForm. If true, data row gets an edit command button.
+    /// </summary>
+    public bool IsAllowEditForm { get; set; } = false;
     
     public bool IsAllowDeleteConfirm { get; set; } = false;
 

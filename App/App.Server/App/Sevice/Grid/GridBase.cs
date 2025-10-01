@@ -199,6 +199,26 @@
                 return new GridResponseDto { Grid = request.Grid };
             }
         }
+        // Lookup Modal Edit
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Edit")
+        {
+            var config = await Config();
+            var dataRowList = await GridLoad(request, null, config.PageSize);
+            UtilGrid.RenderForm(request, dataRowList, config);
+            return new GridResponseDto { Grid = request.Grid };
+        }
+        // Lookup Modal
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Open")
+        {
+            var config = await Config();
+            var dataRowList = await GridLoad(request, null, config.PageSize);
+            if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
+            {
+                dataRowList.Insert(0, Dynamic.Create(config));
+            }
+            UtilGrid.Render(request, dataRowList, config);
+            return new GridResponseDto { Grid = request.Grid };
+        }
         throw new Exception("Load failed!");
     }
 }

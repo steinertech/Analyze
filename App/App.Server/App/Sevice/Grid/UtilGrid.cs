@@ -262,6 +262,43 @@ public static class UtilGrid
         return result;
     }
 
+    public static void RenderForm(GridRequestDto request, List<Dynamic> dataRowList, GridConfig config)
+    {
+        var grid = request.Grid;
+        grid.Clear();
+        var columnList = config.ColumnListGet(grid);
+        // RowKey
+        var columnRowKey = config.ColumnList.Where(item => item.FieldName == config.FieldNameRowKey).SingleOrDefault();
+        // Render Data
+        var dataRowIndex = 0;
+        foreach (var dataRow in dataRowList)
+        {
+            foreach (var column in columnList)
+            {
+                grid.AddRow();
+                grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = column.FieldName });
+                grid.AddRow();
+                var text = dataRow[column.FieldName]?.ToString();
+                var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                if (columnRowKey == null)
+                {
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                }
+                else
+                {
+                    var rowKey = dataRow[columnRowKey.FieldName]?.ToString();
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
+                }
+                dataRowIndex += 1;
+            }
+        }
+        // Render Save
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+    }
+
     /// <summary>
     /// Render data grid.
     /// </summary>
@@ -323,12 +360,18 @@ public static class UtilGrid
             {
                 if (config.IsAllowDeleteConfirm == false)
                 {
-                    grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" }, dataRowIndex);
+                    grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" }, dataRowIndex);
                 }
                 else
                 {
-                    grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.ButtonModal, Text = "Delete", Name = "Delete" }, dataRowIndex);
+                    grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Delete", Name = "Delete" }, dataRowIndex);
                 }
+            }
+            // Render Edit Form
+            if (config.IsAllowEditForm)
+            {
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Edit", Name = "Edit" }, dataRowIndex);
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Open", Name = "Open" }, dataRowIndex);
             }
             dataRowIndex += 1;
         }
@@ -339,6 +382,11 @@ public static class UtilGrid
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
+        // Render Modal Cancel
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal)
+        {
+            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+        }
         //
         RenderCalcColSpan(request);
     }

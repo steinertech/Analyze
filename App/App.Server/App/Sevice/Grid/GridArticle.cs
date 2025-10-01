@@ -17,6 +17,7 @@ public class GridArticle2 : GridBase
         result.IsAllowNew = true;
         result.IsAllowDelete = true;
         result.IsAllowDeleteConfirm = true;
+        result.IsAllowEditForm = true;
         return Task.FromResult(result);
     }
 
