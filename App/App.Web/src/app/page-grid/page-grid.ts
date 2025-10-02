@@ -290,7 +290,7 @@ export class PageGrid {
               item._grid.state.rowKeyMasterList[this._grid?.gridName] = rowKey
             }
             // Reload detail grid
-            const response = await this.serverApi.commandGridLoad({ grid: item._grid, parentCell: item.parent?._lookup?.cell, parentControl: item.parent?._lookup?.control, parentGrid: item.parent?._grid })
+            const response = await this.serverApi.commandGridLoad({ grid: item._grid, cell: cell, parentCell: item.parent?._lookup?.cell, parentControl: item.parent?._lookup?.control, parentGrid: item.parent?._grid })
             item.grid.set(response.grid);
           }
         })
@@ -317,7 +317,7 @@ export class PageGrid {
           }
           this._grid.state.pagination = this._grid.state.pagination ?? {}
           this._grid.state.pagination.pageIndex = 0
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid })
+          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
           this.grid.set(response.grid); // Reload
           break
         }
@@ -332,14 +332,14 @@ export class PageGrid {
         case GridControlEnum.ButtonReload: {
           this._grid.state = undefined // Clear state
           this.lookupClose()
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
+          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
           this.grid.set(response.grid) // Reload
           break
         }
         // Button Save
         case GridControlEnum.ButtonSave: {
           this.lookupClose()
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
+          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
           this.grid.set(response.grid)
           if (this.parent?._grid && response.parentGrid) {
             this.parent.grid.set(response.parentGrid)
@@ -403,6 +403,7 @@ export class PageGrid {
     }
   }
 
+  /** Open lookup window */
   async clickLookup(cell: GridCellDto, control?: GridControlDto) {
     if (this._grid) {
       if (this.lookup() == undefined) {
@@ -490,6 +491,7 @@ export class PageGrid {
 
   resize?: Resize
 
+  /** Column resize */
   headerMouseDown(e: MouseEvent, cell: GridCellDto, cellIndex: number) {
     e.preventDefault()
     this.resize = {
