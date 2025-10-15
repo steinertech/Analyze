@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Input, signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridDto, ServerApi } from '../generate';
+import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridDto, GridRequest2Dto, ServerApi } from '../generate';
 import { UtilClient } from '../util-client';
 
 @Component({
@@ -26,6 +26,19 @@ export class PageGrid {
       // console.log('Update _grid')
       this._lookup = this.lookup()
     })
+  }
+
+  static async commandGridLoad2(pageGrid: PageGrid, cell: GridCellDto, control: GridControlDto) {
+    const grid = pageGrid._grid!
+    const parentCell = pageGrid.parent?._lookup?.cell
+    const parentControl = pageGrid.parent?._lookup?.control
+    const parentGrid = pageGrid.parent?._grid
+    const grandParentCell = pageGrid.parent?.parent?._lookup?.cell
+    const grandParentParentControl = pageGrid.parent?.parent?._lookup?.control
+    const grandParentGrid = pageGrid.parent?.parent?._grid
+    //
+    const request: GridRequest2Dto = { list: [{ grid: grid, cell: cell, control: control }, { grid: parentGrid, cell: parentCell, control: parentControl }] }
+    const response = await pageGrid.serverApi.commandGridLoad2(request)
   }
 
   GridCellEnum = GridCellEnum
@@ -332,6 +345,7 @@ export class PageGrid {
         case GridControlEnum.ButtonReload: {
           this._grid.state = undefined // Clear state
           this.lookupClose()
+          await PageGrid.commandGridLoad2(this, cell, control)
           const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
           this.grid.set(response.grid) // Reload
           break

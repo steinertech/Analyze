@@ -44,6 +44,9 @@ internal static class ServerApi
             case nameof(CommandGrid) + nameof(CommandGrid.Load):
                 responseDto.Result = await new CommandGrid(serviceProvider.GetService<GridMemory>()!, serviceProvider.GetService<GridExcel>()!, serviceProvider.GetService<GridStorage>()!, serviceProvider.GetService<GridArticle>()!, serviceProvider.GetService<GridArticle2>()!).Load(UtilServer.JsonElementTo<GridRequestDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
+            case nameof(CommandGrid) + nameof(CommandGrid.Load2):
+                responseDto.Result = await new CommandGrid(serviceProvider.GetService<GridMemory>()!, serviceProvider.GetService<GridExcel>()!, serviceProvider.GetService<GridStorage>()!, serviceProvider.GetService<GridArticle>()!, serviceProvider.GetService<GridArticle2>()!).Load2(UtilServer.JsonElementTo<GridRequest2Dto>(requestDto.ParamList![0], jsonOptions)!);
+                break;
             default:
                 throw new Exception($"Command not found! ({requestDto.CommandName})");
         }
