@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text.Json.Serialization;
 
 public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage storageGrid, GridArticle articleGrid, GridArticle2 gridArticle)
 {
@@ -101,6 +102,14 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
             }
         }
         return new GridResponseDto { Grid = request.Grid };
+    }
+
+    /// <summary>
+    /// Returns loaded grid.
+    /// </summary>
+    public async Task<GridResponse2Dto> Load2(GridRequest2Dto request)
+    {
+        return new() { };
     }
 
     private void DataLoad(GridDto grid)
@@ -486,6 +495,63 @@ public class GridRequestDto
     public GridRequestDto Parent()
     {
         return new() { Grid = ParentGrid ?? throw new Exception(), Cell = ParentCell, Control = ParentControl };
+    }
+}
+
+public class GridRequest2EntryDto
+{
+    public GridDto? Grid { get; set; }
+
+    /// <summary>
+    /// Gets Cell. This is the sender.
+    /// </summary>
+    public GridCellDto? Cell { get; set; }
+
+    /// <summary>
+    /// Gets Control. This is the sender.
+    /// </summary>
+    public GridControlDto? Control { get; set; }
+}
+
+public class GridRequest2Dto
+{
+    public List<GridRequest2EntryDto> List { get; set; } = default!;
+
+    [JsonIgnore]
+    public GridDto Grid => List[0].Grid!;
+
+    [JsonIgnore]
+    public GridCellDto? Cell => List[0].Cell;
+
+    [JsonIgnore]
+    public GridControlDto? Control => List[0].Control;
+
+    [JsonIgnore]
+    public GridDto? ParentGrid => List[1].Grid;
+
+    [JsonIgnore]
+    public GridCellDto? ParentCell => List[1].Cell;
+
+    [JsonIgnore]
+    public GridControlDto? ParentControl => List[1].Control;
+}
+
+public class GridResponse2Dto
+{
+    public List<GridDto?> List { get; set; } = default!;
+
+    [JsonIgnore]
+    public GridDto? Grid
+    {
+        get => List[0]!;
+        set { List ??= new(); List[0] = value; }
+    }
+
+    [JsonIgnore]
+    public GridDto? ParentGrid
+    {
+        get => List[1]!;
+        set { List ??= new(); List[1] = value; }
     }
 }
 
