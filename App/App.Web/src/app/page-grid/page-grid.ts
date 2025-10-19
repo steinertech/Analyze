@@ -28,7 +28,7 @@ export class PageGrid {
     })
   }
 
-  static async commandGridLoad2(pageGrid: PageGrid, cell: GridCellDto, control: GridControlDto) {
+  static async commandGridLoad2(pageGrid: PageGrid, cell: GridCellDto, control?: GridControlDto) {
     const grid = pageGrid._grid!
     const parentCell = pageGrid.parent?._lookup?.cell
     const parentControl = pageGrid.parent?._lookup?.control
@@ -190,11 +190,7 @@ export class PageGrid {
           if (value == '') {
             delete this._grid.state.filterList[cell.fieldName!] // Remove
           }
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: undefined, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-          this.grid.set(response.grid)
-          if (this.parent?._grid && response.parentGrid) {
-            this.parent.grid.set(response.parentGrid)
-          }
+          await PageGrid.commandGridLoad2(this, cell, undefined)
           break
         }
         // CheckBox
@@ -341,8 +337,7 @@ export class PageGrid {
           }
           this._grid.state.pagination = this._grid.state.pagination ?? {}
           this._grid.state.pagination.pageIndex = 0
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-          this.grid.set(response.grid); // Reload
+          await PageGrid.commandGridLoad2(this, cell, undefined)
           break
         }
       }
@@ -357,18 +352,12 @@ export class PageGrid {
           this._grid.state = undefined // Clear state
           this.lookupClose()
           await PageGrid.commandGridLoad2(this, cell, control)
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-          this.grid.set(response.grid) // Reload
           break
         }
         // Button Save
         case GridControlEnum.ButtonSave: {
           this.lookupClose()
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-          this.grid.set(response.grid)
-          if (this.parent?._grid && response.parentGrid) {
-            this.parent.grid.set(response.parentGrid)
-          }
+          await PageGrid.commandGridLoad2(this, cell, control)
           break
         }
         // Button Cancel (Lookup)
@@ -447,11 +436,7 @@ export class PageGrid {
       this._grid.state = this._grid.state || {}
       this._grid.state.pagination = this._grid.state.pagination || {}
       this._grid.state.pagination.pageIndexDeltaClick = indexDelta
-      const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-      this.grid.set(response.grid);
-      if (this.parent?._grid && response.parentGrid) {
-        this.parent.grid.set(response.parentGrid)
-      }
+      await PageGrid.commandGridLoad2(this, cell, control)
     }
   }
 
