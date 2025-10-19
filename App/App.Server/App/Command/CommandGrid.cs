@@ -109,7 +109,16 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
     /// </summary>
     public async Task<GridResponse2Dto> Load2(GridRequest2Dto request)
     {
-        return new() { };
+        var result = await Load(new()
+        {
+            Grid = request.Grid,
+            Cell = request.Cell,
+            Control = request.Control,
+            ParentGrid = request.ParentGrid,
+            ParentCell = request.ParentCell,
+            ParentControl = request.ParentControl
+        });
+        return new() { Grid = result.Grid, ParentGrid = result.ParentGrid };
     }
 
     private void DataLoad(GridDto grid)
@@ -544,15 +553,17 @@ public class GridResponse2Dto
     public GridDto? Grid
     {
         get => List[0]!;
-        set { List ??= new(); List[0] = value; }
+        set { List ??= new() { null, null }; List[0] = value; }
     }
 
     [JsonIgnore]
     public GridDto? ParentGrid
     {
         get => List[1]!;
-        set { List ??= new(); List[1] = value; }
+        set { List ??= new() { null, null }; List[1] = value; }
     }
+
+    // public GridDto? GrandParentGrid // Response never changes GrandParent
 }
 
 public class GridResponseDto

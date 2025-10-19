@@ -34,11 +34,22 @@ export class PageGrid {
     const parentControl = pageGrid.parent?._lookup?.control
     const parentGrid = pageGrid.parent?._grid
     const grandParentCell = pageGrid.parent?.parent?._lookup?.cell
-    const grandParentParentControl = pageGrid.parent?.parent?._lookup?.control
+    const grandParentControl = pageGrid.parent?.parent?._lookup?.control
     const grandParentGrid = pageGrid.parent?.parent?._grid
     //
-    const request: GridRequest2Dto = { list: [{ grid: grid, cell: cell, control: control }, { grid: parentGrid, cell: parentCell, control: parentControl }] }
+    const request: GridRequest2Dto = { list: [
+      { grid: grid, cell: cell, control: control }, 
+      { grid: parentGrid, cell: parentCell, control: parentControl },
+      { grid: grandParentGrid, cell: grandParentCell, control: grandParentControl },
+    ] }
     const response = await pageGrid.serverApi.commandGridLoad2(request)
+    if (response.list?.[0] != null) {
+      pageGrid.grid.set(response.list[0])
+    }
+    if (response.list?.[1] != null) {
+      pageGrid.grid.set(response.list[1])
+    }
+    // Response never changes GrandParent
   }
 
   GridCellEnum = GridCellEnum
