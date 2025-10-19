@@ -38,7 +38,7 @@
         return Task.CompletedTask;
     }
 
-    public async Task<GridResponseDto> Load(GridRequestDto request)
+    public async Task<GridResponseDto> Load(GridRequestDto request, GridRequest2Dto request2)
     {
         // Save
         if (request.Grid.State?.FieldSaveList?.Count() > 0)
@@ -145,7 +145,7 @@
                 UtilGrid.LookupFilterSave(request, "FieldName", isFilterColumn: true);
                 var config = await Config();
                 var dataRowList = await GridLoad(request.Parent(), null, config.PageSize);
-                UtilGrid.Render(request.Parent(), dataRowList, config);
+                UtilGrid.Render(request2.Parent(), dataRowList, config);
                 return new GridResponseDto { ParentGrid = request.ParentGrid };
             }
             if (request.Control?.ControlEnum == GridControlEnum.Pagination)

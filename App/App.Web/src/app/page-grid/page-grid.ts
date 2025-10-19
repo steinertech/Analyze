@@ -40,14 +40,14 @@ export class PageGrid {
     const request: GridRequest2Dto = { list: [
       { grid: grid, cell: cell, control: control }, 
       { grid: parentGrid, cell: parentCell, control: parentControl },
-      { grid: grandParentGrid, cell: grandParentCell, control: grandParentControl },
+      { /* grid: grandParentGrid, */ cell: grandParentCell, control: grandParentControl }, // Request for GrandParent grid is not sent
     ] }
     const response = await pageGrid.serverApi.commandGridLoad2(request)
     if (response.list?.[0] != null) {
       pageGrid.grid.set(response.list[0])
     }
     if (response.list?.[1] != null) {
-      pageGrid.grid.set(response.list[1])
+      pageGrid?.parent?.grid.set(response.list[1])
     }
     // Response never changes GrandParent
   }
@@ -379,11 +379,7 @@ export class PageGrid {
         // Button Ok (Lookup)
         case GridControlEnum.ButtonLookupOk: {
           if (this.parent?._grid) {
-            const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent._lookup?.cell, parentControl: this.parent._lookup?.control, parentGrid: this.parent._grid })
-            this.grid.set(response.grid) // Lookup to be closed
-            if (this.parent?._grid && response.parentGrid) {
-              this.parent.grid.set(response.parentGrid) // Parent reload
-            }
+            await PageGrid.commandGridLoad2(this, cell, control)
             this.parent?.lookupClose()
           }
           break
