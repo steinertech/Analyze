@@ -1,11 +1,12 @@
 ﻿using System.Globalization;
+using System.Text.Json.Serialization;
 
 public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage storageGrid, GridArticle articleGrid, GridArticle2 gridArticle)
 {
     /// <summary>
     /// Returns loaded grid.
     /// </summary>
-    public async Task<GridResponseDto> Load(GridRequestDto request)
+    public async Task<GridResponseDto> Load(GridRequestDto request, GridRequest2Dto request2)
     {
         // Article
         if (request.Grid.GridName == "Article")
@@ -16,7 +17,7 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
         // Article
         if (request.Grid.GridName == "Article2")
         {
-            var response = await gridArticle.Load(request);
+            var response = await gridArticle.Load(request, request2);
             return response;
         }
         if (request.Grid.State?.FieldSaveList?.Count() > 0)
@@ -34,7 +35,7 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
                 {
                     result.Grid.State.FieldSaveList = null;
                 }
-                await Load(request);
+                await Load(request, request2);
                 return result;
             }
         }
@@ -64,7 +65,7 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
             }
             else
             {
-                await LookupFilterSave(request.Grid, request.ParentCell, request.ParentGrid);
+                await LookupFilterSave(request.Grid, request.ParentCell, request.ParentGrid, request2);
                 return new() { Grid = request.Grid, ParentGrid = request.ParentGrid };
             }
         }
@@ -96,11 +97,28 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
             }
             else
             {
-                await LookupColumnSave(request.Grid, request.ParentCell, request.ParentGrid);
+                await LookupColumnSave(request.Grid, request.ParentCell, request.ParentGrid, request2);
                 return new() { Grid = request.Grid, ParentGrid = request.ParentGrid };
             }
         }
         return new GridResponseDto { Grid = request.Grid };
+    }
+
+    /// <summary>
+    /// Returns loaded grid.
+    /// </summary>
+    public async Task<GridResponse2Dto> Load2(GridRequest2Dto request2)
+    {
+        var result = await Load(new()
+        {
+            Grid = request2.Grid,
+            Cell = request2.Cell,
+            Control = request2.Control,
+            ParentGrid = request2.ParentGrid,
+            ParentCell = request2.ParentCell,
+            ParentControl = request2.ParentControl
+        }, request2);
+        return new() { Grid = result.Grid, ParentGrid = result.ParentGrid };
     }
 
     private void DataLoad(GridDto grid)
@@ -353,7 +371,7 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
         return grid;
     }
 
-    private async Task LookupFilterSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private async Task LookupFilterSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid, GridRequest2Dto request2)
     {
         if (parentGrid.State == null)
         {
@@ -401,10 +419,10 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
                 }
             }
         }
-        await Load(new() { Grid = parentGrid });
+        await Load(new() { Grid = parentGrid }, request2);
     }
 
-    private async Task LookupColumnSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid)
+    private async Task LookupColumnSave(GridDto grid, GridCellDto parentCell, GridDto parentGrid, GridRequest2Dto request2)
     {
         if (parentGrid.State == null)
         {
@@ -421,7 +439,7 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
                 i++;
             }
         }
-        await Load(new() { Grid = parentGrid }); // TODO Column on lookup. For example filter would be missing.
+        await Load(new() { Grid = parentGrid }, request2); // TODO Column on lookup. For example filter would be missing.
     }
 
     /// <summary>
@@ -487,6 +505,79 @@ public class GridRequestDto
     {
         return new() { Grid = ParentGrid ?? throw new Exception(), Cell = ParentCell, Control = ParentControl };
     }
+}
+
+public class GridRequest2EntryDto
+{
+    public GridDto? Grid { get; set; }
+
+    /// <summary>
+    /// Gets Cell. This is the sender.
+    /// </summary>
+    public GridCellDto? Cell { get; set; }
+
+    /// <summary>
+    /// Gets Control. This is the sender.
+    /// </summary>
+    public GridControlDto? Control { get; set; }
+}
+
+public class GridRequest2Dto
+{
+    public List<GridRequest2EntryDto> List { get; set; } = default!;
+
+    [JsonIgnore]
+    public GridDto Grid => List[0].Grid!;
+
+    [JsonIgnore]
+    public GridCellDto? Cell => List[0].Cell;
+
+    [JsonIgnore]
+    public GridControlDto? Control => List[0].Control;
+
+    [JsonIgnore]
+    public GridDto? ParentGrid => List[1].Grid;
+
+    [JsonIgnore]
+    public GridCellDto? ParentCell => List[1].Cell;
+
+    [JsonIgnore]
+    public GridControlDto? ParentControl => List[1].Control;
+
+    // [JsonIgnore]
+    // public GridDto? GreatParentGrid => List[2].Grid; // Request does not send GreatParent data grid
+
+    [JsonIgnore]
+    public GridCellDto? GreatParentCell => List[2].Cell;
+
+    [JsonIgnore]
+    public GridControlDto? GreatParentControl => List[2].Control;
+
+    public GridRequestDto Parent()
+    {
+        return new() { Grid = ParentGrid ?? throw new Exception(), Cell = ParentCell, Control = ParentControl, ParentCell = GreatParentCell, ParentControl = GreatParentControl };
+    }
+}
+
+public class GridResponse2Dto
+{
+    public List<GridDto?> List { get; set; } = default!;
+
+    [JsonIgnore]
+    public GridDto? Grid
+    {
+        get => List[0]!;
+        set { List ??= new() { null, null }; List[0] = value; }
+    }
+
+    [JsonIgnore]
+    public GridDto? ParentGrid
+    {
+        get => List[1]!;
+        set { List ??= new() { null, null }; List[1] = value; }
+    }
+
+    // public GridDto? GrandParentGrid // Response never changes GrandParent
 }
 
 public class GridResponseDto

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Input, signal, ViewChild, WritableSignal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Input, signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridDto, ServerApi } from '../generate';
+import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridDto, GridRequest2Dto, ServerApi } from '../generate';
 import { UtilClient } from '../util-client';
 
 @Component({
@@ -14,7 +14,7 @@ import { UtilClient } from '../util-client';
   styleUrl: './page-grid.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageGrid {
+export class PageGrid implements AfterViewInit {
   private serverApi = inject(ServerApi)
 
   constructor() {
@@ -26,6 +26,39 @@ export class PageGrid {
       // console.log('Update _grid')
       this._lookup = this.lookup()
     })
+  }
+
+  /** If this component is a lookup, load data. */
+  async ngAfterViewInit() {
+    if (this.parent?._lookup) {
+      await PageGrid.commandGridLoad2(this, this.parent?._lookup.cell, this.parent._lookup.control)
+    }
+  }
+
+  static async commandGridLoad2(pageGrid: PageGrid, cell?: GridCellDto, control?: GridControlDto) {
+    const grid = pageGrid._grid!
+    const parentCell = pageGrid.parent?._lookup?.cell
+    const parentControl = pageGrid.parent?._lookup?.control
+    const parentGrid = pageGrid.parent?._grid
+    const grandParentCell = pageGrid.parent?.parent?._lookup?.cell
+    const grandParentControl = pageGrid.parent?.parent?._lookup?.control
+    const grandParentGrid = pageGrid.parent?.parent?._grid
+    //
+    const request: GridRequest2Dto = {
+      list: [
+        { grid: grid, cell: cell, control: control },
+        { grid: parentGrid, cell: parentCell, control: parentControl },
+        { /* grid: grandParentGrid, */ cell: grandParentCell, control: grandParentControl }, // Request for GrandParent grid is not sent
+      ]
+    }
+    const response = await pageGrid.serverApi.commandGridLoad2(request)
+    if (response.list?.[0] != null) {
+      pageGrid.grid.set(response.list[0])
+    }
+    if (response.list?.[1] != null) {
+      pageGrid?.parent?.grid.set(response.list[1])
+    }
+    // Response never changes GrandParent
   }
 
   GridCellEnum = GridCellEnum
@@ -166,11 +199,7 @@ export class PageGrid {
           if (value == '') {
             delete this._grid.state.filterList[cell.fieldName!] // Remove
           }
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: undefined, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-          this.grid.set(response.grid)
-          if (this.parent?._grid && response.parentGrid) {
-            this.parent.grid.set(response.parentGrid)
-          }
+          await PageGrid.commandGridLoad2(this, cell, undefined)
           break
         }
         // CheckBox
@@ -317,8 +346,7 @@ export class PageGrid {
           }
           this._grid.state.pagination = this._grid.state.pagination ?? {}
           this._grid.state.pagination.pageIndex = 0
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-          this.grid.set(response.grid); // Reload
+          await PageGrid.commandGridLoad2(this, cell, undefined)
           break
         }
       }
@@ -332,18 +360,13 @@ export class PageGrid {
         case GridControlEnum.ButtonReload: {
           this._grid.state = undefined // Clear state
           this.lookupClose()
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-          this.grid.set(response.grid) // Reload
+          await PageGrid.commandGridLoad2(this, cell, control)
           break
         }
         // Button Save
         case GridControlEnum.ButtonSave: {
           this.lookupClose()
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-          this.grid.set(response.grid)
-          if (this.parent?._grid && response.parentGrid) {
-            this.parent.grid.set(response.parentGrid)
-          }
+          await PageGrid.commandGridLoad2(this, cell, control)
           break
         }
         // Button Cancel (Lookup)
@@ -354,11 +377,7 @@ export class PageGrid {
         // Button Ok (Lookup)
         case GridControlEnum.ButtonLookupOk: {
           if (this.parent?._grid) {
-            const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent._lookup?.cell, parentControl: this.parent._lookup?.control, parentGrid: this.parent._grid })
-            this.grid.set(response.grid) // Lookup to be closed
-            if (this.parent?._grid && response.parentGrid) {
-              this.parent.grid.set(response.parentGrid) // Parent reload
-            }
+            await PageGrid.commandGridLoad2(this, cell, control)
             this.parent?.lookupClose()
           }
           break
@@ -416,8 +435,7 @@ export class PageGrid {
       if (control?.controlEnum == GridControlEnum.ButtonModal) {
         lookup.isModal = true
       }
-      const response = await this.serverApi.commandGridLoad({ grid: lookup.grid(), cell: cell, control: control, parentCell: lookup.cell, parentControl: lookup.control, parentGrid: this._grid })
-      lookup.grid.set(response.grid) // Lookup open (with loaded grid)
+      // Load lookup see ngAfterViewInit
     }
   }
 
@@ -426,11 +444,7 @@ export class PageGrid {
       this._grid.state = this._grid.state || {}
       this._grid.state.pagination = this._grid.state.pagination || {}
       this._grid.state.pagination.pageIndexDeltaClick = indexDelta
-      const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-      this.grid.set(response.grid);
-      if (this.parent?._grid && response.parentGrid) {
-        this.parent.grid.set(response.parentGrid)
-      }
+      await PageGrid.commandGridLoad2(this, cell, control)
     }
   }
 
