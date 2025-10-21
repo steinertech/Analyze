@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Input, signal, ViewChild, WritableSignal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Input, signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridDto, GridRequest2Dto, ServerApi } from '../generate';
 import { UtilClient } from '../util-client';
@@ -14,7 +14,7 @@ import { UtilClient } from '../util-client';
   styleUrl: './page-grid.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageGrid {
+export class PageGrid implements AfterViewInit {
   private serverApi = inject(ServerApi)
 
   constructor() {
@@ -28,7 +28,14 @@ export class PageGrid {
     })
   }
 
-  static async commandGridLoad2(pageGrid: PageGrid, cell: GridCellDto, control?: GridControlDto) {
+  /** If this component is a lookup, load data. */
+  async ngAfterViewInit() {
+    if (this.parent?._lookup) {
+      await PageGrid.commandGridLoad2(this, this.parent?._lookup.cell, this.parent._lookup.control)
+    }
+  }
+
+  static async commandGridLoad2(pageGrid: PageGrid, cell?: GridCellDto, control?: GridControlDto) {
     const grid = pageGrid._grid!
     const parentCell = pageGrid.parent?._lookup?.cell
     const parentControl = pageGrid.parent?._lookup?.control
@@ -37,11 +44,13 @@ export class PageGrid {
     const grandParentControl = pageGrid.parent?.parent?._lookup?.control
     const grandParentGrid = pageGrid.parent?.parent?._grid
     //
-    const request: GridRequest2Dto = { list: [
-      { grid: grid, cell: cell, control: control }, 
-      { grid: parentGrid, cell: parentCell, control: parentControl },
-      { /* grid: grandParentGrid, */ cell: grandParentCell, control: grandParentControl }, // Request for GrandParent grid is not sent
-    ] }
+    const request: GridRequest2Dto = {
+      list: [
+        { grid: grid, cell: cell, control: control },
+        { grid: parentGrid, cell: parentCell, control: parentControl },
+        { /* grid: grandParentGrid, */ cell: grandParentCell, control: grandParentControl }, // Request for GrandParent grid is not sent
+      ]
+    }
     const response = await pageGrid.serverApi.commandGridLoad2(request)
     if (response.list?.[0] != null) {
       pageGrid.grid.set(response.list[0])
@@ -426,8 +435,7 @@ export class PageGrid {
       if (control?.controlEnum == GridControlEnum.ButtonModal) {
         lookup.isModal = true
       }
-      const response = await this.serverApi.commandGridLoad({ grid: lookup.grid(), cell: cell, control: control, parentCell: lookup.cell, parentControl: lookup.control, parentGrid: this._grid })
-      lookup.grid.set(response.grid) // Lookup open (with loaded grid)
+      // Load lookup see ngAfterViewInit
     }
   }
 
