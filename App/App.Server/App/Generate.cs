@@ -41,8 +41,8 @@ internal static class ServerApi
                 await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<Configuration>()!).SignOut();
                 break;
             // Grid
-            case nameof(CommandGrid) + nameof(CommandGrid.Load):
-                responseDto.Result = await new CommandGrid(serviceProvider.GetService<GridMemory>()!, serviceProvider.GetService<GridExcel>()!, serviceProvider.GetService<GridStorage>()!, serviceProvider.GetService<GridArticle>()!, serviceProvider.GetService<GridArticle2>()!).Load(UtilServer.JsonElementTo<GridRequestDto>(requestDto.ParamList![0], jsonOptions)!);
+            case nameof(CommandGrid) + nameof(CommandGrid.Load2):
+                responseDto.Result = await new CommandGrid(serviceProvider.GetService<GridMemory>()!, serviceProvider.GetService<GridExcel>()!, serviceProvider.GetService<GridStorage>()!, serviceProvider.GetService<GridArticle>()!, serviceProvider.GetService<GridArticle2>()!).Load2(UtilServer.JsonElementTo<GridRequest2Dto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             default:
                 throw new Exception($"Command not found! ({requestDto.CommandName})");

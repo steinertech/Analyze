@@ -4,13 +4,15 @@
 <div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
   <h1>Article</h1>
 </div>
-<app-page-grid [grid]="grid">
+<app-page-grid #gridArticle>
 </app-page-grid>
+
+<button (click)="click()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">Load Article2</button>
 
 <div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
   <h1>Article2</h1>
 </div>
-<app-page-grid [grid]="grid2">
+<app-page-grid #gridArticle2>
 </app-page-grid>
 
 <!--
