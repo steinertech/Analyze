@@ -65,7 +65,17 @@ export class PageGrid implements AfterViewInit {
 
   GridControlEnum = GridControlEnum
 
-  @Input() grid!: WritableSignal<GridDto>
+  @Input() grid = signal<GridDto | undefined>(undefined) // TODO Remove @Input
+
+  async load2(gridName: string | undefined) {
+    if (gridName) {
+      this.grid.set({ gridName: gridName })
+      await new Promise(resolve => setTimeout(resolve, 0)); // Wait for effect to set _gird
+      await PageGrid.commandGridLoad2(this, undefined, undefined)
+    } else {
+      this.grid.set(undefined)
+    }
+  }
 
   _grid?: GridDto // Data grid
 
@@ -319,8 +329,7 @@ export class PageGrid implements AfterViewInit {
               item._grid.state.rowKeyMasterList[this._grid?.gridName] = rowKey
             }
             // Reload detail grid
-            const response = await this.serverApi.commandGridLoad({ grid: item._grid, cell: cell, parentCell: item.parent?._lookup?.cell, parentControl: item.parent?._lookup?.control, parentGrid: item.parent?._grid })
-            item.grid.set(response.grid);
+            await PageGrid.commandGridLoad2(item)
           }
         })
       }
@@ -414,8 +423,7 @@ export class PageGrid implements AfterViewInit {
           if (!this._grid.state) {
             this._grid.state = {}
           }
-          const response = await this.serverApi.commandGridLoad({ grid: this._grid, cell: cell, control: control, parentCell: this.parent?._lookup?.cell, parentControl: this.parent?._lookup?.control, parentGrid: this.parent?._grid })
-          this.grid.set(response.grid);
+          await PageGrid.commandGridLoad2(this, cell, control)
           break
         }
       }

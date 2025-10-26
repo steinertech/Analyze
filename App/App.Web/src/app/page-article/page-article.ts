@@ -1,7 +1,7 @@
-import { AfterContentInit, Component, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, inject, ViewChild } from '@angular/core';
 import { PageNav } from "../page-nav/page-nav";
 import { PageNotification } from "../page-notification/page-notification";
-import { GridDto, ServerApi } from '../generate';
+import { ServerApi } from '../generate';
 import { PageGrid } from "../page-grid/page-grid";
 
 @Component({
@@ -15,21 +15,23 @@ import { PageGrid } from "../page-grid/page-grid";
   templateUrl: './page-article.html',
   styleUrl: './page-article.css'
 })
-export class PageArticle implements AfterContentInit {
+export class PageArticle implements AfterViewInit {
   private serverApi = inject(ServerApi)
 
-  readonly grid = signal<GridDto>({ gridName: 'Article' })
+  @ViewChild('gridArticle') gridArticle!: PageGrid;
+  
+  @ViewChild('gridArticle2') gridArticle2!: PageGrid;
 
-  readonly grid2 = signal<GridDto>({ gridName: 'Article2' })
+  async click() {
+    this.gridArticle2.load2('Article2')
+  }
 
-  async ngAfterContentInit() {
+  async ngAfterViewInit() {
     if (this.serverApi.isWindow()) {
-      const [load, load2] = await Promise.all([
-        this.serverApi.commandGridLoad({ grid: this.grid() }),
-        this.serverApi.commandGridLoad({ grid: this.grid2() })
+      await Promise.all([
+        this.gridArticle.load2('Article'),
+        this.gridArticle2.load2('Article2'),
       ])
-      this.grid.set(load.grid);
-      this.grid2.set(load2.grid);
     }
   }
 }
