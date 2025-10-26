@@ -407,10 +407,6 @@ export class ServerApi {
     return await firstValueFrom(this.post<void>({ commandName: "CommandArticleAdd", paramList: [] }))
   }
 
-  async commandGridLoad(request: GridRequestDto) {
-    return await firstValueFrom(this.post<GridResponseDto>({ commandName: "CommandGridLoad", paramList: [request] }))
-  }
-
   async commandGridLoad2(request: GridRequest2Dto) {
     return await firstValueFrom(this.post<GridResponse2Dto>({ commandName: "CommandGridLoad2", paramList: [request] }))
   }
