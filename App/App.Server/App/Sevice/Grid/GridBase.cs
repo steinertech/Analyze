@@ -204,7 +204,7 @@
         {
             var config = await Config();
             var dataRowList = await GridLoad(request, null, config.PageSize);
-            UtilGrid.RenderForm(request, dataRowList, config);
+            UtilGrid.Render(request, dataRowList, config);
             return new GridResponseDto { Grid = request.Grid };
         }
         // Lookup Modal

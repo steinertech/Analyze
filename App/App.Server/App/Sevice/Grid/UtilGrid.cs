@@ -304,6 +304,11 @@ public static class UtilGrid
     /// </summary>
     public static void Render(GridRequestDto request, List<Dynamic> dataRowList, GridConfig config)
     {
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Edit")
+        {
+            UtilGrid.RenderForm(request, dataRowList, config);
+            return;
+        }
         var grid = request.Grid;
         grid.Clear();
         var columnList = config.ColumnListGet(grid);
