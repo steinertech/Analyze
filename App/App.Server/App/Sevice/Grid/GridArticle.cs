@@ -84,6 +84,15 @@ public class GridArticle2 : GridBase
         var result = await UtilGrid.GridLoad(request, dataRowList, fieldNameDistinct, pageSize);
         return result;
     }
+
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize)
+    {
+        // Load
+        var dataRowList = this.dataRowList;
+        // Apply (filter, sort and pagination)
+        var result = await UtilGrid.GridLoad2(request, dataRowList, fieldNameDistinct, pageSize);
+        return result;
+    }
 }
 
 public class GridArticle(CommandContext context, CosmosDb cosmosDb)

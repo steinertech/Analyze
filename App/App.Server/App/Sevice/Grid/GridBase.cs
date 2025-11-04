@@ -33,6 +33,15 @@
         return Task.FromResult(result);
     }
 
+    /// <summary>
+    /// Returns data row list to render grid.
+    /// </summary>
+    protected virtual Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize)
+    {
+        var result = new List<Dynamic>();
+        return Task.FromResult(result);
+    }
+
     protected virtual Task GridSave(GridRequestDto request, GridConfig config)
     {
         return Task.CompletedTask;
@@ -220,5 +229,20 @@
             return new GridResponseDto { Grid = request.Grid };
         }
         throw new Exception("Load failed!");
+    }
+
+    public async Task<GridResponse2Dto> Load2(GridRequest2Dto request)
+    {
+        switch (request.GridEnum)
+        {
+            case GridRequest2GridEnum.Grid:
+                var config = await Config();
+                var dataRowList = await GridLoad2(request, null, config.PageSize);
+                UtilGrid.Render2(request, dataRowList, config);
+                var result = new GridResponse2Dto { Grid = request.Grid };
+                return result;
+            default:
+                throw new Exception();
+        }
     }
 }

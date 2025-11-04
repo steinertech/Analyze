@@ -21,6 +21,8 @@ export class PageArticle implements AfterViewInit {
   @ViewChild('gridArticle') gridArticle!: PageGrid;
   
   @ViewChild('gridArticle2') gridArticle2!: PageGrid;
+  
+  @ViewChild('gridArticle3') gridArticle3!: PageGrid;
 
   async click() {
     this.gridArticle2.load2('Article2')
@@ -31,6 +33,7 @@ export class PageArticle implements AfterViewInit {
       await Promise.all([
         this.gridArticle.load2('Article'),
         this.gridArticle2.load2('Article2'),
+        this.gridArticle3.load2('Article3'),
       ])
     }
   }

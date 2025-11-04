@@ -107,18 +107,26 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
     /// <summary>
     /// Returns loaded grid.
     /// </summary>
-    public async Task<GridResponse2Dto> Load2(GridRequest2Dto request2)
+    public async Task<GridResponse2Dto> Load2(GridRequest2Dto request)
     {
-        var result = await Load(new()
+        if (request.Grid.GridName == "Article3")
         {
-            Grid = request2.Grid,
-            Cell = request2.Cell,
-            Control = request2.Control,
-            ParentGrid = request2.ParentGrid,
-            ParentCell = request2.ParentCell,
-            ParentControl = request2.ParentControl
-        }, request2);
-        return new() { Grid = result.Grid, ParentGrid = result.ParentGrid };
+            var result = await gridArticle.Load2(request);
+            return result;
+        }
+        else
+        {
+            var result = await Load(new()
+            {
+                Grid = request.Grid,
+                Cell = request.Cell,
+                Control = request.Control,
+                ParentGrid = request.ParentGrid,
+                ParentCell = request.ParentCell,
+                ParentControl = request.ParentControl
+            }, request);
+            return new() { Grid = result.Grid, ParentGrid = result.ParentGrid };
+        }
     }
 
     private void DataLoad(GridDto grid)
@@ -522,6 +530,13 @@ public class GridRequest2EntryDto
     public GridControlDto? Control { get; set; }
 }
 
+public enum GridRequest2GridEnum
+{
+    None = 0,
+    
+    Grid = 1,
+}
+
 public class GridRequest2Dto
 {
     public List<GridRequest2EntryDto> List { get; set; } = default!;
@@ -556,6 +571,20 @@ public class GridRequest2Dto
     public GridRequestDto Parent()
     {
         return new() { Grid = ParentGrid ?? throw new Exception(), Cell = ParentCell, Control = ParentControl, ParentCell = GreatParentCell, ParentControl = GreatParentControl };
+    }
+
+    [JsonIgnore]
+    public GridRequest2GridEnum GridEnum
+    {
+        get
+        {
+            var result = GridRequest2GridEnum.None;
+            if (ParentGrid == null)
+            {
+                result = GridRequest2GridEnum.Grid;
+            }
+            return result;
+        }
     }
 }
 

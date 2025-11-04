@@ -96,6 +96,74 @@ public static class UtilGrid
     }
 
     /// <summary>
+    /// Returns data row list with applied (filter, sort and pagination) to render data grid.
+    /// </summary>
+    /// <param name="request">Grid with state to apply (filter, sort and pagination).</param>
+    /// <param name="dataRowList">DataRowList (or query).</param>
+    /// <param name="fieldNameDistinct">Used for example for filter lookup data grid. Returns one column grid.</param>
+    public static async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, List<Dynamic> dataRowList, string? fieldNameDistinct, int pageSize)
+    {
+        var grid = request.Grid;
+        var query = dataRowList.AsQueryable();
+        // Init Filter, Pagination
+        grid.State ??= new();
+        grid.State.FilterList ??= new();
+        var filterList = grid.State.FilterList;
+        grid.State.FilterMultiList ??= new();
+        var filterMultiList = grid.State.FilterMultiList;
+        grid.State.Pagination ??= new();
+        var pagination = grid.State.Pagination;
+        pagination.PageIndex ??= 0;
+        pagination.PageIndexDeltaClick ??= 0;
+        var sort = grid.State.Sort;
+        // Filter
+        foreach (var (fieldName, text) in grid.State.FilterList)
+        {
+            query = query.Where(item => (item[fieldName]!.ToString() ?? "").ToLower().Contains(text.ToLower()) == true);
+        }
+        // FilterMulti
+        foreach (var (fieldName, filterMulti) in grid.State.FilterMultiList)
+        {
+            var isInclude = filterMulti.IsSelectAll ? "!" : ""; // Include or exclude
+            var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
+            query = query.Where($"{isInclude}@0.Contains(Convert.ToString({fieldName}).ToLower())", textListLower);
+        }
+        // FieldName (Distinct)
+        if (fieldNameDistinct != null)
+        {
+            query = query
+                .Select(item => item[fieldNameDistinct])
+                .Distinct()
+                .OrderBy(item => item)
+                .Select(item => new Dynamic { { fieldNameDistinct, item } });
+        }
+        // Pagination (PageCount)
+        var rowCount = await query.CountAsync();
+        pagination.PageCount = (int)Math.Ceiling((double)rowCount / (double)pageSize!);
+        pagination.PageIndex += pagination.PageIndexDeltaClick;
+        if (pagination.PageIndex >= pagination.PageCount)
+        {
+            pagination.PageIndex = pagination.PageCount - 1;
+        }
+        if (pagination.PageIndex < 0)
+        {
+            pagination.PageIndex = 0;
+        }
+        // Sort
+        if (sort != null)
+        {
+            query = query.OrderBy($"""{sort.FieldName}{(sort.IsDesc ? " DESC" : "")}""");
+        }
+        // Pagination
+        query = query
+            .Skip(pagination.PageIndex!.Value * pageSize)
+            .Take(pageSize);
+        // Result
+        var result = query.ToList();
+        return result;
+    }
+
+    /// <summary>
     /// Save grid state to data row list.
     /// </summary>
     /// <returns>Returns data rows to save to database. Data rows contain only fields which changed values and RowKey.</returns>
@@ -397,6 +465,99 @@ public static class UtilGrid
     }
 
     /// <summary>
+    /// Render data grid.
+    /// </summary>
+    public static void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
+    {
+        switch (request.GridEnum)
+        {
+            case GridRequest2GridEnum.Grid:
+                var grid = request.Grid;
+                grid.Clear();
+                var columnList = config.ColumnListGet(grid);
+                // RowKey
+                var columnRowKey = config.ColumnList.Where(item => item.FieldName == config.FieldNameRowKey).SingleOrDefault();
+                // Render Column
+                grid.AddRow();
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonColumn });
+                if (config.IsAllowNew)
+                {
+                    grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "New", Name = "New" });
+                }
+                // Render Header
+                grid.AddRow();
+                foreach (var column in columnList)
+                {
+                    grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = column.FieldName, Text = column.FieldName });
+                }
+                if (config.IsAllowDelete)
+                {
+                    grid.AddCell(new() { CellEnum = GridCellEnum.HeaderEmpty, Text = "Command" });
+                }
+                // Render Filter
+                grid.AddRow();
+                foreach (var column in columnList)
+                {
+                    grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = column.FieldName, TextPlaceholder = "Search" });
+                }
+                if (config.IsAllowDelete)
+                {
+                    grid.AddCell(new() { CellEnum = GridCellEnum.FilterEmpty });
+                }
+                // Render Data
+                var dataRowIndex = 0;
+                foreach (var dataRow in dataRowList)
+                {
+                    grid.AddRow();
+                    foreach (var column in columnList)
+                    {
+                        var text = dataRow[column.FieldName]?.ToString();
+                        var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                        if (columnRowKey == null)
+                        {
+                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                        }
+                        else
+                        {
+                            var rowKey = dataRow[columnRowKey.FieldName]?.ToString();
+                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
+                        }
+                    }
+                    // Render Delete
+                    if (config.IsAllowDelete)
+                    {
+                        if (config.IsAllowDeleteConfirm == false)
+                        {
+                            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" }, dataRowIndex);
+                        }
+                        else
+                        {
+                            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Delete", Name = "Delete" }, dataRowIndex);
+                        }
+                    }
+                    // Render Edit Form
+                    if (config.IsAllowEditForm)
+                    {
+                        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Edit", Name = "Edit" }, dataRowIndex);
+                        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Open", Name = "Open" }, dataRowIndex);
+                    }
+                    dataRowIndex += 1;
+                }
+                // Render Pagination
+                grid.AddRow();
+                grid.AddControl(new() { ControlEnum = GridControlEnum.Pagination });
+                // Render Save
+                grid.AddRow();
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
+                RenderCalcColSpan2(request);
+                break;
+            default:
+                throw new Exception();
+        }
+    }
+
+    /// <summary>
     /// Render lookup data grid. For filter and column lookup.
     /// </summary>
     public static void RenderLookup(GridRequestDto request, List<Dynamic> dataRowList, string fieldName)
@@ -435,6 +596,38 @@ public static class UtilGrid
     /// Calc ColSpan of last cell.
     /// </summary>
     private static void RenderCalcColSpan(GridRequestDto request)
+    {
+        var grid = request.Grid;
+        if (grid.RowCellList != null)
+        {
+            var cellCountMax = 0;
+            foreach (var row in grid.RowCellList)
+            {
+                cellCountMax = Math.Max(cellCountMax, row.Count());
+            }
+            foreach (var row in grid.RowCellList)
+            {
+                var colCount = 0;
+                GridCellDto? cellLast = null;
+                foreach (var cell in row)
+                {
+                    colCount += cell.ColSpan.GetValueOrDefault(1);
+                    cellLast = cell;
+                }
+                if (cellLast != null)
+                {
+                    cellLast.ColSpan = cellLast.ColSpan.GetValueOrDefault(1) + (cellCountMax - colCount);
+                    cellLast.ColSpan = cellLast.ColSpan == 1 ? null : cellLast.ColSpan;
+                    UtilServer.Assert(cellLast.ColSpan == null || cellLast.ColSpan > 0);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Calc ColSpan of last cell.
+    /// </summary>
+    private static void RenderCalcColSpan2(GridRequest2Dto request)
     {
         var grid = request.Grid;
         if (grid.RowCellList != null)
