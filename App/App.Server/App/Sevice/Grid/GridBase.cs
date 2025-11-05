@@ -25,6 +25,21 @@
     }
 
     /// <summary>
+    /// Returns column list for lookup grid.
+    /// </summary>
+    /// <param name="request">Grid with state (filter, sort and pagination) to apply.</param>
+    protected virtual async Task<List<GridColumn>> ColumnList2(GridRequest2Dto request)
+    {
+        var config = await Config();
+        var result = config.ColumnList;
+        // Apply (filter, sort and pagination) from grid.
+        var resultDynamic = UtilGrid.DynamicFrom(result, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
+        resultDynamic = await UtilGrid.GridLoad2(request, resultDynamic, null, config.PageSizeColumn);
+        result = UtilGrid.DynamicTo<GridColumn>(resultDynamic, (dataRowFrom, dataRowTo) => { dataRowTo.FieldName = dataRowFrom["FieldName"]?.ToString()!; });
+        return result;
+    }
+
+    /// <summary>
     /// Returns data row list to render grid.
     /// </summary>
     protected virtual Task<List<Dynamic>> GridLoad(GridRequestDto request, string? fieldNameDistinct, int pageSize)
@@ -204,7 +219,7 @@
             {
                 var config = await Config();
                 var dataRowList = await GridLoad(request, fieldNameDistinct: fieldName, config.PageSizeAutocomplete);
-                UtilGrid.RenderAutocomplete(request, dataRowList, fieldName: fieldName);
+                UtilGrid.RenderLookupAutocomplete(request, dataRowList, fieldName: fieldName);
                 return new GridResponseDto { Grid = request.Grid };
             }
         }
@@ -235,12 +250,76 @@
     {
         switch (request.GridEnum)
         {
+            // Grid
             case GridRequest2GridEnum.Grid:
-                var config = await Config();
-                var dataRowList = await GridLoad2(request, null, config.PageSize);
-                UtilGrid.Render2(request, dataRowList, config);
-                var result = new GridResponse2Dto { Grid = request.Grid };
-                return result;
+                {
+                    // Load
+                    var config = await Config();
+                    var dataRowList = await GridLoad2(request, null, config.PageSize);
+                    UtilGrid.Render2(request, dataRowList, config);
+                    var result = new GridResponse2Dto { Grid = request.Grid };
+                    return result;
+                }
+            // Lookup Filter
+            case GridRequest2GridEnum.LookupFilter:
+                {
+                    ArgumentNullException.ThrowIfNull(request.ParentGrid);
+                    ArgumentNullException.ThrowIfNull(request.ParentCell?.FieldName);
+                    // Load
+                    var fieldName = request.ParentCell.FieldName;
+                    var config = await Config();
+                    var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config.PageSizeFilter);
+                    UtilGrid.LookupFilterLoad2(request, dataRowList, fieldName);
+                    UtilGrid.RenderLookup2(request, dataRowList, fieldName: fieldName);
+                    return new GridResponse2Dto { Grid = request.Grid };
+                }
+            // Lookup Column
+            case GridRequest2GridEnum.LookupColumn:
+                {
+                    ArgumentNullException.ThrowIfNull(request.ParentGrid);
+                    // Load
+                    var dataRowList = await ColumnList2(request);
+                    var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
+                    UtilGrid.LookupFilterLoad2(request, dataRowListDynamic, "FieldName", isFilterColumn: true);
+                    UtilGrid.RenderLookup2(request, dataRowListDynamic, "FieldName");
+                    return new GridResponse2Dto { Grid = request.Grid };
+                }
+            // Autocomplete
+            case GridRequest2GridEnum.LookupAutocomplete:
+                {
+                    ArgumentNullException.ThrowIfNull(request.ParentGrid);
+                    ArgumentNullException.ThrowIfNull(request.ParentCell?.FieldName);
+                    // Load
+                    var fieldName = request.ParentCell.FieldName;
+                    var config = await Config();
+                    var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config.PageSizeAutocomplete);
+                    UtilGrid.RenderLookupAutocomplete2(request, dataRowList, fieldName: fieldName);
+                    return new GridResponse2Dto { Grid = request.Grid };
+                }
+            // LookupEdit
+            case GridRequest2GridEnum.LookupEdit:
+                {
+                    ArgumentNullException.ThrowIfNull(request.ParentGrid);
+                    // Load
+                    var config = await Config();
+                    var dataRowList = await GridLoad2(request, null, config.PageSize);
+                    UtilGrid.RenderForm2(request, dataRowList, config);
+                    return new GridResponse2Dto { Grid = request.Grid };
+                }
+            // LookupOpen
+            case GridRequest2GridEnum.LookupOpen:
+                {
+                    ArgumentNullException.ThrowIfNull(request.ParentGrid);
+                    // Load
+                    var config = await Config();
+                    var dataRowList = await GridLoad2(request, null, config.PageSize);
+                    if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
+                    {
+                        dataRowList.Insert(0, Dynamic.Create(config));
+                    }
+                    UtilGrid.Render2(request, dataRowList, config);
+                    return new GridResponse2Dto { Grid = request.Grid };
+                }
             default:
                 throw new Exception();
         }

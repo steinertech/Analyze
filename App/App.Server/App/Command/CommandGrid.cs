@@ -535,6 +535,16 @@ public enum GridRequest2GridEnum
     None = 0,
     
     Grid = 1,
+
+    LookupFilter = 2,
+
+    LookupColumn = 3,
+
+    LookupAutocomplete = 4,
+
+    LookupEdit = 5, // TODO Rename to LookupForm
+
+    LookupOpen = 6,
 }
 
 public class GridRequest2Dto
@@ -581,7 +591,33 @@ public class GridRequest2Dto
             var result = GridRequest2GridEnum.None;
             if (ParentGrid == null)
             {
+                UtilServer.Assert(result == GridRequest2GridEnum.None);
                 result = GridRequest2GridEnum.Grid;
+            }
+            if (ParentCell?.CellEnum == GridCellEnum.Header)
+            {
+                UtilServer.Assert(result == GridRequest2GridEnum.None);
+                result = GridRequest2GridEnum.LookupFilter;
+            }
+            if (ParentControl?.ControlEnum == GridControlEnum.ButtonColumn)
+            {
+                UtilServer.Assert(result == GridRequest2GridEnum.None);
+                result = GridRequest2GridEnum.LookupColumn;
+            }
+            if (ParentCell?.CellEnum == GridCellEnum.FieldAutocomplete)
+            {
+                UtilServer.Assert(result == GridRequest2GridEnum.None);
+                result = GridRequest2GridEnum.LookupAutocomplete;
+            }
+            if (ParentControl?.ControlEnum == GridControlEnum.ButtonModal && ParentControl?.Name == "Edit")
+            {
+                UtilServer.Assert(result == GridRequest2GridEnum.None);
+                result = GridRequest2GridEnum.LookupEdit;
+            }
+            if (ParentControl?.ControlEnum == GridControlEnum.ButtonModal && ParentControl?.Name == "Open")
+            {
+                UtilServer.Assert(result == GridRequest2GridEnum.None);
+                result = GridRequest2GridEnum.LookupOpen;
             }
             return result;
         }

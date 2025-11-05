@@ -267,6 +267,39 @@ public static class UtilGrid
     }
 
     /// <summary>
+    /// Load filter state from parent grid to lookup grid.
+    /// </summary>
+    public static void LookupFilterLoad2(GridRequest2Dto request, List<Dynamic> dataRowList, string fieldName, bool isFilterColumn = false)
+    {
+        var grid = request.Grid;
+        var parentGrid = request.ParentGrid!;
+        grid.State ??= new();
+        grid.State.IsSelectMultiList = new();
+        GridStateFilterMultiDto? filter;
+        if (isFilterColumn == false)
+        {
+            filter = parentGrid.State?.FilterMultiList != null && parentGrid.State.FilterMultiList.TryGetValue(fieldName, out var resultFilter) ? resultFilter : null;
+        }
+        else
+        {
+            filter = parentGrid.State?.ColumnFilterMulti;
+        }
+        grid.State.IsSelectMultiAll = filter?.IsSelectAll == false ? false : true;
+        grid.State.IsSelectMultiIndeterminate = filter?.TextList.Count() > 0 ? true : false;
+        var isSelectMultiAll = grid.State.IsSelectMultiAll == true;
+        foreach (var dataRow in dataRowList)
+        {
+            var text = dataRow[fieldName]?.ToString();
+            bool isSelect = isSelectMultiAll;
+            if (filter?.TextList.Contains(text) == true)
+            {
+                isSelect = !isSelect;
+            }
+            grid.State.IsSelectMultiList.Add(isSelect);
+        }
+    }
+
+    /// <summary>
     /// Save filter state from lookup grid to parent grid.
     /// </summary>
     /// <returns>Returns true, if something changed.</returns>
@@ -331,6 +364,43 @@ public static class UtilGrid
     }
 
     public static void RenderForm(GridRequestDto request, List<Dynamic> dataRowList, GridConfig config)
+    {
+        var grid = request.Grid;
+        grid.Clear();
+        var columnList = config.ColumnListGet(grid);
+        // RowKey
+        var columnRowKey = config.ColumnList.Where(item => item.FieldName == config.FieldNameRowKey).SingleOrDefault();
+        // Render Data
+        var dataRowIndex = 0;
+        foreach (var dataRow in dataRowList)
+        {
+            foreach (var column in columnList)
+            {
+                grid.AddRow();
+                grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = column.FieldName });
+                grid.AddRow();
+                var text = dataRow[column.FieldName]?.ToString();
+                var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                if (columnRowKey == null)
+                {
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                }
+                else
+                {
+                    var rowKey = dataRow[columnRowKey.FieldName]?.ToString();
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
+                }
+                dataRowIndex += 1;
+            }
+        }
+        // Render Save
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+    }
+
+    public static void RenderForm2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
     {
         var grid = request.Grid;
         grid.Clear();
@@ -469,92 +539,85 @@ public static class UtilGrid
     /// </summary>
     public static void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
     {
-        switch (request.GridEnum)
+        var grid = request.Grid;
+        grid.Clear();
+        var columnList = config.ColumnListGet(grid);
+        // RowKey
+        var columnRowKey = config.ColumnList.Where(item => item.FieldName == config.FieldNameRowKey).SingleOrDefault();
+        // Render Column
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonColumn });
+        if (config.IsAllowNew)
         {
-            case GridRequest2GridEnum.Grid:
-                var grid = request.Grid;
-                grid.Clear();
-                var columnList = config.ColumnListGet(grid);
-                // RowKey
-                var columnRowKey = config.ColumnList.Where(item => item.FieldName == config.FieldNameRowKey).SingleOrDefault();
-                // Render Column
-                grid.AddRow();
-                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonColumn });
-                if (config.IsAllowNew)
-                {
-                    grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "New", Name = "New" });
-                }
-                // Render Header
-                grid.AddRow();
-                foreach (var column in columnList)
-                {
-                    grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = column.FieldName, Text = column.FieldName });
-                }
-                if (config.IsAllowDelete)
-                {
-                    grid.AddCell(new() { CellEnum = GridCellEnum.HeaderEmpty, Text = "Command" });
-                }
-                // Render Filter
-                grid.AddRow();
-                foreach (var column in columnList)
-                {
-                    grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = column.FieldName, TextPlaceholder = "Search" });
-                }
-                if (config.IsAllowDelete)
-                {
-                    grid.AddCell(new() { CellEnum = GridCellEnum.FilterEmpty });
-                }
-                // Render Data
-                var dataRowIndex = 0;
-                foreach (var dataRow in dataRowList)
-                {
-                    grid.AddRow();
-                    foreach (var column in columnList)
-                    {
-                        var text = dataRow[column.FieldName]?.ToString();
-                        var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
-                        if (columnRowKey == null)
-                        {
-                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
-                        }
-                        else
-                        {
-                            var rowKey = dataRow[columnRowKey.FieldName]?.ToString();
-                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
-                        }
-                    }
-                    // Render Delete
-                    if (config.IsAllowDelete)
-                    {
-                        if (config.IsAllowDeleteConfirm == false)
-                        {
-                            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" }, dataRowIndex);
-                        }
-                        else
-                        {
-                            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Delete", Name = "Delete" }, dataRowIndex);
-                        }
-                    }
-                    // Render Edit Form
-                    if (config.IsAllowEditForm)
-                    {
-                        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Edit", Name = "Edit" }, dataRowIndex);
-                        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Open", Name = "Open" }, dataRowIndex);
-                    }
-                    dataRowIndex += 1;
-                }
-                // Render Pagination
-                grid.AddRow();
-                grid.AddControl(new() { ControlEnum = GridControlEnum.Pagination });
-                // Render Save
-                grid.AddRow();
-                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
-                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
-                RenderCalcColSpan2(request);
-                break;
-            default:
-                throw new Exception();
+            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "New", Name = "New" });
         }
+        // Render Header
+        grid.AddRow();
+        foreach (var column in columnList)
+        {
+            grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = column.FieldName, Text = column.FieldName });
+        }
+        if (config.IsAllowDelete)
+        {
+            grid.AddCell(new() { CellEnum = GridCellEnum.HeaderEmpty, Text = "Command" });
+        }
+        // Render Filter
+        grid.AddRow();
+        foreach (var column in columnList)
+        {
+            grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = column.FieldName, TextPlaceholder = "Search" });
+        }
+        if (config.IsAllowDelete)
+        {
+            grid.AddCell(new() { CellEnum = GridCellEnum.FilterEmpty });
+        }
+        // Render Data
+        var dataRowIndex = 0;
+        foreach (var dataRow in dataRowList)
+        {
+            grid.AddRow();
+            foreach (var column in columnList)
+            {
+                var text = dataRow[column.FieldName]?.ToString();
+                var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                if (columnRowKey == null)
+                {
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                }
+                else
+                {
+                    var rowKey = dataRow[columnRowKey.FieldName]?.ToString();
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
+                }
+            }
+            // Render Delete
+            if (config.IsAllowDelete)
+            {
+                if (config.IsAllowDeleteConfirm == false)
+                {
+                    grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" }, dataRowIndex);
+                }
+                else
+                {
+                    grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Delete", Name = "Delete" }, dataRowIndex);
+                }
+            }
+            // Render Edit Form
+            if (config.IsAllowEditForm)
+            {
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Edit", Name = "Edit" }, dataRowIndex);
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Open", Name = "Open" }, dataRowIndex);
+            }
+            dataRowIndex += 1;
+        }
+        // Render Pagination
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.Pagination });
+        // Render Save
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
+        RenderCalcColSpan2(request);
     }
 
     /// <summary>
@@ -590,6 +653,41 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
         // Calc ColSpan
         RenderCalcColSpan(request);
+    }
+
+    /// <summary>
+    /// Render lookup data grid. For filter and column lookup.
+    /// </summary>
+    public static void RenderLookup2(GridRequest2Dto request, List<Dynamic> dataRowList, string fieldName)
+    {
+        var grid = request.Grid;
+        grid.Clear();
+        // Render Filter
+        grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = fieldName, TextPlaceholder = "Search" });
+        // Render Select All
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll, Text = grid.State?.IsSelectMultiAll?.ToString() });
+        grid.AddCellControl();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "(Select All)" });
+        // Render Data
+        var dataRowIndex = 0;
+        foreach (var dataRow in dataRowList)
+        {
+            grid.AddRow();
+            var text = dataRow[fieldName]?.ToString();
+            grid.AddCell(new() { CellEnum = GridCellEnum.CheckboxSelectMulti, DataRowIndex = dataRowIndex }, text);
+            grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = text });
+            dataRowIndex += 1;
+        }
+        // Render Pagination
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.Pagination });
+        // Render Ok, Cancel
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+        // Calc ColSpan
+        RenderCalcColSpan2(request);
     }
 
     /// <summary>
@@ -659,7 +757,7 @@ public static class UtilGrid
     /// <summary>
     /// Render autocomplete data grid.
     /// </summary>
-    public static void RenderAutocomplete(GridRequestDto request, List<Dynamic> dataRowList, string fieldName)
+    public static void RenderLookupAutocomplete(GridRequestDto request, List<Dynamic> dataRowList, string fieldName)
     {
         var grid = request.Grid;
         grid.Clear();
@@ -681,5 +779,32 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
         // Calc ColSpan
         RenderCalcColSpan(request);
+    }
+
+    /// <summary>
+    /// Render autocomplete data grid.
+    /// </summary>
+    public static void RenderLookupAutocomplete2(GridRequest2Dto request, List<Dynamic> dataRowList, string fieldName)
+    {
+        var grid = request.Grid;
+        grid.Clear();
+        // Render Data
+        var dataRowIndex = 0;
+        foreach (var dataRow in dataRowList)
+        {
+            grid.AddRow();
+            var text = dataRow[fieldName]?.ToString();
+            grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = text, DataRowIndex = dataRowIndex }, rowKey: text);
+            dataRowIndex += 1;
+        }
+        // Render Pagination
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.Pagination });
+        // Render Ok, Cancel
+        grid.AddRow();
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+        // Calc ColSpan
+        RenderCalcColSpan2(request);
     }
 }
