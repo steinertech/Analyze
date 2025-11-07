@@ -289,7 +289,7 @@
                             var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
                             UtilGrid.Render2(request.Parent2(), dataRowList, config);
                         }
-                        GridDto? parentGrid = isChange ? request.ParentGrid : null; // TODO isChange wrong on first Ok!
+                        GridDto? parentGrid = isChange ? request.ParentGrid : null;
                         return new GridResponse2Dto { ParentGrid = parentGrid };
                     }
                     // Lookup Column Pagination

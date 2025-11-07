@@ -397,7 +397,7 @@ public static class UtilGrid
         }
         else
         {
-            parentGrid.State.ColumnFilterMulti ??= new();
+            parentGrid.State.ColumnFilterMulti ??= new() { IsSelectAll = true };
             filter = parentGrid.State.ColumnFilterMulti;
         }
         var isSelectMultiAll = grid.State.IsSelectMultiAll == true;
