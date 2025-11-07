@@ -547,6 +547,27 @@ public enum GridRequest2GridEnum
     LookupOpen = 6,
 }
 
+public enum GridRequest2GridActionEnum
+{
+    None = 0,
+
+    /// <summary>
+    /// User clicked grid save button.
+    /// </summary>
+    GridSave = 1,
+
+    /// <summary>
+    /// User clicked grid reload button.
+    /// </summary>
+    GridReload = 2,
+
+
+    /// <summary>
+    /// User clicked row delete button.
+    /// </summary>
+    GridDelete = 3,
+}
+
 public class GridRequest2Dto
 {
     public List<GridRequest2EntryDto> List { get; set; } = default!;
@@ -626,6 +647,29 @@ public class GridRequest2Dto
             {
                 UtilServer.Assert(result == GridRequest2GridEnum.None);
                 result = GridRequest2GridEnum.LookupOpen;
+            }
+            return result;
+        }
+    }
+
+    [JsonIgnore]
+    public GridRequest2GridActionEnum ActionEnum
+    {
+        get
+        {
+            var result = GridRequest2GridActionEnum.None;
+            switch (GridEnum)
+            {
+                case GridRequest2GridEnum.Grid:
+                    if (Control?.ControlEnum == GridControlEnum.ButtonSave)
+                    {
+                        result = GridRequest2GridActionEnum.GridSave;
+                    }
+                    if ((Control?.ControlEnum == GridControlEnum.ButtonCustom || Control?.ControlEnum == GridControlEnum.ButtonModal) && Control.Name == "Delete")
+                    {
+                        result = GridRequest2GridActionEnum.GridDelete;
+                    }
+                    break;
             }
             return result;
         }

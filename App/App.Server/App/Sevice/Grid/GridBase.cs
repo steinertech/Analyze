@@ -62,6 +62,11 @@
         return Task.CompletedTask;
     }
 
+    protected virtual Task GridSave2(GridRequest2Dto request, GridConfig config)
+    {
+        return Task.CompletedTask;
+    }
+
     public async Task<GridResponseDto> Load(GridRequestDto request, GridRequest2Dto request2)
     {
         // Save
@@ -253,8 +258,13 @@
             // Grid
             case GridRequest2GridEnum.Grid:
                 {
-                    // Load
                     var config = await Config();
+                    // Save
+                    if (request.ActionEnum == GridRequest2GridActionEnum.GridSave  || request.ActionEnum == GridRequest2GridActionEnum.GridDelete)
+                    {
+                        await GridSave2(request, config);
+                    }
+                    // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
                     UtilGrid.Render2(request, dataRowList, config);
                     var result = new GridResponse2Dto { Grid = request.Grid };

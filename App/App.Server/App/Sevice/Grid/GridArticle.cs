@@ -16,7 +16,7 @@ public class GridArticle2 : GridBase
         };
         result.IsAllowNew = true;
         result.IsAllowDelete = true;
-        result.IsAllowDeleteConfirm = true;
+        // result.IsAllowDeleteConfirm = true;
         result.IsAllowEditForm = true;
         return Task.FromResult(result);
     }
@@ -37,6 +37,48 @@ public class GridArticle2 : GridBase
     protected override Task GridSave(GridRequestDto request, GridConfig config)
     {
         var sourceList = UtilGrid.GridSave(request, config);
+        var destList = dataRowList;
+        foreach (var source in sourceList)
+        {
+            switch (source.DynamicEnum)
+            {
+                case DynamicEnum.Update:
+                    {
+                        var id = config.ConvertFrom("Id", source.RowKey);
+                        var index = destList.Select((item, index) => (Value: item, Index: index)).Single(item => object.Equals(item.Value["Id"], id)).Index;
+                        foreach (var (fieldName, value) in source)
+                        {
+                            destList[index][fieldName] = value;
+                        }
+                    }
+                    break;
+                case DynamicEnum.Insert:
+                    {
+                        var dest = Dynamic.Create(config);
+                        foreach (var (fieldName, value) in source)
+                        {
+                            var valueDest = value;
+                            dest[fieldName] = valueDest;
+                        }
+                        dest["Id"] = destList.Select(item => (int)item["Id"]!).DefaultIfEmpty().Max() + 1;
+                        destList.Add(dest);
+                    }
+                    break;
+                case DynamicEnum.Delete:
+                    {
+                        var id = config.ConvertFrom("Id", source.RowKey);
+                        var index = destList.Select((item, index) => (Value: item, Index: index)).Single(item => object.Equals(item.Value["Id"], id)).Index;
+                        destList.RemoveAt(index);
+                    }
+                    break;
+            }
+        }
+        return Task.CompletedTask;
+    }
+
+    protected override Task GridSave2(GridRequest2Dto request, GridConfig config)
+    {
+        var sourceList = UtilGrid.GridSave2(request, config);
         var destList = dataRowList;
         foreach (var source in sourceList)
         {

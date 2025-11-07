@@ -234,6 +234,82 @@ public static class UtilGrid
     }
 
     /// <summary>
+    /// Save grid state to data row list.
+    /// </summary>
+    /// <returns>Returns data rows to save to database. Data rows contain only fields which changed values and RowKey.</returns>
+    public static List<Dynamic> GridSave2(GridRequest2Dto request, GridConfig config)
+    {
+        var result = new List<Dynamic>();
+        switch (request.ActionEnum)
+        {
+            case GridRequest2GridActionEnum.GridSave:
+                // Update, Insert
+                ArgumentNullException.ThrowIfNull(request.Grid.State?.FieldSaveList);
+                ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
+                foreach (var field in request.Grid.State.FieldSaveList)
+                {
+                    var rowKey = request.Grid.State.RowKeyList[field.DataRowIndex!.Value];
+                    var configColumn = config.ColumnGet(field.FieldName!);
+                    if (rowKey == null)
+                    {
+                        if (config.IsAllowNew)
+                        {
+                            // User added new data row.
+                            var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
+                            if (dataRow == null)
+                            {
+                                dataRow = new Dynamic();
+                                result.Add(dataRow);
+                                dataRow.DynamicEnum = DynamicEnum.Insert;
+                            }
+                            if (configColumn.IsAllowModify)
+                            {
+                                var text = field.TextModified;
+                                dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // User modified existing data row.
+                        var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
+                        if (dataRow == null)
+                        {
+                            dataRow = new Dynamic();
+                            result.Add(dataRow);
+                            dataRow.DynamicEnum = DynamicEnum.Update;
+                            dataRow.RowKey = rowKey;
+                        }
+                        if (configColumn.IsAllowModify)
+                        {
+                            var text = field.TextModified;
+                            dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
+                        }
+                    }
+                }
+                break;
+            case GridRequest2GridActionEnum.GridDelete:
+                // Delete
+                ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
+                if (request.ActionEnum == GridRequest2GridActionEnum.GridDelete)
+                {
+                    var rowKey = request.Grid.State.RowKeyList[request.Cell!.DataRowIndex!.Value];
+                    if (config.IsAllowDelete)
+                    {
+                        var dataRow = new Dynamic();
+                        result.Add(dataRow);
+                        dataRow.DynamicEnum = DynamicEnum.Delete;
+                        dataRow.RowKey = rowKey;
+                    }
+                }
+                break;
+            default:
+                throw new Exception();
+        }
+        return result;
+    }
+
+    /// <summary>
     /// Load filter state from parent grid to lookup grid.
     /// </summary>
     public static void LookupFilterLoad(GridRequestDto request, List<Dynamic> dataRowList, string fieldName, bool isFilterColumn = false)
