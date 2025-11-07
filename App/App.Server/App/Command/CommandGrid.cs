@@ -583,6 +583,14 @@ public class GridRequest2Dto
         return new() { Grid = ParentGrid ?? throw new Exception(), Cell = ParentCell, Control = ParentControl, ParentCell = GreatParentCell, ParentControl = GreatParentControl };
     }
 
+    public GridRequest2Dto Parent2()
+    {
+        var result = new GridRequest2Dto();
+        result.List = new(List);
+        result.List.RemoveAt(0);
+        return result;
+    }
+
     [JsonIgnore]
     public GridRequest2GridEnum GridEnum
     {

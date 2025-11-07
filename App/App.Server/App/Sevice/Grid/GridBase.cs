@@ -277,12 +277,54 @@
             case GridRequest2GridEnum.LookupColumn:
                 {
                     ArgumentNullException.ThrowIfNull(request.ParentGrid);
+                    // Lookup Column Button Ok
+                    if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
+                    {
+                        // Lookup Column Save (State)
+                        var isChange = UtilGrid.LookupFilterSave2(request, "FieldName", isFilterColumn: true);
+                        // Load Parent
+                        if (isChange)
+                        {
+                            var config = await Config();
+                            var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
+                            UtilGrid.Render2(request.Parent2(), dataRowList, config);
+                        }
+                        GridDto? parentGrid = isChange ? request.ParentGrid : null; // TODO isChange wrong on first Ok!
+                        return new GridResponse2Dto { ParentGrid = parentGrid };
+                    }
+                    // Lookup Column Pagination
+                    if (request.Control?.ControlEnum == GridControlEnum.Pagination)
+                    {
+                        var isChange = false;
+                        {
+                            // Lookup Column Save (State)
+                            isChange = UtilGrid.LookupFilterSave2(request, "FieldName", isFilterColumn: true);
+                            if (isChange)
+                            {
+                                // Load Parent
+                                var config = await Config();
+                                var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
+                                UtilGrid.Render2(request.Parent2(), dataRowList, config);
+                            }
+                        }
+                        {
+                            // Load
+                            var dataRowList = await ColumnList2(request);
+                            var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
+                            UtilGrid.LookupFilterLoad2(request, dataRowListDynamic, "FieldName", isFilterColumn: true);
+                            UtilGrid.RenderLookup2(request, dataRowListDynamic, "FieldName");
+                        }
+                        GridDto? parentGrid = isChange ? request.ParentGrid : null;
+                        return new GridResponse2Dto { Grid = request.Grid, ParentGrid = parentGrid };
+                    }
                     // Load
-                    var dataRowList = await ColumnList2(request);
-                    var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
-                    UtilGrid.LookupFilterLoad2(request, dataRowListDynamic, "FieldName", isFilterColumn: true);
-                    UtilGrid.RenderLookup2(request, dataRowListDynamic, "FieldName");
-                    return new GridResponse2Dto { Grid = request.Grid };
+                    {
+                        var dataRowList = await ColumnList2(request);
+                        var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
+                        UtilGrid.LookupFilterLoad2(request, dataRowListDynamic, "FieldName", isFilterColumn: true);
+                        UtilGrid.RenderLookup2(request, dataRowListDynamic, "FieldName");
+                        return new GridResponse2Dto { Grid = request.Grid };
+                    }
                 }
             // Autocomplete
             case GridRequest2GridEnum.LookupAutocomplete:

@@ -363,6 +363,70 @@ public static class UtilGrid
         return result;
     }
 
+    /// <summary>
+    /// Save filter state from lookup grid to parent grid.
+    /// </summary>
+    /// <returns>Returns true, if something changed.</returns>
+    public static bool LookupFilterSave2(GridRequest2Dto request, string fieldName, bool isFilterColumn = false)
+    {
+        var grid = request.Grid;
+        var parentGrid = request.ParentGrid!;
+        var result = false;
+        grid.State ??= new();
+        parentGrid.State ??= new();
+        parentGrid.State.FilterMultiList ??= new();
+        var textList = new List<(string? Text, bool IsSelect)>();
+        if (grid.State.IsSelectMultiList != null && grid.State.RowKeyList != null)
+        {
+            for (int index = 0; index < grid.State.IsSelectMultiList.Count; index++)
+            {
+                var text = grid.State.RowKeyList[index];
+                bool isSelect = grid.State.IsSelectMultiList[index] == true;
+                textList.Add((text, isSelect));
+            }
+        }
+        GridStateFilterMultiDto? filter;
+        if (isFilterColumn == false)
+        {
+            filter = parentGrid.State.FilterMultiList.TryGetValue(fieldName, out var resultFilter) ? resultFilter : null;
+            if (filter == null)
+            {
+                filter = new() { IsSelectAll = true };
+                parentGrid.State.FilterMultiList[fieldName] = filter;
+            }
+        }
+        else
+        {
+            parentGrid.State.ColumnFilterMulti ??= new();
+            filter = parentGrid.State.ColumnFilterMulti;
+        }
+        var isSelectMultiAll = grid.State.IsSelectMultiAll == true;
+        if (filter.IsSelectAll != isSelectMultiAll)
+        {
+            filter.IsSelectAll = isSelectMultiAll;
+            filter.TextList = new();
+            result = true;
+        }
+        foreach (var item in textList)
+        {
+            if ((item.IsSelect ^ isSelectMultiAll) && !filter.TextList.Contains(item.Text))
+            {
+                result = true;
+                filter.TextList.Add(item.Text);
+            }
+            if (!(item.IsSelect ^ isSelectMultiAll) && filter.TextList.Contains(item.Text))
+            {
+                result = true;
+                filter.TextList.Remove(item.Text);
+            }
+        }
+        if (filter.TextList.Count == 0 && filter.IsSelectAll == true)
+        {
+            parentGrid.State.FilterMultiList.Remove(fieldName);
+        }
+        return result;
+    }
+
     public static void RenderForm(GridRequestDto request, List<Dynamic> dataRowList, GridConfig config)
     {
         var grid = request.Grid;
