@@ -369,8 +369,9 @@ public static class UtilGrid
     /// <returns>Returns true, if something changed.</returns>
     public static bool LookupFilterSave2(GridRequest2Dto request, string fieldName, bool isFilterColumn = false)
     {
+        ArgumentNullException.ThrowIfNull(request.ParentGrid);
         var grid = request.Grid;
-        var parentGrid = request.ParentGrid!;
+        var parentGrid = request.ParentGrid;
         var result = false;
         grid.State ??= new();
         parentGrid.State ??= new();
