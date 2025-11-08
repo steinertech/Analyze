@@ -260,7 +260,7 @@
                 {
                     var config = await Config();
                     // Save
-                    if (request.ActionEnum == GridRequest2GridActionEnum.GridSave  || request.ActionEnum == GridRequest2GridActionEnum.GridDelete)
+                    if (request.ActionEnum == GridRequest2GridActionEnum.GridSave || request.ActionEnum == GridRequest2GridActionEnum.GridDeleteOk)
                     {
                         await GridSave2(request, config);
                     }
@@ -404,6 +404,28 @@
                         dataRowList.Insert(0, Dynamic.Create(config));
                     }
                     UtilGrid.Render2(request, dataRowList, config);
+                    return new GridResponse2Dto { Grid = request.Grid };
+                }
+            // LookupDelete
+            case GridRequest2GridEnum.LookupConfirmDelete:
+                {
+                    if (request.ActionEnum == GridRequest2GridActionEnum.LookupConfirmDeleteOk)
+                    {
+                        ArgumentNullException.ThrowIfNull(request.ParentGrid);
+                        // Save
+                        var config = await Config();
+                        await GridSave(request.Parent(), config);
+                        // Load Parent
+                        var dataRowList = await GridLoad2(request, null, config.PageSize);
+                        UtilGrid.Render(request.Parent(), dataRowList, config);
+                        return new GridResponse2Dto { ParentGrid = request.ParentGrid };
+                    }
+                    // Load
+                    request.Grid.Clear();
+                    request.Grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "Delete row?" });
+                    request.Grid.AddRow();
+                    request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk, Name = "Delete" });
+                    request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
                     return new GridResponse2Dto { Grid = request.Grid };
                 }
             default:

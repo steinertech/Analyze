@@ -243,24 +243,43 @@ public static class UtilGrid
         switch (request.ActionEnum)
         {
             case GridRequest2GridActionEnum.GridSave:
-                // Update, Insert
-                ArgumentNullException.ThrowIfNull(request.Grid.State?.FieldSaveList);
-                ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
-                foreach (var field in request.Grid.State.FieldSaveList)
                 {
-                    var rowKey = request.Grid.State.RowKeyList[field.DataRowIndex!.Value];
-                    var configColumn = config.ColumnGet(field.FieldName!);
-                    if (rowKey == null)
+                    // Update, Insert
+                    ArgumentNullException.ThrowIfNull(request.Grid.State?.FieldSaveList);
+                    ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
+                    foreach (var field in request.Grid.State.FieldSaveList)
                     {
-                        if (config.IsAllowNew)
+                        var rowKey = request.Grid.State.RowKeyList[field.DataRowIndex!.Value];
+                        var configColumn = config.ColumnGet(field.FieldName!);
+                        if (rowKey == null)
                         {
-                            // User added new data row.
+                            if (config.IsAllowNew)
+                            {
+                                // User added new data row.
+                                var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
+                                if (dataRow == null)
+                                {
+                                    dataRow = new Dynamic();
+                                    result.Add(dataRow);
+                                    dataRow.DynamicEnum = DynamicEnum.Insert;
+                                }
+                                if (configColumn.IsAllowModify)
+                                {
+                                    var text = field.TextModified;
+                                    dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // User modified existing data row.
                             var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
                             if (dataRow == null)
                             {
                                 dataRow = new Dynamic();
                                 result.Add(dataRow);
-                                dataRow.DynamicEnum = DynamicEnum.Insert;
+                                dataRow.DynamicEnum = DynamicEnum.Update;
+                                dataRow.RowKey = rowKey;
                             }
                             if (configColumn.IsAllowModify)
                             {
@@ -269,30 +288,12 @@ public static class UtilGrid
                             }
                         }
                     }
-                    else
-                    {
-                        // User modified existing data row.
-                        var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
-                        if (dataRow == null)
-                        {
-                            dataRow = new Dynamic();
-                            result.Add(dataRow);
-                            dataRow.DynamicEnum = DynamicEnum.Update;
-                            dataRow.RowKey = rowKey;
-                        }
-                        if (configColumn.IsAllowModify)
-                        {
-                            var text = field.TextModified;
-                            dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
-                        }
-                    }
+                    break;
                 }
-                break;
-            case GridRequest2GridActionEnum.GridDelete:
-                // Delete
-                ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
-                if (request.ActionEnum == GridRequest2GridActionEnum.GridDelete)
+            case GridRequest2GridActionEnum.GridDeleteOk:
                 {
+                    // Delete
+                    ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
                     var rowKey = request.Grid.State.RowKeyList[request.Cell!.DataRowIndex!.Value];
                     if (config.IsAllowDelete)
                     {
@@ -301,8 +302,8 @@ public static class UtilGrid
                         dataRow.DynamicEnum = DynamicEnum.Delete;
                         dataRow.RowKey = rowKey;
                     }
+                    break;
                 }
-                break;
             default:
                 throw new Exception();
         }

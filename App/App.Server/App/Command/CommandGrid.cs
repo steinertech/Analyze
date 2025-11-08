@@ -542,9 +542,17 @@ public enum GridRequest2GridEnum
 
     LookupAutocomplete = 4,
 
-    LookupEdit = 5, // TODO Rename to LookupForm
+    /// <summary>
+    /// See also RenderForm.
+    /// </summary>
+    LookupEdit = 5,
 
     LookupOpen = 6,
+
+    /// <summary>
+    /// Lookup modal window to confirm delete.
+    /// </summary>
+    LookupConfirmDelete = 7,
 }
 
 public enum GridRequest2GridActionEnum
@@ -565,7 +573,12 @@ public enum GridRequest2GridActionEnum
     /// <summary>
     /// User clicked row delete button.
     /// </summary>
-    GridDelete = 3,
+    GridDeleteOk = 3,
+
+    /// <summary>
+    /// User clicked row delete confirm button.
+    /// </summary>
+    LookupConfirmDeleteOk = 4,
 }
 
 public class GridRequest2Dto
@@ -648,6 +661,16 @@ public class GridRequest2Dto
                 UtilServer.Assert(result == GridRequest2GridEnum.None);
                 result = GridRequest2GridEnum.LookupOpen;
             }
+            if (ParentControl?.ControlEnum == GridControlEnum.ButtonModal && ParentControl?.Name == "Delete" && Control?.ControlEnum == GridControlEnum.ButtonModal)
+            {
+                UtilServer.Assert(result == GridRequest2GridEnum.None);
+                result = GridRequest2GridEnum.LookupConfirmDelete;
+            }
+            if (ParentControl?.ControlEnum == GridControlEnum.ButtonModal && ParentControl?.Name == "Delete" && Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
+            {
+                UtilServer.Assert(result == GridRequest2GridEnum.None);
+                result = GridRequest2GridEnum.LookupConfirmDelete;
+            }
             return result;
         }
     }
@@ -667,7 +690,13 @@ public class GridRequest2Dto
                     }
                     if ((Control?.ControlEnum == GridControlEnum.ButtonCustom || Control?.ControlEnum == GridControlEnum.ButtonModal) && Control.Name == "Delete")
                     {
-                        result = GridRequest2GridActionEnum.GridDelete;
+                        result = GridRequest2GridActionEnum.GridDeleteOk;
+                    }
+                    break;
+                case GridRequest2GridEnum.LookupConfirmDelete:
+                    if (Control?.ControlEnum == GridControlEnum.ButtonLookupOk && Control.Name == "Delete")
+                    {
+                        result = GridRequest2GridActionEnum.LookupConfirmDeleteOk;
                     }
                     break;
             }
@@ -695,6 +724,8 @@ public class GridResponse2Dto
     }
 
     // public GridDto? GrandParentGrid // Response never changes GrandParent
+
+    // public GridDto? LookupGrid // TODO Response to open lookup grid. Currently App.Web knows based on button when to open lookup grid.
 }
 
 public class GridResponseDto
@@ -1164,7 +1195,7 @@ public enum GridControlEnum
     FieldCustom = 18,
 
     /// <summary>
-    /// Opens a lookup modal windows. Calls method CommandGrid.Load(); to get modal grid data.
+    /// Opens a lookup modal window. Calls method CommandGrid.Load(); to get modal grid data.
     /// </summary>
     ButtonModal = 19,
 
