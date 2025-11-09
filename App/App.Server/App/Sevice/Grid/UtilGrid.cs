@@ -243,48 +243,51 @@ public static class UtilGrid
         switch (request.ActionEnum)
         {
             case GridRequest2GridActionEnum.GridSave:
+            case GridRequest2GridActionEnum.LookupEditSave:
                 {
                     // Update, Insert
-                    ArgumentNullException.ThrowIfNull(request.Grid.State?.FieldSaveList);
                     ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
-                    foreach (var field in request.Grid.State.FieldSaveList)
+                    if (request.Grid.State?.FieldSaveList != null) // User might click save button without having a cell modified.
                     {
-                        var rowKey = request.Grid.State.RowKeyList[field.DataRowIndex!.Value];
-                        var configColumn = config.ColumnGet(field.FieldName!);
-                        if (rowKey == null)
+                        foreach (var field in request.Grid.State.FieldSaveList)
                         {
-                            if (config.IsAllowNew)
+                            var rowKey = request.Grid.State.RowKeyList[field.DataRowIndex!.Value];
+                            var configColumn = config.ColumnGet(field.FieldName!);
+                            if (rowKey == null)
                             {
-                                // User added new data row.
+                                if (config.IsAllowNew)
+                                {
+                                    // User added new data row.
+                                    var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
+                                    if (dataRow == null)
+                                    {
+                                        dataRow = new Dynamic();
+                                        result.Add(dataRow);
+                                        dataRow.DynamicEnum = DynamicEnum.Insert;
+                                    }
+                                    if (configColumn.IsAllowModify)
+                                    {
+                                        var text = field.TextModified;
+                                        dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // User modified existing data row.
                                 var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
                                 if (dataRow == null)
                                 {
                                     dataRow = new Dynamic();
                                     result.Add(dataRow);
-                                    dataRow.DynamicEnum = DynamicEnum.Insert;
+                                    dataRow.DynamicEnum = DynamicEnum.Update;
+                                    dataRow.RowKey = rowKey;
                                 }
                                 if (configColumn.IsAllowModify)
                                 {
                                     var text = field.TextModified;
                                     dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
                                 }
-                            }
-                        }
-                        else
-                        {
-                            // User modified existing data row.
-                            var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
-                            if (dataRow == null)
-                            {
-                                dataRow = new Dynamic();
-                                result.Add(dataRow);
-                                dataRow.DynamicEnum = DynamicEnum.Update;
-                                dataRow.RowKey = rowKey;
-                            }
-                            if (configColumn.IsAllowModify)
-                            {
-                                var text = field.TextModified;
-                                dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
                             }
                         }
                     }
