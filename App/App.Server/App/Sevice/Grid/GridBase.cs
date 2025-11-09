@@ -386,8 +386,13 @@
             case GridRequest2GridEnum.LookupEdit:
                 {
                     ArgumentNullException.ThrowIfNull(request.ParentGrid);
-                    // Load
                     var config = await Config();
+                    // Save
+                    if (request.ActionEnum == GridRequest2GridActionEnum.LookupEditSave)
+                    {
+                        await GridSave2(request, config);
+                    }
+                    // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
                     UtilGrid.RenderForm2(request, dataRowList, config);
                     return new GridResponse2Dto { Grid = request.Grid };
@@ -422,7 +427,7 @@
                     }
                     // Load
                     request.Grid.Clear();
-                    request.Grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "Delete row?" });
+                    request.Grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "Delete row?" }); // Could be handled by client without callback.
                     request.Grid.AddRow();
                     request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk, Name = "Delete" });
                     request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });

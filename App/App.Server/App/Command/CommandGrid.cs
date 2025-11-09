@@ -579,6 +579,11 @@ public enum GridRequest2GridActionEnum
     /// User clicked row delete confirm button.
     /// </summary>
     LookupConfirmDeleteOk = 4,
+
+    /// <summary>
+    /// User clicked save button on lookup edit form.
+    /// </summary>
+    LookupEditSave = 5,
 }
 
 public class GridRequest2Dto
@@ -697,6 +702,12 @@ public class GridRequest2Dto
                     if (Control?.ControlEnum == GridControlEnum.ButtonLookupOk && Control.Name == "Delete")
                     {
                         result = GridRequest2GridActionEnum.LookupConfirmDeleteOk;
+                    }
+                    break;
+                case GridRequest2GridEnum.LookupEdit:
+                    if (Control?.ControlEnum == GridControlEnum.ButtonSave)
+                    {
+                        result = GridRequest2GridActionEnum.LookupEditSave;
                     }
                     break;
             }
