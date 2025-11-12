@@ -711,22 +711,22 @@ public class GridRequest2Dto
 
     }
 
-    private GridRequest2GridActionEnum? actionEnum;
+    private GridRequest2GridActionEnum? gridActionEnum;
 
     [JsonIgnore]
-    public GridRequest2GridActionEnum ActionEnum // TODO Rename to GridActionEnum
+    public GridRequest2GridActionEnum GridActionEnum
     {
         get
         {
-            if (actionEnum == null)
+            if (gridActionEnum == null)
             {
-                actionEnum = ActionEnumGet(this);
+                gridActionEnum = GridActionEnumGet(this);
             }
-            return actionEnum.Value;
+            return gridActionEnum.Value;
         }
     }
 
-    private static GridRequest2GridActionEnum ActionEnumGet(GridRequest2Dto request)
+    private static GridRequest2GridActionEnum GridActionEnumGet(GridRequest2Dto request)
     {
         request = new GridRequest2Dto { List = request.List, offset = 0 };
         var result = GridRequest2GridActionEnum.None;

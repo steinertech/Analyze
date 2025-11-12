@@ -260,7 +260,7 @@
                 {
                     var config = await Config();
                     // Save
-                    if (request.ActionEnum == GridRequest2GridActionEnum.GridSave || request.ActionEnum == GridRequest2GridActionEnum.GridDeleteOk)
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.GridSave || request.GridActionEnum == GridRequest2GridActionEnum.GridDeleteOk)
                     {
                         await GridSave2(request, config);
                     }
@@ -376,7 +376,7 @@
                     ArgumentNullException.ThrowIfNull(request.ParentGrid);
                     ArgumentNullException.ThrowIfNull(request.ParentCell?.FieldName);
                     var config = await Config();
-                    if (request.ActionEnum == GridRequest2GridActionEnum.LookupAutoCompleteOk)
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.LookupAutoCompleteOk)
                     {
                         var isSave = UtilGrid.LookupAutocompleteSave2(request);
                         if (isSave)
@@ -404,7 +404,7 @@
                     ArgumentNullException.ThrowIfNull(request.ParentGrid);
                     var config = await Config();
                     // Save
-                    if (request.ActionEnum == GridRequest2GridActionEnum.LookupEditSave)
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.LookupEditSave)
                     {
                         await GridSave2(request, config);
                     }
@@ -430,7 +430,7 @@
             // LookupDelete
             case GridRequest2GridEnum.LookupConfirmDelete:
                 {
-                    if (request.ActionEnum == GridRequest2GridActionEnum.LookupConfirmDeleteOk)
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.LookupConfirmDeleteOk)
                     {
                         ArgumentNullException.ThrowIfNull(request.ParentGrid);
                         // Save

@@ -240,7 +240,7 @@ public static class UtilGrid
     public static List<Dynamic> GridSave2(GridRequest2Dto request, GridConfig config)
     {
         var result = new List<Dynamic>();
-        switch (request.ActionEnum)
+        switch (request.GridActionEnum)
         {
             case GridRequest2GridActionEnum.GridSave:
             case GridRequest2GridActionEnum.LookupEditSave:
