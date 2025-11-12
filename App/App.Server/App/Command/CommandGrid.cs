@@ -569,7 +569,6 @@ public enum GridRequest2GridActionEnum
     /// </summary>
     GridReload = 2,
 
-
     /// <summary>
     /// User clicked row delete button.
     /// </summary>
@@ -584,135 +583,185 @@ public enum GridRequest2GridActionEnum
     /// User clicked save button on lookup edit form.
     /// </summary>
     LookupEditSave = 5,
+
+    /// <summary>
+    /// User clicked lookup autocomplete ok button.
+    /// </summary>
+    LookupAutoCompleteOk = 6,
 }
 
 public class GridRequest2Dto
 {
     public List<GridRequest2EntryDto> List { get; set; } = default!;
 
-    [JsonIgnore]
-    public GridDto Grid => List[0].Grid!;
+    private GridRequest2EntryDto? ListGet(int index)
+    {
+        return index >= 0 && index < List.Count ? List[index] : null;
+    }
 
     [JsonIgnore]
-    public GridCellDto? Cell => List[0].Cell;
+    public GridDto Grid => ListGet(0 + offset)!.Grid!;
 
     [JsonIgnore]
-    public GridControlDto? Control => List[0].Control;
+    public GridCellDto? Cell => ListGet(0 + offset)?.Cell;
 
     [JsonIgnore]
-    public GridDto? ParentGrid => List[1].Grid;
+    public GridControlDto? Control => ListGet(0 + offset)?.Control;
 
     [JsonIgnore]
-    public GridCellDto? ParentCell => List[1].Cell;
+    public GridDto? ParentGrid => ListGet(1 + offset)?.Grid;
 
     [JsonIgnore]
-    public GridControlDto? ParentControl => List[1].Control;
+    public GridCellDto? ParentCell => ListGet(1 + offset)?.Cell;
+
+    [JsonIgnore]
+    public GridControlDto? ParentControl => ListGet(1 + offset)?.Control;
 
     // [JsonIgnore]
     // public GridDto? GreatParentGrid => List[2].Grid; // Request does not send GreatParent data grid
 
     [JsonIgnore]
-    public GridCellDto? GreatParentCell => List[2].Cell;
+    public GridDto? LookupGrid => ListGet(-1 + offset)?.Grid;
 
     [JsonIgnore]
-    public GridControlDto? GreatParentControl => List[2].Control;
+    public GridCellDto? LookupCell => ListGet(-1 + offset)?.Cell;
+
+    [JsonIgnore]
+    public GridControlDto? LookupControl => ListGet(-1 + offset)?.Control;
+
+    [JsonIgnore]
+    public GridCellDto? GreatParentCell => ListGet(2 + offset)?.Cell;
+
+    [JsonIgnore]
+    public GridControlDto? GreatParentControl => ListGet(2 + offset)?.Control;
 
     public GridRequestDto Parent()
     {
         return new() { Grid = ParentGrid ?? throw new Exception(), Cell = ParentCell, Control = ParentControl, ParentCell = GreatParentCell, ParentControl = GreatParentControl };
     }
 
+    private int offset = 0;
+
     public GridRequest2Dto Parent2()
     {
-        var result = new GridRequest2Dto();
-        result.List = new(List);
-        result.List.RemoveAt(0);
+        var result = new GridRequest2Dto { List = List, offset = offset + 1 };
         return result;
     }
+
+    private GridRequest2GridEnum? gridEnum;
 
     [JsonIgnore]
     public GridRequest2GridEnum GridEnum
     {
         get
         {
-            var result = GridRequest2GridEnum.None;
-            if (ParentGrid == null)
+            if (gridEnum == null)
             {
-                UtilServer.Assert(result == GridRequest2GridEnum.None);
-                result = GridRequest2GridEnum.Grid;
+                gridEnum = GridEnumGet(this);
             }
-            if (ParentCell?.CellEnum == GridCellEnum.Header)
-            {
-                UtilServer.Assert(result == GridRequest2GridEnum.None);
-                result = GridRequest2GridEnum.LookupFilter;
-            }
-            if (ParentControl?.ControlEnum == GridControlEnum.ButtonColumn)
-            {
-                UtilServer.Assert(result == GridRequest2GridEnum.None);
-                result = GridRequest2GridEnum.LookupColumn;
-            }
-            if (ParentCell?.CellEnum == GridCellEnum.FieldAutocomplete)
-            {
-                UtilServer.Assert(result == GridRequest2GridEnum.None);
-                result = GridRequest2GridEnum.LookupAutocomplete;
-            }
-            if (ParentControl?.ControlEnum == GridControlEnum.ButtonModal && ParentControl?.Name == "Edit")
-            {
-                UtilServer.Assert(result == GridRequest2GridEnum.None);
-                result = GridRequest2GridEnum.LookupEdit;
-            }
-            if (ParentControl?.ControlEnum == GridControlEnum.ButtonModal && ParentControl?.Name == "Open")
-            {
-                UtilServer.Assert(result == GridRequest2GridEnum.None);
-                result = GridRequest2GridEnum.LookupOpen;
-            }
-            if (ParentControl?.ControlEnum == GridControlEnum.ButtonModal && ParentControl?.Name == "Delete" && Control?.ControlEnum == GridControlEnum.ButtonModal)
-            {
-                UtilServer.Assert(result == GridRequest2GridEnum.None);
-                result = GridRequest2GridEnum.LookupConfirmDelete;
-            }
-            if (ParentControl?.ControlEnum == GridControlEnum.ButtonModal && ParentControl?.Name == "Delete" && Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
-            {
-                UtilServer.Assert(result == GridRequest2GridEnum.None);
-                result = GridRequest2GridEnum.LookupConfirmDelete;
-            }
-            return result;
+            return gridEnum.Value;
         }
     }
 
+    private static GridRequest2GridEnum GridEnumGet(GridRequest2Dto request)
+    {
+        request = new GridRequest2Dto { List = request.List, offset = 0 };
+        var result = GridRequest2GridEnum.None;
+        if (request.ParentGrid == null)
+        {
+            UtilServer.Assert(result == GridRequest2GridEnum.None);
+            result = GridRequest2GridEnum.Grid;
+        }
+        if (request.ParentCell?.CellEnum == GridCellEnum.Header)
+        {
+            UtilServer.Assert(result == GridRequest2GridEnum.None);
+            result = GridRequest2GridEnum.LookupFilter;
+        }
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonColumn)
+        {
+            UtilServer.Assert(result == GridRequest2GridEnum.None);
+            result = GridRequest2GridEnum.LookupColumn;
+        }
+        if (request.ParentCell?.CellEnum == GridCellEnum.FieldAutocomplete)
+        {
+            UtilServer.Assert(result == GridRequest2GridEnum.None);
+            result = GridRequest2GridEnum.LookupAutocomplete;
+        }
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Edit")
+        {
+            UtilServer.Assert(result == GridRequest2GridEnum.None);
+            result = GridRequest2GridEnum.LookupEdit;
+        }
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Open")
+        {
+            UtilServer.Assert(result == GridRequest2GridEnum.None);
+            result = GridRequest2GridEnum.LookupOpen;
+        }
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Delete" && request.Control?.ControlEnum == GridControlEnum.ButtonModal)
+        {
+            UtilServer.Assert(result == GridRequest2GridEnum.None);
+            result = GridRequest2GridEnum.LookupConfirmDelete;
+        }
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Delete" && request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
+        {
+            UtilServer.Assert(result == GridRequest2GridEnum.None);
+            result = GridRequest2GridEnum.LookupConfirmDelete;
+        }
+        return result;
+
+    }
+
+    private GridRequest2GridActionEnum? actionEnum;
+
     [JsonIgnore]
-    public GridRequest2GridActionEnum ActionEnum
+    public GridRequest2GridActionEnum ActionEnum // TODO Rename to GridActionEnum
     {
         get
         {
-            var result = GridRequest2GridActionEnum.None;
-            switch (GridEnum)
+            if (actionEnum == null)
             {
-                case GridRequest2GridEnum.Grid:
-                    if (Control?.ControlEnum == GridControlEnum.ButtonSave)
-                    {
-                        result = GridRequest2GridActionEnum.GridSave;
-                    }
-                    if ((Control?.ControlEnum == GridControlEnum.ButtonCustom || Control?.ControlEnum == GridControlEnum.ButtonModal) && Control.Name == "Delete")
-                    {
-                        result = GridRequest2GridActionEnum.GridDeleteOk;
-                    }
-                    break;
-                case GridRequest2GridEnum.LookupConfirmDelete:
-                    if (Control?.ControlEnum == GridControlEnum.ButtonLookupOk && Control.Name == "Delete")
-                    {
-                        result = GridRequest2GridActionEnum.LookupConfirmDeleteOk;
-                    }
-                    break;
-                case GridRequest2GridEnum.LookupEdit:
-                    if (Control?.ControlEnum == GridControlEnum.ButtonSave)
-                    {
-                        result = GridRequest2GridActionEnum.LookupEditSave;
-                    }
-                    break;
+                actionEnum = ActionEnumGet(this);
             }
-            return result;
+            return actionEnum.Value;
         }
+    }
+
+    private static GridRequest2GridActionEnum ActionEnumGet(GridRequest2Dto request)
+    {
+        request = new GridRequest2Dto { List = request.List, offset = 0 };
+        var result = GridRequest2GridActionEnum.None;
+        switch (request.GridEnum)
+        {
+            case GridRequest2GridEnum.Grid:
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonSave)
+                {
+                    result = GridRequest2GridActionEnum.GridSave;
+                }
+                if ((request.Control?.ControlEnum == GridControlEnum.ButtonCustom || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete")
+                {
+                    result = GridRequest2GridActionEnum.GridDeleteOk;
+                }
+                break;
+            case GridRequest2GridEnum.LookupConfirmDelete:
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk && request.Control.Name == "Delete")
+                {
+                    result = GridRequest2GridActionEnum.LookupConfirmDeleteOk;
+                }
+                break;
+            case GridRequest2GridEnum.LookupEdit:
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonSave)
+                {
+                    result = GridRequest2GridActionEnum.LookupEditSave;
+                }
+                break;
+            case GridRequest2GridEnum.LookupAutocomplete:
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
+                {
+                    result = GridRequest2GridActionEnum.LookupAutoCompleteOk;
+                }
+                break;
+        }
+        return result;
     }
 }
 

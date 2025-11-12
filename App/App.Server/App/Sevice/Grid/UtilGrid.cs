@@ -244,6 +244,7 @@ public static class UtilGrid
         {
             case GridRequest2GridActionEnum.GridSave:
             case GridRequest2GridActionEnum.LookupEditSave:
+            case GridRequest2GridActionEnum.LookupAutoCompleteOk:
                 {
                     // Update, Insert
                     ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
@@ -506,6 +507,23 @@ public static class UtilGrid
             parentGrid.State.FilterMultiList.Remove(fieldName);
         }
         return result;
+    }
+
+    public static bool LookupAutocompleteSave2(GridRequest2Dto request)
+    {
+        ArgumentNullException.ThrowIfNull(request.ParentCell);
+        ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
+        ArgumentNullException.ThrowIfNull(request.ParentGrid?.State);
+        var fieldName = request.ParentCell.FieldName;
+        var dataRowIndex = request.Grid.State.IsSelectList?.Select((item, index) => (Value: item, Index: index)).Single(item => item.Value == true).Index;
+        if (dataRowIndex != null)
+        {
+            var text = request.Grid.State.RowKeyList[dataRowIndex.Value];
+            request.ParentGrid.State.FieldSaveList ??= new();
+            request.ParentGrid.State.FieldSaveList.Add(new() { DataRowIndex = request.ParentCell.DataRowIndex, FieldName = fieldName, Text = request.ParentCell.Text, TextModified = text });
+            return true;
+        }
+        return false;
     }
 
     public static void RenderForm(GridRequestDto request, List<Dynamic> dataRowList, GridConfig config)

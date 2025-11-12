@@ -375,12 +375,28 @@
                 {
                     ArgumentNullException.ThrowIfNull(request.ParentGrid);
                     ArgumentNullException.ThrowIfNull(request.ParentCell?.FieldName);
-                    // Load
-                    var fieldName = request.ParentCell.FieldName;
                     var config = await Config();
-                    var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config.PageSizeAutocomplete);
-                    UtilGrid.RenderLookupAutocomplete2(request, dataRowList, fieldName: fieldName);
-                    return new GridResponse2Dto { Grid = request.Grid };
+                    if (request.ActionEnum == GridRequest2GridActionEnum.LookupAutoCompleteOk)
+                    {
+                        var isSave = UtilGrid.LookupAutocompleteSave2(request);
+                        if (isSave)
+                        {
+                            // Parent Save
+                            await GridSave2(request.Parent2(), config);
+                            // Parent Load
+                            var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
+                            UtilGrid.Render2(request.Parent2(), dataRowList, config);
+                        }
+                        GridDto? parentGrid = isSave ? request.ParentGrid : null;
+                        return new GridResponse2Dto { Grid = request.Grid, ParentGrid = parentGrid };
+                    }
+                    // Load
+                    {
+                        var fieldName = request.ParentCell.FieldName;
+                        var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config.PageSizeAutocomplete);
+                        UtilGrid.RenderLookupAutocomplete2(request, dataRowList, fieldName: fieldName);
+                        return new GridResponse2Dto { Grid = request.Grid };
+                    }
                 }
             // LookupEdit
             case GridRequest2GridEnum.LookupEdit:
