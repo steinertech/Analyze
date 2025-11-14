@@ -530,31 +530,52 @@ public class GridRequest2EntryDto
     public GridControlDto? Control { get; set; }
 }
 
+/// <summary>
+/// Request sent by GridEnum.
+/// </summary>
 public enum GridRequest2GridEnum
 {
     None = 0,
     
+    /// <summary>
+    /// Request sent by main grid.
+    /// </summary>
     Grid = 1,
 
+    /// <summary>
+    /// Request sent by filter grid.
+    /// </summary>
     LookupFilter = 2,
 
+    /// <summary>
+    /// Request sent by column grid.
+    /// </summary>
     LookupColumn = 3,
 
+    /// <summary>
+    /// Request sent by autocomplete grid.
+    /// </summary>
     LookupAutocomplete = 4,
 
     /// <summary>
-    /// See also RenderForm.
+    /// Request sent by edit grid. See also RenderForm.
     /// </summary>
     LookupEdit = 5,
 
+    /// <summary>
+    /// Request sent by open (detail) grid.
+    /// </summary>
     LookupOpen = 6,
 
     /// <summary>
-    /// Lookup modal window to confirm delete.
+    /// Request sent by confirm delete grid.
     /// </summary>
     LookupConfirmDelete = 7,
 }
 
+/// <summary>
+/// Request sent by GridActionEnum. This is a subcategory of GridEnum.
+/// </summary>
 public enum GridRequest2GridActionEnum
 {
     None = 0,

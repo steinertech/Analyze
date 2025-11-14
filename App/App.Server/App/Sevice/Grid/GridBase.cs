@@ -410,7 +410,7 @@
                     }
                     // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
-                    UtilGrid.RenderForm2(request, dataRowList, config);
+                    UtilGrid.Render2(request, dataRowList, config);
                     return new GridResponse2Dto { Grid = request.Grid };
                 }
             // LookupOpen

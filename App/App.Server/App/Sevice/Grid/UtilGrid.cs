@@ -563,7 +563,10 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
     }
 
-    public static void RenderForm2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
+    /// <summary>
+    /// Render data grid form.
+    /// </summary>
+    private static void RenderForm2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
     {
         var grid = request.Grid;
         grid.Clear();
@@ -700,7 +703,7 @@ public static class UtilGrid
     /// <summary>
     /// Render data grid.
     /// </summary>
-    public static void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
+    private static void RenderGrid2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
     {
         var grid = request.Grid;
         grid.Clear();
@@ -781,6 +784,22 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
         RenderCalcColSpan2(request);
+    }
+
+    /// <summary>
+    /// Render data grid or grid form.
+    /// </summary>
+    public static void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
+    {
+        bool isForm = request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl.Name == "Edit";
+        if (isForm)
+        {
+            RenderForm2(request, dataRowList, config);
+        }
+        else
+        {
+            RenderGrid2(request, dataRowList, config);
+        }
     }
 
     /// <summary>
