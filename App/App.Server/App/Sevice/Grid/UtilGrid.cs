@@ -783,6 +783,10 @@ public static class UtilGrid
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl.Name == "Open")
+        {
+            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+        }
         RenderCalcColSpan2(request);
     }
 
