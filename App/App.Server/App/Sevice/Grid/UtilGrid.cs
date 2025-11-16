@@ -245,6 +245,7 @@ public static class UtilGrid
             case GridRequest2GridActionEnum.GridSave:
             case GridRequest2GridActionEnum.LookupEditSave:
             case GridRequest2GridActionEnum.LookupAutoCompleteOk:
+            case GridRequest2GridActionEnum.LookupSubSave:
                 {
                     // Update, Insert
                     ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
@@ -294,7 +295,7 @@ public static class UtilGrid
                     }
                     break;
                 }
-            case GridRequest2GridActionEnum.GridDeleteOk:
+            case GridRequest2GridActionEnum.GridDelete:
                 {
                     // Delete
                     ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
@@ -680,7 +681,7 @@ public static class UtilGrid
             if (config.IsAllowEditForm)
             {
                 grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Edit", Name = "Edit" }, dataRowIndex);
-                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Open", Name = "Open" }, dataRowIndex);
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Sub", Name = "Sub" }, dataRowIndex);
             }
             dataRowIndex += 1;
         }
@@ -772,7 +773,7 @@ public static class UtilGrid
             if (config.IsAllowEditForm)
             {
                 grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Edit", Name = "Edit" }, dataRowIndex);
-                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Open", Name = "Open" }, dataRowIndex);
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Sub", Name = "Sub" }, dataRowIndex);
             }
             dataRowIndex += 1;
         }
@@ -783,7 +784,7 @@ public static class UtilGrid
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
-        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl.Name == "Open")
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl.Name == "Sub")
         {
             grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
         }

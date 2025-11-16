@@ -237,7 +237,7 @@
             return new GridResponseDto { Grid = request.Grid };
         }
         // Lookup Modal
-        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Open")
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Sub")
         {
             var config = await Config();
             var dataRowList = await GridLoad(request, null, config.PageSize);
@@ -260,12 +260,16 @@
                 {
                     var config = await Config();
                     // Save
-                    if (request.GridActionEnum == GridRequest2GridActionEnum.GridSave || request.GridActionEnum == GridRequest2GridActionEnum.GridDeleteOk)
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.GridSave || request.GridActionEnum == GridRequest2GridActionEnum.GridDelete)
                     {
                         await GridSave2(request, config);
                     }
                     // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew)
+                    {
+                        dataRowList.Insert(0, Dynamic.Create(config));
+                    }
                     UtilGrid.Render2(request, dataRowList, config);
                     var result = new GridResponse2Dto { Grid = request.Grid };
                     return result;
@@ -413,14 +417,19 @@
                     UtilGrid.Render2(request, dataRowList, config);
                     return new GridResponse2Dto { Grid = request.Grid };
                 }
-            // LookupOpen
-            case GridRequest2GridEnum.LookupOpen:
+            // LookupSub
+            case GridRequest2GridEnum.LookupSub:
                 {
                     ArgumentNullException.ThrowIfNull(request.ParentGrid);
-                    // Load
                     var config = await Config();
+                    // Save
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.LookupSubSave || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubDelete)
+                    {
+                        await GridSave2(request, config);
+                    }
+                    // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
-                    if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.LookupSubNew)
                     {
                         dataRowList.Insert(0, Dynamic.Create(config));
                     }

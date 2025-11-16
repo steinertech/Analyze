@@ -44,11 +44,22 @@ export class PageGrid implements AfterViewInit {
     const grandParentControl = pageGrid.parent?.parent?._lookup?.control
     const grandParentGrid = pageGrid.parent?.parent?._grid
     //
+    const gridClone = grid ? { ...grid } : undefined
+    delete gridClone?.rowCellList
+    const cellClone = cell ? { ...cell } : undefined
+    delete cellClone?.controlList
+    const parentGridClone = parentGrid ? { ...parentGrid } : undefined
+    delete parentGridClone?.rowCellList
+    const parentCellClone = parentCell ? { ...parentCell } : undefined
+    delete parentCellClone?.controlList
+    const grandParentCellClone = grandParentCell ? { ...grandParentCell } : undefined
+    delete grandParentCellClone?.controlList
+    //
     const request: GridRequest2Dto = {
       list: [
-        { grid: grid, cell: cell, control: control },
-        { grid: parentGrid, cell: parentCell, control: parentControl },
-        { /* grid: grandParentGrid, */ cell: grandParentCell, control: grandParentControl }, // Request for GrandParent grid is not sent
+        { grid: gridClone, cell: cellClone, control: control },
+        { grid: parentGridClone, cell: parentCellClone, control: parentControl },
+        { /* grid: grandParentGrid, */ cell: grandParentCellClone, control: grandParentControl }, // Request for GrandParent grid is not sent
       ]
     }
     const response = await pageGrid.serverApi.commandGridLoad2(request)

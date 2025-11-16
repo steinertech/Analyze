@@ -563,9 +563,9 @@ public enum GridRequest2GridEnum
     LookupEdit = 5,
 
     /// <summary>
-    /// Request sent by open (detail) grid.
+    /// Request sent by sub grid.
     /// </summary>
-    LookupOpen = 6,
+    LookupSub = 6,
 
     /// <summary>
     /// Request sent by confirm delete grid.
@@ -593,22 +593,42 @@ public enum GridRequest2GridActionEnum
     /// <summary>
     /// User clicked row delete button.
     /// </summary>
-    GridDeleteOk = 3,
+    GridDelete = 3,
+
+    /// <summary>
+    /// User clciked grid new row button.
+    /// </summary>
+    GridNew = 4,
 
     /// <summary>
     /// User clicked row delete confirm button.
     /// </summary>
-    LookupConfirmDeleteOk = 4,
+    LookupConfirmDeleteOk = 5,
 
     /// <summary>
     /// User clicked save button on lookup edit form.
     /// </summary>
-    LookupEditSave = 5,
+    LookupEditSave = 6,
 
     /// <summary>
     /// User clicked lookup autocomplete ok button.
     /// </summary>
-    LookupAutoCompleteOk = 6,
+    LookupAutoCompleteOk = 7,
+
+    /// <summary>
+    /// User clicked lookup sub window save button.
+    /// </summary>
+    LookupSubSave = 8,
+
+    /// <summary>
+    /// User clicked lookup sub window delete row button.
+    /// </summary>
+    LookupSubDelete = 9,
+
+    /// <summary>
+    /// User clicked lookup sub window new row button.
+    /// </summary>
+    LookupSubNew = 10,
 }
 
 public class GridRequest2Dto
@@ -713,10 +733,10 @@ public class GridRequest2Dto
             UtilServer.Assert(result == GridRequest2GridEnum.None);
             result = GridRequest2GridEnum.LookupEdit;
         }
-        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Open")
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Sub")
         {
             UtilServer.Assert(result == GridRequest2GridEnum.None);
-            result = GridRequest2GridEnum.LookupOpen;
+            result = GridRequest2GridEnum.LookupSub;
         }
         if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Delete" && request.Control?.ControlEnum == GridControlEnum.ButtonModal)
         {
@@ -760,7 +780,11 @@ public class GridRequest2Dto
                 }
                 if ((request.Control?.ControlEnum == GridControlEnum.ButtonCustom || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete")
                 {
-                    result = GridRequest2GridActionEnum.GridDeleteOk;
+                    result = GridRequest2GridActionEnum.GridDelete;
+                }
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
+                {
+                    result = GridRequest2GridActionEnum.GridNew;
                 }
                 break;
             case GridRequest2GridEnum.LookupConfirmDelete:
@@ -779,6 +803,20 @@ public class GridRequest2Dto
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
                 {
                     result = GridRequest2GridActionEnum.LookupAutoCompleteOk;
+                }
+                break;
+            case GridRequest2GridEnum.LookupSub:
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonSave)
+                {
+                    result = GridRequest2GridActionEnum.LookupSubSave;
+                }
+                if ((request.Control?.ControlEnum == GridControlEnum.ButtonCustom || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete")
+                {
+                    result = GridRequest2GridActionEnum.LookupSubDelete;
+                }
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
+                {
+                    result = GridRequest2GridActionEnum.LookupSubNew;
                 }
                 break;
         }
