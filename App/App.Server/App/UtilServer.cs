@@ -256,6 +256,9 @@ public enum DynamicEnum
     Delete = 3,
 }
 
+/// <summary>
+/// Grid data row.
+/// </summary>
 public class Dynamic : Dictionary<string, object?>
 {
     public Dynamic()
@@ -282,7 +285,13 @@ public class Dynamic : Dictionary<string, object?>
         return result;
     }
 
+    /// <summary>
+    /// Gets or sets DynamicEnum. Applies if row has been modified.
+    /// </summary>
     public DynamicEnum DynamicEnum { get; set; }
 
+    /// <summary>
+    /// Gets or sets RowKey. See also property GridConfig.FieldNameRowKey for configuration.
+    /// </summary>
     public string? RowKey { get; set; }
 }

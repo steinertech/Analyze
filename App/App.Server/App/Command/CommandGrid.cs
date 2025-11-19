@@ -114,7 +114,11 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
             var result = await gridArticle.Load2(request);
             return result;
         }
-        else
+        if (request.Grid.GridName == "ProductDto")
+        {
+            var result = await memoryGrid.Load2(request);
+            return result;
+        }
         {
             var result = await Load(new()
             {
@@ -1082,7 +1086,7 @@ public class GridStateDto
     public List<double?>? ColumnWidthList { get; set; }
 
     /// <summary>
-    /// Gets or sets RowKeyList. This is typically the data primary key. (DataRowIndex, RowKey)
+    /// Gets or sets RowKeyList. This is typically the data primary key. See also property GridConfig.FieldNameRowKey for config. (DataRowIndex, RowKey)
     /// </summary>
     public List<string?>? RowKeyList { get; set; }
 

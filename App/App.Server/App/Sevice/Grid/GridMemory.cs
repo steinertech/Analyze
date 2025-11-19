@@ -1,22 +1,50 @@
 ﻿using System.Linq.Dynamic.Core;
 
-public class GridMemory
+public class GridMemory : GridBase
 {
     public GridMemory()
     {
         productList = new List<ProductDto>
         {
-            new ProductDto { Text = "Pasta", Price = 100, Amount = 4, City = "Paris" },
-            new ProductDto { Text = "Chocolate", Price = 200, Amount = 4, City = "Rome" },
-            new ProductDto { Text = "Honey", Price = 250 , Amount = 10, City = "Berlin" },
-            new ProductDto { Text = "Butter", Price = 880.80 , Amount = 34, City = "Sydney" },
-            new ProductDto { Text = "Yogurt", Price = 65.25 , Amount = 8, City = "Miami" },
-            new ProductDto { Text = "Olive", Price = 90.30 , Amount = 2, City = "Denver" },
-            new ProductDto { Text = "Bred", Price = 105.25 , Amount = 3, City = "Boston" },
+            new ProductDto { Id = 1, Text = "Pasta", Price = 100, Amount = 4, City = "Paris" },
+            new ProductDto { Id = 2, Text = "Chocolate", Price = 200, Amount = 4, City = "Rome" },
+            new ProductDto { Id = 3, Text = "Honey", Price = 250 , Amount = 10, City = "Berlin" },
+            new ProductDto { Id = 4, Text = "Butter", Price = 880.80 , Amount = 34, City = "Sydney" },
+            new ProductDto { Id = 5, Text = "Yogurt", Price = 65.25 , Amount = 8, City = "Miami" },
+            new ProductDto { Id = 6, Text = "Olive", Price = 90.30 , Amount = 2, City = "Denver" },
+            new ProductDto { Id = 7, Text = "Bred", Price = 105.25 , Amount = 3, City = "Boston" },
         };
     }
 
     private List<ProductDto> productList { get; set; }
+
+    private List<Dynamic> ProductListGet()
+    {
+        var result = UtilGrid.DynamicFrom(productList, (dataRowFrom, dataRowTo) =>
+        {
+            dataRowTo["Id"] = dataRowFrom.Id;
+            dataRowTo["Text"] = dataRowFrom.Text;
+            dataRowTo["StorageFileName"] = dataRowFrom.StorageFileName;
+            dataRowTo["Price"] = dataRowFrom.Price;
+            dataRowTo["City"] = dataRowFrom.City;
+            dataRowTo["Amount"] = dataRowFrom.Amount;
+        });
+        return result;
+    }
+
+    private void ProductListSet(List<Dynamic> list)
+    {
+        var result = UtilGrid.DynamicTo<ProductDto>(list, (dataRowFrom, dataRowTo) =>
+        {
+            dataRowTo.Id = (int)dataRowFrom["Id"]!;
+            dataRowTo.Text = (string?)dataRowFrom["Text"];
+            dataRowTo.StorageFileName = (string?)dataRowFrom["StorageFileName"];
+            dataRowTo.Price = (double?)dataRowFrom["Price"];
+            dataRowTo.City = (string?)dataRowFrom["City"];
+            dataRowTo.Amount = (double?)dataRowFrom["Amount"];
+        });
+        productList = result;
+    }
 
     /// <summary>
     /// Returns filtered and sorted list according to grid state.
@@ -86,10 +114,36 @@ public class GridMemory
         result = Load(result, grid);
         return result;
     }
+
+    protected override Task<GridConfig> Config()
+    {
+        var result = UtilGrid.GridConfig(typeof(ProductDto));
+        result.ColumnList.Single(item => item.FieldName == "City").IsAutocomplete = true;
+        return Task.FromResult(result);
+    }
+
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize)
+    {
+        var config = await Config();
+        var result = ProductListGet();
+        result = await UtilGrid.GridLoad2(request, result, null, config.PageSizeColumn);
+        return result;
+    }
+
+    protected override Task GridSave2(GridRequest2Dto request, GridConfig config)
+    {
+        var sourceList = UtilGrid.GridSave2(request, config);
+        var destList = ProductListGet();
+        UtilGrid.GridSave2(sourceList, destList, config);
+        ProductListSet(destList);
+        return Task.CompletedTask;
+    }
 }
 
 public class ProductDto
 {
+    public int Id { get; set; }
+
     public string? Text { get; set; }
 
     public string? StorageFileName { get; set; }

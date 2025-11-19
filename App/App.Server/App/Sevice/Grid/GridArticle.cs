@@ -80,41 +80,7 @@ public class GridArticle2 : GridBase
     {
         var sourceList = UtilGrid.GridSave2(request, config);
         var destList = dataRowList;
-        foreach (var source in sourceList)
-        {
-            switch (source.DynamicEnum)
-            {
-                case DynamicEnum.Update:
-                    {
-                        var id = config.ConvertFrom("Id", source.RowKey);
-                        var index = destList.Select((item, index) => (Value: item, Index: index)).Single(item => object.Equals(item.Value["Id"], id)).Index;
-                        foreach (var (fieldName, value) in source)
-                        {
-                            destList[index][fieldName] = value;
-                        }
-                    }
-                    break;
-                case DynamicEnum.Insert:
-                    {
-                        var dest = Dynamic.Create(config);
-                        foreach (var (fieldName, value) in source)
-                        {
-                            var valueDest = value;
-                            dest[fieldName] = valueDest;
-                        }
-                        dest["Id"] = destList.Select(item => (int)item["Id"]!).DefaultIfEmpty().Max() + 1;
-                        destList.Add(dest);
-                    }
-                    break;
-                case DynamicEnum.Delete:
-                    {
-                        var id = config.ConvertFrom("Id", source.RowKey);
-                        var index = destList.Select((item, index) => (Value: item, Index: index)).Single(item => object.Equals(item.Value["Id"], id)).Index;
-                        destList.RemoveAt(index);
-                    }
-                    break;
-            }
-        }
+        UtilGrid.GridSave2(sourceList, destList, config);
         return Task.CompletedTask;
     }
 

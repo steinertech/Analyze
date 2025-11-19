@@ -27,6 +27,43 @@ public static class UtilGrid
         return result;
     }
 
+    public static GridConfig GridConfig(Type rowType)
+    {
+        var result = new GridConfig();
+        var propertyInfoList = rowType.GetProperties();
+        var columnList = new List<GridColumn>();
+        var sort = 0;
+        foreach (var propertyInfo in propertyInfoList)
+        {
+            sort += 1;
+            var columnEnum = GridColumnEnum.None;
+            switch (propertyInfo.PropertyType)
+            {
+                case var t when t == typeof(string):
+                    columnEnum = GridColumnEnum.Text;
+                    break;
+                case var t when t == typeof(int):
+                    columnEnum = GridColumnEnum.Int;
+                    break;
+                case var t when t == typeof(int?):
+                    columnEnum = GridColumnEnum.Int;
+                    break;
+                case var t when t == typeof(double):
+                    columnEnum = GridColumnEnum.Double;
+                    break;
+                case var t when t == typeof(double?):
+                    columnEnum = GridColumnEnum.Double;
+                    break;
+                default:
+                    throw new Exception("Type unknown!");
+            }
+            var isAllowModify = propertyInfo.Name != result.FieldNameRowKey;
+            columnList.Add(new() { ColumnEnum = columnEnum, FieldName = propertyInfo.Name, Sort = sort, IsAllowModify = isAllowModify });
+        }
+        result.ColumnList = columnList;
+        return result;
+    }
+
     /// <summary>
     /// Returns data row list with applied (filter, sort and pagination) to render data grid.
     /// </summary>
@@ -313,6 +350,50 @@ public static class UtilGrid
                 throw new Exception();
         }
         return result;
+    }
+
+    /// <summary>
+    /// Save changes to data row list.
+    /// </summary>
+    /// <param name="sourceList">List with changes.</param>
+    /// <param name="destList">List to update</param>
+    public static void GridSave2(List<Dynamic> sourceList, List<Dynamic> destList, GridConfig config)
+    {
+        foreach (var source in sourceList)
+        {
+            switch (source.DynamicEnum)
+            {
+                case DynamicEnum.Update:
+                    {
+                        var id = config.ConvertFrom("Id", source.RowKey);
+                        var index = destList.Select((item, index) => (Value: item, Index: index)).Single(item => object.Equals(item.Value["Id"], id)).Index;
+                        foreach (var (fieldName, value) in source)
+                        {
+                            destList[index][fieldName] = value;
+                        }
+                    }
+                    break;
+                case DynamicEnum.Insert:
+                    {
+                        var dest = Dynamic.Create(config);
+                        foreach (var (fieldName, value) in source)
+                        {
+                            var valueDest = value;
+                            dest[fieldName] = valueDest;
+                        }
+                        dest["Id"] = destList.Select(item => (int)item["Id"]!).DefaultIfEmpty().Max() + 1;
+                        destList.Add(dest);
+                    }
+                    break;
+                case DynamicEnum.Delete:
+                    {
+                        var id = config.ConvertFrom("Id", source.RowKey);
+                        var index = destList.Select((item, index) => (Value: item, Index: index)).Single(item => object.Equals(item.Value["Id"], id)).Index;
+                        destList.RemoveAt(index);
+                    }
+                    break;
+            }
+        }
     }
 
     /// <summary>

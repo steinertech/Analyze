@@ -5,7 +5,7 @@
     /// </summary>
     protected virtual Task<GridConfig> Config()
     {
-        GridConfig result = new() { ColumnList = new() };
+        var result = new GridConfig();
         return Task.FromResult(result);
     }
 
