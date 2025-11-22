@@ -101,15 +101,10 @@ export class PageGrid implements AfterViewInit {
   cellTextGet(cell: GridCellDto) {
     switch (cell.cellEnum) {
       // Field
-      case GridCellEnum.Field: {
-        return cell.textModified ?? cell.text
-      }
-      // Field Checkbox
-      case GridCellEnum.FieldCheckbox: {
-        return cell.textModified ?? cell.text
-      }
-      // Field Autocomplete
-      case GridCellEnum.FieldAutocomplete: {
+      case GridCellEnum.Field: 
+      case GridCellEnum.FieldCheckbox: 
+      case GridCellEnum.FieldAutocomplete: 
+      case GridCellEnum.FieldDropdown: {
         return cell.textModified ?? cell.text
       }
       // Button SelectMulti
@@ -204,8 +199,9 @@ export class PageGrid implements AfterViewInit {
           this.cellTextSetSave(cell)
           break
         }
-        // Field
-        case GridCellEnum.FieldAutocomplete: {
+        // Autocomplete, Dropdown
+        case GridCellEnum.FieldAutocomplete:
+        case GridCellEnum.FieldDropdown: {
           cell.textModified = cell.text != value ? value : undefined
           this.cellTextSetSave(cell)
           break

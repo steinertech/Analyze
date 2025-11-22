@@ -27,43 +27,6 @@ public static class UtilGrid
         return result;
     }
 
-    public static GridConfig GridConfig(Type rowType)
-    {
-        var result = new GridConfig();
-        var propertyInfoList = rowType.GetProperties();
-        var columnList = new List<GridColumn>();
-        var sort = 0;
-        foreach (var propertyInfo in propertyInfoList)
-        {
-            sort += 1;
-            var columnEnum = GridColumnEnum.None;
-            switch (propertyInfo.PropertyType)
-            {
-                case var t when t == typeof(string):
-                    columnEnum = GridColumnEnum.Text;
-                    break;
-                case var t when t == typeof(int):
-                    columnEnum = GridColumnEnum.Int;
-                    break;
-                case var t when t == typeof(int?):
-                    columnEnum = GridColumnEnum.Int;
-                    break;
-                case var t when t == typeof(double):
-                    columnEnum = GridColumnEnum.Double;
-                    break;
-                case var t when t == typeof(double?):
-                    columnEnum = GridColumnEnum.Double;
-                    break;
-                default:
-                    throw new Exception("Type unknown!");
-            }
-            var isAllowModify = propertyInfo.Name != result.FieldNameRowKey;
-            columnList.Add(new() { ColumnEnum = columnEnum, FieldName = propertyInfo.Name, Sort = sort, IsAllowModify = isAllowModify });
-        }
-        result.ColumnList = columnList;
-        return result;
-    }
-
     /// <summary>
     /// Returns data row list with applied (filter, sort and pagination) to render data grid.
     /// </summary>
@@ -281,7 +244,7 @@ public static class UtilGrid
         {
             case GridRequest2GridActionEnum.GridSave:
             case GridRequest2GridActionEnum.LookupEditSave:
-            case GridRequest2GridActionEnum.LookupAutoCompleteOk:
+            case GridRequest2GridActionEnum.LookupAutocompleteOk:
             case GridRequest2GridActionEnum.LookupSubSave:
                 {
                     // Update, Insert
@@ -827,16 +790,17 @@ public static class UtilGrid
             foreach (var column in columnList)
             {
                 var text = dataRow[column.FieldName]?.ToString();
-                var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
-                var iconRight = dataRow.CellIconGet(column.FieldName);
+                var cellEnum = column.IsDropdown ? GridCellEnum.FieldDropdown : column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                var iconRight = dataRow.IconGet(column.FieldName);
+                var dropdownList = cellEnum == GridCellEnum.FieldDropdown ? dataRow.DropdownListGet(column.FieldName, text) : null;
                 if (columnRowKey == null)
                 {
-                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, IconRight = iconRight });
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, IconRight = iconRight, DropdownList = dropdownList });
                 }
                 else
                 {
                     var rowKey = dataRow[columnRowKey.FieldName]?.ToString();
-                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null, IconRight = iconRight }, rowKey);
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null, IconRight = iconRight, DropdownList = dropdownList }, rowKey);
                 }
             }
             // Render Delete
@@ -1075,5 +1039,48 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
         // Calc ColSpan
         RenderCalcColSpan2(request);
+    }
+}
+
+/// <summary>
+/// Util functions using reflection.
+/// </summary>
+public static class UtilGridReflection
+{
+    public static GridConfig GridConfig(Type rowType)
+    {
+        var result = new GridConfig();
+        var propertyInfoList = rowType.GetProperties();
+        var columnList = new List<GridColumn>();
+        var sort = 0;
+        foreach (var propertyInfo in propertyInfoList)
+        {
+            sort += 1;
+            var columnEnum = GridColumnEnum.None;
+            switch (propertyInfo.PropertyType)
+            {
+                case var t when t == typeof(string):
+                    columnEnum = GridColumnEnum.Text;
+                    break;
+                case var t when t == typeof(int):
+                    columnEnum = GridColumnEnum.Int;
+                    break;
+                case var t when t == typeof(int?):
+                    columnEnum = GridColumnEnum.Int;
+                    break;
+                case var t when t == typeof(double):
+                    columnEnum = GridColumnEnum.Double;
+                    break;
+                case var t when t == typeof(double?):
+                    columnEnum = GridColumnEnum.Double;
+                    break;
+                default:
+                    throw new Exception("Type unknown!");
+            }
+            var isAllowModify = propertyInfo.Name != result.FieldNameRowKey;
+            columnList.Add(new() { ColumnEnum = columnEnum, FieldName = propertyInfo.Name, Sort = sort, IsAllowModify = isAllowModify });
+        }
+        result.ColumnList = columnList;
+        return result;
     }
 }

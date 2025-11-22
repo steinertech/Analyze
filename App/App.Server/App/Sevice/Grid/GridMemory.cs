@@ -7,7 +7,7 @@ public class GridMemory : GridBase
         productList = new List<ProductDto>
         {
             new ProductDto { Id = 1, Text = "Pasta", Price = 100, Amount = 4, City = "Paris" },
-            new ProductDto { Id = 2, Text = "Chocolate", Price = 200, Amount = 4, City = "Rome" },
+            new ProductDto { Id = 2, Text = "Chocolate", Price = 200, Amount = 4, City = "Rome", StorageFileName = "My.png" },
             new ProductDto { Id = 3, Text = "Honey", Price = 250 , Amount = -10, City = "Berlin" },
             new ProductDto { Id = 4, Text = "Butter", Price = 880.80 , Amount = 34, City = "Sydney" },
             new ProductDto { Id = 5, Text = "Yogurt", Price = 65.25 , Amount = 8, City = "Miami" },
@@ -30,12 +30,14 @@ public class GridMemory : GridBase
             dataRowTo["Amount"] = dataRowFrom.Amount;
             if (dataRowFrom.Amount < 0)
             {
-                dataRowTo.CellIconSet("Amount", "i-warning", "Value negative!");
+                dataRowTo.IconSet("Amount", "i-warning", "Value negative!");
             }
             if (dataRowFrom.Amount > 0)
             {
-                dataRowTo.CellIconSet("Amount", "i-success", "Value ok!");
+                dataRowTo.IconSet("Amount", "i-success", "Value ok!");
             }
+            var dropdownList = new List<string?>() { null, "P1.png", "p2.png" };
+            dataRowTo.DropdownListSet("StorageFileName", dropdownList);
         });
         return result;
     }
@@ -125,8 +127,9 @@ public class GridMemory : GridBase
 
     protected override Task<GridConfig> Config()
     {
-        var result = UtilGrid.GridConfig(typeof(ProductDto));
+        var result = UtilGridReflection.GridConfig(typeof(ProductDto));
         result.ColumnList.Single(item => item.FieldName == "City").IsAutocomplete = true;
+        result.ColumnList.Single(item => item.FieldName == "StorageFileName").IsDropdown = true;
         return Task.FromResult(result);
     }
 

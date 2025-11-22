@@ -380,7 +380,7 @@
                     ArgumentNullException.ThrowIfNull(request.ParentGrid);
                     ArgumentNullException.ThrowIfNull(request.ParentCell?.FieldName);
                     var config = await Config();
-                    if (request.GridActionEnum == GridRequest2GridActionEnum.LookupAutoCompleteOk)
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.LookupAutocompleteOk)
                     {
                         var isSave = UtilGrid.LookupAutocompleteSave2(request);
                         if (isSave)

@@ -98,7 +98,7 @@ export class GridConfigDto {
 export class GridConfigFieldDto {
   public fieldName!: string
   public text?: string
-  public isDropDown?: boolean
+  public isDropdown?: boolean
 }
 
 export class GridCellDto {
@@ -108,7 +108,7 @@ export class GridCellDto {
   public text?: string
   public textPlaceholder?: string
   public textModified?: string
-  public dropDownList?: string[]
+  public dropdownList?: (string | null)[]
   public controlList?: GridControlDto[]
   public iconLeft?: GridCellIconDto
   public iconRight?: GridCellIconDto

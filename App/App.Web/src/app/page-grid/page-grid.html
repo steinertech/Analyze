@@ -75,7 +75,7 @@
       <!-- Field Dropdown -->
       @case (GridCellEnum.FieldDropdown) {
       <select [ngModel]="cellTextGet(cell)" (ngModelChange)="cellTextSet(cell, $event)" class="frm-width">
-        @for (item of cell.dropDownList; track $index) {
+        @for (item of cell.dropdownList; track $index) {
         <option value="{{item}}">{{item}}</option>
         }
       </select>

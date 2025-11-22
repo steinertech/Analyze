@@ -303,7 +303,7 @@ public class Dynamic : Dictionary<string, object?>
     /// <summary>
     /// Get cell icon.
     /// </summary>
-    public GridCellIconDto? CellIconGet(string fieldName, bool isLeft = false)
+    public GridCellIconDto? IconGet(string fieldName, bool isLeft = false)
     {
         GridCellIconDto? result;
         cellIconList.TryGetValue((fieldName, isLeft), out result);
@@ -313,7 +313,7 @@ public class Dynamic : Dictionary<string, object?>
     /// <summary>
     /// Set cell icon.
     /// </summary>
-    public void CellIconSet(string fieldName, string? className, string? tooltip, bool isLeft = false)
+    public void IconSet(string fieldName, string? className, string? tooltip, bool isLeft = false)
     {
         if (string.IsNullOrEmpty(className))
         {
@@ -322,6 +322,38 @@ public class Dynamic : Dictionary<string, object?>
         else
         {
             cellIconList[(fieldName, isLeft)] = new() { ClassName = className, Tooltip = tooltip };
+        }
+    }
+
+    /// <summary>
+    /// (FieldName, DropdownText)
+    /// </summary>
+    private Dictionary<string, List<string?>> dropdownList = new();
+
+    public List<string?> DropdownListGet(string fieldName, string? text)
+    {
+        var result = new List<string?>();
+        if (dropdownList.ContainsKey(fieldName))
+        {
+            result = dropdownList[fieldName];
+        }
+        result = result.Select(item => item == "" ? null : item).ToList();
+        if (!result.Contains(text == "" ? null : text))
+        {
+            result.Insert(0, text); // Add cell text to dropdown if missing in list. 
+        }
+        return result;
+    }
+
+    public void DropdownListSet(string fieldName, List<string?>? list)
+    {
+        if (list == null)
+        {
+            dropdownList.Remove(fieldName);
+        }
+        else
+        {
+            dropdownList.Add(fieldName, list);
         }
     }
 }

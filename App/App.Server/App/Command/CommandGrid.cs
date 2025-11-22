@@ -176,8 +176,8 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
                 var text = (string?)Convert.ChangeType(value, typeof(string));
                 if (propertyInfo.Name == nameof(ProductDto.StorageFileName))
                 {
-                    var dropDownList = DropDownLoad(grid.GridName, propertyInfo.Name);
-                    grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, DropDownList = dropDownList, CellEnum = GridCellEnum.FieldDropdown });
+                    var dropdownList = DropdownLoad(grid.GridName, propertyInfo.Name);
+                    grid.RowCellList.Last().Add(new GridCellDto { DataRowIndex = dataRowIndex, FieldName = propertyInfo.Name, Text = text, DropdownList = dropdownList, CellEnum = GridCellEnum.FieldDropdown });
                 }
                 else
                 {
@@ -466,7 +466,7 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
         }
     }
 
-    private List<string> DropDownLoad(string gridName, string fieldName)
+    private List<string> DropdownLoad(string gridName, string fieldName)
     {
         if (gridName == nameof(ProductDto) && fieldName == nameof(ProductDto.StorageFileName))
         {
@@ -617,7 +617,7 @@ public enum GridRequest2GridActionEnum
     /// <summary>
     /// User clicked lookup autocomplete ok button.
     /// </summary>
-    LookupAutoCompleteOk = 7,
+    LookupAutocompleteOk = 7,
 
     /// <summary>
     /// User clicked lookup sub window save button.
@@ -806,7 +806,7 @@ public class GridRequest2Dto
             case GridRequest2GridEnum.LookupAutocomplete:
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
                 {
-                    result = GridRequest2GridActionEnum.LookupAutoCompleteOk;
+                    result = GridRequest2GridActionEnum.LookupAutocompleteOk;
                 }
                 break;
             case GridRequest2GridEnum.LookupSub:
@@ -1164,7 +1164,7 @@ public class GridCellDto
     /// </summary>
     public string? TextModified { get; set; } // TODO move to state
 
-    public List<string>? DropDownList { get; set; }
+    public List<string?>? DropdownList { get; set; }
 
     /// <summary>
     /// Gets or sets ControlList. Applicable for CellEnum.Control
@@ -1479,4 +1479,6 @@ public class GridColumn
     /// Gets or sets IsAutocomplete. If true, autocomplete lookup window is opened with distinct values of this column (by default).
     /// </summary>
     public bool IsAutocomplete { get; set; }
+    
+    public bool IsDropdown { get; set; }
 }
