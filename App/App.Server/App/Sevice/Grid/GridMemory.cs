@@ -8,7 +8,7 @@ public class GridMemory : GridBase
         {
             new ProductDto { Id = 1, Text = "Pasta", Price = 100, Amount = 4, City = "Paris" },
             new ProductDto { Id = 2, Text = "Chocolate", Price = 200, Amount = 4, City = "Rome" },
-            new ProductDto { Id = 3, Text = "Honey", Price = 250 , Amount = 10, City = "Berlin" },
+            new ProductDto { Id = 3, Text = "Honey", Price = 250 , Amount = -10, City = "Berlin" },
             new ProductDto { Id = 4, Text = "Butter", Price = 880.80 , Amount = 34, City = "Sydney" },
             new ProductDto { Id = 5, Text = "Yogurt", Price = 65.25 , Amount = 8, City = "Miami" },
             new ProductDto { Id = 6, Text = "Olive", Price = 90.30 , Amount = 2, City = "Denver" },
@@ -28,6 +28,14 @@ public class GridMemory : GridBase
             dataRowTo["Price"] = dataRowFrom.Price;
             dataRowTo["City"] = dataRowFrom.City;
             dataRowTo["Amount"] = dataRowFrom.Amount;
+            if (dataRowFrom.Amount < 0)
+            {
+                dataRowTo.CellIconSet("Amount", "i-warning", "Value negative!");
+            }
+            if (dataRowFrom.Amount > 0)
+            {
+                dataRowTo.CellIconSet("Amount", "i-success", "Value ok!");
+            }
         });
         return result;
     }

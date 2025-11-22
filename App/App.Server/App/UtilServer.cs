@@ -257,7 +257,7 @@ public enum DynamicEnum
 }
 
 /// <summary>
-/// Grid data row.
+/// Grid data row for processing. It's not a Dto.
 /// </summary>
 public class Dynamic : Dictionary<string, object?>
 {
@@ -294,4 +294,34 @@ public class Dynamic : Dictionary<string, object?>
     /// Gets or sets RowKey. See also property GridConfig.FieldNameRowKey for configuration.
     /// </summary>
     public string? RowKey { get; set; }
+
+    /// <summary>
+    /// ((FieldName, IsLeft), GridCellIconDto)
+    /// </summary>
+    private Dictionary<(string, bool), GridCellIconDto> cellIconList = new();
+
+    /// <summary>
+    /// Get cell icon.
+    /// </summary>
+    public GridCellIconDto? CellIconGet(string fieldName, bool isLeft = false)
+    {
+        GridCellIconDto? result;
+        cellIconList.TryGetValue((fieldName, isLeft), out result);
+        return result;
+    }
+
+    /// <summary>
+    /// Set cell icon.
+    /// </summary>
+    public void CellIconSet(string fieldName, string? className, string? tooltip, bool isLeft = false)
+    {
+        if (string.IsNullOrEmpty(className))
+        {
+            cellIconList.Remove((fieldName, isLeft));
+        }
+        else
+        {
+            cellIconList[(fieldName, isLeft)] = new() { ClassName = className, Tooltip = tooltip };
+        }
+    }
 }

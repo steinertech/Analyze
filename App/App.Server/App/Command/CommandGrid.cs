@@ -1475,5 +1475,8 @@ public class GridColumn
 
     public bool IsAllowModify { get; set; }
 
+    /// <summary>
+    /// Gets or sets IsAutocomplete. If true, autocomplete lookup window is opened with distinct values of this column (by default).
+    /// </summary>
     public bool IsAutocomplete { get; set; }
 }

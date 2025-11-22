@@ -828,14 +828,15 @@ public static class UtilGrid
             {
                 var text = dataRow[column.FieldName]?.ToString();
                 var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                var iconRight = dataRow.CellIconGet(column.FieldName);
                 if (columnRowKey == null)
                 {
-                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, IconRight = iconRight });
                 }
                 else
                 {
                     var rowKey = dataRow[columnRowKey.FieldName]?.ToString();
-                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
+                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null, IconRight = iconRight }, rowKey);
                 }
             }
             // Render Delete
