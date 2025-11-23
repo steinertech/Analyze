@@ -340,7 +340,7 @@ public class Dynamic : Dictionary<string, object?>
         result = result.Select(item => item == "" ? null : item).ToList();
         if (!result.Contains(text == "" ? null : text))
         {
-            result.Insert(0, text); // Add cell text to dropdown if missing in list. 
+            result.Add(text); // Add cell text to dropdown if missing in list. 
         }
         return result;
     }

@@ -20,14 +20,8 @@ public class GridMemory : GridBase
 
     private List<Dynamic> ProductListGet()
     {
-        var result = UtilGrid.DynamicFrom(productList, (dataRowFrom, dataRowTo) =>
+        var result = UtilGridReflection.DynamicFrom(productList, (dataRowFrom, dataRowTo) =>
         {
-            dataRowTo["Id"] = dataRowFrom.Id;
-            dataRowTo["Text"] = dataRowFrom.Text;
-            dataRowTo["StorageFileName"] = dataRowFrom.StorageFileName;
-            dataRowTo["Price"] = dataRowFrom.Price;
-            dataRowTo["City"] = dataRowFrom.City;
-            dataRowTo["Amount"] = dataRowFrom.Amount;
             if (dataRowFrom.Amount < 0)
             {
                 dataRowTo.IconSet("Amount", "i-warning", "Value negative!");
@@ -44,14 +38,8 @@ public class GridMemory : GridBase
 
     private void ProductListSet(List<Dynamic> list)
     {
-        var result = UtilGrid.DynamicTo<ProductDto>(list, (dataRowFrom, dataRowTo) =>
+        var result = UtilGridReflection.DynamicTo<ProductDto>(list, (dataRowFrom, dataRowTo) =>
         {
-            dataRowTo.Id = (int)dataRowFrom["Id"]!;
-            dataRowTo.Text = (string?)dataRowFrom["Text"];
-            dataRowTo.StorageFileName = (string?)dataRowFrom["StorageFileName"];
-            dataRowTo.Price = (double?)dataRowFrom["Price"];
-            dataRowTo.City = (string?)dataRowFrom["City"];
-            dataRowTo.Amount = (double?)dataRowFrom["Amount"];
         });
         productList = result;
     }

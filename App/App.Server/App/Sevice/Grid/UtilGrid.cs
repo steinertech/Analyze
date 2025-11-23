@@ -1083,4 +1083,42 @@ public static class UtilGridReflection
         result.ColumnList = columnList;
         return result;
     }
+
+    public static List<Dynamic> DynamicFrom<T>(List<T> dataRowList, Action<T, Dynamic> convert)
+    {
+        var result = new List<Dynamic>();
+        var propertyList = typeof(T).GetProperties();
+        foreach (var dataRow in dataRowList)
+        {
+            var dataRowDictionary = new Dynamic();
+            foreach (var property in propertyList)
+            {
+                var name = property.Name;
+                var value = property.GetValue(dataRow);
+                dataRowDictionary[name] = value;
+            }
+            convert(dataRow, dataRowDictionary);
+            result.Add(dataRowDictionary);
+        }
+        return result;
+    }
+
+    public static List<T> DynamicTo<T>(List<Dynamic> dataRowList, Action<Dynamic, T> convert) where T : new()
+    {
+        var result = new List<T>();
+        var propertyList = typeof(T).GetProperties();
+        foreach (var dataRowDictionary in dataRowList)
+        {
+            var dataRow = new T();
+            foreach (var property in propertyList)
+            {
+                var name = property.Name;
+                var value = dataRowDictionary[name];
+                property.SetValue(dataRow, value);
+            }
+            convert(dataRowDictionary, dataRow);
+            result.Add(dataRow);
+        }
+        return result;
+    }
 }
