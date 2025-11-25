@@ -754,7 +754,7 @@ public static class UtilGrid
         grid.Clear();
         var columnList = config.ColumnListGet(grid);
         // RowKey
-        var columnRowKey = config.ColumnList.Where(item => item.FieldName == config.FieldNameRowKey).SingleOrDefault();
+        var fieldNameRowKey = config.FieldNameRowKey;
         // Render Column
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonColumn });
@@ -793,13 +793,13 @@ public static class UtilGrid
                 var cellEnum = column.IsDropdown ? GridCellEnum.FieldDropdown : column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
                 var iconRight = dataRow.IconGet(column.FieldName);
                 var dropdownList = cellEnum == GridCellEnum.FieldDropdown ? dataRow.DropdownListGet(column.FieldName, text) : null;
-                if (columnRowKey == null)
+                if (fieldNameRowKey == null)
                 {
                     grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, IconRight = iconRight, DropdownList = dropdownList });
                 }
                 else
                 {
-                    var rowKey = dataRow[columnRowKey.FieldName]?.ToString();
+                    var rowKey = dataRow[fieldNameRowKey]?.ToString();
                     grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null, IconRight = iconRight, DropdownList = dropdownList }, rowKey);
                 }
             }
@@ -1084,7 +1084,7 @@ public static class UtilGridReflection
         return result;
     }
 
-    public static List<Dynamic> DynamicFrom<T>(List<T> dataRowList, Action<T, Dynamic> convert)
+    public static List<Dynamic> DynamicFrom<T>(List<T> dataRowList, Action<T, Dynamic>? convert)
     {
         var result = new List<Dynamic>();
         var propertyList = typeof(T).GetProperties();
@@ -1097,7 +1097,10 @@ public static class UtilGridReflection
                 var value = property.GetValue(dataRow);
                 dataRowDictionary[name] = value;
             }
-            convert(dataRow, dataRowDictionary);
+            if (convert != null)
+            {
+                convert(dataRow, dataRowDictionary);
+            }
             result.Add(dataRowDictionary);
         }
         return result;

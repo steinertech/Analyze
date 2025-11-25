@@ -119,6 +119,11 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
             var result = await memoryGrid.Load2(request);
             return result;
         }
+        if (request.Grid.GridName == "Storage")
+        {
+            var result = await storageGrid.Load2(request);
+            return result;
+        }
         {
             var result = await Load(new()
             {

@@ -1,4 +1,4 @@
-﻿public class GridStorage(Configuration configuration)
+﻿public class GridStorage(Configuration configuration) : GridBase
 {
     private async Task Load(GridDto grid)
     {
@@ -105,6 +105,42 @@
                     await Load(parentGrid!);
                 }
             }
+        }
+    }
+
+    protected override Task<GridConfig> Config()
+    {
+        var result = new GridConfig() { ColumnList = [new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true }] };
+        return Task.FromResult(result);
+    }
+
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize)
+    {
+        var folderOrFileNameList = await UtilStorage.List(configuration.ConnectionStringStorage, isRecursive: true);
+        var id = 0;
+        var result = UtilGridReflection.DynamicFrom(folderOrFileNameList, (dataRowFrom, dataRowTo) =>
+        {
+            id += 1;
+            dataRowTo["Id"] = dataRowFrom.FolderOrFileName; // id.ToString(); // TODO null and use Dynamic.ValueModified
+            dataRowTo["Name"] = dataRowFrom.FolderOrFileName;
+            dataRowTo["IsFolder"] = dataRowFrom.IsFolder;
+            if (!dataRowFrom.IsFolder)
+            {
+                dataRowTo.IconSet("Name", "i-success", null);
+            }
+        });
+        result = await UtilGrid.GridLoad2(request, result, null, 4);
+        return result;
+    }
+
+    protected override async Task GridSave2(GridRequest2Dto request, GridConfig config)
+    {
+        var sourceList = UtilGrid.GridSave2(request, config);
+        foreach (var item in sourceList)
+        {
+            var folderOrFileName = item.RowKey!;
+            var folderOrFileNameNew = (string)item["Name"]!;
+            await UtilStorage.Rename(configuration.ConnectionStringStorage, folderOrFileName, folderOrFileNameNew);
         }
     }
 }
