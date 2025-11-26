@@ -110,20 +110,22 @@
 
     protected override Task<GridConfig> Config()
     {
-        var result = new GridConfig() { ColumnList = [new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true }] };
+        var result = new GridConfig()
+        {
+            ColumnList = [new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true }],
+            FieldNameRowKey = "Name", // Used to delete row
+            IsAllowNew = true,
+            IsAllowDelete = true
+        };
         return Task.FromResult(result);
     }
 
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize)
     {
         var folderOrFileNameList = await UtilStorage.List(configuration.ConnectionStringStorage, isRecursive: true);
-        var id = 0;
         var result = UtilGridReflection.DynamicFrom(folderOrFileNameList, (dataRowFrom, dataRowTo) =>
         {
-            id += 1;
-            dataRowTo["Id"] = dataRowFrom.FolderOrFileName; // id.ToString(); // TODO null and use Dynamic.ValueModified
             dataRowTo["Name"] = dataRowFrom.FolderOrFileName;
-            dataRowTo["IsFolder"] = dataRowFrom.IsFolder;
             if (!dataRowFrom.IsFolder)
             {
                 dataRowTo.IconSet("Name", "i-success", null);
@@ -138,9 +140,28 @@
         var sourceList = UtilGrid.GridSave2(request, config);
         foreach (var item in sourceList)
         {
-            var folderOrFileName = item.RowKey!;
-            var folderOrFileNameNew = (string)item["Name"]!;
-            await UtilStorage.Rename(configuration.ConnectionStringStorage, folderOrFileName, folderOrFileNameNew);
+            switch (item.DynamicEnum)
+            {
+                case DynamicEnum.Update:
+                    {
+                        var folderOrFileName = (string)item["Name"]!;
+                        var folderOrFileNameNew = (string)item.ValueModifiedGet("Name")!;
+                        await UtilStorage.Rename(configuration.ConnectionStringStorage, folderOrFileName, folderOrFileNameNew);
+                        break;
+                    }
+                case DynamicEnum.Insert:
+                    {
+                        var folderOrFileNameNew = (string)item.ValueModifiedGet("Name")!;
+                        await UtilStorage.Upload(configuration.ConnectionStringStorage, folderOrFileNameNew, null);
+                        break;
+                    }
+                case DynamicEnum.Delete:
+                    {
+                        var folderOrFileName = (string)item.RowKey!;
+                        await UtilStorage.Delete(configuration.ConnectionStringStorage, folderOrFileName);
+                        break;
+                    }
+            }
         }
     }
 }

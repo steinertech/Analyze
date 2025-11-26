@@ -248,47 +248,66 @@ public static class UtilGrid
             case GridRequest2GridActionEnum.LookupSubSave:
                 {
                     // Update, Insert
-                    ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
                     if (request.Grid.State?.FieldSaveList != null) // User might click save button without having a cell modified.
                     {
                         foreach (var field in request.Grid.State.FieldSaveList)
                         {
-                            var rowKey = request.Grid.State.RowKeyList[field.DataRowIndex!.Value];
+                            var dataRowIndex = field.DataRowIndex ?? -1;
+                            var isNew = request.Grid.State.IsNewList?.Contains(dataRowIndex) == true;
+                            string? rowKey = null;
+                            if (config.FieldNameRowKey != null)
+                            {
+                                ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
+                                rowKey = request.Grid.State.RowKeyList[dataRowIndex];
+                            }
                             var configColumn = config.ColumnGet(field.FieldName!);
-                            if (rowKey == null)
+                            if (isNew)
                             {
                                 if (config.IsAllowNew)
                                 {
                                     // User added new data row.
-                                    var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
+                                    var dataRow = result.SingleOrDefault(item => item.DataRowIndex == dataRowIndex);
                                     if (dataRow == null)
                                     {
                                         dataRow = new Dynamic();
                                         result.Add(dataRow);
                                         dataRow.DynamicEnum = DynamicEnum.Insert;
+                                        dataRow.DataRowIndex = dataRowIndex;
+                                        dataRow.RowKey = rowKey;
                                     }
                                     if (configColumn.IsAllowModify)
                                     {
-                                        var text = field.TextModified;
-                                        dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
+                                        var fieldName = field.FieldName!;
+                                        var text = field.Text;
+                                        var value = config.ConvertFrom(fieldName, text);
+                                        var textModified = field.TextModified;
+                                        var valueModified = config.ConvertFrom(fieldName, textModified);
+                                        dataRow[fieldName] = value;
+                                        dataRow.ValueModifiedSet(fieldName, valueModified);
                                     }
                                 }
                             }
                             else
                             {
                                 // User modified existing data row.
-                                var dataRow = result.SingleOrDefault(item => item.RowKey == rowKey);
+                                var dataRow = result.SingleOrDefault(item => item.DataRowIndex == dataRowIndex);
                                 if (dataRow == null)
                                 {
                                     dataRow = new Dynamic();
                                     result.Add(dataRow);
                                     dataRow.DynamicEnum = DynamicEnum.Update;
+                                    dataRow.DataRowIndex = dataRowIndex;
                                     dataRow.RowKey = rowKey;
                                 }
                                 if (configColumn.IsAllowModify)
                                 {
-                                    var text = field.TextModified;
-                                    dataRow[field.FieldName!] = config.ConvertFrom(field.FieldName!, text);
+                                    var fieldName = field.FieldName!;
+                                    var text = field.Text;
+                                    var value = config.ConvertFrom(fieldName, text);
+                                    var textModified = field.TextModified;
+                                    var valueModified = config.ConvertFrom(fieldName, textModified);
+                                    dataRow[fieldName] = value;
+                                    dataRow.ValueModifiedSet(fieldName, valueModified);
                                 }
                             }
                         }
@@ -332,7 +351,8 @@ public static class UtilGrid
                         var index = destList.Select((item, index) => (Value: item, Index: index)).Single(item => object.Equals(item.Value["Id"], id)).Index;
                         foreach (var (fieldName, value) in source)
                         {
-                            destList[index][fieldName] = value;
+                            var valueModified = source.ValueModifiedGet(fieldName);
+                            destList[index][fieldName] = valueModified;
                         }
                     }
                     break;
@@ -793,15 +813,8 @@ public static class UtilGrid
                 var cellEnum = column.IsDropdown ? GridCellEnum.FieldDropdown : column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
                 var iconRight = dataRow.IconGet(column.FieldName);
                 var dropdownList = cellEnum == GridCellEnum.FieldDropdown ? dataRow.DropdownListGet(column.FieldName, text) : null;
-                if (fieldNameRowKey == null)
-                {
-                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, IconRight = iconRight, DropdownList = dropdownList });
-                }
-                else
-                {
-                    var rowKey = dataRow[fieldNameRowKey]?.ToString();
-                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null, IconRight = iconRight, DropdownList = dropdownList }, rowKey);
-                }
+                var isNew = dataRow.IsNew;
+                grid.AddCell2(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = isNew ? "New" : null, IconRight = iconRight, DropdownList = dropdownList }, dataRow, config);
             }
             // Render Delete
             if (config.IsAllowDelete)
@@ -842,6 +855,11 @@ public static class UtilGrid
     /// </summary>
     public static void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
     {
+        if (request.Grid.State != null)
+        {
+            request.Grid.State.RowKeyList = null;
+            request.Grid.State.IsNewList = null;
+        }
         bool isForm = request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl.Name == "Edit";
         if (isForm)
         {
@@ -1055,6 +1073,10 @@ public static class UtilGridReflection
         var sort = 0;
         foreach (var propertyInfo in propertyInfoList)
         {
+            if (propertyInfo.Name == "Id")
+            {
+                result.FieldNameRowKey = "Id";
+            }
             sort += 1;
             var columnEnum = GridColumnEnum.None;
             switch (propertyInfo.PropertyType)

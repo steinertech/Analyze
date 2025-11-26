@@ -275,9 +275,9 @@ public class Dynamic : Dictionary<string, object?>
     /// <summary>
     /// Returns Dynamic data row with all fields.
     /// </summary>
-    public static Dynamic Create(GridConfig config)
+    public static Dynamic Create(GridConfig config, bool isNew = false)
     {
-        var result = new Dynamic();
+        var result = new Dynamic() { IsNew = isNew };
         foreach (var column in config.ColumnList)
         {
             result.Add(column.FieldName, null);
@@ -291,14 +291,24 @@ public class Dynamic : Dictionary<string, object?>
     public DynamicEnum DynamicEnum { get; set; }
 
     /// <summary>
+    /// Gets or sets DataRowIndex. Assigned by render.
+    /// </summary>
+    public int? DataRowIndex { get; set; }
+
+    /// <summary>
     /// Gets or sets RowKey. See also property GridConfig.FieldNameRowKey for configuration.
     /// </summary>
     public string? RowKey { get; set; }
 
     /// <summary>
+    /// Gets or sets IsNew. If true, row is not yet saved.
+    /// </summary>
+    public bool IsNew { get; set; }
+
+    /// <summary>
     /// ((FieldName, IsLeft), GridCellIconDto)
     /// </summary>
-    private Dictionary<(string, bool), GridCellIconDto> cellIconList = new();
+    private Dictionary<(string, bool), GridCellIconDto> iconList = new();
 
     /// <summary>
     /// Get cell icon.
@@ -306,7 +316,7 @@ public class Dynamic : Dictionary<string, object?>
     public GridCellIconDto? IconGet(string fieldName, bool isLeft = false)
     {
         GridCellIconDto? result;
-        cellIconList.TryGetValue((fieldName, isLeft), out result);
+        iconList.TryGetValue((fieldName, isLeft), out result);
         return result;
     }
 
@@ -317,11 +327,11 @@ public class Dynamic : Dictionary<string, object?>
     {
         if (string.IsNullOrEmpty(className))
         {
-            cellIconList.Remove((fieldName, isLeft));
+            iconList.Remove((fieldName, isLeft));
         }
         else
         {
-            cellIconList[(fieldName, isLeft)] = new() { ClassName = className, Tooltip = tooltip };
+            iconList[(fieldName, isLeft)] = new() { ClassName = className, Tooltip = tooltip };
         }
     }
 
@@ -355,5 +365,18 @@ public class Dynamic : Dictionary<string, object?>
         {
             dropdownList.Add(fieldName, list);
         }
+    }
+
+    private Dictionary<string, object?> valueModifiedList = new();
+
+    public object? ValueModifiedGet(string fieldName)
+    {
+        valueModifiedList.TryGetValue(fieldName, out var result);
+        return result;
+    }
+
+    public void ValueModifiedSet(string  fieldName, object? value)
+    {
+        valueModifiedList[fieldName] = value;
     }
 }

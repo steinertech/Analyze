@@ -109,33 +109,41 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
     /// </summary>
     public async Task<GridResponse2Dto> Load2(GridRequest2Dto request)
     {
-        if (request.Grid.GridName == "Article3")
+        GridResponse2Dto result;
+        switch (request.Grid.GridName)
         {
-            var result = await gridArticle.Load2(request);
-            return result;
+            case "Article3":
+                result = await gridArticle.Load2(request);
+                break;
+            case "ProductDto":
+                result = await memoryGrid.Load2(request);
+                break;
+            case "Storage":
+                result = await storageGrid.Load2(request);
+                break;
+            default:
+                var resultLoad = await Load(new()
+                {
+                    Grid = request.Grid,
+                    Cell = request.Cell,
+                    Control = request.Control,
+                    ParentGrid = request.ParentGrid,
+                    ParentCell = request.ParentCell,
+                    ParentControl = request.ParentControl
+                }, request);
+                result = new() { Grid = resultLoad.Grid, ParentGrid = resultLoad.ParentGrid };
+                break;
         }
-        if (request.Grid.GridName == "ProductDto")
+        // Clear
+        if (result.Grid?.State != null)
         {
-            var result = await memoryGrid.Load2(request);
-            return result;
+            result.Grid.State.FieldSaveList = null;
         }
-        if (request.Grid.GridName == "Storage")
+        if (result.Grid?.State?.Pagination != null)
         {
-            var result = await storageGrid.Load2(request);
-            return result;
+            result.Grid.State.Pagination.PageIndexDeltaClick = null;
         }
-        {
-            var result = await Load(new()
-            {
-                Grid = request.Grid,
-                Cell = request.Cell,
-                Control = request.Control,
-                ParentGrid = request.ParentGrid,
-                ParentCell = request.ParentCell,
-                ParentControl = request.ParentControl
-            }, request);
-            return new() { Grid = result.Grid, ParentGrid = result.ParentGrid };
-        }
+        return result;
     }
 
     private void DataLoad(GridDto grid)
@@ -1015,6 +1023,47 @@ public class GridDto
         return result;
     }
 
+    public GridCellDto AddCell2(GridCellDto cell, Dynamic dataRow, GridConfig config)
+    {
+        var result = AddCell(cell);
+        UtilServer.Assert(cell.DataRowIndex != null, "Cell DataRowIndex can not be null when used with RowKey!");
+        if (State == null)
+        {
+            State = new GridStateDto();
+        }
+        if (State.RowKeyList == null)
+        {
+            State.RowKeyList = new();
+        }
+        var dataRowIndex = cell.DataRowIndex!.Value;
+        if (State.RowKeyList.Count <= dataRowIndex)
+        {
+            var emptyList = Enumerable.Repeat<string?>(null, dataRowIndex + 1 - State.RowKeyList.Count).ToList();
+            State.RowKeyList.AddRange(emptyList);
+        }
+        string? rowKey = null;
+        if (config.FieldNameRowKey != null)
+        {
+            rowKey = dataRow[config.FieldNameRowKey]?.ToString();
+        }
+        if (rowKey != null)
+        {
+            UtilServer.Assert(State.RowKeyList[dataRowIndex] == null || State.RowKeyList[dataRowIndex] == rowKey, "RowKey invalid!");
+            State.RowKeyList[dataRowIndex] = rowKey;
+        }
+        // IsNew
+        var isNew = dataRow.IsNew;
+        if (isNew)
+        {
+            State.IsNewList ??= new();
+            if (!State.IsNewList.Contains(dataRowIndex))
+            {
+                State.IsNewList.Add(dataRowIndex);
+            }
+        }
+        return result;
+    }
+
     public GridControlDto AddControl(GridControlDto control, int? dataRowIndex = null)
     {
         RowCellList = RowCellList ?? new();
@@ -1094,6 +1143,11 @@ public class GridStateDto
     /// Gets or sets RowKeyList. This is typically the data primary key. See also property GridConfig.FieldNameRowKey for config. (DataRowIndex, RowKey)
     /// </summary>
     public List<string?>? RowKeyList { get; set; }
+
+    /// <summary>
+    /// Gets or sets IsNewList. DataRow IsNew if DataRowIndex is contained in this list. (DataRowIndex)
+    /// </summary>
+    public List<int>? IsNewList { get; set; }
 
     /// <summary>
     /// Gets or sets RowKeyMasterList. This value is set by a master grid on its data row selection. (GridName, RowKey)
@@ -1422,7 +1476,7 @@ public class GridConfig
     /// <summary>
     /// Gets or sets FieldNameRowKey. This is the key to identifiy a data record.
     /// </summary>
-    public string FieldNameRowKey { get; set; } = "Id";
+    public string? FieldNameRowKey { get; set; }
 
     public bool IsAllowNew { get; set; } = false;
 

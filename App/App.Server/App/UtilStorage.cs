@@ -133,7 +133,7 @@ internal static class UtilStorage
         return result; // result.Content is the Stream. Beware of DataLakeFileReadStreamingResult.IDisposable
     }
 
-    public static async Task Upload(string connectionString, string fileName, string data)
+    public static async Task Upload(string connectionString, string fileName, string? data)
     {
         fileName = Sanatize(connectionString, fileName);
 
@@ -143,15 +143,22 @@ internal static class UtilStorage
         switch (fileNameExtension)
         {
             case ".txt":
-                result = Encoding.UTF8.GetBytes(data);
+                result = Encoding.UTF8.GetBytes(data ?? "");
                 break;
             default:
-                result = Convert.FromBase64String(data);
+                result = Convert.FromBase64String(data ?? "");
                 break;
         }
         using var stream = new MemoryStream(result);
         var fileClient = client.GetFileClient(fileName);
-        await fileClient.UploadAsync(stream, overwrite: true);
+        if (stream.Length == 0)
+        {
+            await fileClient.CreateAsync(); // Prevent exception The value for one of the HTTP headers is not in the correct format.
+        }
+        else
+        {
+            await fileClient.UploadAsync(stream, overwrite: true);
+        }
         stream.Close();
     }
 }

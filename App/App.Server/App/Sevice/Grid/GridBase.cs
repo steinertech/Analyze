@@ -271,7 +271,8 @@
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
                     if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew)
                     {
-                        dataRowList.Insert(0, Dynamic.Create(config));
+                        dataRowList.Insert(0, Dynamic.Create(config, isNew: true));
+                        // dataRowList.Insert(0, Dynamic.Create(config, isNew: true)); // Multi new data rows
                     }
                     UtilGrid.Render2(request, dataRowList, config);
                     var result = new GridResponse2Dto { Grid = request.Grid };
