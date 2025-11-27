@@ -115,7 +115,8 @@
             ColumnList = [new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true }],
             FieldNameRowKey = "Name", // Used to delete row
             IsAllowNew = true,
-            IsAllowDelete = true
+            IsAllowDelete = true,
+            // IsAllowDeleteConfirm = true, // TODO
         };
         return Task.FromResult(result);
     }
@@ -126,9 +127,25 @@
         var result = UtilGridReflection.DynamicFrom(folderOrFileNameList, (dataRowFrom, dataRowTo) =>
         {
             dataRowTo["Name"] = dataRowFrom.FolderOrFileName;
-            if (!dataRowFrom.IsFolder)
+            if (dataRowFrom.IsFolder)
             {
-                dataRowTo.IconSet("Name", "i-success", null);
+                dataRowTo.IconSet("Name", "i-folder", isLeft: true);
+            }
+            else
+            {
+                dataRowTo.IconSet("Name", "i-file", isLeft: true);
+                if (dataRowFrom.FolderOrFileName.ToLower().EndsWith(".txt"))
+                {
+                    dataRowTo.IconSet("Name", "i-text", isLeft: true);
+                }
+                if (dataRowFrom.FolderOrFileName.ToLower().EndsWith(".xlsx"))
+                {
+                    dataRowTo.IconSet("Name", "i-excel", isLeft: true);
+                }
+                if (dataRowFrom.FolderOrFileName.ToLower().EndsWith(".png"))
+                {
+                    dataRowTo.IconSet("Name", "i-image", isLeft: true);
+                }
             }
         });
         result = await UtilGrid.GridLoad2(request, result, null, 4);

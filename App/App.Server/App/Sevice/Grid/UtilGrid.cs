@@ -812,9 +812,10 @@ public static class UtilGrid
                 var text = dataRow[column.FieldName]?.ToString();
                 var cellEnum = column.IsDropdown ? GridCellEnum.FieldDropdown : column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
                 var iconRight = dataRow.IconGet(column.FieldName);
+                var iconLeft = dataRow.IconGet(column.FieldName, true);
                 var dropdownList = cellEnum == GridCellEnum.FieldDropdown ? dataRow.DropdownListGet(column.FieldName, text) : null;
                 var isNew = dataRow.IsNew;
-                grid.AddCell2(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = isNew ? "New" : null, IconRight = iconRight, DropdownList = dropdownList }, dataRow, config);
+                grid.AddCell2(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = isNew ? "New" : null, IconRight = iconRight, IconLeft = iconLeft, DropdownList = dropdownList }, dataRow, config);
             }
             // Render Delete
             if (config.IsAllowDelete)

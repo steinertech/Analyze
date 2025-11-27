@@ -323,7 +323,7 @@ public class Dynamic : Dictionary<string, object?>
     /// <summary>
     /// Set cell icon.
     /// </summary>
-    public void IconSet(string fieldName, string? className, string? tooltip, bool isLeft = false)
+    public void IconSet(string fieldName, string? className, string? tooltip = null, bool isLeft = false)
     {
         if (string.IsNullOrEmpty(className))
         {
