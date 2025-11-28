@@ -246,7 +246,7 @@ public static class UtilGrid
             case GridRequest2GridActionEnum.LookupEditSave:
             case GridRequest2GridActionEnum.LookupAutocompleteOk:
             case GridRequest2GridActionEnum.LookupSubSave:
-                {
+            {
                     // Update, Insert
                     if (request.Grid.State?.FieldSaveList != null) // User might click save button without having a cell modified.
                     {
@@ -315,6 +315,7 @@ public static class UtilGrid
                     break;
                 }
             case GridRequest2GridActionEnum.GridDelete:
+            case GridRequest2GridActionEnum.LookupConfirmDeleteOk:
                 {
                     // Delete
                     ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);

@@ -448,10 +448,10 @@
                         ArgumentNullException.ThrowIfNull(request.ParentGrid);
                         // Save
                         var config = await Config();
-                        await GridSave(request.Parent(), config);
+                        await GridSave2(request.Parent2(), config);
                         // Load Parent
-                        var dataRowList = await GridLoad2(request, null, config.PageSize);
-                        UtilGrid.Render(request.Parent(), dataRowList, config);
+                        var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
+                        UtilGrid.Render2(request.Parent2(), dataRowList, config);
                         return new GridResponse2Dto { ParentGrid = request.ParentGrid };
                     }
                     // Load

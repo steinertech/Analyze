@@ -116,7 +116,7 @@
             FieldNameRowKey = "Name", // Used to delete row
             IsAllowNew = true,
             IsAllowDelete = true,
-            // IsAllowDeleteConfirm = true, // TODO
+            IsAllowDeleteConfirm = true,
         };
         return Task.FromResult(result);
     }
