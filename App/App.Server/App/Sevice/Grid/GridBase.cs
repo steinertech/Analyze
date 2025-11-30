@@ -62,7 +62,7 @@
         return Task.CompletedTask;
     }
 
-    protected virtual Task GridSave2(GridRequest2Dto request, GridConfig config)
+    protected virtual Task GridSave2(GridRequest2Dto request, GridConfig config) // TODO Rename to Save2
     {
         // var sourceList = UtilGrid.GridSave2(request, config);
         // UtilGrid.GridSave2(sourceList, destList, config);
@@ -267,6 +267,11 @@
                     {
                         await GridSave2(request, config);
                     }
+                    // Button Custom
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom)
+                    {
+                        await ButtonCustomClick(request);
+                    }
                     // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
                     if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew)
@@ -274,7 +279,7 @@
                         dataRowList.Insert(0, Dynamic.Create(config, isNew: true));
                         // dataRowList.Insert(0, Dynamic.Create(config, isNew: true)); // Multi new data rows
                     }
-                    UtilGrid.Render2(request, dataRowList, config);
+                    Render2(request, dataRowList, config);
                     var result = new GridResponse2Dto { Grid = request.Grid };
                     return result;
                 }
@@ -292,7 +297,7 @@
                     {
                         var config = await Config();
                         var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
-                        UtilGrid.Render2(request.Parent2(), dataRowList, config);
+                        Render2(request.Parent2(), dataRowList, config);
                     }
                     var parentGrid = isSave ? request.ParentGrid : null;
                     return new GridResponse2Dto { ParentGrid = parentGrid };
@@ -342,7 +347,7 @@
                         {
                             var config = await Config();
                             var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
-                            UtilGrid.Render2(request.Parent2(), dataRowList, config);
+                            Render2(request.Parent2(), dataRowList, config);
                         }
                         GridDto? parentGrid = isSave ? request.ParentGrid : null;
                         return new GridResponse2Dto { ParentGrid = parentGrid };
@@ -364,7 +369,7 @@
                         {
                             var config = await Config();
                             var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
-                            UtilGrid.Render2(request.Parent2(), dataRowList, config);
+                            Render2(request.Parent2(), dataRowList, config);
                         }
                         GridDto? parentGrid = isSave ? request.ParentGrid : null;
                         return new GridResponse2Dto { Grid = request.Grid, ParentGrid = parentGrid };
@@ -393,7 +398,7 @@
                             await GridSave2(request.Parent2(), config);
                             // Parent Load
                             var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
-                            UtilGrid.Render2(request.Parent2(), dataRowList, config);
+                            Render2(request.Parent2(), dataRowList, config);
                         }
                         GridDto? parentGrid = isSave ? request.ParentGrid : null;
                         return new GridResponse2Dto { Grid = request.Grid, ParentGrid = parentGrid };
@@ -418,7 +423,7 @@
                     }
                     // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
-                    UtilGrid.Render2(request, dataRowList, config);
+                    Render2(request, dataRowList, config);
                     return new GridResponse2Dto { Grid = request.Grid };
                 }
             // LookupSub
@@ -437,7 +442,7 @@
                     {
                         dataRowList.Insert(0, Dynamic.Create(config));
                     }
-                    UtilGrid.Render2(request, dataRowList, config);
+                    Render2(request, dataRowList, config);
                     return new GridResponse2Dto { Grid = request.Grid };
                 }
             // LookupDelete
@@ -451,7 +456,7 @@
                         await GridSave2(request.Parent2(), config);
                         // Load Parent
                         var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
-                        UtilGrid.Render2(request.Parent2(), dataRowList, config);
+                        Render2(request.Parent2(), dataRowList, config);
                         return new GridResponse2Dto { ParentGrid = request.ParentGrid };
                     }
                     // Load
@@ -465,5 +470,15 @@
             default:
                 throw new Exception();
         }
+    }
+
+    public virtual void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
+    {
+        UtilGrid.Render2(request, dataRowList, config);
+    }
+
+    public virtual Task ButtonCustomClick(GridRequest2Dto request)
+    {
+        return Task.CompletedTask;
     }
 }

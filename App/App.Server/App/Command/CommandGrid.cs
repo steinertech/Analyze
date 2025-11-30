@@ -646,6 +646,11 @@ public enum GridRequest2GridActionEnum
     /// User clicked lookup sub window new row button.
     /// </summary>
     LookupSubNew = 10,
+
+    /// <summary>
+    /// User clicked custom button.
+    /// </summary>
+    ButtonCustom = 11,
 }
 
 public class GridRequest2Dto
@@ -793,46 +798,62 @@ public class GridRequest2Dto
             case GridRequest2GridEnum.Grid:
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonSave)
                 {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.GridSave;
                 }
                 if ((request.Control?.ControlEnum == GridControlEnum.ButtonCustom || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete")
                 {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.GridDelete;
                 }
-                if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom)
                 {
-                    result = GridRequest2GridActionEnum.GridNew;
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    if (request.Control?.Name == "New")
+                    {
+                        result = GridRequest2GridActionEnum.GridNew;
+                    }
+                    else
+                    {
+                        result = GridRequest2GridActionEnum.ButtonCustom;
+                    }
                 }
                 break;
             case GridRequest2GridEnum.LookupConfirmDelete:
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk && request.Control.Name == "Delete")
                 {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.LookupConfirmDeleteOk;
                 }
                 break;
             case GridRequest2GridEnum.LookupEdit:
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonSave)
                 {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.LookupEditSave;
                 }
                 break;
             case GridRequest2GridEnum.LookupAutocomplete:
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
                 {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.LookupAutocompleteOk;
                 }
                 break;
             case GridRequest2GridEnum.LookupSub:
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonSave)
                 {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.LookupSubSave;
                 }
                 if ((request.Control?.ControlEnum == GridControlEnum.ButtonCustom || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete")
                 {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.LookupSubDelete;
                 }
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
                 {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.LookupSubNew;
                 }
                 break;
@@ -938,7 +959,7 @@ public class GridDto
         return CellList().Where(item => item.CellEnum == GridCellEnum.Field && item.TextModified != null).ToList();
     }
 
-    public List<GridControlDto> ControlList()
+    public List<GridControlDto> ControlList() // TODO Remove
     {
         if (RowCellList == null)
         {
@@ -1157,13 +1178,24 @@ public class GridStateDto
     public GridPaginationDto? Pagination { get; set; }
 
     public List<FieldSaveDto>? FieldSaveList { get; set; }
+    
+    public List<ControlSaveDto>? ControlSaveList { get; set; }
 }
 
-public class FieldSaveDto
+public class FieldSaveDto // TODO Rename to CellSaveDto
 {
     public string? FieldName { get; set; }
  
     public int? DataRowIndex { get; set; }
+
+    public string? Text { get; set; }
+
+    public string? TextModified { get; set; }
+}
+
+public class ControlSaveDto
+{
+    public string? Name { get; set; }
 
     public string? Text { get; set; }
 

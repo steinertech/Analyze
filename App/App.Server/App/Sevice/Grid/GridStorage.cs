@@ -181,4 +181,21 @@
             }
         }
     }
+
+    public override void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
+    {
+        base.Render2(request, dataRowList, config);
+        request.Grid.AddRow();
+        request.Grid.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom });
+        request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Create Folder" });
+    }
+
+    public override async Task ButtonCustomClick(GridRequest2Dto request)
+    {
+        var folderName = request.Grid.State?.ControlSaveList?.FirstOrDefault()?.TextModified;
+        if (folderName != null)
+        {
+            await UtilStorage.Create(configuration.ConnectionStringStorage!, folderName);
+        }
+    }
 }

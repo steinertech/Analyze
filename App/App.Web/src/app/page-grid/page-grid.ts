@@ -101,9 +101,9 @@ export class PageGrid implements AfterViewInit {
   cellTextGet(cell: GridCellDto) {
     switch (cell.cellEnum) {
       // Field
-      case GridCellEnum.Field: 
-      case GridCellEnum.FieldCheckbox: 
-      case GridCellEnum.FieldAutocomplete: 
+      case GridCellEnum.Field:
+      case GridCellEnum.FieldCheckbox:
+      case GridCellEnum.FieldAutocomplete:
       case GridCellEnum.FieldDropdown: {
         return cell.textModified ?? cell.text
       }
@@ -195,14 +195,14 @@ export class PageGrid implements AfterViewInit {
       switch (cell.cellEnum) {
         // Field
         case GridCellEnum.Field: {
-          cell.textModified = cell.text != value ? value : undefined
+          cell.textModified = UtilClient.normalizeString(cell.text) != UtilClient.normalizeString(value) ? value : undefined
           this.cellTextSetSave(cell)
           break
         }
         // Autocomplete, Dropdown
         case GridCellEnum.FieldAutocomplete:
         case GridCellEnum.FieldDropdown: {
-          cell.textModified = cell.text != value ? value : undefined
+          cell.textModified = UtilClient.normalizeString(cell.text) != UtilClient.normalizeString(value) ? value : undefined
           this.cellTextSetSave(cell)
           break
         }
@@ -270,8 +270,20 @@ export class PageGrid implements AfterViewInit {
         }
         // Field Custom
         case GridControlEnum.FieldCustom: {
-          control.textModified = control.text != value ? value : undefined
-          this.cellTextSetSave(cell)
+          control.textModified = UtilClient.normalizeString(control.text) != UtilClient.normalizeString(value) ? value : undefined
+          this._grid.state ??= {}
+          this._grid.state.controlSaveList ??= []
+          const index = this._grid.state.controlSaveList.findIndex(item => item.name == control.name)
+          if (index != -1) {
+            this._grid.state.controlSaveList.splice(index) // Remove item
+          }
+          if (control.textModified != undefined) {
+            this._grid.state.controlSaveList.push({
+              name: control.name,
+              text: control.text,
+              textModified: control.textModified
+            })
+          }
           break
         }
       }

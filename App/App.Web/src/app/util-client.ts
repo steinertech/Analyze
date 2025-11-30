@@ -1,12 +1,16 @@
-export class UtilClient{
+export class UtilClient {
   public static versionClient = '1.0.18'
 
-  public static MathFloor100(value: number) {
+  public static MathFloor100(value: number) { // TODO Rename to mathFloor100
     // Also be aware of 100.00 - 80.04 = 19.959999999999994
     return Math.floor(value * 100) / 100
   }
 
   public static MathRound100(value: number) {
     return Math.round(value * 100) / 100
+  }
+
+  public static normalizeString(value: string | null | undefined): string | undefined {
+    return value === null || value === '' ? undefined : value;
   }
 }
