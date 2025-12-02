@@ -424,6 +424,7 @@
                 {
                     ArgumentNullException.ThrowIfNull(request.ParentGrid);
                     var config = await Config();
+                    var modalName = request.ParentControl?.Name;
                     // Save
                     if (request.GridActionEnum == GridRequest2GridActionEnum.LookupEditSave)
                     {
@@ -431,17 +432,18 @@
                     }
                     // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
-                    Render2(request, dataRowList, config, null);
+                    Render2(request, dataRowList, config, modalName);
                     return new GridResponse2Dto { Grid = request.Grid };
                 }
             // LookupDelete
             case GridRequest2GridEnum.LookupConfirmDelete:
                 {
+                    var config = await Config();
+                    var modalName = request.ParentControl?.Name;
                     if (request.GridActionEnum == GridRequest2GridActionEnum.LookupConfirmDeleteOk)
                     {
                         ArgumentNullException.ThrowIfNull(request.ParentGrid);
                         // Save
-                        var config = await Config();
                         await GridSave2(request.Parent2(), config);
                         // Load Parent
                         var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
@@ -449,11 +451,7 @@
                         return new GridResponse2Dto { ParentGrid = request.ParentGrid };
                     }
                     // Load
-                    request.Grid.Clear();
-                    request.Grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "Delete row?" }); // Could be handled by client without callback.
-                    request.Grid.AddRow();
-                    request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk, Name = "Delete" });
-                    request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+                    Render2(request, new(), config, modalName);
                     return new GridResponse2Dto { Grid = request.Grid };
                 }
             default:
@@ -463,6 +461,21 @@
 
     public virtual void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName) // TODO Rename to GridRender
     {
-        UtilGrid.Render2(request, dataRowList, config);
+        if (modalName == null)
+        {
+            UtilGrid.RenderGrid2(request, dataRowList, config);
+        }
+        if (modalName == "Edit")
+        {
+            UtilGrid.RenderForm2(request, dataRowList, config);
+        }
+        if (modalName == "Delete")
+        {
+            UtilGrid.RenderConfirmDelete(request);
+        }
+        if (modalName == "Sub")
+        {
+            UtilGrid.RenderGrid2(request, dataRowList, config);
+        }
     }
 }

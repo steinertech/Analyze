@@ -760,11 +760,6 @@ public class GridRequest2Dto
             UtilServer.Assert(result == GridRequest2GridEnum.None);
             result = GridRequest2GridEnum.LookupEdit;
         }
-        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal)
-        {
-            UtilServer.Assert(result == GridRequest2GridEnum.None);
-            result = GridRequest2GridEnum.LookupSub;
-        }
         if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Delete" && request.Control?.ControlEnum == GridControlEnum.ButtonModal)
         {
             UtilServer.Assert(result == GridRequest2GridEnum.None);
@@ -774,6 +769,11 @@ public class GridRequest2Dto
         {
             UtilServer.Assert(result == GridRequest2GridEnum.None);
             result = GridRequest2GridEnum.LookupConfirmDelete;
+        }
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && !(new[] { "Edit", "Delete" }).Contains(request.ParentControl?.Name))
+        {
+            UtilServer.Assert(result == GridRequest2GridEnum.None);
+            result = GridRequest2GridEnum.LookupSub;
         }
         return result;
     }
@@ -992,6 +992,7 @@ public class GridDto
         if (State != null)
         {
             State.RowKeyList = null;
+            State.IsNewList = null;
         }
         return RowCellList;
     }

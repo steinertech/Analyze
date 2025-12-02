@@ -634,7 +634,7 @@ public static class UtilGrid
     /// <summary>
     /// Render data grid form.
     /// </summary>
-    private static void RenderForm2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
+    public static void RenderForm2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
     {
         var grid = request.Grid;
         grid.Clear();
@@ -669,6 +669,18 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+    }
+
+    /// <summary>
+    /// Render data row delete confirm lookup window.
+    /// </summary>
+    public static void RenderConfirmDelete(GridRequest2Dto request)
+    {
+        request.Grid.Clear();
+        request.Grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "Delete row?" }); // Could be handled by client without callback.
+        request.Grid.AddRow();
+        request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk, Name = "Delete" });
+        request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
     }
 
     /// <summary>
@@ -771,7 +783,7 @@ public static class UtilGrid
     /// <summary>
     /// Render data grid.
     /// </summary>
-    private static void RenderGrid2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
+    public static void RenderGrid2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
     {
         var grid = request.Grid;
         grid.Clear();
@@ -852,27 +864,6 @@ public static class UtilGrid
             grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
         }
         RenderCalcColSpan2(request);
-    }
-
-    /// <summary>
-    /// Render data grid or grid form.
-    /// </summary>
-    public static void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
-    {
-        if (request.Grid.State != null)
-        {
-            request.Grid.State.RowKeyList = null;
-            request.Grid.State.IsNewList = null;
-        }
-        bool isForm = request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl.Name == "Edit";
-        if (isForm)
-        {
-            RenderForm2(request, dataRowList, config);
-        }
-        else
-        {
-            RenderGrid2(request, dataRowList, config);
-        }
     }
 
     /// <summary>

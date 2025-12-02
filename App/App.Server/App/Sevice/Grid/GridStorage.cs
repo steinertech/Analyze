@@ -117,6 +117,7 @@
             IsAllowNew = true,
             IsAllowDelete = true,
             IsAllowDeleteConfirm = true,
+            IsAllowEditForm = true,
         };
         return Task.FromResult(result);
     }
@@ -184,9 +185,9 @@
 
     public override void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
     {
+        base.Render2(request, dataRowList, config, modalName);
         if (modalName == null)
         {
-            base.Render2(request, dataRowList, config, modalName);
             request.Grid.AddRow();
             request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Create Folder", Name = "CreateFolder" });
         }
