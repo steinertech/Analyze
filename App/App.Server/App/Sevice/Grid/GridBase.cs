@@ -69,6 +69,14 @@
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// User clicked custom button or modified custom field.
+    /// </summary>
+    protected virtual Task GridSave2Custom(GridRequest2Dto request, GridControlDto? buttonCustomClick, List<ControlSaveDto> fieldCustomSaveList, string? modalName) 
+    {
+        return Task.CompletedTask;
+    }
+
     public async Task<GridResponseDto> Load(GridRequestDto request, GridRequest2Dto request2)
     {
         // Save
@@ -270,11 +278,17 @@
                     var buttonCustomClick = request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom ? request.Control : null;
                     var fieldCustomSaveList = request.Grid.State?.ControlSaveList ?? new();
                     // Save
-                    var isSave = request.GridActionEnum == GridRequest2GridActionEnum.GridSave || request.GridActionEnum == GridRequest2GridActionEnum.GridDelete || request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubOk;
+                    var isSave = request.GridActionEnum == GridRequest2GridActionEnum.GridSave || request.GridActionEnum == GridRequest2GridActionEnum.GridDelete || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubOk;
                     if (isSave)
                     {
                         var sourceList = UtilGrid.GridSave2(request, config);
                         await GridSave2(request, sourceList, config);
+                    }
+                    // Save Custom
+                    var isSaveCustom = buttonCustomClick != null || fieldCustomSaveList.Count() > 0;
+                    if (isSaveCustom)
+                    {
+                        await GridSave2Custom(request, buttonCustomClick, fieldCustomSaveList, modalName);
                     }
                     // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);

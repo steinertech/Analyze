@@ -865,6 +865,11 @@ public class GridRequest2Dto
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.LookupSubNew;
                 }
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && !(new[] { "New", "Delete" }).Contains(request.Control?.Name))
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.ButtonCustom;
+                }
                 break;
         }
         return result;

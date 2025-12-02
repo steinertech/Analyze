@@ -48,43 +48,5 @@ Start DevContainer Codespace
 
 # Code
 ```
-public class GridArg
-{
-    public GridArg(GridRequest2Dto request, List<Dynamic> sourceList, List<Dynamic> dataRowList, GridConfig config, string? modalName, GridControlDto? buttonCustomClick, List<ControlSaveDto> fieldCustomSaveList)
-    {
-        Request = request;
-        SourceList = sourceList;
-        DataRowList = dataRowList;
-        Config = config;
-        ModalName = modalName;
-        ButtonCustomClick = buttonCustomClick;
-        FieldCustomSaveList = fieldCustomSaveList;
-    }
-
-    public GridRequest2Dto Request { get; set; }
-
-    public List<Dynamic> SourceList { get; set; }
-
-    public List<Dynamic> DataRowList { get; set; }
-
-    public GridConfig Config { get; set; }
-
-    public string? ModalName { get; set; }
-
-    public GridControlDto? ButtonCustomClick { get; set; }
-
-    public List<ControlSaveDto> FieldCustomSaveList { get; set; }
-}
-
-    public override async Task GridSave2Custom(GridRequest2Dto request, List<ControlSaveDto> fieldSaveList, GridControlDto? buttonClick)
-    {
-        if (buttonClick != null && fieldSaveList.Count > 0)
-        {
-            var folderName = fieldSaveList[0].TextModified;
-            if (folderName != null)
-            {
-                await UtilStorage.Create(configuration.ConnectionStringStorage!, folderName);
-            }
-        }
-    }
+// TODO
 ```

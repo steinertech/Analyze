@@ -182,6 +182,18 @@
         }
     }
 
+    protected override async Task GridSave2Custom(GridRequest2Dto request, GridControlDto? buttonCustomClick, List<ControlSaveDto> fieldCustomSaveList, string? modalName)
+    {
+        if (buttonCustomClick != null)
+        {
+            var folderName = fieldCustomSaveList?.FirstOrDefault()?.TextModified;
+            if (folderName != null)
+            {
+                await UtilStorage.Create(configuration.ConnectionStringStorage!, folderName);
+            }
+        }
+    }
+
     public override void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
     {
         base.Render2(request, dataRowList, config, modalName);
@@ -195,6 +207,7 @@
             request.Grid.AddRow();
             request.Grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "Folder Name" });
             request.Grid.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom });
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Validate" });
             request.Grid.AddRow();
             request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
             request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
