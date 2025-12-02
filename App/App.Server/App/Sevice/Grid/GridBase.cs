@@ -62,9 +62,8 @@
         return Task.CompletedTask;
     }
 
-    protected virtual Task GridSave2(GridRequest2Dto request, GridConfig config) // TODO Rename to Save2
+    protected virtual Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config) // TODO Rename to Save2
     {
-        // var sourceList = UtilGrid.GridSave2(request, config);
         // UtilGrid.GridSave2(sourceList, destList, config);
 
         return Task.CompletedTask;
@@ -274,7 +273,8 @@
                     var isSave = request.GridActionEnum == GridRequest2GridActionEnum.GridSave || request.GridActionEnum == GridRequest2GridActionEnum.GridDelete || request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubOk;
                     if (isSave)
                     {
-                        await GridSave2(request, config);
+                        var sourceList = UtilGrid.GridSave2(request, config);
+                        await GridSave2(request, sourceList, config);
                     }
                     // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
@@ -403,7 +403,8 @@
                         if (isSave)
                         {
                             // Parent Save
-                            await GridSave2(request.Parent2(), config);
+                            var sourceList = UtilGrid.GridSave2(request.Parent2(), config);
+                            await GridSave2(request.Parent2(), sourceList,config);
                             // Parent Load
                             var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
                             Render2(request.Parent2(), dataRowList, config, null);
@@ -428,7 +429,8 @@
                     // Save
                     if (request.GridActionEnum == GridRequest2GridActionEnum.LookupEditSave)
                     {
-                        await GridSave2(request, config);
+                        var sourceList = UtilGrid.GridSave2(request, config);
+                        await GridSave2(request, sourceList, config);
                     }
                     // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
@@ -444,7 +446,8 @@
                     {
                         ArgumentNullException.ThrowIfNull(request.ParentGrid);
                         // Save
-                        await GridSave2(request.Parent2(), config);
+                        var sourceList = UtilGrid.GridSave2(request.Parent2(), config);
+                        await GridSave2(request.Parent2(), sourceList, config);
                         // Load Parent
                         var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
                         Render2(request.Parent2(), dataRowList, config, null);

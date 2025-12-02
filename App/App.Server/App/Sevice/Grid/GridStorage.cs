@@ -153,9 +153,8 @@
         return result;
     }
 
-    protected override async Task GridSave2(GridRequest2Dto request, GridConfig config)
+    protected override async Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
     {
-        var sourceList = UtilGrid.GridSave2(request, config);
         foreach (var item in sourceList)
         {
             switch (item.DynamicEnum)

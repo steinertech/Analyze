@@ -76,9 +76,8 @@ public class GridArticle2 : GridBase
         return Task.CompletedTask;
     }
 
-    protected override Task GridSave2(GridRequest2Dto request, GridConfig config)
+    protected override Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
     {
-        var sourceList = UtilGrid.GridSave2(request, config);
         var destList = dataRowList;
         UtilGrid.GridSave2(sourceList, destList, config);
         return Task.CompletedTask;

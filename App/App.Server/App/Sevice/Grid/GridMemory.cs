@@ -128,9 +128,8 @@ public class GridMemory : GridBase
         return result;
     }
 
-    protected override Task GridSave2(GridRequest2Dto request, GridConfig config)
+    protected override Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
     {
-        var sourceList = UtilGrid.GridSave2(request, config);
         var destList = ProductListGet();
         UtilGrid.GridSave2(sourceList, destList, config);
         ProductListSet(destList);
