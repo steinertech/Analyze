@@ -182,20 +182,22 @@
         }
     }
 
-    public override void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config)
+    public override void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
     {
-        base.Render2(request, dataRowList, config);
-        request.Grid.AddRow();
-        request.Grid.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom });
-        request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Create Folder" });
-    }
-
-    public override async Task ButtonCustomClick(GridRequest2Dto request)
-    {
-        var folderName = request.Grid.State?.ControlSaveList?.FirstOrDefault()?.TextModified;
-        if (folderName != null)
+        if (modalName == null)
         {
-            await UtilStorage.Create(configuration.ConnectionStringStorage!, folderName);
+            base.Render2(request, dataRowList, config, modalName);
+            request.Grid.AddRow();
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Create Folder", Name = "CreateFolder" });
+        }
+        if (modalName == "CreateFolder")
+        {
+            request.Grid.AddRow();
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "Folder Name" });
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom });
+            request.Grid.AddRow();
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
         }
     }
 }

@@ -329,6 +329,8 @@ public static class UtilGrid
                     }
                     break;
                 }
+            case GridRequest2GridActionEnum.LookupSubOk:
+                break;
             default:
                 throw new Exception();
         }

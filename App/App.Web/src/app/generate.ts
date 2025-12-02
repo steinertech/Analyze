@@ -144,18 +144,19 @@ export enum GridCellEnum {
 
 export enum GridControlEnum {
   None = 0,
-  ButtonReload = 3,
-  ButtonSave = 4,
-  ButtonLookupCancel = 8,
-  ButtonLookupOk = 7,
-  ButtonLookupSort = 9,
-  ButtonColumn = 15,
-  ButtonCustom = 16,
-  CheckboxSelectMultiAll = 14,
-  LabelCustom = 17,
-  FieldCustom = 18,
-  ButtonModal = 19,
-  Pagination = 20,
+  ButtonReload = 1,
+  ButtonSave = 2,
+  ButtonLookupCancel = 3,
+  ButtonLookupOk = 4,
+  ButtonLookupSort = 5,
+  ButtonColumn = 6,
+  ButtonCustom = 7,
+  CheckboxSelectMultiAll = 8,
+  LabelCustom = 9,
+  FieldCustom = 10,
+  ButtonModal = 11,
+  ButtonModalCustom = 12,
+  Pagination = 13,
 }
 
 export class GridDto {

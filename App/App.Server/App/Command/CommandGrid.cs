@@ -575,14 +575,14 @@ public enum GridRequest2GridEnum
     LookupAutocomplete = 4,
 
     /// <summary>
-    /// Request sent by edit grid. See also RenderForm.
+    /// Request sent by edit grid. See also method RenderForm.
     /// </summary>
     LookupEdit = 5,
 
     /// <summary>
-    /// Request sent by sub grid.
+    /// Request sent by sub grid. See also enum GridControlEnum.ButtonModal
     /// </summary>
-    LookupSub = 6,
+    LookupSub = 6, // TODO Rename to LookupModal
 
     /// <summary>
     /// Request sent by confirm delete grid.
@@ -633,24 +633,29 @@ public enum GridRequest2GridActionEnum
     LookupAutocompleteOk = 7,
 
     /// <summary>
+    /// User clicked lookup sub window save button. See also enum GridControlEnum.ButtonLookupOk
+    /// </summary>
+    LookupSubOk = 8,
+
+    /// <summary>
     /// User clicked lookup sub window save button.
     /// </summary>
-    LookupSubSave = 8,
+    LookupSubSave = 9,
 
     /// <summary>
     /// User clicked lookup sub window delete row button.
     /// </summary>
-    LookupSubDelete = 9,
+    LookupSubDelete = 10,
 
     /// <summary>
     /// User clicked lookup sub window new row button.
     /// </summary>
-    LookupSubNew = 10,
+    LookupSubNew = 11,
 
     /// <summary>
     /// User clicked custom button.
     /// </summary>
-    ButtonCustom = 11,
+    ButtonCustom = 12,
 }
 
 public class GridRequest2Dto
@@ -755,7 +760,7 @@ public class GridRequest2Dto
             UtilServer.Assert(result == GridRequest2GridEnum.None);
             result = GridRequest2GridEnum.LookupEdit;
         }
-        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl?.Name == "Sub")
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal)
         {
             UtilServer.Assert(result == GridRequest2GridEnum.None);
             result = GridRequest2GridEnum.LookupSub;
@@ -771,7 +776,6 @@ public class GridRequest2Dto
             result = GridRequest2GridEnum.LookupConfirmDelete;
         }
         return result;
-
     }
 
     private GridRequest2GridActionEnum? gridActionEnum;
@@ -841,6 +845,11 @@ public class GridRequest2Dto
                 }
                 break;
             case GridRequest2GridEnum.LookupSub:
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.LookupSubOk;
+                }
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonSave)
                 {
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
@@ -1182,7 +1191,7 @@ public class GridStateDto
     public List<ControlSaveDto>? ControlSaveList { get; set; }
 }
 
-public class FieldSaveDto // TODO Rename to CellSaveDto
+public class FieldSaveDto
 {
     public string? FieldName { get; set; }
  
@@ -1193,7 +1202,7 @@ public class FieldSaveDto // TODO Rename to CellSaveDto
     public string? TextModified { get; set; }
 }
 
-public class ControlSaveDto
+public class ControlSaveDto // TODO Rename to FieldCustomSaveDto
 {
     public string? Name { get; set; }
 
@@ -1361,62 +1370,62 @@ public enum GridControlEnum
     /// <summary>
     /// Data grid reload button.
     /// </summary>
-    ButtonReload = 3,
+    ButtonReload = 1,
 
     /// <summary>
     /// Data grid save button.
     /// </summary>
-    ButtonSave = 4,
+    ButtonSave = 2,
 
     /// <summary>
     /// Lookup window cancel button. If this grid is a lookup window it gets closed.
     /// </summary>
-    ButtonLookupCancel = 8,
+    ButtonLookupCancel = 3,
 
     /// <summary>
     /// Lookup window ok button. If this grid is a lookup window it gets saved and closed after.
     /// </summary>
-    ButtonLookupOk = 7,
+    ButtonLookupOk = 4,
 
     /// <summary>
     /// Lookup window sort button.
     /// </summary>
-    ButtonLookupSort = 9,
+    ButtonLookupSort = 5,
 
     /// <summary>
     /// Button to open column select lookup window.
     /// </summary>
-    ButtonColumn = 15,
+    ButtonColumn = 6,
 
     /// <summary>
     /// Custom button like for example delete.
     /// </summary>
-    ButtonCustom = 16,
+    ButtonCustom = 7,
 
     /// <summary>
     /// Select all row checkbox.
     /// </summary>
-    CheckboxSelectMultiAll = 14, // GridCellEnum.CheckboxSelectMulti is data cell specific. ControlEnum.CheckboxSelectMultiAll is not data cell specific.
+    CheckboxSelectMultiAll = 8, // GridCellEnum.CheckboxSelectMulti is data cell specific. ControlEnum.CheckboxSelectMultiAll is not data cell specific.
 
     /// <summary>
     /// Custom readonly label.
     /// </summary>
-    LabelCustom = 17,
+    LabelCustom = 9,
 
     /// <summary>
     /// Custom text field.
     /// </summary>
-    FieldCustom = 18,
+    FieldCustom = 10,
 
     /// <summary>
     /// Opens a lookup modal window. Calls method CommandGrid.Load(); to get modal grid data.
     /// </summary>
-    ButtonModal = 19,
+    ButtonModal = 11,
 
     /// <summary>
     /// Data grid pagination. See also GridPaginationDto.
     /// </summary>
-    Pagination = 20,
+    Pagination = 13,
 }
 
 public class GridFilterLookupDataRowDto

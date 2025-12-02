@@ -10,6 +10,8 @@ Start DevContainer Codespace
 * Data Explorer, Setting, RU Limit
 
 # ToDo
+* GridRequest2GridEnum see also
+* GridArg
 * Excel hours and hours total
 * Validate cell
 * Link to navigate to another grid
