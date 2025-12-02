@@ -278,11 +278,18 @@
                     var buttonCustomClick = request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom ? request.Control : null;
                     var fieldCustomSaveList = request.Grid.State?.ControlSaveList ?? new();
                     // Save
-                    var isSave = request.GridActionEnum == GridRequest2GridActionEnum.GridSave || request.GridActionEnum == GridRequest2GridActionEnum.GridDelete || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubOk;
+                    var isSave = 
+                        request.GridActionEnum == GridRequest2GridActionEnum.GridSave || 
+                        request.GridActionEnum == GridRequest2GridActionEnum.LookupSubSave || 
+                        request.GridActionEnum == GridRequest2GridActionEnum.GridDelete || 
+                        request.GridActionEnum == GridRequest2GridActionEnum.LookupSubOk;
                     if (isSave)
                     {
                         var sourceList = UtilGrid.GridSave2(request, config);
-                        await GridSave2(request, sourceList, config);
+                        if (sourceList.Count() > 0)
+                        {
+                            await GridSave2(request, sourceList, config);
+                        }
                     }
                     // Save Custom
                     var isSaveCustom = buttonCustomClick != null || fieldCustomSaveList.Count() > 0;
@@ -292,7 +299,7 @@
                     }
                     // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
-                    if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew)
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubNew)
                     {
                         dataRowList.Insert(0, Dynamic.Create(config, isNew: true)); // Multi new data rows possible
                     }
@@ -418,7 +425,10 @@
                         {
                             // Parent Save
                             var sourceList = UtilGrid.GridSave2(request.Parent2(), config);
-                            await GridSave2(request.Parent2(), sourceList,config);
+                            if (sourceList.Count() > 0)
+                            {
+                                await GridSave2(request.Parent2(), sourceList, config);
+                            }
                             // Parent Load
                             var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
                             Render2(request.Parent2(), dataRowList, config, null);
@@ -444,7 +454,10 @@
                     if (request.GridActionEnum == GridRequest2GridActionEnum.LookupEditSave)
                     {
                         var sourceList = UtilGrid.GridSave2(request, config);
-                        await GridSave2(request, sourceList, config);
+                        if (sourceList.Count() > 0)
+                        {
+                            await GridSave2(request, sourceList, config);
+                        }
                     }
                     // Load
                     var dataRowList = await GridLoad2(request, null, config.PageSize);
@@ -461,7 +474,10 @@
                         ArgumentNullException.ThrowIfNull(request.ParentGrid);
                         // Save
                         var sourceList = UtilGrid.GridSave2(request.Parent2(), config);
-                        await GridSave2(request.Parent2(), sourceList, config);
+                        if (sourceList.Count() > 0)
+                        {
+                            await GridSave2(request.Parent2(), sourceList, config);
+                        }
                         // Load Parent
                         var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize);
                         Render2(request.Parent2(), dataRowList, config, null);

@@ -197,7 +197,7 @@
     public override void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
     {
         base.Render2(request, dataRowList, config, modalName);
-        if (modalName == null)
+        if (modalName == null || modalName == "Sub")
         {
             request.Grid.AddRow();
             request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Create Folder", Name = "CreateFolder" });
