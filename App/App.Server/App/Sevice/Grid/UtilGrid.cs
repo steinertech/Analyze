@@ -848,7 +848,7 @@ public static class UtilGrid
             if (config.IsAllowEditForm)
             {
                 grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Edit", Name = "Edit" }, dataRowIndex);
-                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Sub", Name = "Sub" }, dataRowIndex);
+                grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModalCustom, Text = "Sub", Name = "Sub" }, dataRowIndex);
             }
             dataRowIndex += 1;
         }
@@ -859,7 +859,8 @@ public static class UtilGrid
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonSave });
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonReload });
-        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && request.ParentControl.Name == "Sub")
+        // Render Cancel (Modal)
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModalCustom && request.ParentControl.Name == "Sub")
         {
             grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
         }
