@@ -102,7 +102,7 @@
         if (request.Control?.ControlEnum == GridControlEnum.ButtonModal && request.Control.Name == "Delete")
         {
             request.Grid.Clear();
-            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "Delete row?" });
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = "Delete row?" });
             request.Grid.AddRow();
             request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk, Name = "Delete" });
             request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });

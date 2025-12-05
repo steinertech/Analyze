@@ -39,7 +39,7 @@
             {
                 var dataRowIndex = parentCell.DataRowIndex!;
                 var folderOrFileName = parentGrid!.CellList().Where(item => item.CellEnum == GridCellEnum.Field && dataRowIndex == item.DataRowIndex).Select(item => item.Text).Single();
-                grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = $"Delete File? ({folderOrFileName})" });
+                grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = $"Delete File? ({folderOrFileName})" });
                 grid.AddRow();
                 grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
                 grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
@@ -205,7 +205,7 @@
         if (modalName == "CreateFolder")
         {
             request.Grid.AddRow();
-            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "Folder Name" });
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = "Folder Name" });
             request.Grid.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom });
             request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Validate" });
             request.Grid.AddRow();

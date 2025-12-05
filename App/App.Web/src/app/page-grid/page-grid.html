@@ -120,8 +120,8 @@
       @case (GridControlEnum.CheckboxSelectMultiAll) {
       <input [ngModel]="cellTextGetControl(cell, control)==='true'" [indeterminate]="cellTextGetControlIndeterminate(cell, control)==='true'" (ngModelChange)="cellTextSetControl(cell, control, $event.toString())" type="checkbox">
       }
-      <!-- Label Custom -->
-      @case (GridControlEnum.LabelCustom) {
+      <!-- Label -->
+      @case (GridControlEnum.Label) {
       {{control.text}}
       }
       <!-- Field Custom -->

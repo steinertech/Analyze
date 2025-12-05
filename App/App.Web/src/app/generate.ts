@@ -153,7 +153,7 @@ export enum GridControlEnum {
   Button = 7,
   ButtonCustom = 8,
   CheckboxSelectMultiAll = 9,
-  LabelCustom = 10,
+  Label = 10,
   FieldCustom = 11,
   ButtonModal = 12,
   ButtonModalCustom = 13,

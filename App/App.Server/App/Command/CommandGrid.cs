@@ -243,7 +243,7 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
             CellEnum = GridCellEnum.Control,
             ControlList = [
             new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll, Text = "false" },
-            new() { ControlEnum = GridControlEnum.LabelCustom, Text = "(Select All)" },
+            new() { ControlEnum = GridControlEnum.Label, Text = "(Select All)" },
             ]
         });
         // State
@@ -301,7 +301,7 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
             CellEnum = GridCellEnum.Control,
             ControlList = [
             new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll, Text = "false" },
-            new() { ControlEnum = GridControlEnum.LabelCustom, Text = "(Select All)" },
+            new() { ControlEnum = GridControlEnum.Label, Text = "(Select All)" },
             ]
         });
         // State
@@ -1419,7 +1419,7 @@ public enum GridControlEnum
     /// <summary>
     /// Custom readonly label.
     /// </summary>
-    LabelCustom = 10,
+    Label = 10,
 
     /// <summary>
     /// Custom text field.

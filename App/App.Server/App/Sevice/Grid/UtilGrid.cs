@@ -608,7 +608,7 @@ public static class UtilGrid
             foreach (var column in columnList)
             {
                 grid.AddRow();
-                grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = column.FieldName });
+                grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = column.FieldName });
                 grid.AddRow();
                 var text = dataRow[column.FieldName]?.ToString();
                 var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
@@ -648,7 +648,7 @@ public static class UtilGrid
             foreach (var column in columnList)
             {
                 grid.AddRow();
-                grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = column.FieldName });
+                grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = column.FieldName });
                 grid.AddRow();
                 var text = dataRow[column.FieldName]?.ToString();
                 var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
@@ -677,7 +677,7 @@ public static class UtilGrid
     public static void RenderConfirmDelete(GridRequest2Dto request)
     {
         request.Grid.Clear();
-        request.Grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "Delete row?" }); // Could be handled by client without callback.
+        request.Grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = "Delete row?" }); // Could be handled by client without callback.
         request.Grid.AddRow();
         request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk, Name = "Delete" });
         request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
@@ -880,7 +880,7 @@ public static class UtilGrid
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll, Text = grid.State?.IsSelectMultiAll?.ToString() });
         grid.AddCellControl();
-        grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "(Select All)" });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = "(Select All)" });
         // Render Data
         var dataRowIndex = 0;
         foreach (var dataRow in dataRowList)
@@ -888,7 +888,7 @@ public static class UtilGrid
             grid.AddRow();
             var text = dataRow[fieldName]?.ToString();
             grid.AddCell(new() { CellEnum = GridCellEnum.CheckboxSelectMulti, DataRowIndex = dataRowIndex }, text);
-            grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = text });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = text });
             dataRowIndex += 1;
         }
         // Render Pagination
@@ -915,7 +915,7 @@ public static class UtilGrid
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll, Text = grid.State?.IsSelectMultiAll?.ToString() });
         grid.AddCellControl();
-        grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = "(Select All)" });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = "(Select All)" });
         // Render Data
         var dataRowIndex = 0;
         foreach (var dataRow in dataRowList)
@@ -923,7 +923,7 @@ public static class UtilGrid
             grid.AddRow();
             var text = dataRow[fieldName]?.ToString();
             grid.AddCell(new() { CellEnum = GridCellEnum.CheckboxSelectMulti, DataRowIndex = dataRowIndex }, text);
-            grid.AddControl(new() { ControlEnum = GridControlEnum.LabelCustom, Text = text });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = text });
             dataRowIndex += 1;
         }
         // Render Pagination
