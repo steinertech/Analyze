@@ -128,7 +128,7 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
             }
             grid.State.FieldSaveList = null;
         }
-        if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control.Name == "Delete")
+        if (request.Control?.ControlEnum == GridControlEnum.Button && request.Control.Name == "Delete")
         {
             var id = grid.State!.RowKeyList![request.Cell!.DataRowIndex!.Value]!;
             await cosmosDb.DeleteAsync<ArticleDto>(id);
@@ -188,7 +188,7 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
         grid.Clear();
         grid.AddRow();
         grid.AddCell(new() { CellEnum = GridCellEnum.None });
-        grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.ButtonCustom, Text = "New Article", Name = "New" });
+        grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.Button, Text = "New Article", Name = "New" });
         grid.AddRow();
         grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = "Text", Text = "Text" });
         grid.AddCell(new() { CellEnum = GridCellEnum.HeaderEmpty, Text = "Command" });
@@ -196,7 +196,7 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
         grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = "Text", TextPlaceholder = "Search" });
         grid.AddCell(new() { CellEnum = GridCellEnum.FilterEmpty });
         var dataRowIndex = 0;
-        if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control.Name == "New")
+        if (request.Control?.ControlEnum == GridControlEnum.Button && request.Control.Name == "New")
         {
             grid.AddRow();
             grid.AddCell(new GridCellDto { CellEnum = GridCellEnum.Field, FieldName = "Text", DataRowIndex = dataRowIndex, TextPlaceholder = "New" }, null);
@@ -206,7 +206,7 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
         {
             grid.AddRow();
             grid.AddCell(new GridCellDto { CellEnum = GridCellEnum.Field, Text = item.Text, FieldName = "Text", DataRowIndex = dataRowIndex }, item.Id);
-            grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" }, dataRowIndex);
+            grid.AddControl(new GridControlDto { ControlEnum = GridControlEnum.Button, Text = "Delete", Name = "Delete" }, dataRowIndex);
             dataRowIndex += 1;
         }
         grid.AddRow();

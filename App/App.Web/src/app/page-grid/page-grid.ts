@@ -436,6 +436,15 @@ export class PageGrid implements AfterViewInit {
           this.clickLookup(cell, control)
           break
         }
+        // Button
+        case GridControlEnum.Button: {
+          this.lookupClose()
+          if (!this._grid.state) {
+            this._grid.state = {}
+          }
+          await PageGrid.commandGridLoad2(this, cell, control)
+          break
+        }
         // Button Custom
         case GridControlEnum.ButtonCustom: {
           this.lookupClose()
@@ -449,7 +458,7 @@ export class PageGrid implements AfterViewInit {
     }
   }
 
-  /** Open lookup window */
+  /** Open lookup window (or modal)*/
   async clickLookup(cell: GridCellDto, control?: GridControlDto) {
     if (this._grid) {
       if (this.lookup() == undefined) {
@@ -459,7 +468,7 @@ export class PageGrid implements AfterViewInit {
       lookup.cell = cell
       lookup.control = control
       lookup.grid ??= signal<GridDto>({ gridName: this._grid?.gridName })
-      if (control?.controlEnum == GridControlEnum.ButtonModal) {
+      if (control?.controlEnum == GridControlEnum.ButtonModal || control?.controlEnum == GridControlEnum.ButtonModalCustom) {
         lookup.isModal = true
       }
       // Load lookup see ngAfterViewInit

@@ -150,13 +150,14 @@ export enum GridControlEnum {
   ButtonLookupOk = 4,
   ButtonLookupSort = 5,
   ButtonColumn = 6,
-  ButtonCustom = 7,
-  CheckboxSelectMultiAll = 8,
-  LabelCustom = 9,
-  FieldCustom = 10,
-  ButtonModal = 11,
-  ButtonModalCustom = 12,
-  Pagination = 13,
+  Button = 7,
+  ButtonCustom = 8,
+  CheckboxSelectMultiAll = 9,
+  LabelCustom = 10,
+  FieldCustom = 11,
+  ButtonModal = 12,
+  ButtonModalCustom = 13,
+  Pagination = 14,
 }
 
 export class GridDto {

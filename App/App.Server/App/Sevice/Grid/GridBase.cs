@@ -90,7 +90,7 @@
             return new GridResponseDto { Grid = request.Grid };
         }
         // Save (Delete)
-        if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "Delete")
+        if (request.Control?.ControlEnum == GridControlEnum.Button && request.Control?.Name == "Delete")
         {
             var config = await Config();
             await GridSave(request, config);
@@ -123,7 +123,7 @@
         {
             var config = await Config();
             var dataRowList = await GridLoad(request, null, config.PageSize);
-            if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
+            if (request.Control?.ControlEnum == GridControlEnum.Button && request.Control?.Name == "New")
             {
                 dataRowList.Insert(0, Dynamic.Create(config));
             }
@@ -251,7 +251,7 @@
         {
             var config = await Config();
             var dataRowList = await GridLoad(request, null, config.PageSize);
-            if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
+            if (request.Control?.ControlEnum == GridControlEnum.Button && request.Control?.Name == "New")
             {
                 dataRowList.Insert(0, Dynamic.Create(config));
             }

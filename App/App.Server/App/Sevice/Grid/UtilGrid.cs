@@ -218,7 +218,7 @@ public static class UtilGrid
         else
         {
             // Delete
-            if ((request.Control?.ControlEnum == GridControlEnum.ButtonCustom || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete" && request.Grid.State?.RowKeyList != null)
+            if ((request.Control?.ControlEnum == GridControlEnum.Button || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete" && request.Grid.State?.RowKeyList != null)
             {
                 var rowKey = request.Grid.State.RowKeyList[request.Cell!.DataRowIndex!.Value];
                 if (config.IsAllowDelete)
@@ -703,7 +703,7 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonColumn });
         if (config.IsAllowNew)
         {
-            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "New", Name = "New" });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.Button, Text = "New", Name = "New" });
         }
         // Render Header
         grid.AddRow();
@@ -749,7 +749,7 @@ public static class UtilGrid
             {
                 if (config.IsAllowDeleteConfirm == false)
                 {
-                    grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" }, dataRowIndex);
+                    grid.AddControl(new() { ControlEnum = GridControlEnum.Button, Text = "Delete", Name = "Delete" }, dataRowIndex);
                 }
                 else
                 {
@@ -795,7 +795,7 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonColumn });
         if (config.IsAllowNew)
         {
-            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "New", Name = "New" });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.Button, Text = "New", Name = "New" });
         }
         // Render Header
         grid.AddRow();
@@ -837,7 +837,7 @@ public static class UtilGrid
             {
                 if (config.IsAllowDeleteConfirm == false)
                 {
-                    grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete" }, dataRowIndex);
+                    grid.AddControl(new() { ControlEnum = GridControlEnum.Button, Text = "Delete", Name = "Delete" }, dataRowIndex);
                 }
                 else
                 {

@@ -23,7 +23,7 @@
         // Create
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom });
-        grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Create Folder", Name = "CreateFolder" });
+        grid.AddControl(new() { ControlEnum = GridControlEnum.Button, Text = "Create Folder", Name = "CreateFolder" });
     }
 
     public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid)
@@ -68,7 +68,7 @@
             await UtilStorage.Rename(configuration.ConnectionStringStorage, item.Text!, item.TextModified!);
         }
         // Button Create Folder
-        if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control.Name == "CreateFolder")
+        if (request.Control?.ControlEnum == GridControlEnum.Button && request.Control.Name == "CreateFolder")
         {
             var control = grid.ControlModifiedList().SingleOrDefault();
             if (control != null)
@@ -184,7 +184,7 @@
 
     protected override async Task GridSave2Custom(GridRequest2Dto request, GridControlDto? buttonCustomClick, List<ControlSaveDto> fieldCustomSaveList, string? modalName)
     {
-        if (buttonCustomClick != null)
+        if (buttonCustomClick != null || fieldCustomSaveList.Count > 0)
         {
             var folderName = fieldCustomSaveList?.FirstOrDefault()?.TextModified;
             if (folderName != null)
@@ -200,7 +200,7 @@
         if (modalName == null || modalName == "Sub")
         {
             request.Grid.AddRow();
-            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModal, Text = "Create Folder", Name = "CreateFolder" });
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModalCustom, Text = "Create Folder", Name = "CreateFolder" });
         }
         if (modalName == "CreateFolder")
         {

@@ -770,7 +770,7 @@ public class GridRequest2Dto
             UtilServer.Assert(result == GridRequest2GridEnum.None);
             result = GridRequest2GridEnum.LookupConfirmDelete;
         }
-        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModal && !(new[] { "Edit", "Delete" }).Contains(request.ParentControl?.Name))
+        if (request.ParentControl?.ControlEnum == GridControlEnum.ButtonModalCustom)
         {
             UtilServer.Assert(result == GridRequest2GridEnum.None);
             result = GridRequest2GridEnum.LookupSub;
@@ -805,22 +805,20 @@ public class GridRequest2Dto
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.GridSave;
                 }
-                if ((request.Control?.ControlEnum == GridControlEnum.ButtonCustom || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete")
+                if ((request.Control?.ControlEnum == GridControlEnum.Button || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete")
                 {
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.GridDelete;
                 }
+                if (request.Control?.ControlEnum == GridControlEnum.Button && request.Control?.Name == "New")
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.GridNew;
+                }
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom)
                 {
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
-                    if (request.Control?.Name == "New")
-                    {
-                        result = GridRequest2GridActionEnum.GridNew;
-                    }
-                    else
-                    {
-                        result = GridRequest2GridActionEnum.ButtonCustom;
-                    }
+                    result = GridRequest2GridActionEnum.ButtonCustom;
                 }
                 break;
             case GridRequest2GridEnum.LookupConfirmDelete:
@@ -855,17 +853,17 @@ public class GridRequest2Dto
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.LookupSubSave;
                 }
-                if ((request.Control?.ControlEnum == GridControlEnum.ButtonCustom || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete")
+                if ((request.Control?.ControlEnum == GridControlEnum.Button || request.Control?.ControlEnum == GridControlEnum.ButtonModal) && request.Control.Name == "Delete")
                 {
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.LookupSubDelete;
                 }
-                if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "New")
+                if (request.Control?.ControlEnum == GridControlEnum.Button && request.Control?.Name == "New")
                 {
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.LookupSubNew;
                 }
-                if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && !(new[] { "New", "Delete" }).Contains(request.Control?.Name))
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom)
                 {
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.ButtonCustom;
@@ -1404,34 +1402,44 @@ public enum GridControlEnum
     ButtonColumn = 6,
 
     /// <summary>
-    /// Custom button like for example delete.
+    /// Button like for example delete.
     /// </summary>
-    ButtonCustom = 7,
+    Button = 7,
+
+    /// <summary>
+    /// Custom button like for example create folder.
+    /// </summary>
+    ButtonCustom = 8,
 
     /// <summary>
     /// Select all row checkbox.
     /// </summary>
-    CheckboxSelectMultiAll = 8, // GridCellEnum.CheckboxSelectMulti is data cell specific. ControlEnum.CheckboxSelectMultiAll is not data cell specific.
+    CheckboxSelectMultiAll = 9, // GridCellEnum.CheckboxSelectMulti is data cell specific. ControlEnum.CheckboxSelectMultiAll is not data cell specific.
 
     /// <summary>
     /// Custom readonly label.
     /// </summary>
-    LabelCustom = 9,
+    LabelCustom = 10,
 
     /// <summary>
     /// Custom text field.
     /// </summary>
-    FieldCustom = 10,
+    FieldCustom = 11,
 
     /// <summary>
     /// Opens a lookup modal window. Calls method CommandGrid.Load(); to get modal grid data.
     /// </summary>
-    ButtonModal = 11,
+    ButtonModal = 12,
+
+    /// <summary>
+    /// Opens a lookup modal window. Calls method CommandGrid.Load(); to get modal grid data.
+    /// </summary>
+    ButtonModalCustom = 13,
 
     /// <summary>
     /// Data grid pagination. See also GridPaginationDto.
     /// </summary>
-    Pagination = 13,
+    Pagination = 14,
 }
 
 public class GridFilterLookupDataRowDto

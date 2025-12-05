@@ -108,6 +108,10 @@
       @case (GridControlEnum.ButtonColumn) {
       <button (click)="clickControl(cell, control)"><span class="i-column"></span></button>
       }
+      <!-- Button -->
+      @case (GridControlEnum.Button) {
+      <button class="frm-button-soft" (click)="clickControl(cell, control)">{{control.text ?? 'Button'}}</button>
+      }
       <!-- Button Custom -->
       @case (GridControlEnum.ButtonCustom) {
       <button class="frm-button-soft" (click)="clickControl(cell, control)">{{control.text ?? 'Button'}}</button>
