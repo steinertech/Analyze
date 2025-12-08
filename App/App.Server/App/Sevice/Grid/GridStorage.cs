@@ -203,13 +203,16 @@
     {
         base.Render2(request, dataRowList, config, modalName);
 
-        foreach (var row in request.Grid.RowCellList!)
+        if (request.Grid.RowCellList != null) // ModeName CreateFolder hos no RowCellList
         {
-            var dataRowIndex = row.Last().DataRowIndex;
-            if (dataRowIndex != null)
+            foreach (var row in request.Grid.RowCellList)
             {
-                row.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Select", Name = "Select" });
-                row.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom, Text = "Hello" + (dataRowIndex + 1) });
+                var dataRowIndex = row.Last().DataRowIndex;
+                if (dataRowIndex != null)
+                {
+                    row.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Select", Name = "Select" });
+                    row.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom, Text = "Hello" + (dataRowIndex + 1) });
+                }
             }
         }
 
