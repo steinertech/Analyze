@@ -72,7 +72,7 @@
     /// <summary>
     /// User clicked custom button or modified custom field.
     /// </summary>
-    protected virtual Task GridSave2Custom(GridRequest2Dto request, GridControlDto? buttonCustomClick, List<ControlSaveDto> fieldCustomSaveList, string? modalName) 
+    protected virtual Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<ControlSaveDto> fieldCustomSaveList, string? modalName) 
     {
         return Task.CompletedTask;
     }
@@ -275,7 +275,7 @@
                     }
                     var config = await Config();
                     var modalName = request.ParentControl?.Name;
-                    var buttonCustomClick = request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom ? request.Control : null;
+                    var buttonCustomClick = request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom ? new GridButtonCustom() { Cell = request.Cell!, Control = request.Control! } : null;
                     var fieldCustomSaveList = request.Grid.State?.ControlSaveList ?? new();
                     // Save
                     var isSave = 
@@ -494,21 +494,14 @@
 
     public virtual void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName) // TODO Rename to GridRender
     {
-        if (modalName == null)
-        {
-            UtilGrid.RenderGrid2(request, dataRowList, config);
-        }
-        if (modalName == "Edit")
-        {
-            UtilGrid.RenderForm2(request, dataRowList, config);
-        }
-        if (modalName == "Delete")
-        {
-            UtilGrid.RenderConfirmDelete(request);
-        }
-        if (modalName == "Sub")
-        {
-            UtilGrid.RenderGrid2(request, dataRowList, config);
-        }
+        UtilGrid.Render2(request, dataRowList, config, modalName);
     }
+}
+
+public class GridButtonCustom
+{
+    public GridCellDto Cell { get; set; } = default!;
+
+    public GridControlDto Control { get; set; } = default!;
+
 }

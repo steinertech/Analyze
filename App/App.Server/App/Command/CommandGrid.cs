@@ -915,6 +915,26 @@ public class GridResponseDto
     }
 }
 
+public static class GridDtoExtension
+{
+    public static GridControlDto AddControl(this List<GridCellDto> row, GridControlDto control, int? dataRowIndex = null)
+    {
+        if (row.LastOrDefault()?.CellEnum != GridCellEnum.Control)
+        {
+            row.Add(new() { CellEnum = GridCellEnum.Control, ControlList = [] });
+        }
+        var cell = row.Last();
+        cell.ControlList = cell.ControlList ?? [];
+        cell.ControlList.Add(control);
+        if (dataRowIndex != null)
+        {
+            UtilServer.Assert(cell.DataRowIndex == null || cell.DataRowIndex == dataRowIndex, "DataRowIndex invalid!");
+            cell.DataRowIndex = dataRowIndex;
+        }
+        return control;
+    }
+}
+
 public class GridDto
 {
     public string GridName { get; set; } = default!;
@@ -1106,18 +1126,7 @@ public class GridDto
             RowCellList.Add(new());
         }
         var row = RowCellList.Last();
-        if (row.LastOrDefault()?.CellEnum != GridCellEnum.Control)
-        {
-            row.Add(new() { CellEnum = GridCellEnum.Control, ControlList = [] });
-        }
-        var cell = row.Last();
-        cell.ControlList = cell.ControlList ?? [];
-        cell.ControlList.Add(control);
-        if (dataRowIndex != null)
-        {
-            UtilServer.Assert(cell.DataRowIndex == null || cell.DataRowIndex == dataRowIndex, "DataRowIndex invalid!");
-            cell.DataRowIndex = dataRowIndex;
-        }
+        row.AddControl(control, dataRowIndex);
         return control;
     }
 }

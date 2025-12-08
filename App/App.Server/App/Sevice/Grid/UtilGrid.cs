@@ -780,6 +780,26 @@ public static class UtilGrid
         RenderCalcColSpan(request);
     }
 
+    public static void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
+    {
+        if (modalName == null)
+        {
+            UtilGrid.RenderGrid2(request, dataRowList, config);
+        }
+        if (modalName == "Edit")
+        {
+            UtilGrid.RenderForm2(request, dataRowList, config);
+        }
+        if (modalName == "Delete")
+        {
+            UtilGrid.RenderConfirmDelete(request);
+        }
+        if (modalName == "Sub")
+        {
+            UtilGrid.RenderGrid2(request, dataRowList, config);
+        }
+    }
+
     /// <summary>
     /// Render data grid.
     /// </summary>

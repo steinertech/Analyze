@@ -112,7 +112,10 @@
     {
         var result = new GridConfig()
         {
-            ColumnList = [new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true }],
+            ColumnList = [
+                new() { FieldName = "IsFolder", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
+                new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true }
+            ],
             FieldNameRowKey = "Name", // Used to delete row
             IsAllowNew = true,
             IsAllowDelete = true,
@@ -128,6 +131,7 @@
         var result = UtilGridReflection.DynamicFrom(folderOrFileNameList, (dataRowFrom, dataRowTo) =>
         {
             dataRowTo["Name"] = dataRowFrom.FolderOrFileName;
+            dataRowTo["IsFolder"] = dataRowFrom.IsFolder;
             if (dataRowFrom.IsFolder)
             {
                 dataRowTo.IconSet("Name", "i-folder", isLeft: true);
@@ -135,15 +139,16 @@
             else
             {
                 dataRowTo.IconSet("Name", "i-file", isLeft: true);
-                if (dataRowFrom.FolderOrFileName.ToLower().EndsWith(".txt"))
+                var name = dataRowFrom.FolderOrFileName.ToLower();
+                if (name.EndsWith(".txt"))
                 {
                     dataRowTo.IconSet("Name", "i-text", isLeft: true);
                 }
-                if (dataRowFrom.FolderOrFileName.ToLower().EndsWith(".xlsx"))
+                if (name.EndsWith(".xlsx"))
                 {
                     dataRowTo.IconSet("Name", "i-excel", isLeft: true);
                 }
-                if (dataRowFrom.FolderOrFileName.ToLower().EndsWith(".png"))
+                if (name.EndsWith(".png"))
                 {
                     dataRowTo.IconSet("Name", "i-image", isLeft: true);
                 }
@@ -182,7 +187,7 @@
         }
     }
 
-    protected override async Task GridSave2Custom(GridRequest2Dto request, GridControlDto? buttonCustomClick, List<ControlSaveDto> fieldCustomSaveList, string? modalName)
+    protected override async Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<ControlSaveDto> fieldCustomSaveList, string? modalName)
     {
         if (buttonCustomClick != null || fieldCustomSaveList.Count > 0)
         {
@@ -197,20 +202,32 @@
     public override void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
     {
         base.Render2(request, dataRowList, config, modalName);
+
+        foreach (var row in request.Grid.RowCellList!)
+        {
+            var dataRowIndex = row.Last().DataRowIndex;
+            if (dataRowIndex != null)
+            {
+                row.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Select", Name = "Select" });
+                row.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom, Text = "Hello" + (dataRowIndex + 1) });
+            }
+        }
+
+        var grid = request.Grid;
         if (modalName == null || modalName == "Sub")
         {
-            request.Grid.AddRow();
-            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModalCustom, Text = "Create Folder", Name = "CreateFolder" });
+            grid.AddRow();
+            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonModalCustom, Text = "Create Folder", Name = "CreateFolder" });
         }
         if (modalName == "CreateFolder")
         {
-            request.Grid.AddRow();
-            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = "Folder Name" });
-            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom });
-            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Validate" });
-            request.Grid.AddRow();
-            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
-            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+            grid.AddRow();
+            grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = "Folder Name" });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Validate" });
+            grid.AddRow();
+            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
         }
     }
 }
