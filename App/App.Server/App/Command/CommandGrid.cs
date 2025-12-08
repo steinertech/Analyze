@@ -1097,29 +1097,6 @@ public class GridDto
         }
         return result;
     }
-
-    public GridControlDto AddControl(GridControlDto control, int? dataRowIndex = null)
-    {
-        RowCellList = RowCellList ?? new();
-        if (RowCellList.LastOrDefault() == null)
-        {
-            RowCellList.Add(new());
-        }
-        var row = RowCellList.Last();
-        if (row.LastOrDefault()?.CellEnum != GridCellEnum.Control)
-        {
-            row.Add(new() { CellEnum = GridCellEnum.Control, ControlList = [] });
-        }
-        var cell = row.Last();
-        cell.ControlList = cell.ControlList ?? [];
-        cell.ControlList.Add(control);
-        if (dataRowIndex != null)
-        {
-            UtilServer.Assert(cell.DataRowIndex == null || cell.DataRowIndex == dataRowIndex, "DataRowIndex invalid!");
-            cell.DataRowIndex = dataRowIndex;
-        }
-        return control;
-    }
 }
 
 public class GridStateDto

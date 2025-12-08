@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
@@ -259,6 +260,7 @@ public enum DynamicEnum
 /// <summary>
 /// See also UtilCosmosDbDynamic.Select(); and UtilTableStorageDynamic.SelectAsync(); Bridge to grid data row for processing. It's not a Dto.
 /// </summary>
+[DebuggerDisplay("Count = {Count}; ValueModified = {ValueModifiedDebug};")]
 public class Dynamic : Dictionary<string, object?>
 {
     public Dynamic()
@@ -368,6 +370,8 @@ public class Dynamic : Dictionary<string, object?>
     }
 
     private Dictionary<string, object?> valueModifiedList = new();
+
+    public string ValueModifiedDebug => string.Join(", ", valueModifiedList.Values);
 
     public object? ValueModifiedGet(string fieldName)
     {
