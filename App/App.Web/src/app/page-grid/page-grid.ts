@@ -272,16 +272,15 @@ export class PageGrid implements AfterViewInit {
         case GridControlEnum.FieldCustom: {
           control.textModified = UtilClient.normalizeString(control.text) != UtilClient.normalizeString(value) ? value : undefined
           this._grid.state ??= {}
-          this._grid.state.controlSaveList ??= []
-          const index = this._grid.state.controlSaveList.findIndex(item => item.name == control.name)
+          this._grid.state.fieldCustomSaveList ??= []
+          const index = this._grid.state.fieldCustomSaveList.findIndex(item => item.cell?.dataRowIndex == cell.dataRowIndex && item.control?.name == control.name)
           if (index != -1) {
-            this._grid.state.controlSaveList.splice(index) // Remove item
+            this._grid.state.fieldCustomSaveList.splice(index) // Remove item
           }
           if (control.textModified != undefined) {
-            this._grid.state.controlSaveList.push({
-              name: control.name,
-              text: control.text,
-              textModified: control.textModified
+            this._grid.state.fieldCustomSaveList.push({
+              cell: cell,
+              control: control
             })
           }
           break

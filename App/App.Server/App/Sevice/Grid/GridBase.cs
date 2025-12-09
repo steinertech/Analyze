@@ -72,7 +72,7 @@
     /// <summary>
     /// User clicked custom button or modified custom field.
     /// </summary>
-    protected virtual Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<ControlSaveDto> fieldCustomSaveList, string? modalName) 
+    protected virtual Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<FieldCustomSaveDto> fieldCustomSaveList, string? modalName) 
     {
         return Task.CompletedTask;
     }
@@ -276,7 +276,7 @@
                     var config = await Config();
                     var modalName = request.ParentControl?.Name;
                     var buttonCustomClick = request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom ? new GridButtonCustom() { Cell = request.Cell!, Control = request.Control! } : null;
-                    var fieldCustomSaveList = request.Grid.State?.ControlSaveList ?? new();
+                    var fieldCustomSaveList = request.Grid.State?.FieldCustomSaveList ?? new();
                     // Save
                     var isSave = 
                         request.GridActionEnum == GridRequest2GridActionEnum.GridSave || 

@@ -187,14 +187,17 @@
         }
     }
 
-    protected override async Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<ControlSaveDto> fieldCustomSaveList, string? modalName)
+    protected override async Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<FieldCustomSaveDto> fieldCustomSaveList, string? modalName)
     {
-        if (buttonCustomClick != null || fieldCustomSaveList.Count > 0)
+        if (modalName == "CreateFolder")
         {
-            var folderName = fieldCustomSaveList?.FirstOrDefault()?.TextModified;
-            if (folderName != null)
+            if (buttonCustomClick != null || fieldCustomSaveList.Count > 0)
             {
-                await UtilStorage.Create(configuration.ConnectionStringStorage!, folderName);
+                var folderName = fieldCustomSaveList?.FirstOrDefault()?.Control?.TextModified;
+                if (folderName != null)
+                {
+                    await UtilStorage.Create(configuration.ConnectionStringStorage!, folderName);
+                }
             }
         }
     }

@@ -1169,7 +1169,7 @@ public class GridStateDto
 
     public List<FieldSaveDto>? FieldSaveList { get; set; }
     
-    public List<ControlSaveDto>? ControlSaveList { get; set; }
+    public List<FieldCustomSaveDto>? FieldCustomSaveList { get; set; }
 }
 
 public class FieldSaveDto
@@ -1183,13 +1183,11 @@ public class FieldSaveDto
     public string? TextModified { get; set; }
 }
 
-public class ControlSaveDto // TODO Rename to FieldCustomSaveDto
+public class FieldCustomSaveDto
 {
-    public string? Name { get; set; }
+    public GridCellDto? Cell { get; set; }
 
-    public string? Text { get; set; }
-
-    public string? TextModified { get; set; }
+    public GridControlDto? Control { get; set; }
 }
 
 public class GridPaginationDto

@@ -10,6 +10,8 @@ Start DevContainer Codespace
 * Data Explorer, Setting, RU Limit
 
 # ToDo
+* Multi sort (for folder)
+* Custom field control and cell
 * GridRequest2GridEnum see also
 * GridArg
 * Excel hours and hours total

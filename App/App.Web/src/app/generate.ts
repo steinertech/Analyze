@@ -188,7 +188,7 @@ export class GridStateDto {
   public rowKeyMasterList?: Record<string, string | null>
   public pagination?: GridPaginationDto
   public fieldSaveList?: FieldSaveDto[]
-  public controlSaveList?: ControlSaveDto[]
+  public fieldCustomSaveList?: FieldCustomSaveDto[]
 }
 
 export class FieldSaveDto {
@@ -198,10 +198,10 @@ export class FieldSaveDto {
   public textModified?: string
 }
 
-export class ControlSaveDto {
-  public name?: string
-  public text?: string
-  public textModified?: string
+export class FieldCustomSaveDto
+{
+    public cell?: GridCellDto
+    public control?: GridControlDto
 }
 
 export class GridPaginationDto {
