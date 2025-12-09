@@ -11,7 +11,7 @@ Start DevContainer Codespace
 
 # ToDo
 * Multi sort (for folder)
-* Custom field control and cell
+* Custom field control and cell [Done]
 * GridRequest2GridEnum see also
 * GridArg
 * Excel hours and hours total

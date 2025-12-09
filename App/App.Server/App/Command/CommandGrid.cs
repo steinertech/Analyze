@@ -1167,20 +1167,9 @@ public class GridStateDto
 
     public GridPaginationDto? Pagination { get; set; }
 
-    public List<FieldSaveDto>? FieldSaveList { get; set; }
+    public List<GridCellDto>? FieldSaveList { get; set; }
     
     public List<FieldCustomSaveDto>? FieldCustomSaveList { get; set; }
-}
-
-public class FieldSaveDto
-{
-    public string? FieldName { get; set; }
- 
-    public int? DataRowIndex { get; set; }
-
-    public string? Text { get; set; }
-
-    public string? TextModified { get; set; }
 }
 
 public class FieldCustomSaveDto

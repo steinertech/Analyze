@@ -158,17 +158,22 @@ export class PageGrid implements AfterViewInit {
         this._grid.state.fieldSaveList = []
       }
       if (cell.fieldName && cell.dataRowIndex != undefined) {
-        const index = this._grid.state.fieldSaveList.findIndex(item => item.fieldName == cell.fieldName && item.dataRowIndex == cell.dataRowIndex)
-        if (index != -1) {
-          this._grid.state.fieldSaveList.splice(index) // Remove item
-        }
-        if (cell.textModified != undefined) {
-          this._grid.state.fieldSaveList.push({
-            fieldName: cell.fieldName,
+        let index = this._grid.state.fieldSaveList.findIndex(item => item.dataRowIndex == cell.dataRowIndex && item.fieldName == cell.fieldName)
+        if (cell.textModified == undefined) {
+          if (index != -1) {
+            this._grid.state.fieldSaveList.splice(index, 1) // Remove item
+          }
+        } else {
+          if (index == -1) {
+            index = this._grid.state.fieldSaveList.push({}) - 1
+          }
+          this._grid.state.fieldSaveList[index] = {
+            cellEnum: cell.cellEnum,
             dataRowIndex: cell.dataRowIndex,
+            fieldName: cell.fieldName,
             text: cell.text,
             textModified: cell.textModified
-          })
+          }
         }
       }
     }
@@ -273,15 +278,25 @@ export class PageGrid implements AfterViewInit {
           control.textModified = UtilClient.normalizeString(control.text) != UtilClient.normalizeString(value) ? value : undefined
           this._grid.state ??= {}
           this._grid.state.fieldCustomSaveList ??= []
-          const index = this._grid.state.fieldCustomSaveList.findIndex(item => item.cell?.dataRowIndex == cell.dataRowIndex && item.control?.name == control.name)
-          if (index != -1) {
-            this._grid.state.fieldCustomSaveList.splice(index) // Remove item
-          }
-          if (control.textModified != undefined) {
-            this._grid.state.fieldCustomSaveList.push({
-              cell: cell,
+          let index = this._grid.state.fieldCustomSaveList.findIndex(item => item.cell?.dataRowIndex == cell.dataRowIndex && item.control?.name == control.name)
+          if (control.textModified == undefined) {
+            if (index != -1) {
+              this._grid.state.fieldCustomSaveList.splice(index, 1) // Remove item
+            }
+          } else {
+            if (index == -1) {
+              index = this._grid.state.fieldCustomSaveList.push({}) - 1
+            }
+            this._grid.state.fieldCustomSaveList[index] = {
+              cell: {
+                cellEnum: cell.cellEnum,
+                dataRowIndex: cell.dataRowIndex,
+                fieldName: cell.fieldName,
+                text: cell.text,
+                textModified: cell.textModified
+              },
               control: control
-            })
+            }
           }
           break
         }

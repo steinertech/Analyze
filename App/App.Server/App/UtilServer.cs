@@ -260,7 +260,7 @@ public enum DynamicEnum
 /// <summary>
 /// See also UtilCosmosDbDynamic.Select(); and UtilTableStorageDynamic.SelectAsync(); Bridge to grid data row for processing. It's not a Dto.
 /// </summary>
-[DebuggerDisplay("Count = {Count}; ValueModified = {ValueModifiedDebug};")]
+[DebuggerDisplay("Count = {Count}; ValueModified = {ValueModifiedDebug}; {DynamicEnum};")]
 public class Dynamic : Dictionary<string, object?>
 {
     public Dynamic()
