@@ -1101,7 +1101,26 @@ public class GridDto
 
 public class GridStateDto
 {
-    public GridStateSortDto? Sort { get; set; } // public List<GridStateSortDto> SortList { get; set; }
+    public List<GridStateSortDto>? SortList { get; set; }
+
+    /// <summary>
+    /// Returns distinct SortList.
+    /// </summary>
+    public List<GridStateSortDto> SortListGet()
+    {
+        var result = new List<GridStateSortDto>();
+        if (SortList != null)
+        {
+            foreach (var sort in SortList)
+            {
+                if (result.Any(item => item.FieldName == sort.FieldName) == false)
+                {
+                    result.Add(new() { FieldName = sort.FieldName, IsDesc = sort.IsDesc });
+                }
+            }
+        }
+        return result;
+    }
 
     /// <summary>
     /// (FieldName, Text)
@@ -1246,6 +1265,10 @@ public class GridCellDto
     public int? ColSpan { get; set; }
     
     public int? RowSpan { get; set; }
+
+    public bool? SortIsDesc { get; set; }
+
+    public int? SortIndex { get; set; }
 }
 
 public class GridCellIconDto

@@ -114,6 +114,8 @@ export class GridCellDto {
   public iconRight?: GridCellIconDto
   public colSpan?: number
   public rowSpan?: number
+  public sortIsDesc?: boolean
+  public sortIndex?: number
 }
 
 export class GridCellIconDto {
@@ -174,7 +176,7 @@ export class GridDto {
 }
 
 export class GridStateDto {
-  public sort?: GridStateSortDto
+  public sortList?: GridStateSortDto[]
   public filterList?: Record<string, string>
   public filterMultiList?: Record<string, GridStateFilterMultiDto>
   public isMouseEnterList?: (boolean | null)[]

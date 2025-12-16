@@ -68,15 +68,16 @@ public class GridMemory : GridBase
             }
         }
         // Sort
-        if (grid.State?.Sort != null)
+        var sort = grid.State?.SortList?.FirstOrDefault();
+        if (sort != null)
         {
-            if (grid.State.Sort.IsDesc)
+            if (sort.IsDesc)
             {
-                query = query.OrderBy($"{grid.State.Sort.FieldName} DESC");
+                query = query.OrderBy($"{sort.FieldName} DESC");
             }
             else
             {
-                query = query.OrderBy($"{grid.State.Sort.FieldName}");
+                query = query.OrderBy($"{sort.FieldName}");
             }
         }
         var result = query.Cast<T>().ToList();

@@ -168,15 +168,16 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
             pagination.PageIndex = 0;
         }
         // Sort
-        if (grid.State?.Sort != null)
+        var sort = grid.State?.SortList?.FirstOrDefault();
+        if (sort != null)
         {
-            if (grid.State.Sort.IsDesc == false)
+            if (sort.IsDesc == false)
             {
-                query = query.OrderBy($"{grid.State.Sort.FieldName}");
+                query = query.OrderBy($"{sort.FieldName}");
             }
             else
             {
-                query = query.OrderBy($"{grid.State.Sort.FieldName} DESC");
+                query = query.OrderBy($"{sort.FieldName} DESC");
             }
         }
         // Pagination

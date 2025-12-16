@@ -47,7 +47,6 @@ public static class UtilGrid
         var pagination = grid.State.Pagination;
         pagination.PageIndex ??= 0;
         pagination.PageIndexDeltaClick ??= 0;
-        var sort = grid.State.Sort;
         // Filter
         foreach (var (fieldName, text) in grid.State.FilterList)
         {
@@ -82,6 +81,7 @@ public static class UtilGrid
             pagination.PageIndex = 0;
         }
         // Sort
+        var sort = grid.State.SortList?.FirstOrDefault();
         if (sort != null)
         {
             query = query.OrderBy($"""{sort.FieldName}{(sort.IsDesc ? " DESC" : "")}""");
@@ -115,7 +115,6 @@ public static class UtilGrid
         var pagination = grid.State.Pagination;
         pagination.PageIndex ??= 0;
         pagination.PageIndexDeltaClick ??= 0;
-        var sort = grid.State.Sort;
         // Filter
         foreach (var (fieldName, text) in grid.State.FilterList)
         {
@@ -150,9 +149,18 @@ public static class UtilGrid
             pagination.PageIndex = 0;
         }
         // Sort
-        if (sort != null)
+        var sortList = grid.State.SortListGet();
+        for (int i = 0; i < sortList.Count; i++)
         {
-            query = query.OrderBy($"""{sort.FieldName}{(sort.IsDesc ? " DESC" : "")}""");
+            var sort = sortList[i];
+            if (i == 0)
+            {
+                query = query.OrderBy($"""{sort.FieldName}{(sort.IsDesc ? " DESC" : "")}""");
+            }
+            else
+            {
+                query = ((IOrderedQueryable<Dynamic>)query).ThenBy($"""{sort.FieldName}{(sort.IsDesc ? " DESC" : "")}""");
+            }
         }
         // Pagination
         query = query
@@ -819,9 +827,12 @@ public static class UtilGrid
         }
         // Render Header
         grid.AddRow();
+        var sortList = grid.State?.SortListGet();
         foreach (var column in columnList)
         {
-            grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = column.FieldName, Text = column.FieldName });
+            var sortIndex = sortList?.FindIndex(item => item.FieldName == column.FieldName);
+            var sortIsDesc = sortIndex >= 0 ? sortList?[sortIndex ?? -1].IsDesc : null;
+            grid.AddCell(new() { CellEnum = GridCellEnum.Header, FieldName = column.FieldName, Text = column.FieldName, SortIsDesc = sortIsDesc, SortIndex = sortIndex });
         }
         if (config.IsAllowDelete)
         {

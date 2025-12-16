@@ -378,13 +378,12 @@ export class PageGrid implements AfterViewInit {
           if (!this._grid.state) {
             this._grid.state = {}
           }
-          if (!this._grid.state.sort) {
-            this._grid.state.sort = { fieldName: undefined!, isDesc: false }
-          }
-          if (this._grid.state.sort.fieldName == cell.fieldName) {
-            this._grid.state.sort.isDesc = !this._grid.state.sort.isDesc
+          this._grid.state.sortList ??= []
+          const sort = this._grid.state.sortList.length > 0 ? this._grid.state.sortList[0] : null // First or default
+          if (sort && sort.fieldName == cell.fieldName) {
+            sort.isDesc = !sort.isDesc
           } else {
-            this._grid.state.sort = { fieldName: cell.fieldName!, isDesc: false }
+            this._grid.state.sortList.unshift({ fieldName: cell.fieldName!, isDesc: false }) // Insert at 0
           }
           this._grid.state.pagination = this._grid.state.pagination ?? {}
           this._grid.state.pagination.pageIndex = 0
@@ -429,17 +428,6 @@ export class PageGrid implements AfterViewInit {
           if (this.parent?._grid) {
             if (!this.parent._grid.state) {
               this.parent._grid.state = {}
-            }
-            if (!this.parent._grid.state.sort) {
-              // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-              this.parent._grid.state.sort = { fieldName: this.parent._lookup?.cell?.fieldName!, isDesc: false }
-            }
-            if (this.parent._grid.state.sort.fieldName != this.parent._lookup?.cell?.fieldName) {
-              // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-              this.parent._grid.state.sort = { fieldName: this.parent._lookup?.cell?.fieldName!, isDesc: false }
-            }
-            else {
-              this.parent._grid.state.sort.isDesc = !this.parent._grid.state.sort.isDesc
             }
             this.parent.lookupClose()
           }
