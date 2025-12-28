@@ -618,44 +618,64 @@ public enum GridRequest2GridActionEnum
     GridNew = 4,
 
     /// <summary>
-    /// User clicked row delete confirm button.
+    /// User clicked row delete confirm button open.
     /// </summary>
-    LookupConfirmDeleteOk = 5,
+    LookupConfirmDeleteOpen = 5,
+
+    /// <summary>
+    /// User clicked row delete confirm button ok.
+    /// </summary>
+    LookupConfirmDeleteOk = 6,
+
+    /// <summary>
+    /// User clicked lookup edit form open button.
+    /// </summary>
+    LookupEditOpen = 7,
 
     /// <summary>
     /// User clicked save button on lookup edit form.
     /// </summary>
-    LookupEditSave = 6,
+    LookupEditSave = 8,
 
     /// <summary>
     /// User clicked lookup autocomplete ok button.
     /// </summary>
-    LookupAutocompleteOk = 7,
+    LookupAutocompleteOk = 9,
 
     /// <summary>
     /// User clicked lookup sub window save button. See also enum GridControlEnum.ButtonLookupOk
     /// </summary>
-    LookupSubOk = 8,
+    LookupSubOk = 10,
 
     /// <summary>
     /// User clicked lookup sub window save button.
     /// </summary>
-    LookupSubSave = 9,
+    LookupSubSave = 11,
 
     /// <summary>
     /// User clicked lookup sub window delete row button.
     /// </summary>
-    LookupSubDelete = 10,
+    LookupSubDelete = 12,
 
     /// <summary>
     /// User clicked lookup sub window new row button.
     /// </summary>
-    LookupSubNew = 11,
+    LookupSubNew = 13,
 
     /// <summary>
     /// User clicked custom button.
     /// </summary>
-    ButtonCustom = 12,
+    ButtonCustom = 14,
+
+    /// <summary>
+    /// User clicked modal custom button.
+    /// </summary>
+    ButtonModalCustom = 15,
+
+    /// <summary>
+    /// User clicked lookup column button.
+    /// </summary>
+    LookupColumnOpen = 16,
 }
 
 public class GridRequest2Dto
@@ -822,6 +842,11 @@ public class GridRequest2Dto
                 }
                 break;
             case GridRequest2GridEnum.LookupConfirmDelete:
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonModal && request.Control.Name == "Delete")
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.LookupConfirmDeleteOpen;
+                }
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk && request.Control.Name == "Delete")
                 {
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
@@ -829,6 +854,11 @@ public class GridRequest2Dto
                 }
                 break;
             case GridRequest2GridEnum.LookupEdit:
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonModal && request.Control.Name == "Edit")
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.LookupEditOpen;
+                }
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonSave)
                 {
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
@@ -867,6 +897,18 @@ public class GridRequest2Dto
                 {
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.ButtonCustom;
+                }
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonModalCustom)
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.ButtonModalCustom;
+                }
+                break;
+            case GridRequest2GridEnum.LookupColumn:
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonColumn)
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.LookupColumnOpen;
                 }
                 break;
         }
@@ -1189,6 +1231,41 @@ public class GridStateDto
     public List<GridCellDto>? FieldSaveList { get; set; }
     
     public List<FieldCustomSaveDto>? FieldCustomSaveList { get; set; }
+
+    public List<GridStatePathDto>? PathList { get; set; }
+
+    /// <summary>
+    /// Adds path (or modal name)
+    /// </summary>
+    public void PathListAdd(string? path, bool? isModal, bool? isModalCustom)
+    {
+        PathList ??= new();
+        PathList.Add(new() { Path = path, IsModal = isModal, IsModalCustom = isModalCustom });
+    }
+
+    /// <summary>
+    /// Returns last modal path.
+    /// </summary>
+    public string? ModalNameGet()
+    {
+        var result = PathList?.Last(item => item.IsModal == true).Path;
+        return result;
+    }
+}
+
+public class GridStatePathDto
+{
+    public string? Path { get; set; }
+
+    /// <summary>
+    /// Gets or sets IsModal. If true, path segment transiations into modal window.
+    /// </summary>
+    public bool? IsModal { get; set; }
+
+    /// <summary>
+    /// Gets or sets IsModalCustom. If true, path segment transitions into custom modal window.
+    /// </summary>
+    public bool? IsModalCustom { get; set; }
 }
 
 public class FieldCustomSaveDto

@@ -191,6 +191,14 @@ export class GridStateDto {
   public pagination?: GridPaginationDto
   public fieldSaveList?: GridCellDto[]
   public fieldCustomSaveList?: FieldCustomSaveDto[]
+  public pathList?: GridStatePathDto[]
+}
+
+export class GridStatePathDto
+{
+    public path?: string;
+    public isModal?: boolean;
+    public isModalCustom?: boolean;
 }
 
 export class FieldCustomSaveDto

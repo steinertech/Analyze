@@ -92,7 +92,7 @@ public class GridArticle2 : GridBase
         return result;
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize, string? modalName)
     {
         // Load
         var dataRowList = this.dataRowList;

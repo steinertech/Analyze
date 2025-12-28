@@ -125,7 +125,7 @@
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize, string? modalName)
     {
         var folderOrFileNameList = await UtilStorage.List(configuration.ConnectionStringStorage, isRecursive: true);
         var result = UtilGridReflection.DynamicFrom(folderOrFileNameList, (dataRowFrom, dataRowTo) =>
@@ -189,6 +189,10 @@
 
     protected override async Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<FieldCustomSaveDto> fieldCustomSaveList, string? modalName)
     {
+        if (modalName == null && buttonCustomClick?.Control.Name == "Select")
+        {
+
+        }
         if (modalName == "CreateFolder")
         {
             if (buttonCustomClick != null || fieldCustomSaveList.Count > 0)
@@ -206,7 +210,7 @@
     {
         base.Render2(request, dataRowList, config, modalName);
 
-        if (request.Grid.RowCellList != null) // ModeName CreateFolder hos no RowCellList
+        if (request.Grid.RowCellList != null) // ModalName CreateFolder has no RowCellList
         {
             foreach (var row in request.Grid.RowCellList)
             {
@@ -227,6 +231,7 @@
         }
         if (modalName == "CreateFolder")
         {
+            UtilGrid.RenderGrid2(request, dataRowList, config);
             grid.AddRow();
             grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = "Folder Name" });
             grid.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom });

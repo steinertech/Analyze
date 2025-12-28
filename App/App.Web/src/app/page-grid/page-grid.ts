@@ -399,7 +399,7 @@ export class PageGrid implements AfterViewInit {
       switch (control.controlEnum) {
         // Button Reload
         case GridControlEnum.ButtonReload: {
-          this._grid.state = undefined // Clear state
+          this._grid.state = { pathList: this._grid.state?.pathList } // Clear state
           this.lookupClose()
           await PageGrid.commandGridLoad2(this, cell, control)
           break
