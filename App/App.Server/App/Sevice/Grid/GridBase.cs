@@ -278,7 +278,7 @@
                         request.Grid.StateGet().PathListAdd(request.Control?.Name, true, true);
                     }
                     var config = await Config();
-                    var modalName = request.Grid.State?.ModalNameGet();
+                    var modalName = request.Grid.State?.PathModalNameGet();
                     var buttonCustomClick = request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom ? new GridButtonCustom() { Cell = request.Cell!, Control = request.Control! } : null;
                     var fieldCustomSaveList = request.Grid.State?.FieldCustomSaveList ?? new();
                     // Save
@@ -321,7 +321,7 @@
                 {
                     ArgumentNullException.ThrowIfNull(request.ParentGrid);
                     ArgumentNullException.ThrowIfNull(request.ParentCell?.FieldName);
-                    var modalName = request.ParentGrid?.State?.ModalNameGet();
+                    var modalName = request.ParentGrid?.State?.PathModalNameGet();
                     // Button Ok
                     if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
                     {
@@ -373,7 +373,7 @@
             case GridRequest2GridEnum.LookupColumn:
                 {
                     ArgumentNullException.ThrowIfNull(request.ParentGrid);
-                    var modalName = request.ParentGrid?.State?.ModalNameGet();
+                    var modalName = request.ParentGrid?.State?.PathModalNameGet();
                     // Button Ok
                     if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
                     {
@@ -463,8 +463,8 @@
                         request.Grid.StateGet().PathListAdd("Edit", true, false);
                     }
                     var config = await Config();
-                    var modalName = request.Grid.State?.ModalNameGet();
-                    var modalNameParent = request.ParentGrid?.State?.ModalNameGet();
+                    var modalName = request.Grid.State?.PathModalNameGet();
+                    var modalNameParent = request.ParentGrid?.State?.PathModalNameGet();
                     // Save
                     if (request.GridActionEnum == GridRequest2GridActionEnum.LookupEditSave)
                     {
@@ -489,8 +489,8 @@
                         request.Grid.StateGet().PathListAdd("Delete", true, false);
                     }
                     var config = await Config();
-                    var modalName = request.Grid.State?.ModalNameGet();
-                    var modalNameParent = request.ParentGrid?.State?.ModalNameGet();
+                    var modalName = request.Grid.State?.PathModalNameGet();
+                    var modalNameParent = request.ParentGrid?.State?.PathModalNameGet();
                     if (request.GridActionEnum == GridRequest2GridActionEnum.LookupConfirmDeleteOk)
                     {
                         ArgumentNullException.ThrowIfNull(request.ParentGrid);

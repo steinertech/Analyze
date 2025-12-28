@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using System.Text.Json.Serialization;
 
 public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage storageGrid, GridArticle articleGrid, GridArticle2 gridArticle)
@@ -1237,25 +1238,59 @@ public class GridStateDto
     /// <summary>
     /// Adds path (or modal name)
     /// </summary>
-    public void PathListAdd(string? path, bool? isModal, bool? isModalCustom)
+    public void PathListAdd(string? name, bool? isModal, bool? isModalCustom)
     {
         PathList ??= new();
-        PathList.Add(new() { Path = path, IsModal = isModal, IsModalCustom = isModalCustom });
+        PathList.Add(new() { Name = name, IsModal = isModal, IsModalCustom = isModalCustom });
     }
 
     /// <summary>
-    /// Returns last modal path.
+    /// Returns path starting after last modal segment.
     /// </summary>
-    public string? ModalNameGet()
+    public string? PathGet()
     {
-        var result = PathList?.Last(item => item.IsModal == true).Path;
+        var index = PathModalIndexGet();
+        var pathList = PathList?.Skip(index + 1).ToList();
+        var result = new StringBuilder();
+        if (pathList != null)
+        {
+            foreach (var path in pathList)
+            {
+                if (result.Length > 0)
+                {
+                    result.Append("/");
+                }
+                result.Append(path.Name);
+            }
+        }
+        return result.ToString();
+    }
+
+    /// <summary>
+    /// Returns last modal path segment.
+    /// </summary>
+    public string? PathModalNameGet()
+    {
+        var result = PathList?.LastOrDefault(item => item.IsModal == true)?.Name;
+        return result;
+    }
+
+    /// <summary>
+    /// Returns index of last modal path segment.
+    /// </summary>
+    public int PathModalIndexGet()
+    {
+        var result = PathList?.Select((item, index) => new { Item = item, Index = index }).LastOrDefault(item => item.Item.IsModal == true)?.Index ?? -1;
         return result;
     }
 }
 
 public class GridStatePathDto
 {
-    public string? Path { get; set; }
+    /// <summary>
+    /// Gets or sets Name. This is the path segment name.
+    /// </summary>
+    public string? Name { get; set; }
 
     /// <summary>
     /// Gets or sets IsModal. If true, path segment transiations into modal window.

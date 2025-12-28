@@ -128,6 +128,8 @@
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize, string? modalName)
     {
         var folderOrFileNameList = await UtilStorage.List(configuration.ConnectionStringStorage, isRecursive: true);
+        var path = request.Grid.StateGet().PathGet();
+        folderOrFileNameList = folderOrFileNameList.Where(item => item.FolderOrFileName.StartsWith(path ?? "")).ToList();
         var result = UtilGridReflection.DynamicFrom(folderOrFileNameList, (dataRowFrom, dataRowTo) =>
         {
             dataRowTo["Name"] = dataRowFrom.FolderOrFileName;
@@ -189,9 +191,22 @@
 
     protected override async Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<FieldCustomSaveDto> fieldCustomSaveList, string? modalName)
     {
-        if (modalName == null && buttonCustomClick?.Control.Name == "Select")
+        if (buttonCustomClick?.Control.Name == "Select")
         {
-
+            var dataRowIndex = buttonCustomClick.Cell.DataRowIndex.GetValueOrDefault(-1);
+            var rowKey = request.Grid.State?.RowKeyList?[dataRowIndex];
+            if (rowKey != null)
+            {
+                var pathList = request.Grid.StateGet().PathList ?? new();
+                var index = request.Grid.StateGet().PathModalIndexGet();
+                pathList = pathList.Take(index + 1).ToList(); // Truncate
+                var nameList = rowKey.Split("/").Reverse().ToList();
+                foreach (var name in nameList)
+                {
+                    pathList.Insert(index + 1, new() { Name = name });
+                }
+                request.Grid.StateGet().PathList = pathList;
+            }
         }
         if (modalName == "CreateFolder")
         {
@@ -210,19 +225,6 @@
     {
         base.Render2(request, dataRowList, config, modalName);
 
-        if (request.Grid.RowCellList != null) // ModalName CreateFolder has no RowCellList
-        {
-            foreach (var row in request.Grid.RowCellList)
-            {
-                var dataRowIndex = row.Last().DataRowIndex;
-                if (dataRowIndex != null)
-                {
-                    row.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Select", Name = "Select" });
-                    row.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom, Text = "Hello" + (dataRowIndex + 1) });
-                }
-            }
-        }
-
         var grid = request.Grid;
         if (modalName == null || modalName == "Sub")
         {
@@ -239,6 +241,24 @@
             grid.AddRow();
             grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
             grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
+        }
+
+        // Folder select
+        if (request.Grid.RowCellList != null)
+        {
+            foreach (var row in request.Grid.RowCellList)
+            {
+                var dataRowIndex = row.Last().DataRowIndex;
+                if (dataRowIndex != null)
+                {
+                    var dataRow = dataRowList[dataRowIndex.Value];
+                    if ((bool?)dataRow["IsFolder"] == true)
+                    {
+                        row.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Select", Name = "Select" });
+                    }
+                    row.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom, Text = "Hello" + (dataRowIndex + 1) });
+                }
+            }
         }
     }
 }
