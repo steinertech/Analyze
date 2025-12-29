@@ -128,12 +128,12 @@
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize, string? modalName)
     {
         var folderOrFileNameList = await UtilStorage.List(configuration.ConnectionStringStorage, isRecursive: true);
-        var path = request.Grid.StateGet().PathGet(1);
+        var path = request.Grid.StateGet().PathGet();
         if (path == null)
         {
-            request.Grid.StateGet().PathListAdd(new() { Name = "Storage", Icon = new() { ClassName = "i-storage" } });
-            path = request.Grid.StateGet().PathGet(1);
+            request.Grid.StateGet().PathListAdd(new() { Name = "Storage", Icon = new() { ClassName = "i-storage" } }); // Breadcrumb home (Storage)
         }
+        path = request.Grid.StateGet().PathGet(1); // Breadcrumb without home (Storage)
         folderOrFileNameList = folderOrFileNameList.Where(item => item.FolderOrFileName.StartsWith(path ?? "")).ToList();
         var result = UtilGridReflection.DynamicFrom(folderOrFileNameList, (dataRowFrom, dataRowTo) =>
         {

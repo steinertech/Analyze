@@ -399,7 +399,7 @@ export class PageGrid implements AfterViewInit {
       switch (control.controlEnum) {
         // Button Reload
         case GridControlEnum.ButtonReload: {
-          this._grid.state = { pathList: this._grid.state?.pathList } // Clear state
+          this._grid.state = { pathList: this._grid.state?.pathList, pathModalIndex: this._grid.state?.pathModalIndex } // Clear state. Keep path.
           this.lookupClose()
           await PageGrid.commandGridLoad2(this, cell, control)
           break
@@ -484,6 +484,12 @@ export class PageGrid implements AfterViewInit {
       this._grid.state.pagination.pageIndexDeltaClick = indexDelta
       await PageGrid.commandGridLoad2(this, cell, control)
     }
+  }
+
+  async clickBreadcrumb(cell: GridCellDto, control: GridControlDto, index: number) {
+    const controlCopy = { ...control }
+    controlCopy.text = index.toString()
+    await PageGrid.commandGridLoad2(this, cell, controlCopy)
   }
 
   lookupClose() {

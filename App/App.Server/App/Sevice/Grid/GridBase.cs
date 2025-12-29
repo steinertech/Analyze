@@ -273,6 +273,19 @@
                     {
                         ArgumentNullException.ThrowIfNull(request.ParentGrid);
                     }
+                    // Breadcrumb
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.ButtonBreadcrumb)
+                    {
+                        var text = request.Control?.Text;
+                        if (text != null)
+                        {
+                            var index = int.Parse(text);
+                            var pathSourceList = request.Grid.StateGet().PathList;
+                            var pathModalIndex = request.Grid.StateGet().PathModalIndexGet();
+                            var pathDestList = pathSourceList?.Take(pathModalIndex + 1 + index + 1).ToList();
+                            request.Grid.StateGet().PathList = pathDestList;
+                        }
+                    }
                     if (request.GridActionEnum == GridRequest2GridActionEnum.ButtonModalCustom)
                     {
                         request.Grid.StateGet().PathListAdd(new() { Name = request.Control?.Name, IsModal = true, IsModalCustom = true });

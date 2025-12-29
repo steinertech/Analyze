@@ -677,6 +677,11 @@ public enum GridRequest2GridActionEnum
     /// User clicked lookup column button.
     /// </summary>
     LookupColumnOpen = 16,
+
+    /// <summary>
+    /// User clicked a breadcrumb button.
+    /// </summary>
+    ButtonBreadcrumb = 17,
 }
 
 public class GridRequest2Dto
@@ -841,6 +846,11 @@ public class GridRequest2Dto
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.ButtonCustom;
                 }
+                if (request.Control?.ControlEnum == GridControlEnum.Breadcrumb)
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.ButtonBreadcrumb;
+                }
                 break;
             case GridRequest2GridEnum.LookupConfirmDelete:
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonModal && request.Control.Name == "Delete")
@@ -903,6 +913,11 @@ public class GridRequest2Dto
                 {
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.ButtonModalCustom;
+                }
+                if (request.Control?.ControlEnum == GridControlEnum.Breadcrumb)
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.ButtonBreadcrumb;
                 }
                 break;
             case GridRequest2GridEnum.LookupColumn:

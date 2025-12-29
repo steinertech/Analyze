@@ -149,10 +149,12 @@
       @if(i > 0) {
       >
       }
+      <button class="cursor-pointer" (click)="clickBreadcrumb(cell, control, i)">
       @if (item.icon) {
       <span title="{{item.icon.tooltip}}" [ngClass]=item.icon.className></span>
       }
       {{ item.name }}
+      </button>
       }
       }
       }
