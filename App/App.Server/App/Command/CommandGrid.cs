@@ -1034,7 +1034,7 @@ public class GridDto
     public List<List<GridCellDto>>? Clear()
     {
         RowCellList = RowCellList ?? new();
-        RowCellList.Clear();
+        // RowCellList.Clear();
         if (State != null)
         {
             State.RowKeyList = null;
@@ -1236,34 +1236,45 @@ public class GridStateDto
     public List<GridStatePathDto>? PathList { get; set; }
 
     /// <summary>
+    /// Gets or sets PathModalIndex. This is the index of the last modal path segment. Used for example for breadcrumb.
+    /// </summary>
+    public int? PathModalIndex { get; set; }
+
+    /// <summary>
     /// Adds path (or modal name)
     /// </summary>
-    public void PathListAdd(string? name, bool? isModal, bool? isModalCustom)
+    public void PathListAdd(GridStatePathDto value)
     {
         PathList ??= new();
-        PathList.Add(new() { Name = name, IsModal = isModal, IsModalCustom = isModalCustom });
+        PathList.Add(value);
+        PathModalIndex = PathModalIndexGet();
     }
 
     /// <summary>
     /// Returns path starting after last modal segment.
     /// </summary>
-    public string? PathGet()
+    /// <param name="offset">For example 1 to skip home path segment.</param>
+    public string? PathGet(int offset = 0)
     {
         var index = PathModalIndexGet();
         var pathList = PathList?.Skip(index + 1).ToList();
         var result = new StringBuilder();
         if (pathList != null)
         {
-            foreach (var path in pathList)
+            for (int i = 0; i < pathList.Count; i++)
             {
+                var path = pathList[i];
                 if (result.Length > 0)
                 {
                     result.Append("/");
                 }
-                result.Append(path.Name);
+                if (i >= offset)
+                {
+                    result.Append(path.Name);
+                }
             }
         }
-        return result.ToString();
+        return result.Length > 0 ? result.ToString() : null;
     }
 
     /// <summary>
@@ -1301,6 +1312,8 @@ public class GridStatePathDto
     /// Gets or sets IsModalCustom. If true, path segment transitions into custom modal window.
     /// </summary>
     public bool? IsModalCustom { get; set; }
+
+    public GridCellIconDto? Icon { get; set; }
 }
 
 public class FieldCustomSaveDto
@@ -1539,6 +1552,11 @@ public enum GridControlEnum
     /// Data grid pagination. See also GridPaginationDto.
     /// </summary>
     Pagination = 14,
+
+    /// <summary>
+    /// Breadcrumb navigation. See also PathList.
+    /// </summary>
+    Breadcrumb = 15,
 }
 
 public class GridFilterLookupDataRowDto

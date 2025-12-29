@@ -275,7 +275,7 @@
                     }
                     if (request.GridActionEnum == GridRequest2GridActionEnum.ButtonModalCustom)
                     {
-                        request.Grid.StateGet().PathListAdd(request.Control?.Name, true, true);
+                        request.Grid.StateGet().PathListAdd(new() { Name = request.Control?.Name, IsModal = true, IsModalCustom = true });
                     }
                     var config = await Config();
                     var modalName = request.Grid.State?.PathModalNameGet();
@@ -460,7 +460,7 @@
                     {
                         var pathList = request.ParentGrid.State?.PathList;
                         request.Grid.StateGet().PathList = pathList != null ? new(pathList) : null;
-                        request.Grid.StateGet().PathListAdd("Edit", true, false);
+                        request.Grid.StateGet().PathListAdd(new() { Name = "Edit", IsModal = true, IsModalCustom = false });
                     }
                     var config = await Config();
                     var modalName = request.Grid.State?.PathModalNameGet();
@@ -486,7 +486,7 @@
                     {
                         var pathList = request.ParentGrid?.State?.PathList;
                         request.Grid.StateGet().PathList = pathList != null ? new(pathList) : null;
-                        request.Grid.StateGet().PathListAdd("Delete", true, false);
+                        request.Grid.StateGet().PathListAdd(new() { Name = "Delete", IsModal = true, IsModalCustom = false });
                     }
                     var config = await Config();
                     var modalName = request.Grid.State?.PathModalNameGet();

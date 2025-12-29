@@ -128,7 +128,12 @@
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize, string? modalName)
     {
         var folderOrFileNameList = await UtilStorage.List(configuration.ConnectionStringStorage, isRecursive: true);
-        var path = request.Grid.StateGet().PathGet();
+        var path = request.Grid.StateGet().PathGet(1);
+        if (path == null)
+        {
+            request.Grid.StateGet().PathListAdd(new() { Name = "Storage", Icon = new() { ClassName = "i-storage" } });
+            path = request.Grid.StateGet().PathGet(1);
+        }
         folderOrFileNameList = folderOrFileNameList.Where(item => item.FolderOrFileName.StartsWith(path ?? "")).ToList();
         var result = UtilGridReflection.DynamicFrom(folderOrFileNameList, (dataRowFrom, dataRowTo) =>
         {
@@ -198,12 +203,12 @@
             if (rowKey != null)
             {
                 var pathList = request.Grid.StateGet().PathList ?? new();
-                var index = request.Grid.StateGet().PathModalIndexGet();
+                var index = request.Grid.StateGet().PathModalIndexGet() + 1; // Index of home (Storage) path segment
                 pathList = pathList.Take(index + 1).ToList(); // Truncate
                 var nameList = rowKey.Split("/").Reverse().ToList();
                 foreach (var name in nameList)
                 {
-                    pathList.Insert(index + 1, new() { Name = name });
+                    pathList.Insert(index + 1, new() { Name = name, Icon = new() { ClassName = "i-folder" } });
                 }
                 request.Grid.StateGet().PathList = pathList;
             }
@@ -223,9 +228,10 @@
 
     public override void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
     {
+        var grid = request.Grid;
+        grid.AddControl(new() { ControlEnum = GridControlEnum.Breadcrumb });
         base.Render2(request, dataRowList, config, modalName);
 
-        var grid = request.Grid;
         if (modalName == null || modalName == "Sub")
         {
             grid.AddRow();

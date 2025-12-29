@@ -160,6 +160,7 @@ export enum GridControlEnum {
   ButtonModal = 12,
   ButtonModalCustom = 13,
   Pagination = 14,
+  Breadcrumb = 15,
 }
 
 export class GridDto {
@@ -192,13 +193,15 @@ export class GridStateDto {
   public fieldSaveList?: GridCellDto[]
   public fieldCustomSaveList?: FieldCustomSaveDto[]
   public pathList?: GridStatePathDto[]
+  public pathModalIndex?: number
 }
 
 export class GridStatePathDto
 {
-    public path?: string;
-    public isModal?: boolean;
-    public isModalCustom?: boolean;
+    public name?: string
+    public isModal?: boolean
+    public isModalCustom?: boolean
+    public icon?: GridCellIconDto
 }
 
 export class FieldCustomSaveDto
