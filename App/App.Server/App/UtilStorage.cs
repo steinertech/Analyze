@@ -2,7 +2,7 @@
 using Azure.Storage.Files.DataLake.Models;
 using System.Text;
 
-internal static class UtilStorage
+public static class UtilStorage
 {
     private static string containerName = "app";
 
@@ -73,17 +73,18 @@ internal static class UtilStorage
         await client.GetFileClient(folderOrFileName).RenameAsync(containerFolderName + folderOrFileNameNew);
     }
 
-    public static async Task<List<(string FolderOrFileName, bool IsFolder)>> List(string connectionString, string? folderName = null, bool isRecursive = false)
+    public static async Task<List<UtilStorageEntry>> List(string connectionString, string? folderName = null, bool isRecursive = false)
     {
         folderName = Sanatize(connectionString, folderName);
 
-        var result = new List<(string, bool)>();
+        var result = new List<UtilStorageEntry>();
         var client = Client(connectionString);
         await foreach (var pathItem in client.GetSubDirectoryClient(folderName).GetPathsAsync(recursive: isRecursive))
         {
             var folderOrFileName = PathItemToFolderOrFileName(pathItem);
             var isFolder = pathItem.IsDirectory ?? false;
-            var resultItem = (folderOrFileName, isFolder);
+            var text = folderOrFileName.Substring(folderOrFileName.LastIndexOf("/") + 1);
+            var resultItem = new UtilStorageEntry { FolderOrFileName = folderOrFileName, IsFolder = isFolder, Text = text };
             result.Add(resultItem);
         }
         return result;
@@ -161,4 +162,19 @@ internal static class UtilStorage
         }
         stream.Close();
     }
+}
+
+public class UtilStorageEntry
+{
+    /// <summary>
+    /// Gets or sets FolderOrFileName. This includes full path.
+    /// </summary>
+    public string FolderOrFileName { get; set; } = default!;
+
+    public bool IsFolder {get; set;}
+
+    /// <summary>
+    /// Gets or sets Text. This is Folder or FileName only.
+    /// </summary>
+    public string Text { get; set; } = default!;
 }

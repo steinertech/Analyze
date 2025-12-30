@@ -116,7 +116,7 @@
                 new() { FieldName = "IsFolder", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
                 new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true }
             ],
-            FieldNameRowKey = "Name", // Used to delete row
+            FieldNameRowKey = "FolderOrFileName", // Used to delete row
             IsAllowNew = true,
             IsAllowDelete = true,
             IsAllowDeleteConfirm = true,
@@ -127,17 +127,19 @@
 
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize, string? modalName)
     {
-        var folderOrFileNameList = await UtilStorage.List(configuration.ConnectionStringStorage, isRecursive: true);
+        // Breadcrumb add Home
         var path = request.Grid.StateGet().PathGet();
         if (path == null)
         {
             request.Grid.StateGet().PathListAdd(new() { Name = "Storage", Icon = new() { ClassName = "i-storage" } }); // Breadcrumb home (Storage)
         }
-        path = request.Grid.StateGet().PathGet(1); // Breadcrumb without home (Storage)
-        folderOrFileNameList = folderOrFileNameList.Where(item => item.FolderOrFileName.StartsWith(path ?? "")).ToList();
+        // Load
+        path = request.Grid.StateGet().PathGet(1); // Breadcrumb without Home (Storage)
+        var folderOrFileNameList = await UtilStorage.List(configuration.ConnectionStringStorage, folderName: path, isRecursive: false);
         var result = UtilGridReflection.DynamicFrom(folderOrFileNameList, (dataRowFrom, dataRowTo) =>
         {
-            dataRowTo["Name"] = dataRowFrom.FolderOrFileName;
+            dataRowTo["FolderOrFileName"] = dataRowFrom.FolderOrFileName;
+            dataRowTo["Name"] = dataRowFrom.Text;
             dataRowTo["IsFolder"] = dataRowFrom.IsFolder;
             if (dataRowFrom.IsFolder)
             {
@@ -162,6 +164,17 @@
             }
         });
         result = await UtilGrid.GridLoad2(request, result, null, 4);
+        // Parent directory
+        var pathParent = path?.Substring(0, path.LastIndexOf("/") + 1);
+        if (pathParent != null)
+        {
+            var pathParentDynamic = new Dynamic();
+            pathParentDynamic["FolderOrFileName"] = pathParent;
+            pathParentDynamic["IsFolder"] = true;
+            pathParentDynamic["Name"] = "[..]";
+            pathParentDynamic.IconSet("Name", "i-folder", isLeft: true);
+            result.Insert(0, pathParentDynamic);
+        }
         return result;
     }
 
@@ -202,15 +215,15 @@
             var rowKey = request.Grid.State?.RowKeyList?[dataRowIndex];
             if (rowKey != null)
             {
-                var pathList = request.Grid.StateGet().PathList ?? new();
+                var pathSourceList = request.Grid.StateGet().PathList ?? new();
                 var index = request.Grid.StateGet().PathModalIndexGet() + 1; // Index of home (Storage) path segment
-                pathList = pathList.Take(index + 1).ToList(); // Truncate
-                var nameList = rowKey.Split("/").Reverse().ToList();
+                var pathDestList = pathSourceList.Take(index + 1).ToList(); // Truncate
+                var nameList = rowKey.Split("/").Where(item => item.Length > 0).Reverse().ToList();
                 foreach (var name in nameList)
                 {
-                    pathList.Insert(index + 1, new() { Name = name, Icon = new() { ClassName = "i-folder" } });
+                    pathDestList.Insert(index + 1, new() { Name = name, Icon = new() { ClassName = "i-folder" } });
                 }
-                request.Grid.StateGet().PathList = pathList;
+                request.Grid.StateGet().PathList = pathDestList;
             }
         }
         if (modalName == "CreateFolder")
