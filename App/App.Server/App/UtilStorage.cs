@@ -38,6 +38,7 @@ public static class UtilStorage
     /// </summary>
     private static string Sanatize(string connectionString, string? folderOrFileName)
     {
+        folderOrFileName = folderOrFileName?.TrimEnd('/');
         var client = Client(connectionString);
         var result = client.GetSubDirectoryClient(string.IsNullOrEmpty(folderOrFileName) ? "." : folderOrFileName).Uri.LocalPath;
         if (result == prefix + folderOrFileName)
@@ -81,9 +82,9 @@ public static class UtilStorage
         var client = Client(connectionString);
         await foreach (var pathItem in client.GetSubDirectoryClient(folderName).GetPathsAsync(recursive: isRecursive))
         {
-            var folderOrFileName = PathItemToFolderOrFileName(pathItem);
+            var folderOrFileName = PathItemToFolderOrFileName(pathItem) + (pathItem.IsDirectory == true ? "/" : null);
             var isFolder = pathItem.IsDirectory ?? false;
-            var text = folderOrFileName.Substring(folderOrFileName.LastIndexOf("/") + 1);
+            var text = folderOrFileName.TrimEnd('/').Substring(folderOrFileName.TrimEnd('/').LastIndexOf("/") + 1);
             var resultItem = new UtilStorageEntry { FolderOrFileName = folderOrFileName, IsFolder = isFolder, Text = text };
             result.Add(resultItem);
         }

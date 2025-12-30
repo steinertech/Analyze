@@ -113,6 +113,7 @@
         var result = new GridConfig()
         {
             ColumnList = [
+                new() { FieldName = "FolderOrFileName", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
                 new() { FieldName = "IsFolder", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
                 new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true }
             ],
@@ -131,7 +132,7 @@
         var path = request.Grid.StateGet().PathGet();
         if (path == null)
         {
-            request.Grid.StateGet().PathListAdd(new() { Name = "Storage", Icon = new() { ClassName = "i-storage" } }); // Breadcrumb home (Storage)
+            request.Grid.StateGet().PathListAdd(new() { Name = "Storage", Icon = new() { ClassName = "i-storage" } }); // Breadcrumb Home (Storage)
         }
         // Load
         path = request.Grid.StateGet().PathGet(1); // Breadcrumb without Home (Storage)
@@ -165,7 +166,7 @@
         });
         result = await UtilGrid.GridLoad2(request, result, null, 4);
         // Parent directory
-        var pathParent = path?.Substring(0, path.LastIndexOf("/") + 1);
+        var pathParent = path?.TrimEnd('/').Substring(0, path.TrimEnd('/').LastIndexOf("/") + 1); // Returns null for none and empty for root.
         if (pathParent != null)
         {
             var pathParentDynamic = new Dynamic();
@@ -193,7 +194,9 @@
                     }
                 case DynamicEnum.Insert:
                     {
-                        var folderOrFileNameNew = (string)item.ValueModifiedGet("Name")!;
+                        var path = request.Grid.StateGet().PathGet(1); // Breadcrumb without Home (Storage)
+                        var name = (string)item.ValueModifiedGet("Name")!;
+                        var folderOrFileNameNew = path + name;
                         await UtilStorage.Upload(configuration.ConnectionStringStorage, folderOrFileNameNew, null);
                         break;
                     }
@@ -263,19 +266,22 @@
         }
 
         // Folder select
-        if (request.Grid.RowCellList != null)
+        if (modalName == null || modalName == "CreateFolder")
         {
-            foreach (var row in request.Grid.RowCellList)
+            if (request.Grid.RowCellList != null)
             {
-                var dataRowIndex = row.Last().DataRowIndex;
-                if (dataRowIndex != null)
+                foreach (var row in request.Grid.RowCellList)
                 {
-                    var dataRow = dataRowList[dataRowIndex.Value];
-                    if ((bool?)dataRow["IsFolder"] == true)
+                    var dataRowIndex = row.Last().DataRowIndex;
+                    if (dataRowIndex != null)
                     {
-                        row.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Select", Name = "Select" });
+                        var dataRow = dataRowList[dataRowIndex.Value];
+                        if ((bool?)dataRow["IsFolder"] == true)
+                        {
+                            row.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Select", Name = "Select" });
+                        }
+                        row.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom, Text = "Hello" + (dataRowIndex + 1) });
                     }
-                    row.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom, Text = "Hello" + (dataRowIndex + 1) });
                 }
             }
         }

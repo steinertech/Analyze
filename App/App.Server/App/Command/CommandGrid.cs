@@ -1279,13 +1279,9 @@ public class GridStateDto
             for (int i = 0; i < pathList.Count; i++)
             {
                 var path = pathList[i];
-                if (result.Length > 0)
-                {
-                    result.Append("/");
-                }
                 if (i >= offset)
                 {
-                    result.Append(path.Name);
+                    result.Append(path.Name + "/");
                 }
             }
         }
