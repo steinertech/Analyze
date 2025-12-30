@@ -115,18 +115,19 @@
             ColumnList = [
                 new() { FieldName = "FolderOrFileName", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
                 new() { FieldName = "IsFolder", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
-                new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true }
+                new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, FieldNameSortCustom = "NameSort" }
             ],
             FieldNameRowKey = "FolderOrFileName", // Used to delete row
             IsAllowNew = true,
             IsAllowDelete = true,
             IsAllowDeleteConfirm = true,
             IsAllowEditForm = true,
+            PageSize = 6,
         };
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize, string? modalName)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
     {
         // Breadcrumb add Home
         var path = request.Grid.StateGet().PathGet();
@@ -142,6 +143,7 @@
             dataRowTo["FolderOrFileName"] = dataRowFrom.FolderOrFileName;
             dataRowTo["Name"] = dataRowFrom.Text;
             dataRowTo["IsFolder"] = dataRowFrom.IsFolder;
+            dataRowTo["NameSort"] = (dataRowFrom.IsFolder ? "0" : "1") + dataRowFrom.Text; // Show folders before files
             if (dataRowFrom.IsFolder)
             {
                 dataRowTo.IconSet("Name", "i-folder", isLeft: true);
@@ -164,7 +166,7 @@
                 }
             }
         });
-        result = await UtilGrid.GridLoad2(request, result, null, 4);
+        result = await UtilGrid.GridLoad2(request, result, null, config, configEnum);
         // Parent directory
         var pathParent = path?.TrimEnd('/').Substring(0, path.TrimEnd('/').LastIndexOf("/") + 1); // Returns null for none and empty for root.
         if (pathParent != null)

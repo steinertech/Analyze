@@ -101,8 +101,28 @@ public static class UtilGrid
     /// <param name="request">Grid with state to apply (filter, sort and pagination).</param>
     /// <param name="dataRowList">DataRowList (or query).</param>
     /// <param name="fieldNameDistinct">Used for example for filter lookup data grid. Returns one column grid.</param>
-    public static async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, List<Dynamic> dataRowList, string? fieldNameDistinct, int pageSize)
+    public static async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, List<Dynamic> dataRowList, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum)
     {
+        // PageSize
+        int pageSize;
+        switch (configEnum)
+        {
+            case GridConfigEnum.Grid:
+                pageSize = config.PageSize;
+                break;
+            case GridConfigEnum.GridFilter:
+                pageSize = config.PageSizeFilter;
+                break;
+            case GridConfigEnum.GridColumn:
+                pageSize = config.PageSizeColumn;
+                break;
+            case GridConfigEnum.GridAutocomplete:
+                pageSize = config.PageSizeAutocomplete;
+                break;
+            default:
+                throw new Exception();
+        }
+        // Grid
         var grid = request.Grid;
         var query = dataRowList.AsQueryable();
         // Init Filter, Pagination
@@ -138,7 +158,7 @@ public static class UtilGrid
         }
         // Pagination (PageCount)
         var rowCount = await query.CountAsync();
-        pagination.PageCount = (int)Math.Ceiling((double)rowCount / (double)pageSize!);
+        pagination.PageCount = (int)Math.Ceiling((double)rowCount / (double)pageSize);
         pagination.PageIndex += pagination.PageIndexDeltaClick;
         if (pagination.PageIndex >= pagination.PageCount)
         {
@@ -153,13 +173,15 @@ public static class UtilGrid
         for (int i = 0; i < sortList.Count; i++)
         {
             var sort = sortList[i];
+            var fieldName = sort.FieldName;
+            fieldName = config.ColumnGet(fieldName).FieldNameSortCustom ?? fieldName;
             if (i == 0)
             {
-                query = query.OrderBy($"""{sort.FieldName}{(sort.IsDesc ? " DESC" : "")}""");
+                query = query.OrderBy($"""{fieldName}{(sort.IsDesc ? " DESC" : "")}""");
             }
             else
             {
-                query = ((IOrderedQueryable<Dynamic>)query).ThenBy($"""{sort.FieldName}{(sort.IsDesc ? " DESC" : "")}""");
+                query = ((IOrderedQueryable<Dynamic>)query).ThenBy($"""{fieldName}{(sort.IsDesc ? " DESC" : "")}""");
             }
         }
         // Pagination

@@ -1598,7 +1598,7 @@ public class GridConfig
     private Dictionary<string, GridColumn> columnList = new();
 
     /// <summary>
-    /// Gets or sets ColumnList. This is all data grid columns.
+    /// Gets or sets ColumnList. This is all data grid columns. See also method ColumnGet();
     /// </summary>
     public List<GridColumn> ColumnList
     {
@@ -1619,7 +1619,6 @@ public class GridConfig
     {
         return columnList[fieldName];
     }
-
 
     /// <summary>
     /// Returns sorted column list to render data grid.
@@ -1707,12 +1706,45 @@ public class GridConfig
     }
 }
 
+public enum GridConfigEnum
+{
+    None = 0,
+
+    /// <summary>
+    /// Load data grid.
+    /// </summary>
+    Grid = 1,
+
+    /// <summary>
+    /// Load lookup filter.
+    /// </summary>
+    GridFilter = 2,
+
+    /// <summary>
+    /// Load lookup column.
+    /// </summary>
+    GridColumn = 3,
+
+    /// <summary>
+    /// Load lookup autocomplete.
+    /// </summary>
+    GridAutocomplete = 4,
+}
+
 public class GridColumn
 {
     public string FieldName { get; set; } = default!;
 
+    /// <summary>
+    /// Gets or sets FieldNameSortCustom. If not null, use this column for custom sorting.
+    /// </summary>
+    public string? FieldNameSortCustom { get; set; }
+
     public GridColumnEnum ColumnEnum { get; set; }
 
+    /// <summary>
+    /// Gets or sets Sort. This is the column order.
+    /// </summary>
     public int? Sort { get; set; }
 
     public bool IsAllowModify { get; set; }

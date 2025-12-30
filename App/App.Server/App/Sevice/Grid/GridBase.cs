@@ -34,7 +34,7 @@
         var result = config.ColumnList;
         // Apply (filter, sort and pagination) from grid.
         var resultDynamic = UtilGrid.DynamicFrom(result, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
-        resultDynamic = await UtilGrid.GridLoad2(request, resultDynamic, null, config.PageSizeColumn);
+        resultDynamic = await UtilGrid.GridLoad2(request, resultDynamic, null, config, GridConfigEnum.GridColumn);
         result = UtilGrid.DynamicTo<GridColumn>(resultDynamic, (dataRowFrom, dataRowTo) => { dataRowTo.FieldName = dataRowFrom["FieldName"]?.ToString()!; });
         return result;
     }
@@ -51,7 +51,7 @@
     /// <summary>
     /// Returns data row list to render grid.
     /// </summary>
-    protected virtual Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, int pageSize, string? modalName)
+    protected virtual Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
     {
         var result = new List<Dynamic>();
         return Task.FromResult(result);
@@ -315,7 +315,7 @@
                         await GridSave2Custom(request, buttonCustomClick, fieldCustomSaveList, modalName);
                     }
                     // Load
-                    var dataRowList = await GridLoad2(request, null, config.PageSize, modalName);
+                    var dataRowList = await GridLoad2(request, null, config, GridConfigEnum.Grid, modalName);
                     if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubNew)
                     {
                         dataRowList.Insert(0, Dynamic.Create(config, isNew: true)); // Multi new data rows possible
@@ -344,7 +344,7 @@
                         if (isSave)
                         {
                             var config = await Config();
-                            var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize, modalName);
+                            var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
                             Render2(request.Parent2(), dataRowList, config, modalName);
                         }
                         var parentGrid = isSave ? request.ParentGrid : null;
@@ -359,7 +359,7 @@
                         var config = await Config();
                         {
                             var fieldName = request.ParentCell.FieldName;
-                            var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config.PageSizeFilter, modalName);
+                            var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config, GridConfigEnum.GridFilter, modalName);
                             UtilGrid.LookupFilterLoad2(request, dataRowList, fieldName);
                             UtilGrid.RenderLookup2(request, dataRowList, fieldName: fieldName);
                         }
@@ -376,7 +376,7 @@
                     {
                         var fieldName = request.ParentCell.FieldName;
                         var config = await Config();
-                        var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config.PageSizeFilter, modalName);
+                        var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config, GridConfigEnum.GridFilter, modalName);
                         UtilGrid.LookupFilterLoad2(request, dataRowList, fieldName);
                         UtilGrid.RenderLookup2(request, dataRowList, fieldName: fieldName);
                         return new GridResponse2Dto { Grid = request.Grid };
@@ -396,7 +396,7 @@
                         if (isSave)
                         {
                             var config = await Config();
-                            var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize, modalName);
+                            var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
                             Render2(request.Parent2(), dataRowList, config, modalName);
                         }
                         GridDto? parentGrid = isSave ? request.ParentGrid : null;
@@ -418,7 +418,7 @@
                         if (isSave)
                         {
                             var config = await Config();
-                            var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize, modalName);
+                            var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
                             Render2(request.Parent2(), dataRowList, config, modalName);
                         }
                         GridDto? parentGrid = isSave ? request.ParentGrid : null;
@@ -451,7 +451,7 @@
                                 await GridSave2(request.Parent2(), sourceList, config);
                             }
                             // Parent Load
-                            var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize, null); // TODO ModalName
+                            var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, null); // TODO ModalName
                             Render2(request.Parent2(), dataRowList, config, null);
                         }
                         GridDto? parentGrid = isSave ? request.ParentGrid : null;
@@ -460,7 +460,7 @@
                     // Load
                     {
                         var fieldName = request.ParentCell.FieldName;
-                        var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config.PageSizeAutocomplete, null); // TODO ModalName
+                        var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config, GridConfigEnum.GridAutocomplete, null); // TODO ModalName
                         UtilGrid.RenderLookupAutocomplete2(request, dataRowList, fieldName: fieldName);
                         return new GridResponse2Dto { Grid = request.Grid };
                     }
@@ -488,7 +488,7 @@
                         }
                     }
                     // Load
-                    var dataRowList = await GridLoad2(request, null, config.PageSize, modalNameParent);
+                    var dataRowList = await GridLoad2(request, null, config, GridConfigEnum.Grid, modalNameParent);
                     Render2(request, dataRowList, config, modalName);
                     return new GridResponse2Dto { Grid = request.Grid };
                 }
@@ -514,7 +514,7 @@
                             await GridSave2(request.Parent2(), sourceList, config);
                         }
                         // Load Parent
-                        var dataRowList = await GridLoad2(request.Parent2(), null, config.PageSize, modalNameParent);
+                        var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalNameParent);
                         Render2(request.Parent2(), dataRowList, config, modalNameParent);
                         return new GridResponse2Dto { ParentGrid = request.ParentGrid };
                     }
