@@ -1118,7 +1118,7 @@ public class GridDto
     public GridCellDto AddCell2(GridCellDto cell, Dynamic dataRow, GridConfig config)
     {
         var result = AddCell(cell);
-        UtilServer.Assert(cell.DataRowIndex != null, "Cell DataRowIndex can not be null when used with RowKey!");
+        UtilServer.Assert(cell.DataRowIndex != null, "Cell DataRowIndex can not be null if used with RowKey!");
         if (State == null)
         {
             State = new GridStateDto();
@@ -1430,6 +1430,8 @@ public class GridControlDto
     public string? TextModified { get; set; }
 
     public string? Name { get; set; }
+
+    public GridCellIconDto? Icon { get; set; }
 }
 
 /// <summary>
@@ -1689,6 +1691,11 @@ public class GridConfig
     /// Gets or sets DefaultColumnFilterMulti. This is the initial default columns configuration to include or exclude columns from GridConfig.ColumnList.
     /// </summary>
     public GridStateFilterMultiDto? DefaultColumnFilterMulti { get; set; }
+
+    /// <summary>
+    /// Gets or sets IsSelectMulti. If true, user can select individual rows with a checkbox.
+    /// </summary>
+    public bool? IsSelectMulti { get; set; }
 
     public string? ConvertTo(string fieldName, object value)
     {

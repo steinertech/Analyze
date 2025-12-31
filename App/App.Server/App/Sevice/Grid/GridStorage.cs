@@ -125,6 +125,7 @@
             PageSize = 6,
             DefaultSortList = new([new() { FieldName = "Name"}]),
             // DefaultColumnFilterMulti = new() { IsSelectAll = true, TextList = new(["IsFolder"])}
+            IsSelectMulti = true,
         };
         return Task.FromResult(result);
     }
@@ -274,6 +275,12 @@
         {
             if (request.Grid.RowCellList != null)
             {
+                var rowButton = request.Grid.RowCellList.Skip(1).First();
+                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete", Icon = new() { ClassName = "i-delete" } });
+                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Copy", Name = "Copy", Icon = new() { ClassName = "i-copy" } });
+                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Paste", Name = "Paste", Icon = new() { ClassName = "i-paste" } });
+                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Rename", Name = "Rename", Icon = new() { ClassName = "i-rename" } });
+                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Upload", Name = "Upload", Icon = new() { ClassName = "i-upload" } });
                 foreach (var row in request.Grid.RowCellList)
                 {
                     var dataRowIndex = row.Last().DataRowIndex;

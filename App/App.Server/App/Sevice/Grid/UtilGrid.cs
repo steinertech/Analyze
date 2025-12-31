@@ -863,10 +863,20 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonColumn });
         if (config.IsAllowNew)
         {
-            grid.AddControl(new() { ControlEnum = GridControlEnum.Button, Text = "New", Name = "New" });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.Button, Text = "New", Name = "New", Icon = new() { ClassName = "i-new" } });
+        }
+        if (config.IsSelectMulti == true)
+        {
+            grid.AddRow();
+            grid.AddControl(new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = "(Select All)" });
         }
         // Render Header
         grid.AddRow();
+        if (config.IsSelectMulti == true)
+        {
+            grid.AddCell(new() { CellEnum = GridCellEnum.HeaderEmpty });
+        }
         var sortList = grid.State?.SortListGet();
         foreach (var column in columnList)
         {
@@ -880,6 +890,10 @@ public static class UtilGrid
         }
         // Render Filter
         grid.AddRow();
+        if (config.IsSelectMulti == true)
+        {
+            grid.AddCell(new() { CellEnum = GridCellEnum.FilterEmpty });
+        }
         foreach (var column in columnList)
         {
             grid.AddCell(new() { CellEnum = GridCellEnum.Filter, FieldName = column.FieldName, TextPlaceholder = "Search" });
@@ -893,6 +907,10 @@ public static class UtilGrid
         foreach (var dataRow in dataRowList)
         {
             grid.AddRow();
+            if (config.IsSelectMulti == true)
+            {
+                grid.AddCell2(new() { CellEnum = GridCellEnum.CheckboxSelectMulti, DataRowIndex = dataRowIndex }, dataRow, config);
+            }
             foreach (var column in columnList)
             {
                 var text = dataRow[column.FieldName]?.ToString();

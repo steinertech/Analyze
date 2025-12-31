@@ -62,7 +62,7 @@
       <!-- HeaderEmpty -->
       @case (GridCellEnum.HeaderEmpty) {
       <div class="frm-cell-container frm-header">
-        <div class="frm-width frm-center"><b>{{cell.text}}</b></div>
+        <div class="frm-width frm-center h-[1lh]"><b>{{cell.text}}</b></div>
         <div (mousedown)="headerMouseDown($event, cell, cellIndex)" class="frm-column-resize"></div>
       </div>
       }
@@ -112,11 +112,21 @@
       }
       <!-- Button -->
       @case (GridControlEnum.Button) {
-      <button class="frm-button-soft" (click)="clickControl(cell, control)">{{control.text ?? 'Button'}}</button>
+      <button class="frm-button-soft" (click)="clickControl(cell, control)">
+        @if (control.icon) {
+        <span title="{{control.icon.tooltip}}" [ngClass]=control.icon.className></span>
+        }
+        {{control.text ?? 'Button'}}
+      </button>
       }
       <!-- Button Custom -->
       @case (GridControlEnum.ButtonCustom) {
-      <button class="frm-button-soft" (click)="clickControl(cell, control)">{{control.text ?? 'Button'}}</button>
+      <button class="frm-button-soft" (click)="clickControl(cell, control)">
+        @if (control.icon) {
+        <span title="{{control.icon.tooltip}}" [ngClass]=control.icon.className></span>
+        }
+        {{control.text ?? 'Button'}}
+      </button>
       }
       <!-- Checkbox SelectMultiAll -->
       @case (GridControlEnum.CheckboxSelectMultiAll) {
@@ -150,10 +160,10 @@
       >
       }
       <button class="cursor-pointer" (click)="clickBreadcrumb(cell, control, i)">
-      @if (item.icon) {
-      <span title="{{item.icon.tooltip}}" [ngClass]=item.icon.className></span>
-      }
-      {{ item.name }}
+        @if (item.icon) {
+        <span title="{{item.icon.tooltip}}" [ngClass]=item.icon.className></span>
+        }
+        {{ item.name }}
       </button>
       }
       }
