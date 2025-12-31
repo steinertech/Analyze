@@ -284,6 +284,11 @@ public class Dynamic : Dictionary<string, object?>
         {
             result.Add(column.FieldName, null);
         }
+        // Add empty row key
+        if (config.FieldNameRowKey != null && !result.ContainsKey(config.FieldNameRowKey))
+        {
+            result.Add(config.FieldNameRowKey, null);
+        }
         return result;
     }
 

@@ -113,8 +113,8 @@
         var result = new GridConfig()
         {
             ColumnList = [
-                new() { FieldName = "FolderOrFileName", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
-                new() { FieldName = "IsFolder", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
+                // new() { FieldName = "FolderOrFileName", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
+                // new() { FieldName = "IsFolder", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
                 new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, FieldNameSortCustom = "NameSort" }
             ],
             FieldNameRowKey = "FolderOrFileName", // Used to delete row
@@ -124,7 +124,7 @@
             IsAllowEditForm = true,
             PageSize = 6,
             DefaultSortList = new([new() { FieldName = "Name"}]),
-            DefaultColumnFilterMulti = new() { IsSelectAll = true, TextList = new(["IsFolder"])}
+            // DefaultColumnFilterMulti = new() { IsSelectAll = true, TextList = new(["IsFolder"])}
         };
         return Task.FromResult(result);
     }
@@ -169,7 +169,7 @@
             }
         });
         result = await UtilGrid.GridLoad2(request, result, null, config, configEnum);
-        // Parent directory
+        // Add parent directory entry
         var pathParent = path?.TrimEnd('/').Substring(0, path.TrimEnd('/').LastIndexOf("/") + 1); // Returns null for none and empty for root.
         if (pathParent != null)
         {
@@ -280,7 +280,7 @@
                     if (dataRowIndex != null)
                     {
                         var dataRow = dataRowList[dataRowIndex.Value];
-                        if ((bool?)dataRow["IsFolder"] == true)
+                        if ((bool?)dataRow.GetValueOrDefault("IsFolder") == true) // New row might not contain key IsFolder
                         {
                             row.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Select", Name = "Select" });
                         }

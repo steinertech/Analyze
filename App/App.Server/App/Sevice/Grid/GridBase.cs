@@ -318,7 +318,10 @@
                     var dataRowList = await GridLoad2(request, null, config, GridConfigEnum.Grid, modalName);
                     if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubNew)
                     {
-                        dataRowList.Insert(0, Dynamic.Create(config, isNew: true)); // Multi new data rows possible
+                        if (config.IsAllowNew)
+                        {
+                            dataRowList.Insert(0, Dynamic.Create(config, isNew: true)); // Multi new data rows possible
+                        }
                     }
                     // Render
                     if (request.GridActionEnum != GridRequest2GridActionEnum.LookupSubOk)
