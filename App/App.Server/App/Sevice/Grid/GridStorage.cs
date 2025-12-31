@@ -123,7 +123,8 @@
             IsAllowDeleteConfirm = true,
             IsAllowEditForm = true,
             PageSize = 6,
-            SortDefaultList = new([new() { FieldName = "Name"}]),
+            DefaultSortList = new([new() { FieldName = "Name"}]),
+            DefaultColumnFilterMulti = new() { IsSelectAll = true, TextList = new(["IsFolder"])}
         };
         return Task.FromResult(result);
     }

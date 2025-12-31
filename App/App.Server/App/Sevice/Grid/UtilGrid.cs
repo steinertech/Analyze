@@ -138,11 +138,13 @@ public static class UtilGrid
         // Filter
         foreach (var (fieldName, text) in grid.State.FilterList)
         {
+            config.ColumnGet(fieldName); // Check
             query = query.Where(item => (item[fieldName]!.ToString() ?? "").ToLower().Contains(text.ToLower()) == true);
         }
         // FilterMulti
         foreach (var (fieldName, filterMulti) in grid.State.FilterMultiList)
         {
+            config.ColumnGet(fieldName); // Check
             var isInclude = filterMulti.IsSelectAll ? "!" : ""; // Include or exclude
             var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
             query = query.Where($"{isInclude}@0.Contains(Convert.ToString({fieldName}).ToLower())", textListLower);
@@ -150,6 +152,7 @@ public static class UtilGrid
         // FieldName (Distinct)
         if (fieldNameDistinct != null)
         {
+            config.ColumnGet(fieldNameDistinct); // Check
             query = query
                 .Select(item => item[fieldNameDistinct])
                 .Distinct()
@@ -170,18 +173,26 @@ public static class UtilGrid
         }
         // Sort
         var sortList = grid.State.SortListGet();
-        var sortDefaultList = config.SortDefaultList;
-        if (sortList.Count == 0 && sortDefaultList != null)
+        if (configEnum == GridConfigEnum.Grid)
         {
-            // Set initial config default sort
-            grid.State.SortList = sortDefaultList;
-            sortList = grid.State.SortListGet();
+            var sortDefaultList = config.DefaultSortList;
+            if (sortList.Count == 0 && sortDefaultList != null)
+            {
+                // Set initial config default sort
+                grid.State.SortList = sortDefaultList;
+                sortList = grid.State.SortListGet();
+            }
         }
         for (int i = 0; i < sortList.Count; i++)
         {
             var sort = sortList[i];
             var fieldName = sort.FieldName;
-            fieldName = config.ColumnGet(fieldName).FieldNameSortCustom ?? fieldName;
+            config.ColumnGet(fieldName); // Check
+            if (configEnum == GridConfigEnum.Grid)
+            {
+                // Sort with custom column
+                fieldName = config.ColumnGet(fieldName).FieldNameSortCustom ?? fieldName;
+            }
             if (i == 0)
             {
                 query = query.OrderBy($"""{fieldName}{(sort.IsDesc ? " DESC" : "")}""");

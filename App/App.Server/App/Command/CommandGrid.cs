@@ -1358,7 +1358,7 @@ public class GridStateFilterMultiDto
     public List<string?> TextList { get; set; } = new();
 
     /// <summary>
-    /// Gets or sets IsSelectAll. If true, include. If false, exclude TextList entries.
+    /// Gets or sets IsSelectAll. If false, include TextList entries. If true, exclude TextList entries. 
     /// </summary>
     public bool IsSelectAll { get; set; }
 }
@@ -1626,10 +1626,19 @@ public class GridConfig
     public List<GridColumn> ColumnListGet(GridDto grid)
     {
         var result = ColumnList;
-        if (grid.State?.ColumnFilterMulti != null)
+        var columnFilterMulti = grid.State?.ColumnFilterMulti;
+        var columnFilterMultiDefault = DefaultColumnFilterMulti;
+        if (columnFilterMulti == null && columnFilterMultiDefault != null)
         {
-            var isSelectAll = grid.State.ColumnFilterMulti.IsSelectAll;
-            result = result.Where(item => isSelectAll ^ grid.State.ColumnFilterMulti.TextList.Contains(item.FieldName)).ToList();
+            // Apply default config column filter
+            grid.State ??= new();
+            grid.State.ColumnFilterMulti = columnFilterMultiDefault;
+            columnFilterMulti = grid.State?.ColumnFilterMulti;
+        }
+        if (columnFilterMulti != null)
+        {
+            var isSelectAll = columnFilterMulti.IsSelectAll;
+            result = result.Where(item => isSelectAll ^ columnFilterMulti.TextList.Contains(item.FieldName)).ToList();
         }
         result = result.OrderBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
         return result;
@@ -1672,9 +1681,14 @@ public class GridConfig
     public bool IsAllowDeleteConfirm { get; set; } = false;
 
     /// <summary>
-    /// Gets or sets SortDefaultList. This is the initial default sort configuration.
+    /// Gets or sets DefaultSortList. This is the initial default sort configuration.
     /// </summary>
-    public List<GridStateSortDto>? SortDefaultList { get; set; }
+    public List<GridStateSortDto>? DefaultSortList { get; set; }
+
+    /// <summary>
+    /// Gets or sets DefaultColumnFilterMulti. This is the initial default columns configuration to include or exclude columns from GridConfig.ColumnList.
+    /// </summary>
+    public GridStateFilterMultiDto? DefaultColumnFilterMulti { get; set; }
 
     public string? ConvertTo(string fieldName, object value)
     {
