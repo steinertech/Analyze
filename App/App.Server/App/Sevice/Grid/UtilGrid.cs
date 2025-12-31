@@ -170,6 +170,13 @@ public static class UtilGrid
         }
         // Sort
         var sortList = grid.State.SortListGet();
+        var sortDefaultList = config.SortDefaultList;
+        if (sortList.Count == 0 && sortDefaultList != null)
+        {
+            // Set initial config default sort
+            grid.State.SortList = sortDefaultList;
+            sortList = grid.State.SortListGet();
+        }
         for (int i = 0; i < sortList.Count; i++)
         {
             var sort = sortList[i];

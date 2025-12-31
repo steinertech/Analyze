@@ -123,6 +123,7 @@
             IsAllowDeleteConfirm = true,
             IsAllowEditForm = true,
             PageSize = 6,
+            SortDefaultList = new([new() { FieldName = "Name"}]),
         };
         return Task.FromResult(result);
     }

@@ -540,7 +540,7 @@ public class GridButtonCustom
     public GridControlDto Control { get; set; } = default!;
 }
 
-public static class GriExtension
+public static class GridExtension
 {
     public static GridControlDto AddControl(this GridDto grid, GridControlDto control, int? dataRowIndex = null)
     {

@@ -1671,6 +1671,11 @@ public class GridConfig
     
     public bool IsAllowDeleteConfirm { get; set; } = false;
 
+    /// <summary>
+    /// Gets or sets SortDefaultList. This is the initial default sort configuration.
+    /// </summary>
+    public List<GridStateSortDto>? SortDefaultList { get; set; }
+
     public string? ConvertTo(string fieldName, object value)
     {
         var result = value?.ToString();
