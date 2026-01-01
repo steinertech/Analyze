@@ -276,7 +276,7 @@
             if (request.Grid.RowCellList != null)
             {
                 var rowButton = request.Grid.RowCellList.Skip(1).First();
-                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete", Icon = new() { ClassName = "i-delete" } });
+                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete", Icon = new() { ClassName = "i-delete" }, IsDisabled = true });
                 rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Copy", Name = "Copy", Icon = new() { ClassName = "i-copy" } });
                 rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Paste", Name = "Paste", Icon = new() { ClassName = "i-paste" } });
                 rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Rename", Name = "Rename", Icon = new() { ClassName = "i-rename" } });

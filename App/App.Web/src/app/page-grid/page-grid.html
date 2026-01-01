@@ -112,7 +112,7 @@
       }
       <!-- Button -->
       @case (GridControlEnum.Button) {
-      <button class="frm-button-soft" (click)="clickControl(cell, control)">
+      <button class="frm-button-soft" (click)="clickControl(cell, control)" [disabled]="control.isDisabled">
         @if (control.icon) {
         <span title="{{control.icon.tooltip}}" [ngClass]=control.icon.className></span>
         }
@@ -121,7 +121,7 @@
       }
       <!-- Button Custom -->
       @case (GridControlEnum.ButtonCustom) {
-      <button class="frm-button-soft" (click)="clickControl(cell, control)">
+      <button class="frm-button-soft" (click)="clickControl(cell, control)" [disabled]="control.isDisabled">
         @if (control.icon) {
         <span title="{{control.icon.tooltip}}" [ngClass]=control.icon.className></span>
         }

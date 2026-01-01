@@ -1432,6 +1432,8 @@ public class GridControlDto
     public string? Name { get; set; }
 
     public GridCellIconDto? Icon { get; set; }
+
+    public bool? IsDisabled { get; set; }
 }
 
 /// <summary>

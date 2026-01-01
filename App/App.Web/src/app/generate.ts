@@ -129,6 +129,7 @@ export class GridControlDto {
   public textModified?: string
   public name?: string
   public icon?: GridCellIconDto
+  public isDisabled?: boolean
 }
 
 export enum GridCellEnum {
