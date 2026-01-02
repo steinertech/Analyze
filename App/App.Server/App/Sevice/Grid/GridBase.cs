@@ -405,8 +405,8 @@
                         // Parent Load
                         if (isSave)
                         {
-                            var dataRowList = await GridLoad(request.Parent(), null, config.PageSize);
-                            UtilGrid.Render(request.Parent(), dataRowList, config);
+                            var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
+                            Render2(request.Parent2(), dataRowList, config, modalName);
                         }
                         var parentGrid = isSave ? request.ParentGrid : null;
                         return new GridResponse2Dto { Grid = request.Grid, ParentGrid = parentGrid };
