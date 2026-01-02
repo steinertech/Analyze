@@ -682,6 +682,21 @@ public enum GridRequest2GridActionEnum
     /// User clicked a breadcrumb button.
     /// </summary>
     ButtonBreadcrumb = 17,
+
+    /// <summary>
+    /// User clicked pagination button.
+    /// </summary>
+    Pagination = 18,
+
+    /// <summary>
+    /// User clicked header button to change sort order.
+    /// </summary>
+    Header = 19,
+
+    /// <summary>
+    /// User entered filter text.
+    /// </summary>
+    Filter = 19,
 }
 
 public class GridRequest2Dto
@@ -855,6 +870,21 @@ public class GridRequest2Dto
                 {
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.GridReload;
+                }
+                if (request.Control?.ControlEnum == GridControlEnum.Pagination)
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.Pagination;
+                }
+                if (request.Cell?.CellEnum == GridCellEnum.Header)
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.Header;
+                }
+                if (request.Cell?.CellEnum == GridCellEnum.Filter)
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.Filter;
                 }
                 break;
             case GridRequest2GridEnum.LookupConfirmDelete:

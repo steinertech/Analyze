@@ -280,13 +280,22 @@
                     {
                         ArgumentNullException.ThrowIfNull(request.ParentGrid);
                     }
-                    // Reload State reset
+                    // Reset State on Reload
                     if (request.GridActionEnum == GridRequest2GridActionEnum.GridReload)
                     {
                         var state = request.Grid.State;
                         request.Grid.State = new(); // Clear state keep PathList
                         request.Grid.State.PathList = state?.PathList;
                         request.Grid.State.PathModalIndex = state?.PathModalIndex;
+                    }
+                    // Reset SelectMulti on Pagination
+                    bool isSelectMultiReset = request.GridActionEnum == GridRequest2GridActionEnum.Pagination || request.GridActionEnum == GridRequest2GridActionEnum.Header || request.GridActionEnum == GridRequest2GridActionEnum.Filter;
+                    if (isSelectMultiReset)
+                    {
+                        if (request.Grid.State?.IsSelectMultiList != null)
+                        {
+                            request.Grid.State.IsSelectMultiList = null;
+                        }
                     }
                     // Breadcrumb
                     if (request.GridActionEnum == GridRequest2GridActionEnum.ButtonBreadcrumb)
@@ -420,6 +429,11 @@
                     // Button Ok
                     if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
                     {
+                        // Reset SelectMulti on LookupColumn ok
+                        if (request.ParentGrid?.State?.IsSelectMultiList != null)
+                        {
+                            request.ParentGrid.State.IsSelectMultiList = null;
+                        }
                         // Column Save (State)
                         var isSave = UtilGrid.LookupFilterSave2(request, "FieldName", isFilterColumn: true);
                         // Parent Load
@@ -435,6 +449,11 @@
                     // Pagination
                     if (request.Control?.ControlEnum == GridControlEnum.Pagination)
                     {
+                        // Reset SelectMulti on LookupColumn ok
+                        if (request.ParentGrid?.State?.IsSelectMultiList != null)
+                        {
+                            request.ParentGrid.State.IsSelectMultiList = null;
+                        }
                         // Column Save (State)
                         var isSave = UtilGrid.LookupFilterSave2(request, "FieldName", isFilterColumn: true);
                         // Column Load
