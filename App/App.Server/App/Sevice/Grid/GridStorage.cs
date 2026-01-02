@@ -126,7 +126,44 @@
             DefaultSortList = new([new() { FieldName = "Name"}]),
             // DefaultColumnFilterMulti = new() { IsSelectAll = true, TextList = new(["IsFolder"])}
             IsSelectMulti = true,
+            IsSelectMultiPatch = true,
         };
+        return Task.FromResult(result);
+    }
+
+    protected override Task<List<GridPatchDto>> GridLoad2Patch(GridRequest2Dto request, GridConfig config, string? modalName)
+    {
+        var fileCount = 0;
+        var folderCount = 0;
+        var folderParentCount = 0;
+        var rowKeyList = request.Grid?.State?.RowKeyList;
+        var list = request.Grid?.State?.IsSelectMultiList?.Take(rowKeyList?.Count ?? 0).ToList();
+        for (int i = 0; i < list?.Count; i++)
+        {
+            bool isSelect = list[i] == true;
+            var rowKey = rowKeyList?[i];
+            if (isSelect)
+            {
+                if (rowKey?.Length == 0)
+                {
+                    folderParentCount += 1;
+                    continue;
+                }
+                if (rowKey?.EndsWith("/") == true)
+                {
+                    folderCount += 1;
+                    continue;
+                }
+                fileCount += 1;
+            }
+        }
+        var isOneFile = fileCount == 1 && folderCount == 0 && folderParentCount == 0;
+        var isOneFolder = fileCount == 0 && folderCount == 1 && folderParentCount == 0;
+        var result = new List<GridPatchDto>([
+            new() { ControlName = "Delete", IsDisabled = !isOneFile },
+            new() { ControlName = "Copy", IsDisabled = !isOneFile },
+            new() { ControlName = "Rename", IsDisabled = !isOneFile && !isOneFolder }
+        ]);
         return Task.FromResult(result);
     }
 
@@ -277,9 +314,9 @@
             {
                 var rowButton = request.Grid.RowCellList.Skip(1).First();
                 rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete", Icon = new() { ClassName = "i-delete" }, IsDisabled = true });
-                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Copy", Name = "Copy", Icon = new() { ClassName = "i-copy" } });
-                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Paste", Name = "Paste", Icon = new() { ClassName = "i-paste" } });
-                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Rename", Name = "Rename", Icon = new() { ClassName = "i-rename" } });
+                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Copy", Name = "Copy", Icon = new() { ClassName = "i-copy" }, IsDisabled = true });
+                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Paste", Name = "Paste", Icon = new() { ClassName = "i-paste" }, IsDisabled = true });
+                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Rename", Name = "Rename", Icon = new() { ClassName = "i-rename" }, IsDisabled = true });
                 rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Upload", Name = "Upload", Icon = new() { ClassName = "i-upload" } });
                 foreach (var row in request.Grid.RowCellList)
                 {

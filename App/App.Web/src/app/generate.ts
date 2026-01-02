@@ -172,10 +172,17 @@ export class GridDto {
   public rowCellList?: GridCellDto[][]
   public parentGridName?: string
   public state?: GridStateDto
+  public patchList?: GridPatchDto[]
   // public editRowIndex?: number
   // public editFieldName?: string
   // public selectRowIndex?: number
   // public selectFieldName?: string
+}
+
+export class GridPatchDto
+{
+    public controlName?: string
+    public isDisabled?: boolean
 }
 
 export class GridStateDto {
@@ -194,6 +201,7 @@ export class GridStateDto {
   public pagination?: GridPaginationDto
   public fieldSaveList?: GridCellDto[]
   public fieldCustomSaveList?: FieldCustomSaveDto[]
+  public isPatch?: boolean
   public pathList?: GridStatePathDto[]
   public pathModalIndex?: number
 }

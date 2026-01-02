@@ -64,7 +64,30 @@ export class PageGrid implements AfterViewInit {
     }
     const response = await pageGrid.serverApi.commandGridLoad2(request)
     if (response.list?.[0] != null) {
-      pageGrid.grid.set(response.list[0])
+      // Load Patch
+      const patchList = response.list[0].patchList
+      if (patchList) {
+        if (grid.rowCellList) {
+          for (const patch of patchList) {
+            for (const row of grid.rowCellList) {
+              for (const cell of row) {
+                if (cell.controlList) {
+                  for (const control of cell.controlList) {
+                    if (control.name == patch.controlName) {
+                      control.isDisabled = patch.isDisabled
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        pageGrid.grid.set({ ...grid })
+      }
+      // Load
+      else {
+        pageGrid.grid.set(response.list[0])
+      }
     }
     if (response.list?.[1] != null) {
       pageGrid?.parent?.grid.set(response.list[1])
@@ -244,13 +267,16 @@ export class PageGrid implements AfterViewInit {
               this._grid.state.isSelectMultiList[cell.dataRowIndex] = value == 'true' ? true : false
             }
           }
+          if (this._grid.state?.isPatch) {
+            await PageGrid.commandGridLoad2(this, cell, undefined)
+          }
           break
         }
       }
     }
   }
 
-  cellTextSetControl(cell: GridCellDto, control: GridControlDto, value: string) {
+  async cellTextSetControl(cell: GridCellDto, control: GridControlDto, value: string) {
     if (this._grid) {
       switch (control.controlEnum) {
         // Checkbox SelectMultiAll
@@ -269,6 +295,9 @@ export class PageGrid implements AfterViewInit {
                   }
                 }
               }
+            }
+            if (this._grid.state?.isPatch) {
+              await PageGrid.commandGridLoad2(this, cell, control)
             }
           }
           break

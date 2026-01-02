@@ -49,12 +49,19 @@
     }
 
     /// <summary>
+    /// Returns patch list. Allows partial patch instead of full reload. Used for example to update control IsDisable.
+    /// </summary>
+    protected virtual Task<List<GridPatchDto>> GridLoad2Patch(GridRequest2Dto request, GridConfig config, string? modalName)
+    {
+        return Task.FromResult<List<GridPatchDto>>(new());
+    }
+
+    /// <summary>
     /// Returns data row list to render grid.
     /// </summary>
     protected virtual Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
     {
-        var result = new List<Dynamic>();
-        return Task.FromResult(result);
+        return Task.FromResult<List<Dynamic>>(new());
     }
 
     protected virtual Task GridSave(GridRequestDto request, GridConfig config)
@@ -295,10 +302,10 @@
                     var buttonCustomClick = request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom ? new GridButtonCustom() { Cell = request.Cell!, Control = request.Control! } : null;
                     var fieldCustomSaveList = request.Grid.State?.FieldCustomSaveList ?? new();
                     // Save
-                    var isSave = 
-                        request.GridActionEnum == GridRequest2GridActionEnum.GridSave || 
-                        request.GridActionEnum == GridRequest2GridActionEnum.LookupSubSave || 
-                        request.GridActionEnum == GridRequest2GridActionEnum.GridDelete || 
+                    var isSave =
+                        request.GridActionEnum == GridRequest2GridActionEnum.GridSave ||
+                        request.GridActionEnum == GridRequest2GridActionEnum.LookupSubSave ||
+                        request.GridActionEnum == GridRequest2GridActionEnum.GridDelete ||
                         request.GridActionEnum == GridRequest2GridActionEnum.LookupSubOk;
                     if (isSave)
                     {
@@ -314,19 +321,31 @@
                     {
                         await GridSave2Custom(request, buttonCustomClick, fieldCustomSaveList, modalName);
                     }
-                    // Load
-                    var dataRowList = await GridLoad2(request, null, config, GridConfigEnum.Grid, modalName);
-                    if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubNew)
+                    // Load Patch
+                    var isPatch = request.Cell?.CellEnum == GridCellEnum.CheckboxSelectMulti || request.Control?.ControlEnum == GridControlEnum.CheckboxSelectMultiAll;
+                    if (isPatch)
                     {
-                        if (config.IsAllowNew)
-                        {
-                            dataRowList.Insert(0, Dynamic.Create(config, isNew: true)); // Multi new data rows possible
-                        }
+                        var patchList = await GridLoad2Patch(request, config, modalName);
+                        request.Grid.PatchList = patchList;
                     }
-                    // Render
-                    if (request.GridActionEnum != GridRequest2GridActionEnum.LookupSubOk)
+                    else
                     {
-                        Render2(request, dataRowList, config, modalName);
+                        // Load
+                        var dataRowList = await GridLoad2(request, null, config, GridConfigEnum.Grid, modalName);
+                        if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubNew)
+                        {
+                            if (config.IsAllowNew)
+                            {
+                                dataRowList.Insert(0, Dynamic.Create(config, isNew: true)); // Multi new data rows possible
+                            }
+                        }
+                        // Render
+                        if (request.GridActionEnum != GridRequest2GridActionEnum.LookupSubOk)
+                        {
+                            Render2(request, dataRowList, config, modalName);
+                        }
+                        // IsPatch
+                        request.Grid.StateGet().IsPatch = config.IsSelectMultiPatch;
                     }
                     // Result
                     var result = new GridResponse2Dto { Grid = request.Grid };

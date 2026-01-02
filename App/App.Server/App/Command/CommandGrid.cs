@@ -1155,6 +1155,18 @@ public class GridDto
         }
         return result;
     }
+
+    /// <summary>
+    /// Gets or sets PatchList. Response can contain partial patch instead of full load.
+    /// </summary>
+    public List<GridPatchDto>? PatchList { get; set; }
+}
+
+public class GridPatchDto
+{
+    public string? ControlName { get; set; }
+
+    public bool? IsDisabled { get; set; }
 }
 
 public class GridStateDto
@@ -1247,6 +1259,11 @@ public class GridStateDto
     public List<GridCellDto>? FieldSaveList { get; set; }
     
     public List<FieldCustomSaveDto>? FieldCustomSaveList { get; set; }
+
+    /// <summary>
+    /// Gets or sets IsPatch. If true, grid is partially patched (reloaded) when for example a checkbox is selected. Instead of full reload.
+    /// </summary>
+    public bool? IsPatch { get; set; }
 
     public List<GridStatePathDto>? PathList { get; set; }
 
@@ -1698,6 +1715,11 @@ public class GridConfig
     /// Gets or sets IsSelectMulti. If true, user can select individual rows with a checkbox.
     /// </summary>
     public bool? IsSelectMulti { get; set; }
+
+    /// <summary>
+    /// Gets or sets IsSelectMultiPatch. If true, grid is partially patched (reloaded) when a checkbox is selected. Instead of full reload.
+    /// </summary>
+    public bool? IsSelectMultiPatch { get; set; }
 
     public string? ConvertTo(string fieldName, object value)
     {
