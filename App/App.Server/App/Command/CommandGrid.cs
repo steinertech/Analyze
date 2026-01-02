@@ -851,6 +851,11 @@ public class GridRequest2Dto
                     UtilServer.Assert(result == GridRequest2GridActionEnum.None);
                     result = GridRequest2GridActionEnum.ButtonBreadcrumb;
                 }
+                if (request.Control?.ControlEnum == GridControlEnum.ButtonReload)
+                {
+                    UtilServer.Assert(result == GridRequest2GridActionEnum.None);
+                    result = GridRequest2GridActionEnum.GridReload;
+                }
                 break;
             case GridRequest2GridEnum.LookupConfirmDelete:
                 if (request.Control?.ControlEnum == GridControlEnum.ButtonModal && request.Control.Name == "Delete")

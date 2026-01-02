@@ -280,6 +280,14 @@
                     {
                         ArgumentNullException.ThrowIfNull(request.ParentGrid);
                     }
+                    // Reload State reset
+                    if (request.GridActionEnum == GridRequest2GridActionEnum.GridReload)
+                    {
+                        var state = request.Grid.State;
+                        request.Grid.State = new(); // Clear state keep PathList
+                        request.Grid.State.PathList = state?.PathList;
+                        request.Grid.State.PathModalIndex = state?.PathModalIndex;
+                    }
                     // Breadcrumb
                     if (request.GridActionEnum == GridRequest2GridActionEnum.ButtonBreadcrumb)
                     {
