@@ -359,7 +359,7 @@
                         // Render
                         if (request.GridActionEnum != GridRequest2GridActionEnum.LookupSubOk)
                         {
-                            Render2(request, dataRowList, config, modalName);
+                            GridRender2(request, dataRowList, config, modalName);
                         }
                         // IsPatch
                         request.Grid.StateGet().IsPatch = config.IsSelectMultiPatch;
@@ -384,7 +384,7 @@
                         {
                             var config = await Config();
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
-                            Render2(request.Parent2(), dataRowList, config, modalName);
+                            GridRender2(request.Parent2(), dataRowList, config, modalName);
                         }
                         var parentGrid = isSave ? request.ParentGrid : null;
                         return new GridResponse2Dto { ParentGrid = parentGrid };
@@ -406,7 +406,7 @@
                         if (isSave)
                         {
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
-                            Render2(request.Parent2(), dataRowList, config, modalName);
+                            GridRender2(request.Parent2(), dataRowList, config, modalName);
                         }
                         var parentGrid = isSave ? request.ParentGrid : null;
                         return new GridResponse2Dto { Grid = request.Grid, ParentGrid = parentGrid };
@@ -441,7 +441,7 @@
                         {
                             var config = await Config();
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
-                            Render2(request.Parent2(), dataRowList, config, modalName);
+                            GridRender2(request.Parent2(), dataRowList, config, modalName);
                         }
                         GridDto? parentGrid = isSave ? request.ParentGrid : null;
                         return new GridResponse2Dto { ParentGrid = parentGrid };
@@ -468,7 +468,7 @@
                         {
                             var config = await Config();
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
-                            Render2(request.Parent2(), dataRowList, config, modalName);
+                            GridRender2(request.Parent2(), dataRowList, config, modalName);
                         }
                         GridDto? parentGrid = isSave ? request.ParentGrid : null;
                         return new GridResponse2Dto { Grid = request.Grid, ParentGrid = parentGrid };
@@ -501,7 +501,7 @@
                             }
                             // Parent Load
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, null); // TODO ModalName
-                            Render2(request.Parent2(), dataRowList, config, null);
+                            GridRender2(request.Parent2(), dataRowList, config, null);
                         }
                         GridDto? parentGrid = isSave ? request.ParentGrid : null;
                         return new GridResponse2Dto { Grid = request.Grid, ParentGrid = parentGrid };
@@ -538,7 +538,7 @@
                     }
                     // Load
                     var dataRowList = await GridLoad2(request, null, config, GridConfigEnum.Grid, modalNameParent);
-                    Render2(request, dataRowList, config, modalName);
+                    GridRender2(request, dataRowList, config, modalName);
                     return new GridResponse2Dto { Grid = request.Grid };
                 }
             // LookupDelete
@@ -564,11 +564,11 @@
                         }
                         // Load Parent
                         var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalNameParent);
-                        Render2(request.Parent2(), dataRowList, config, modalNameParent);
+                        GridRender2(request.Parent2(), dataRowList, config, modalNameParent);
                         return new GridResponse2Dto { ParentGrid = request.ParentGrid };
                     }
                     // Load
-                    Render2(request, new(), config, modalName);
+                    GridRender2(request, new(), config, modalName);
                     return new GridResponse2Dto { Grid = request.Grid };
                 }
             default:
@@ -576,7 +576,7 @@
         }
     }
 
-    public virtual void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName) // TODO Rename to GridRender
+    protected virtual void GridRender2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
     {
         UtilGrid.Render2(request, dataRowList, config, modalName);
     }

@@ -284,11 +284,11 @@
         }
     }
 
-    public override void Render2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
+    protected override void GridRender2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
     {
         var grid = request.Grid;
         grid.AddControl(new() { ControlEnum = GridControlEnum.Breadcrumb });
-        base.Render2(request, dataRowList, config, modalName);
+        base.GridRender2(request, dataRowList, config, modalName);
 
         if (modalName == null || modalName == "Sub")
         {
