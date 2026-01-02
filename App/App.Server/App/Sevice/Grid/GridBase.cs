@@ -49,9 +49,9 @@
     }
 
     /// <summary>
-    /// Returns patch list. Allows partial patch instead of full reload. Used for example to update control IsDisable.
+    /// Returns patch list. Allows partial patch instead of full reload. Used for example to update control IsDisable. Subsequent load and render is skippet.
     /// </summary>
-    protected virtual Task<List<GridPatchDto>> GridLoad2Patch(GridRequest2Dto request, GridConfig config, string? modalName)
+    protected virtual Task<List<GridPatchDto>> GridLoad2Patch(GridRequest2Dto request)
     {
         return Task.FromResult<List<GridPatchDto>>(new());
     }
@@ -289,7 +289,10 @@
                         request.Grid.State.PathModalIndex = state?.PathModalIndex;
                     }
                     // Reset SelectMulti on Pagination
-                    bool isSelectMultiReset = request.GridActionEnum == GridRequest2GridActionEnum.Pagination || request.GridActionEnum == GridRequest2GridActionEnum.Header || request.GridActionEnum == GridRequest2GridActionEnum.Filter;
+                    bool isSelectMultiReset = 
+                        request.GridActionEnum == GridRequest2GridActionEnum.Pagination || 
+                        request.GridActionEnum == GridRequest2GridActionEnum.Header || 
+                        request.GridActionEnum == GridRequest2GridActionEnum.Filter;
                     if (isSelectMultiReset)
                     {
                         if (request.Grid.State?.IsSelectMultiList != null)
@@ -332,21 +335,24 @@
                             await GridSave2(request, sourceList, config);
                         }
                     }
-                    // Save Custom
-                    var isSaveCustom = buttonCustomClick != null || fieldCustomSaveList.Count() > 0;
-                    if (isSaveCustom)
-                    {
-                        await GridSave2Custom(request, buttonCustomClick, fieldCustomSaveList, modalName);
-                    }
                     // Load Patch
-                    var isPatch = request.Cell?.CellEnum == GridCellEnum.CheckboxSelectMulti || request.Control?.ControlEnum == GridControlEnum.CheckboxSelectMultiAll;
+                    var isPatch =
+                        request.Cell?.CellEnum == GridCellEnum.CheckboxSelectMulti ||
+                        request.Control?.ControlEnum == GridControlEnum.CheckboxSelectMultiAll ||
+                        (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.IsPatch == true);
                     if (isPatch)
                     {
-                        var patchList = await GridLoad2Patch(request, config, modalName);
+                        var patchList = await GridLoad2Patch(request);
                         request.Grid.PatchList = patchList;
                     }
                     else
                     {
+                        // Save Custom
+                        var isSaveCustom = buttonCustomClick != null || fieldCustomSaveList.Count() > 0;
+                        if (isSaveCustom)
+                        {
+                            await GridSave2Custom(request, buttonCustomClick, fieldCustomSaveList, modalName);
+                        }
                         // Load
                         var dataRowList = await GridLoad2(request, null, config, GridConfigEnum.Grid, modalName);
                         if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubNew)

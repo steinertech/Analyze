@@ -82,6 +82,7 @@ export class PageGrid implements AfterViewInit {
             }
           }
         }
+        grid.state = response.list[0].state
         pageGrid.grid.set({ ...grid })
       }
       // Load

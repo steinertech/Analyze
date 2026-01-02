@@ -131,39 +131,54 @@
         return Task.FromResult(result);
     }
 
-    protected override Task<List<GridPatchDto>> GridLoad2Patch(GridRequest2Dto request, GridConfig config, string? modalName)
+    private List<GridPatchDto> PatchList(GridRequest2Dto request)
     {
+        var result = new List<GridPatchDto>();
         var fileCount = 0;
         var folderCount = 0;
         var folderParentCount = 0;
-        var rowKeyList = request.Grid?.State?.RowKeyList;
-        var list = request.Grid?.State?.IsSelectMultiList?.Take(rowKeyList?.Count ?? 0).ToList();
-        for (int i = 0; i < list?.Count; i++)
+        var list = request.Grid.StateGet().IsSelectMultiListGet();
+        foreach (var rowKey in list)
         {
-            bool isSelect = list[i] == true;
-            var rowKey = rowKeyList?[i];
-            if (isSelect)
+            if (rowKey?.Length == 0)
             {
-                if (rowKey?.Length == 0)
-                {
-                    folderParentCount += 1;
-                    continue;
-                }
-                if (rowKey?.EndsWith("/") == true)
-                {
-                    folderCount += 1;
-                    continue;
-                }
-                fileCount += 1;
+                folderParentCount += 1;
+                continue;
             }
+            if (rowKey?.EndsWith("/") == true)
+            {
+                folderCount += 1;
+                continue;
+            }
+            fileCount += 1;
         }
         var isOneFile = fileCount == 1 && folderCount == 0 && folderParentCount == 0;
         var isOneFolder = fileCount == 0 && folderCount == 1 && folderParentCount == 0;
-        var result = new List<GridPatchDto>([
+        result = new List<GridPatchDto>([
             new() { ControlName = "Delete", IsDisabled = !isOneFile },
-            new() { ControlName = "Copy", IsDisabled = !isOneFile },
-            new() { ControlName = "Rename", IsDisabled = !isOneFile && !isOneFolder }
+                new() { ControlName = "Copy", IsDisabled = !isOneFile },
+                new() { ControlName = "Rename", IsDisabled = !isOneFile && !isOneFolder },
+                new() { ControlName = "Paste", IsDisabled = !(request.Grid.StateGet().CustomList?.Count() > 0) },
+                new() { ControlName = "Upload", IsDisabled = false }
         ]);
+        return result;
+    }
+
+    protected override Task<List<GridPatchDto>> GridLoad2Patch(GridRequest2Dto request)
+    {
+        var result = new List<GridPatchDto>();
+        // User clicked copy button
+        if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "Copy")
+        {
+            var list = request.Grid.StateGet().IsSelectMultiListGet();
+            request.Grid.StateGet().CustomList = list;
+            result.Add(new() { ControlName = "Paste", IsDisabled = false });
+        }
+        // User clicked checkbox
+        if (request.Cell?.CellEnum == GridCellEnum.CheckboxSelectMulti)
+        {
+            result = PatchList(request);
+        }
         return Task.FromResult(result);
     }
 
@@ -254,6 +269,13 @@
 
     protected override async Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<FieldCustomSaveDto> fieldCustomSaveList, string? modalName)
     {
+        // Button Paste
+        if (buttonCustomClick?.Control.Name == "Paste")
+        {
+            var list = request.Grid.StateGet().CustomList;
+            request.Grid.StateGet().IsSelectMultiList = null;
+        }
+        // Button Select
         if (buttonCustomClick?.Control.Name == "Select")
         {
             var dataRowIndex = buttonCustomClick.Cell.DataRowIndex.GetValueOrDefault(-1);
@@ -271,6 +293,7 @@
                 request.Grid.StateGet().PathList = pathDestList;
             }
         }
+        // Button CreateFolder
         if (modalName == "CreateFolder")
         {
             if (buttonCustomClick != null || fieldCustomSaveList.Count > 0)
@@ -313,11 +336,13 @@
             if (request.Grid.RowCellList != null)
             {
                 var rowButton = request.Grid.RowCellList.Skip(1).First();
-                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Delete", Name = "Delete", Icon = new() { ClassName = "i-delete" }, IsDisabled = true });
-                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Copy", Name = "Copy", Icon = new() { ClassName = "i-copy" }, IsDisabled = true });
-                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Paste", Name = "Paste", Icon = new() { ClassName = "i-paste" }, IsDisabled = true });
-                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Rename", Name = "Rename", Icon = new() { ClassName = "i-rename" }, IsDisabled = true });
-                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Upload", Name = "Upload", Icon = new() { ClassName = "i-upload" } });
+                var patchList = PatchList(request);
+                var addControl = (string name, bool isPatch) => rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = name, Name = name, Icon = new() { ClassName = "i-" + name.ToLower() }, IsDisabled = patchList.Single(item => item.ControlName == name).IsDisabled, IsPatch = isPatch });
+                addControl("Delete", false);
+                addControl("Copy", true);
+                addControl("Paste", false);
+                addControl("Rename", false);
+                addControl("Upload", false);
                 foreach (var row in request.Grid.RowCellList)
                 {
                     var dataRowIndex = row.Last().DataRowIndex;

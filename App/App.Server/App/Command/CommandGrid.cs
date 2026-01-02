@@ -1252,6 +1252,26 @@ public class GridStateDto
     /// </summary>
     public List<bool?>? IsSelectMultiList { get; set; }
 
+    /// <summary>
+    /// Returns all SelectMulti RowKey.
+    /// </summary>
+    public List<string?> IsSelectMultiListGet()
+    {
+        var result = new List<string?>();
+        var rowKeyList = RowKeyList;
+        var selectList = IsSelectMultiList?.Take(rowKeyList?.Count ?? 0).ToList();
+        for (int i = 0; i < selectList?.Count; i++)
+        {
+            bool isSelect = selectList[i] == true;
+            var rowKey = rowKeyList?[i];
+            if (isSelect)
+            {
+                result.Add(rowKey);
+            }
+        }
+        return result;
+    }
+
     public bool? IsSelectMultiAll { get; set; }
 
     /// <summary>
@@ -1299,6 +1319,11 @@ public class GridStateDto
     /// Gets or sets IsPatch. If true, grid is partially patched (reloaded) when for example a checkbox is selected. Instead of full reload.
     /// </summary>
     public bool? IsPatch { get; set; }
+
+    /// <summary>
+    /// Gets or sets CustomList. Used for example to store custom data like clipboard copy paste data.
+    /// </summary>
+    public List<string?>? CustomList { get; set; }
 
     public List<GridStatePathDto>? PathList { get; set; }
 
@@ -1486,6 +1511,11 @@ public class GridControlDto
     public GridCellIconDto? Icon { get; set; }
 
     public bool? IsDisabled { get; set; }
+
+    /// <summary>
+    /// Gets or sets IsPatch. If true, grid is partially patched (reloaded) if user clicks button. Not full reload.
+    /// </summary>
+    public bool? IsPatch { get; set; }
 }
 
 /// <summary>
