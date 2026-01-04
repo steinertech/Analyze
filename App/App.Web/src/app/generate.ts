@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http"
+import { HttpClient, HttpHeaders } from "@angular/common/http"
 import { inject, Injectable, signal } from "@angular/core"
 import { catchError, firstValueFrom, map, mergeMap, Observable, of, tap } from "rxjs"
 import { Router } from "@angular/router"
@@ -130,6 +130,9 @@ export class GridControlDto {
   public name?: string
   public icon?: GridCellIconDto
   public isDisabled?: boolean
+  public isPatch?: boolean
+  public fileEnum?: GridFileEnum
+  public fileList?: GridFileDto[]
 }
 
 export enum GridCellEnum {
@@ -165,6 +168,17 @@ export enum GridControlEnum {
   Breadcrumb = 15,
 }
 
+export enum GridFileEnum {
+  None = 0,
+  Download = 1,
+  Upload = 2,
+}
+
+export class GridFileDto {
+  public fileName?: string
+  public fileUrl?: string
+}
+
 export class GridDto {
   public gridName!: string
   // dataRowList?: any[]
@@ -179,10 +193,10 @@ export class GridDto {
   // public selectFieldName?: string
 }
 
-export class GridPatchDto
-{
-    public controlName?: string
-    public isDisabled?: boolean
+export class GridPatchDto {
+  public controlName?: string
+  public isDisabled?: boolean
+  public fileList?: GridFileDto[]
 }
 
 export class GridStateDto {
@@ -206,18 +220,16 @@ export class GridStateDto {
   public pathModalIndex?: number
 }
 
-export class GridStatePathDto
-{
-    public name?: string
-    public isModal?: boolean
-    public isModalCustom?: boolean
-    public icon?: GridCellIconDto
+export class GridStatePathDto {
+  public name?: string
+  public isModal?: boolean
+  public isModalCustom?: boolean
+  public icon?: GridCellIconDto
 }
 
-export class FieldCustomSaveDto
-{
-    public cell?: GridCellDto
-    public control?: GridControlDto
+export class FieldCustomSaveDto {
+  public cell?: GridCellDto
+  public control?: GridControlDto
 }
 
 export class GridPaginationDto {
@@ -390,6 +402,20 @@ export class ServerApi {
         )
       })
     )
+  }
+
+  async fileDownload(fileName: string, fileUrl: string) {
+    var result = await firstValueFrom(this.httpClient.get(fileUrl, { responseType: 'blob' }))
+    return result
+  }
+
+  async fileUpload(file: File, fileUrl: string) {
+    const headers = new HttpHeaders({
+      'x-ms-blob-type': 'BlockBlob'
+    });
+    await firstValueFrom(
+      this.httpClient.put(fileUrl, file, { headers }) // CORS Allowed origins http://localhost:4200 Allowed methods PUT Allowed headers content-type,x-ms-*" // content-type esed for *.png files
+    );
   }
 
   commandVersion() {

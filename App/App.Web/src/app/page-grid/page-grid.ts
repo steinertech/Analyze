@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Input, signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridDto, GridRequest2Dto, ServerApi } from '../generate';
+import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridFileEnum, GridDto, GridRequest2Dto, ServerApi } from '../generate';
 import { UtilClient } from '../util-client';
 
 @Component({
@@ -75,6 +75,7 @@ export class PageGrid implements AfterViewInit {
                   for (const control of cell.controlList) {
                     if (control.name == patch.controlName) {
                       control.isDisabled = patch.isDisabled
+                      control.fileList = patch.fileList
                     }
                   }
                 }
@@ -482,7 +483,69 @@ export class PageGrid implements AfterViewInit {
           if (!this._grid.state) {
             this._grid.state = {}
           }
-          await PageGrid.commandGridLoad2(this, cell, control)
+          switch (control.fileEnum) {
+            case GridFileEnum.Download: {
+              const isPatch = control.isPatch
+              control.isPatch = true
+              await PageGrid.commandGridLoad2(this, cell, control)
+              control.isPatch = isPatch
+              const fileListResponse = control.fileList
+              if (fileListResponse) {
+                for (const file of fileListResponse) {
+                  if (file?.fileName && file.fileUrl) {
+                    var blob = await this.serverApi.fileDownload(file.fileName, file.fileUrl)
+                    const url = URL.createObjectURL(blob)
+                    const anchor = document.createElement('a')
+                    anchor.href = url
+                    anchor.download = file.fileName
+                    anchor.style.display = 'none';
+                    document.body.appendChild(anchor);
+                    anchor.click();
+                    document.body.removeChild(anchor);
+                    URL.revokeObjectURL(url)
+                  }
+                }
+              }
+              break
+            }
+            case GridFileEnum.Upload: {
+              const inputElement = document.createElement('input');
+              inputElement.type = 'file';
+              inputElement.multiple = true;
+              inputElement.addEventListener('change', async (event: Event) => {
+                const target = event.target as HTMLInputElement;
+                const files = target.files;
+                if (files && files.length > 0) {
+                  const fileList = control.fileList
+                  const isPatch = control.isPatch
+                  const fileListRequest = Array.from(files, item => { return { fileName: item.name } })
+                  control.fileList = fileListRequest
+                  control.isPatch = true
+                  await PageGrid.commandGridLoad2(this, cell, control)
+                  const fileListResponse = control.fileList
+                  for (const file of fileListResponse) {
+                    if (file?.fileName && file.fileUrl) {
+                      const fileSingle = Array.from(files).filter(item => item.name == file.fileName)
+                      if (fileSingle.length == 1) {
+                        await this.serverApi.fileUpload(fileSingle[0], file.fileUrl)
+                      }
+                    }
+                  }
+                  control.fileList = fileList
+                  control.isPatch = isPatch
+                  if (!isPatch) {
+                    await PageGrid.commandGridLoad2(this, cell, control) // Reload
+                  }
+                }
+                (event.target as HTMLInputElement).value = "" // Necessary to select and upload same file multiple times.
+              })
+              inputElement.click()
+              break
+            }
+            default: {
+              await PageGrid.commandGridLoad2(this, cell, control)
+            }
+          }
           break
         }
       }

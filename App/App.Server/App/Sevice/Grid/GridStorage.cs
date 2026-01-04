@@ -156,12 +156,14 @@
         var isCopy = fileCount > 0 && folderCount == 0 && folderParentCount == 0;
         var isRename = (fileCount == 1 || folderCount == 1) && folderParentCount == 0;
         var isPaste = request.Grid.StateGet().CustomList?.Count() > 0;
+        var isDownload = fileCount > 0 && folderCount == 0 && folderParentCount == 0;
         result = new List<GridPatchDto>([
             new() { ControlName = "Delete", IsDisabled = !isDelete },
                 new() { ControlName = "Copy", IsDisabled = !isCopy },
                 new() { ControlName = "Rename", IsDisabled = !isRename },
                 new() { ControlName = "Paste", IsDisabled = !isPaste },
-                new() { ControlName = "Upload", IsDisabled = false }
+                new() { ControlName = "Upload", IsDisabled = false },
+                new() { ControlName = "Download", IsDisabled = !isDownload }
         ]);
         return result;
     }
@@ -169,14 +171,43 @@
     protected override Task<List<GridPatchDto>> GridLoad2Patch(GridRequest2Dto request)
     {
         var result = new List<GridPatchDto>();
-        // User clicked copy button
+        // Button Download
+        if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "Download")
+        {
+            var fileNameList = request.Grid.StateGet().IsSelectMultiListGet().OfType<string>().ToList(); // Filter null
+            var fileNameUrlList = UtilStorage.DownloadUrl(configuration.ConnectionStringStorage, fileNameList);
+            var fileList = new List<GridFileDto>();
+            for (int i = 0; i < fileNameList.Count; i++)
+            {
+                var fileNameOnly = UtilStorage.FolderOrFileNameOnly(fileNameList[i]);
+                var fileUrl = fileNameUrlList[i];
+                fileList.Add(new GridFileDto { FileName = fileNameOnly, FileUrl = fileUrl });
+            }
+            result.Add(new() { ControlName = "Download", FileList = fileList });
+        }
+        // Button Upload
+        if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "Upload" && request.Control.FileList != null)
+        {
+            var folderName = request.Grid.StateGet().PathGet(1);
+            var fileNameList = request.Control.FileList.Select(item => folderName + item.FileName).ToList();
+            var fileUrlList = UtilStorage.UploadUrl(configuration.ConnectionStringStorage, fileNameList);
+            var fileList = new List<GridFileDto>();
+            for (int i = 0; i < fileNameList.Count; i++)
+            {
+                var fileNameOnly = UtilStorage.FolderOrFileNameOnly(fileNameList[i]);
+                var fileUrl = fileUrlList[i];
+                fileList.Add(new GridFileDto { FileName = fileNameOnly, FileUrl = fileUrl });
+            }
+            result.Add(new() { ControlName = "Upload", FileList = fileList });
+        }
+        // Button Copy
         if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "Copy")
         {
             var list = request.Grid.StateGet().IsSelectMultiListGet();
             request.Grid.StateGet().CustomList = list;
             result.Add(new() { ControlName = "Paste", IsDisabled = false });
         }
-        // User clicked checkbox
+        // Button CheckBox
         if (request.Cell?.CellEnum == GridCellEnum.CheckboxSelectMulti)
         {
             result = PatchList(request);
@@ -364,7 +395,8 @@
                 addControl("Copy", true);
                 addControl("Paste", false);
                 addControl("Rename", false);
-                addControl("Upload", false);
+                addControl("Upload", false).FileEnum = GridFileEnum.Upload;
+                addControl("Download", false).FileEnum = GridFileEnum.Download;
                 foreach (var row in request.Grid.RowCellList)
                 {
                     var dataRowIndex = row.Last().DataRowIndex;

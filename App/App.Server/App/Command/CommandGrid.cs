@@ -1202,6 +1202,8 @@ public class GridPatchDto
     public string? ControlName { get; set; }
 
     public bool? IsDisabled { get; set; }
+    
+    public List<GridFileDto>? FileList { get; set; }
 }
 
 public class GridStateDto
@@ -1516,6 +1518,10 @@ public class GridControlDto
     /// Gets or sets IsPatch. If true, grid is partially patched (reloaded) if user clicks button. Not full reload.
     /// </summary>
     public bool? IsPatch { get; set; }
+
+    public GridFileEnum? FileEnum { get; set; }
+
+    public List<GridFileDto>? FileList { get; set; }
 }
 
 /// <summary>
@@ -1654,6 +1660,28 @@ public enum GridControlEnum
     /// Breadcrumb navigation. See also PathList.
     /// </summary>
     Breadcrumb = 15,
+}
+
+public enum GridFileEnum
+{
+    None = 0,
+
+    Download = 1,
+
+    Upload = 2,
+}
+
+public class GridFileDto
+{
+    /// <summary>
+    /// Gets or sets FileName. This is client FileName and server FileNameOnly.
+    /// </summary>
+    public string? FileName { get; set; }
+
+    /// <summary>
+    /// Gets or sets FileUrl. This is SasUri.
+    /// </summary>
+    public string? FileUrl { get; set; }
 }
 
 public class GridFilterLookupDataRowDto

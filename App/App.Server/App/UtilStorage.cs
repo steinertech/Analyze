@@ -66,7 +66,7 @@ public static class UtilStorage
         return result;
     }
 
-    private static string FolderOrFileNameOnly(string folderOrFileName)
+    public static string FolderOrFileNameOnly(string folderOrFileName)
     {
         var result = Path.GetFileName(folderOrFileName);
         return result;
@@ -213,6 +213,38 @@ public static class UtilStorage
             await fileClient.UploadAsync(stream, overwrite: true);
         }
         stream.Close();
+    }
+
+    /// <summary>
+    /// Returns list of SasUri to upload to.
+    /// </summary>
+    public static List<string> UploadUrl(string connectionString, List<string> fileNameList)
+    {
+        var result = new List<string>();
+        var client = Client(connectionString);
+        foreach (var fileName in fileNameList)
+        {
+            var file = client.GetFileClient(fileName);
+            var fileUrl = file.GenerateSasUri(Azure.Storage.Sas.DataLakeSasPermissions.Write, DateTimeOffset.UtcNow.AddMinutes(3)).ToString();
+            result.Add(fileUrl);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Returns list of SasUri to download from.
+    /// </summary>
+    public static List<string> DownloadUrl(string connectionString, List<string> fileNameList)
+    {
+        var result = new List<string>();
+        var client = Client(connectionString);
+        foreach (var fileName in fileNameList)
+        {
+            var file = client.GetFileClient(fileName);
+            var fileUrl = file.GenerateSasUri(Azure.Storage.Sas.DataLakeSasPermissions.Read, DateTimeOffset.UtcNow.AddMinutes(3)).ToString();
+            result.Add(fileUrl);
+        }
+        return result;
     }
 }
 
