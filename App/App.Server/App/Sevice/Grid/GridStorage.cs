@@ -152,13 +152,15 @@
             }
             fileCount += 1;
         }
-        var isOneFile = fileCount == 1 && folderCount == 0 && folderParentCount == 0;
-        var isOneFolder = fileCount == 0 && folderCount == 1 && folderParentCount == 0;
+        var isDelete = fileCount > 0 && folderCount == 0 && folderParentCount == 0;
+        var isCopy = fileCount > 0 && folderCount == 0 && folderParentCount == 0;
+        var isRename = (fileCount == 1 || folderCount == 1) && folderParentCount == 0;
+        var isPaste = request.Grid.StateGet().CustomList?.Count() > 0;
         result = new List<GridPatchDto>([
-            new() { ControlName = "Delete", IsDisabled = !isOneFile },
-                new() { ControlName = "Copy", IsDisabled = !isOneFile },
-                new() { ControlName = "Rename", IsDisabled = !isOneFile && !isOneFolder },
-                new() { ControlName = "Paste", IsDisabled = !(request.Grid.StateGet().CustomList?.Count() > 0) },
+            new() { ControlName = "Delete", IsDisabled = !isDelete },
+                new() { ControlName = "Copy", IsDisabled = !isCopy },
+                new() { ControlName = "Rename", IsDisabled = !isRename },
+                new() { ControlName = "Paste", IsDisabled = !isPaste },
                 new() { ControlName = "Upload", IsDisabled = false }
         ]);
         return result;
@@ -269,10 +271,30 @@
 
     protected override async Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<FieldCustomSaveDto> fieldCustomSaveList, string? modalName)
     {
+        // Button Delete
+        if (buttonCustomClick?.Control.Name == "Delete")
+        {
+            var list = request.Grid.StateGet().IsSelectMultiListGet();
+            if (list != null)
+            {
+                foreach (var folderOrFileName in list)
+                {
+                    await UtilStorage.Delete(configuration.ConnectionStringStorage, folderOrFileName ?? "");
+                }
+            }
+        }
         // Button Paste
         if (buttonCustomClick?.Control.Name == "Paste")
         {
             var list = request.Grid.StateGet().CustomList;
+            var dest = request.Grid.StateGet().PathGet(1);
+            if (list != null)
+            {
+                foreach (var folderOrFileName in list)
+                {
+                    var length = await UtilStorage.Copy(configuration.ConnectionStringStorage, folderOrFileName ?? "", dest ?? "");
+                }
+            }
             request.Grid.StateGet().IsSelectMultiList = null;
         }
         // Button Select

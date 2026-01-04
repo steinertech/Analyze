@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Files.DataLake;
+﻿using Azure.Storage.Blobs; // Used for StartCopyFromUriAsync
+using Azure.Storage.Files.DataLake;
 using Azure.Storage.Files.DataLake.Models;
 using System.Text;
 
@@ -47,6 +48,38 @@ public static class UtilStorage
             return result;
         }
         throw new Exception($"Folder or file name invalid! ({folderOrFileName})");
+    }
+
+    public static bool IsFolder(string folderOrFileName)
+    {
+        return folderOrFileName.Length == 0 || folderOrFileName.EndsWith("/");
+    }
+
+    public static bool IsFile(string folderOrFileName)
+    {
+        return folderOrFileName.Length > 0 && !IsFolder(folderOrFileName);
+    }
+
+    public static async Task<long> Copy(string connectionString, string folderOrFileNameSource, string folderNameDest)
+    {
+        UtilServer.Assert(IsFolder(folderNameDest));
+        if (IsFile(folderOrFileNameSource))
+        {
+            var fileNameOnlySource = Path.GetFileName(folderOrFileNameSource);
+            var folderNameSource = Path.GetDirectoryName(folderOrFileNameSource);
+            await Create(connectionString, folderNameDest);
+            var client = Client(connectionString);
+            var folderSource = client.GetSubDirectoryClient(folderNameSource);
+            var fileSource = folderSource.GetFileClient(fileNameOnlySource);
+            var fileSourceUri = fileSource.GenerateSasUri(Azure.Storage.Sas.DataLakeSasPermissions.Read, DateTimeOffset.UtcNow.AddMinutes(3));
+            // var folderDest = client.GetSubDirectoryClient(folderNameDest);
+            // var fileDest = folderDest.GetFileClient(folderNameDest); // DataLakeFileClient does not support server‑side copy
+            var fileDest2 = new BlobClient(connectionString, containerName, containerFolderName + folderNameDest + fileNameOnlySource);
+            var result = await fileDest2.StartCopyFromUriAsync(fileSourceUri);
+            await result.UpdateStatusAsync();
+            return result.Value;
+        }
+        throw new Exception();
     }
 
     public static async Task Create(string connectionString, string folderName)
