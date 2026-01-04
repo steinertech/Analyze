@@ -246,9 +246,9 @@
             {
                 case DynamicEnum.Update:
                     {
-                        var folderOrFileName = (string)item["Name"]!;
-                        var folderOrFileNameNew = (string)item.ValueModifiedGet("Name")!;
-                        await UtilStorage.Rename(configuration.ConnectionStringStorage, folderOrFileName, folderOrFileNameNew);
+                        var folderOrFileName = (string)item.RowKey!;
+                        var folderOrFileNameOnlyNew = (string)item.ValueModifiedGet("Name")!;
+                        await UtilStorage.Rename(configuration.ConnectionStringStorage, folderOrFileName, folderOrFileNameOnlyNew);
                         break;
                     }
                 case DynamicEnum.Insert:

@@ -50,14 +50,26 @@ public static class UtilStorage
         throw new Exception($"Folder or file name invalid! ({folderOrFileName})");
     }
 
-    public static bool IsFolder(string folderOrFileName)
+    private static bool IsFolder(string folderOrFileName)
     {
         return folderOrFileName.Length == 0 || folderOrFileName.EndsWith("/");
     }
 
-    public static bool IsFile(string folderOrFileName)
+    private static bool IsFile(string folderOrFileName)
     {
         return folderOrFileName.Length > 0 && !IsFolder(folderOrFileName);
+    }
+
+    private static string FolderName(string folderOrFileName)
+    {
+        var result = (Path.GetDirectoryName(folderOrFileName) ?? "").Replace("\"", "/");
+        return result;
+    }
+
+    private static string FolderOrFileNameOnly(string folderOrFileName)
+    {
+        var result = Path.GetFileName(folderOrFileName);
+        return result;
     }
 
     public static async Task<long> Copy(string connectionString, string folderOrFileNameSource, string folderNameDest)
@@ -65,8 +77,8 @@ public static class UtilStorage
         UtilServer.Assert(IsFolder(folderNameDest));
         if (IsFile(folderOrFileNameSource))
         {
-            var fileNameOnlySource = Path.GetFileName(folderOrFileNameSource);
-            var folderNameSource = Path.GetDirectoryName(folderOrFileNameSource);
+            var fileNameOnlySource = FolderOrFileNameOnly(folderOrFileNameSource);
+            var folderNameSource = FolderName(folderOrFileNameSource);
             await Create(connectionString, folderNameDest);
             var client = Client(connectionString);
             var folderSource = client.GetSubDirectoryClient(folderNameSource);
@@ -94,17 +106,23 @@ public static class UtilStorage
     {
         folderOrFileName = Sanatize(connectionString, folderOrFileName);
 
+        UtilServer.Assert(folderOrFileName.Length > 0); // Do not delete root
+
         var client = Client(connectionString);
         await client.GetFileClient(folderOrFileName).DeleteAsync();
     }
 
-    public static async Task Rename(string connectionString, string folderOrFileName, string folderOrFileNameNew)
+    public static async Task Rename(string connectionString, string folderOrFileName, string folderOrFileNameOnlyNew)
     {
+        var folderName = FolderName(folderOrFileName);
+        folderOrFileNameOnlyNew = FolderOrFileNameOnly(folderOrFileNameOnlyNew);
+        var folderOrFileNameNew2 = folderName + "/" + folderOrFileNameOnlyNew; // Rename only. No move to other folder.
+
         folderOrFileName = Sanatize(connectionString, folderOrFileName);
-        folderOrFileNameNew = Sanatize(connectionString, folderOrFileNameNew);
+        folderOrFileNameNew2 = Sanatize(connectionString, folderOrFileNameNew2);
 
         var client = Client(connectionString);
-        await client.GetFileClient(folderOrFileName).RenameAsync(containerFolderName + folderOrFileNameNew);
+        await client.GetFileClient(folderOrFileName).RenameAsync(containerFolderName + folderOrFileNameNew2);
     }
 
     public static async Task<List<UtilStorageEntry>> List(string connectionString, string? folderName = null, bool isRecursive = false)
