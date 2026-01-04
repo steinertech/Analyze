@@ -414,7 +414,7 @@ export class ServerApi {
       'x-ms-blob-type': 'BlockBlob'
     });
     await firstValueFrom(
-      this.httpClient.put(fileUrl, file, { headers }) // CORS Allowed origins http://localhost:4200 Allowed methods PUT Allowed headers content-type,x-ms-*" // content-type esed for *.png files
+      this.httpClient.put(fileUrl, file, { headers }) // CORS Allowed origins http://localhost:4200 Allowed methods PUT, GET Allowed headers content-type,x-ms-*" // content-type esed for *.png files
     );
   }
 

@@ -1705,6 +1705,8 @@ public enum GridColumnEnum
     Double = 3,
     
     Date = 4,
+
+    Long = 5,
 }
 
 public class GridConfig
@@ -1841,6 +1843,9 @@ public class GridConfig
                 break;
             case GridColumnEnum.Date:
                 result = DateTime.ParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                break;
+            case GridColumnEnum.Long:
+                result = long.Parse(value);
                 break;
             default:
                 throw new Exception("Type unknown!");

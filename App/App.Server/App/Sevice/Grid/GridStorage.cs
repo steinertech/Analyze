@@ -115,7 +115,9 @@
             ColumnList = [
                 // new() { FieldName = "FolderOrFileName", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
                 // new() { FieldName = "IsFolder", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
-                new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, FieldNameSortCustom = "NameSort" }
+                new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, FieldNameSortCustom = "NameSort", Sort = 1 },
+                new() { FieldName = "DateModified", ColumnEnum = GridColumnEnum.Long, Sort = 2 },
+                new() { FieldName = "Size", ColumnEnum = GridColumnEnum.Long, Sort = 3 }
             ],
             FieldNameRowKey = "FolderOrFileName", // Used to delete row
             IsAllowNew = true,
@@ -230,6 +232,7 @@
         {
             dataRowTo["FolderOrFileName"] = dataRowFrom.FolderOrFileName;
             dataRowTo["Name"] = dataRowFrom.Text;
+            dataRowTo["Size"] = dataRowFrom.Size;
             dataRowTo["IsFolder"] = dataRowFrom.IsFolder;
             dataRowTo["NameSort"] = (dataRowFrom.IsFolder ? "0" : "1") + dataRowFrom.Text; // Show folders before files
             if (dataRowFrom.IsFolder)
@@ -263,6 +266,8 @@
             pathParentDynamic["FolderOrFileName"] = pathParent;
             pathParentDynamic["IsFolder"] = true;
             pathParentDynamic["Name"] = "[..]";
+            pathParentDynamic["DateModified"] = null;
+            pathParentDynamic["Size"] = null;
             pathParentDynamic.IconSet("Name", "i-folder", isLeft: true);
             result.Insert(0, pathParentDynamic);
         }

@@ -136,7 +136,15 @@ public static class UtilStorage
             var folderOrFileName = PathItemToFolderOrFileName(pathItem) + (pathItem.IsDirectory == true ? "/" : null);
             var isFolder = pathItem.IsDirectory ?? false;
             var text = folderOrFileName.TrimEnd('/').Substring(folderOrFileName.TrimEnd('/').LastIndexOf("/") + 1);
-            var resultItem = new UtilStorageEntry { FolderOrFileName = folderOrFileName, IsFolder = isFolder, Text = text };
+            var resultItem = new UtilStorageEntry 
+            { 
+                FolderOrFileName = folderOrFileName, 
+                IsFolder = isFolder, 
+                Text = text, 
+                DateModified = pathItem.LastModified.UtcDateTime, 
+                Size = !isFolder ? 
+                pathItem.ContentLength : null 
+            };
             result.Add(resultItem);
         }
         return result;
@@ -261,4 +269,8 @@ public class UtilStorageEntry
     /// Gets or sets Text. This is Folder or FileName only.
     /// </summary>
     public string Text { get; set; } = default!;
+
+    public DateTime? DateModified { get; set; }
+
+    public long? Size { get; set; }
 }
