@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json.Serialization;
 
-public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage storageGrid, GridArticle articleGrid, GridArticle2 gridArticle)
+public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage storageGrid, GridArticle articleGrid, GridArticle2 gridArticle, GridOrganisation gridOrganisation, GridOrganisationEmail gridOrganisationEmail)
 {
     /// <summary>
     /// Returns loaded grid.
@@ -121,6 +121,12 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
                 break;
             case "Storage":
                 result = await storageGrid.Load2(request);
+                break;
+            case "Organisation":
+                result = await gridOrganisation.Load2(request);
+                break;
+            case "OrganisationEmail":
+                result = await gridOrganisationEmail.Load2(request);
                 break;
             default:
                 var resultLoad = await Load(new()

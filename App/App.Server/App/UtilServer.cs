@@ -35,6 +35,8 @@ internal static class UtilServer
         builder.Services.AddTransient<GridArticle>();
         builder.Services.AddSingleton<GridArticle2>(); // Contains state
         builder.Services.AddTransient<GridStorage>(); // Wrapper
+        builder.Services.AddTransient<GridOrganisation>(); // Wrapper
+        builder.Services.AddTransient<GridOrganisationEmail>(); // Wrapper
         builder.Services.AddScoped<CommandContext>(); // One new instance for every http request
         builder.Services.AddTransient<Storage>(); // Wrapper
         

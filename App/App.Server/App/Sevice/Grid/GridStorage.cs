@@ -251,9 +251,13 @@
                 {
                     dataRowTo.IconSet("Name", "i-excel", isLeft: true);
                 }
-                if (name.EndsWith(".png"))
+                if (name.EndsWith(".png") || name.EndsWith(".jpg"))
                 {
                     dataRowTo.IconSet("Name", "i-image", isLeft: true);
+                }
+                if (name.EndsWith(".mp4"))
+                {
+                    dataRowTo.IconSet("Name", "i-video", isLeft: true);
                 }
             }
         });

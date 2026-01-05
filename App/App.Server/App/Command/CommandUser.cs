@@ -79,7 +79,7 @@
         var organisation = new OrganisationDto
         { 
             Id = Guid.NewGuid().ToString(),
-            Name = user.Email,
+            Name = user.Email, // Organisation name
             EmailList = [user.Email],
         };
         await cosmosDb.InsertAsync(organisation, isOrganisation: false);
