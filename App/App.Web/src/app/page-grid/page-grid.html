@@ -182,12 +182,12 @@
 @if(lookup.isModal) {
 <div class="frm-modal-container">
   <div class="frm-modal">
-    <app-page-grid [parent]="this" [grid]="lookup.grid"></app-page-grid>
+    <app-page-grid [parent]="this"></app-page-grid>
   </div>
 </div>
 } @else {
 <div class="frm-lookup">
-  <app-page-grid [parent]="this" [grid]="lookup.grid"></app-page-grid>
+  <app-page-grid [parent]="this"></app-page-grid>
 </div>
 }
 }

@@ -286,17 +286,23 @@
             {
                 case DynamicEnum.Update:
                     {
-                        var folderOrFileName = (string)item.RowKey!;
-                        var folderOrFileNameOnlyNew = (string)item.ValueModifiedGet("Name")!;
-                        await UtilStorage.Rename(configuration.ConnectionStringStorage, folderOrFileName, folderOrFileNameOnlyNew);
+                        if (item.ValueModifiedGet<string>("Name", out var value, out var valueModified))
+                        {
+                            var folderOrFileName = (string)item.RowKey!;
+                            var folderOrFileNameOnlyNew = valueModified!;
+                            await UtilStorage.Rename(configuration.ConnectionStringStorage, folderOrFileName, folderOrFileNameOnlyNew);
+                        }
                         break;
                     }
                 case DynamicEnum.Insert:
                     {
-                        var path = request.Grid.StateGet().PathGet(1); // Breadcrumb without Home (Storage)
-                        var name = (string)item.ValueModifiedGet("Name")!;
-                        var folderOrFileNameNew = path + name;
-                        await UtilStorage.Upload(configuration.ConnectionStringStorage, folderOrFileNameNew, null);
+                        if (item.ValueModifiedGet<string>("Name", out var value, out var valueModified))
+                        {
+                            var path = request.Grid.StateGet().PathGet(1); // Breadcrumb without Home (Storage)
+                            var name = valueModified;
+                            var folderOrFileNameNew = path + name;
+                            await UtilStorage.Upload(configuration.ConnectionStringStorage, folderOrFileNameNew, null);
+                        }
                         break;
                     }
                 case DynamicEnum.Delete:

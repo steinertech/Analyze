@@ -40,7 +40,7 @@ export class PageUser implements OnInit, AfterContentInit {
 
   async ngAfterContentInit() {
     if (this.userModeEnum == UserModeEnum.SignOut) {
-      if (this.serverApi.isWindow()) {
+      if (this.serverApi.isBrowser()) {
         await this.serverApi.commmandUserSignOut()
         await this.dataService.userSignUpdate()
       }

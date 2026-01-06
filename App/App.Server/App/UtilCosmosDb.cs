@@ -40,6 +40,7 @@ public static class UtilCosmosDb
 
     public static async Task<T> InsertAsync<T>(Container container, string partitionKey, T item) where T : DocumentDto
     {
+        UtilServer.Assert(item.Id != null); // item.Id = Guid.NewGuid().ToString();
         item.InternalPartitionKey = partitionKey;
         item.InternalEtag = null;
         return await container.UpsertItemAsync(item);

@@ -10,7 +10,7 @@ export class DataService {
   private serverApi = inject(ServerApi)
 
   constructor() {
-    if (this.serverApi.isWindow()) {
+    if (this.serverApi.isBrowser()) {
       this.userSignUpdate()
     }
   }
@@ -21,7 +21,7 @@ export class DataService {
     let result = this.storageDownloadList.get(fileName)
     if (!result) {
       console.log("Get File", fileName)
-      if (this.serverApi.isWindow()) {
+      if (this.serverApi.isBrowser()) {
         const serverApi = this.serverApi
         this.storageDownloadList.set(fileName, serverApi.commandStorageDownload(fileName))
       } else {

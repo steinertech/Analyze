@@ -23,7 +23,7 @@ export class PageProduct implements AfterViewInit {
   @ViewChild('gridStorage') gridStorage!: PageGrid;
 
   async ngAfterViewInit() {
-    if (this.serverApi.isWindow()) {
+    if (this.serverApi.isBrowser()) {
       await this.gridProduct.load2('ProductDto')
       // await this.gridExcel.load2('Excel')
       await this.gridStorage.load2('Storage')

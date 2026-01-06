@@ -11,15 +11,11 @@ import { ServerApi } from '../generate';
   styleUrl: './page-organisation.css'
 })
 export class PageOrganisation {
-  private serverApi = inject(ServerApi)
-
   @ViewChild('gridOrganisation') gridOrganisation!: PageGrid;
   @ViewChild('gridOrganisationEmail') gridOrganisationEmail!: PageGrid;
 
   async ngAfterViewInit() {
-    if (this.serverApi.isWindow()) {
-      await this.gridOrganisation.load2('Organisation')
-      await this.gridOrganisationEmail.load2('OrganisationEmail')
-    }
+    await this.gridOrganisation.load2('Organisation')
+    await this.gridOrganisationEmail.load2('OrganisationEmail')
   }
 }

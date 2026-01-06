@@ -29,7 +29,7 @@ export class PageArticle implements AfterViewInit {
   }
 
   async ngAfterViewInit() {
-    if (this.serverApi.isWindow()) {
+    if (this.serverApi.isBrowser()) {
       await Promise.all([
         this.gridArticle.load2('Article'),
         this.gridArticle2.load2('Article2'),

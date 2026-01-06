@@ -101,13 +101,15 @@ export class PageGrid implements AfterViewInit {
 
   GridControlEnum = GridControlEnum
 
-  @Input() grid = signal<GridDto | undefined>(undefined) // TODO Remove @Input
+  grid = signal<GridDto | undefined>(undefined)
 
-  async load2(gridName: string | undefined) {
+  async load2(gridName: string | undefined, isLoad: boolean = true) {
     if (gridName) {
       this.grid.set({ gridName: gridName })
       await new Promise(resolve => setTimeout(resolve, 0)); // Wait for effect to set _gird
-      await PageGrid.commandGridLoad2(this, undefined, undefined)
+      if (isLoad && this.serverApi.isBrowser()) {
+        await PageGrid.commandGridLoad2(this, undefined, undefined)
+      }
     } else {
       this.grid.set(undefined)
     }

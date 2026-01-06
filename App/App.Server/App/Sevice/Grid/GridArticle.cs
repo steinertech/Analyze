@@ -106,7 +106,7 @@ public class GridArticle(CommandContext context, CosmosDb cosmosDb)
 {
     public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid, GridRequestDto request)
     {
-        await context.UserAuthenticateAsync();
+        await context.UserAuthAsync();
         // Save
         if (grid.State?.FieldSaveList?.Count() > 0)
         {

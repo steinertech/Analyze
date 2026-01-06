@@ -323,15 +323,14 @@ public static class UtilGrid
                                         dataRow.DataRowIndex = dataRowIndex;
                                         dataRow.RowKey = rowKey;
                                     }
-                                    if (configColumn.IsAllowModify)
+                                    // if (configColumn.IsAllowModify) // config.IsAllowNew
                                     {
                                         var fieldName = field.FieldName!;
                                         var text = field.Text;
                                         var value = config.ConvertFrom(fieldName, text);
                                         var textModified = field.TextModified;
                                         var valueModified = config.ConvertFrom(fieldName, textModified);
-                                        dataRow[fieldName] = value;
-                                        dataRow.ValueModifiedSet(fieldName, valueModified);
+                                        dataRow.ValueModifiedSet(fieldName, value, valueModified);
                                     }
                                 }
                             }
@@ -354,8 +353,7 @@ public static class UtilGrid
                                     var value = config.ConvertFrom(fieldName, text);
                                     var textModified = field.TextModified;
                                     var valueModified = config.ConvertFrom(fieldName, textModified);
-                                    dataRow[fieldName] = value;
-                                    dataRow.ValueModifiedSet(fieldName, valueModified);
+                                    dataRow.ValueModifiedSet(fieldName, value, valueModified);
                                 }
                             }
                         }
@@ -402,8 +400,10 @@ public static class UtilGrid
                         var index = destList.Select((item, index) => (Value: item, Index: index)).Single(item => object.Equals(item.Value["Id"], id)).Index;
                         foreach (var (fieldName, value) in source)
                         {
-                            var valueModified = source.ValueModifiedGet(fieldName);
-                            destList[index][fieldName] = valueModified;
+                            if (source.ValueModifiedGet(fieldName, out _, out var valueModified))
+                            {
+                                destList[index][fieldName] = valueModified;
+                            }
                         }
                     }
                     break;

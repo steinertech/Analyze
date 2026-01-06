@@ -33,11 +33,12 @@ public class CommandContext(IServiceProvider serviceProvider)
     /// <summary>
     /// For this request check user is signed in and has an organisation selected. Throws exception if not.
     /// </summary>
-    public async Task UserAuthenticateAsync()
+    public async Task<CommandContextAuthResult> UserAuthAsync()
     {
-        if (organisationName != null)
+        if (this.organisation != null)
         {
-            return;
+            ArgumentNullException.ThrowIfNullOrEmpty(email);
+            return new() { Email = email, Organisation = this.organisation };
         }
         var cosmosDbCache = serviceProvider.GetService<CosmosDbCache>()!; // Prevent circular reference.
         var session = RequestSessionId == null ? null : await cosmosDbCache.SelectByNameAsync<SessionDto>(RequestSessionId, isOrganisation: false);
@@ -55,14 +56,23 @@ public class CommandContext(IServiceProvider serviceProvider)
             ResponseNavigateUrl = "signin";
             throw new Exception("User not signed in!");
         }
-        organisationName = organisation.Name;
-        UtilServer.Assert(!string.IsNullOrEmpty(organisationName));
+        this.organisation = organisation.Name;
+        email = session.Email;
+        ArgumentNullException.ThrowIfNullOrEmpty(email);
+        ArgumentNullException.ThrowIfNullOrEmpty(this.organisation);
+
+        return new() { Email = email, Organisation = this.organisation };
     }
 
     /// <summary>
-    /// Gets OrganisationName. This is the signed in user selected organisation.
+    /// Gets or sets Organisation. This is the signed in user selected organisation.
     /// </summary>
-    private string? organisationName;
+    private string? organisation;
+
+    /// <summary>
+    /// Gets or sets email. This is the signed in user.
+    /// </summary>
+    private string? email;
 
     /// <summary>
     /// Returns name in global scope or in organisation scope. 
@@ -76,9 +86,9 @@ public class CommandContext(IServiceProvider serviceProvider)
         {
             return $"Domain{separator}{Domain}{separator}Global" + (name == null ? null : $"{separator}{name}");
         }
-        if (organisationName != null)
+        if (organisation != null)
         {
-            return $"Domain{separator}{Domain}{separator}Organisation{separator}{organisationName}" + (name == null ? null : $"{separator}{name}");
+            return $"Domain{separator}{Domain}{separator}Organisation{separator}{organisation}" + (name == null ? null : $"{separator}{name}");
         }
         throw new Exception("Request not authenticated!"); // Call method CommandContext.UserSignInOrganisation(); to make sure user is signed in and has an organisation selected.
     }
@@ -118,4 +128,11 @@ public class CommandContext(IServiceProvider serviceProvider)
     /// Gets or sets CacheCount. Number of times cached data was used for this request.
     /// </summary>
     public int? CacheCount { get; internal set; }
+}
+
+public class CommandContextAuthResult
+{
+    public string Email { get; set; } = default!;
+
+    public string Organisation { get; set; } = default!;
 }

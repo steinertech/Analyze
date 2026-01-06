@@ -1,9 +1,10 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http"
-import { inject, Injectable, signal } from "@angular/core"
+import { inject, Injectable, PLATFORM_ID, signal } from "@angular/core"
 import { catchError, firstValueFrom, map, mergeMap, Observable, of, tap } from "rxjs"
 import { Router } from "@angular/router"
 import { NotificationDto, NotificationEnum, NotificationService } from "./notification.service"
 import { UtilClient } from "./util-client"
+import { isPlatformBrowser } from "@angular/common"
 
 export class RequestDto {
   public commandName!: string
@@ -262,17 +263,18 @@ export class GridStateFilterMultiDto {
   providedIn: 'root',
 })
 export class ServerApi {
+  private platformId = inject(PLATFORM_ID)
   private httpClient = inject(HttpClient)
   private router = inject(Router)
   private notificationService = inject(NotificationService)
 
-  public isWindow() {
-    return typeof window !== "undefined"
+  public isBrowser() {
+    return isPlatformBrowser(this.platformId)
   }
 
   private isLocalhost() {
     let result = false
-    if (this.isWindow()) {
+    if (this.isBrowser()) {
       const hostname = window.location.hostname
       result =
         hostname == "localhost" || // Running in VS code
@@ -283,7 +285,7 @@ export class ServerApi {
 
   private isLocalhostGitHubCodeSpace() {
     let result = false
-    if (this.isWindow()) {
+    if (this.isBrowser()) {
       const hostname = window.location.hostname
       result =
         hostname.endsWith('github.dev') // Running on GitHub CodeSpace

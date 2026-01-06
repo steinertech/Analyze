@@ -310,6 +310,19 @@ public class Dynamic : Dictionary<string, object?>
     public string? RowKey { get; set; }
 
     /// <summary>
+    /// Returns RowKey.
+    /// </summary>
+    public string RowKeyGet()
+    {
+        var result = RowKey;
+        if (result == null)
+        {
+            throw new Exception(); // See also property GridConfig.FieldNameRowKey for configuration.
+        }
+        return result;
+    }
+
+    /// <summary>
     /// Gets or sets IsNew. If true, row is not yet saved.
     /// </summary>
     public bool IsNew { get; set; }
@@ -380,14 +393,49 @@ public class Dynamic : Dictionary<string, object?>
 
     public string ValueModifiedDebug => string.Join(", ", valueModifiedList.Values);
 
-    public object? ValueModifiedGet(string fieldName)
+    public object? ValueGet(string fieldName)
     {
-        valueModifiedList.TryGetValue(fieldName, out var result);
+        return this[fieldName];
+    }
+
+    public T? ValueGet<T>(string fieldName)
+    {
+        return (T?)ValueGet(fieldName);
+    }
+
+    public void ValueSet(string fieldName, object? value)
+    {
+        this[fieldName] = value;
+    }
+
+    public bool ValueModifiedGet(string fieldName, out object? value, out object? valueModified)
+    {
+        var result = this.ContainsKey(fieldName);
+        if (result)
+        {
+            value = this[fieldName];
+            valueModified = valueModifiedList[fieldName];
+        }
+        else
+        {
+            value = default;
+            valueModified = default;
+        }
         return result;
     }
 
-    public void ValueModifiedSet(string  fieldName, object? value)
+    public bool ValueModifiedGet<T>(string fieldName, out T? value, out T? valueModified)
     {
-        valueModifiedList[fieldName] = value;
+        var result = ValueModifiedGet(fieldName, out var valueObject, out var valueModifiedObject);
+        value = (T?)valueObject;
+        valueModified = (T?)valueModifiedObject;
+        return result;
+    }
+
+    internal void ValueModifiedSet(string fieldName, object? value, object? valueModified)
+    {
+        UtilServer.Assert(!object.Equals(value, valueModified));
+        this[fieldName] = value;
+        valueModifiedList[fieldName] = valueModified;
     }
 }
