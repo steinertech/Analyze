@@ -28,9 +28,24 @@ export class PageGrid implements AfterViewInit {
     })
   }
 
+  /** Wait for effect to set _grid */
+  gridSetWait(grid: GridDto): Promise<GridDto> {
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (this._grid === grid) {
+          clearInterval(interval)
+          resolve(grid)
+        }
+      }, 0);
+    })
+  }
+
   /** If this component is a lookup, load data. */
   async ngAfterViewInit() {
     if (this.parent?._lookup) {
+      const lookupGrid = this.parent._lookup.grid()
+      this.grid.set(lookupGrid)
+      await this.gridSetWait(lookupGrid)
       await PageGrid.commandGridLoad2(this, this.parent?._lookup.cell, this.parent._lookup.control)
     }
   }
@@ -105,8 +120,9 @@ export class PageGrid implements AfterViewInit {
 
   async load2(gridName: string | undefined, isLoad: boolean = true) {
     if (gridName) {
-      this.grid.set({ gridName: gridName })
-      await new Promise(resolve => setTimeout(resolve, 0)); // Wait for effect to set _gird
+      const grid = { gridName: gridName }
+      this.grid.set(grid)
+      await this.gridSetWait(grid)
       if (isLoad && this.serverApi.isBrowser()) {
         await PageGrid.commandGridLoad2(this, undefined, undefined)
       }
