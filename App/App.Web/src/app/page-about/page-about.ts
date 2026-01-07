@@ -3,7 +3,6 @@ import { PageNav } from '../page-nav/page-nav';
 import { ComponentDto, ServerApi } from '../generate';
 import { DataService } from '../data.service';
 import { UtilClient } from '../util-client';
-import { PageStorageUpload } from '../page-storage-upload/page-storage-upload';
 import { CommonModule } from '@angular/common';
 import { PageNotification } from "../page-notification/page-notification";
 
@@ -11,10 +10,9 @@ import { PageNotification } from "../page-notification/page-notification";
   selector: 'app-page-about',
   imports: [
     PageNav,
-    PageStorageUpload,
     CommonModule,
     PageNotification
-],
+  ],
   templateUrl: './page-about.html',
   styleUrl: './page-about.css'
 })
@@ -41,5 +39,5 @@ export class PageAbout {
     this.serverApi.commandTree(this.componentDto()).subscribe(result => this.componentDto.set(result))
     this.serverApi.commandDebug().subscribe(result => this.debugDto.set(result))
     this.serverApi.commandStorageDownload('a.txt').subscribe(result => this.storageContent.set(result))
-  }  
+  }
 }

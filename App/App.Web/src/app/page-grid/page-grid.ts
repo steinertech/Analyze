@@ -122,8 +122,8 @@ export class PageGrid implements AfterViewInit {
     if (gridName) {
       const grid = { gridName: gridName }
       this.grid.set(grid)
-      await this.gridSetWait(grid)
       if (isLoad && this.serverApi.isBrowser()) {
+        await this.gridSetWait(grid)
         await PageGrid.commandGridLoad2(this, undefined, undefined)
       }
     } else {
