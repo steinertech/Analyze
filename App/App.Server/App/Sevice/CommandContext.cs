@@ -115,7 +115,7 @@ public class CommandContext(IServiceProvider serviceProvider)
         {
             return $"Domain{separator}{Domain}{separator}Organisation{separator}{organisation}" + (name == null ? null : $"{separator}{name}");
         }
-        throw new Exception("Request not authenticated!"); // Call method CommandContext.UserSignInOrganisation(); to make sure user is signed in and has an organisation selected.
+        throw new Exception("Request not authenticated!"); // Call method CommandContext.UserAuthAsync(); to make sure user is signed in and has an organisation selected.
     }
 
     /// <summary>

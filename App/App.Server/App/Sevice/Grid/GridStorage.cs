@@ -1,4 +1,4 @@
-﻿public class GridStorage(Configuration configuration) : GridBase
+﻿public class GridStorage(Configuration configuration, Storage storage, CommandContext context) : GridBase
 {
     private async Task Load(GridDto grid)
     {
@@ -170,14 +170,15 @@
         return result;
     }
 
-    protected override Task<List<GridPatchDto>> GridLoad2Patch(GridRequest2Dto request)
+    protected override async Task<List<GridPatchDto>> GridLoad2Patch(GridRequest2Dto request)
     {
+        await context.UserAuthAsync();
         var result = new List<GridPatchDto>();
         // Button Download
         if (request.Control?.ControlEnum == GridControlEnum.ButtonCustom && request.Control?.Name == "Download")
         {
             var fileNameList = request.Grid.StateGet().IsSelectMultiListGet().OfType<string>().ToList(); // Filter null
-            var fileNameUrlList = UtilStorage.DownloadUrl(configuration.ConnectionStringStorage, fileNameList);
+            var fileNameUrlList = storage.DownloadUrl(fileNameList);
             var fileList = new List<GridFileDto>();
             for (int i = 0; i < fileNameList.Count; i++)
             {
@@ -192,7 +193,7 @@
         {
             var folderName = request.Grid.StateGet().PathGet(1);
             var fileNameList = request.Control.FileList.Select(item => folderName + item.FileName).ToList();
-            var fileUrlList = UtilStorage.UploadUrl(configuration.ConnectionStringStorage, fileNameList);
+            var fileUrlList = storage.UploadUrl(fileNameList);
             var fileList = new List<GridFileDto>();
             for (int i = 0; i < fileNameList.Count; i++)
             {
@@ -214,11 +215,12 @@
         {
             result = PatchList(request);
         }
-        return Task.FromResult(result);
+        return result;
     }
 
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
     {
+        await context.UserAuthAsync();
         // Breadcrumb add Home
         var path = request.Grid.StateGet().PathGet();
         if (path == null)
@@ -227,7 +229,7 @@
         }
         // Load
         path = request.Grid.StateGet().PathGet(1); // Breadcrumb without Home (Storage)
-        var folderOrFileNameList = await UtilStorage.List(configuration.ConnectionStringStorage, folderName: path, isRecursive: false);
+        var folderOrFileNameList = await storage.List(folderName: path, isRecursive: false);
         var result = UtilGridReflection.DynamicFrom(folderOrFileNameList, (dataRowFrom, dataRowTo) =>
         {
             dataRowTo["FolderOrFileName"] = dataRowFrom.FolderOrFileName;
@@ -280,6 +282,7 @@
 
     protected override async Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
     {
+        await context.UserAuthAsync();
         foreach (var item in sourceList)
         {
             switch (item.DynamicEnum)
@@ -290,7 +293,7 @@
                         {
                             var folderOrFileName = (string)item.RowKey!;
                             var folderOrFileNameOnlyNew = valueModified!;
-                            await UtilStorage.Rename(configuration.ConnectionStringStorage, folderOrFileName, folderOrFileNameOnlyNew);
+                            await storage.Rename(folderOrFileName, folderOrFileNameOnlyNew);
                         }
                         break;
                     }
@@ -301,14 +304,14 @@
                             var path = request.Grid.StateGet().PathGet(1); // Breadcrumb without Home (Storage)
                             var name = valueModified;
                             var folderOrFileNameNew = path + name;
-                            await UtilStorage.Upload(configuration.ConnectionStringStorage, folderOrFileNameNew, null);
+                            await storage.Upload(folderOrFileNameNew, null);
                         }
                         break;
                     }
                 case DynamicEnum.Delete:
                     {
                         var folderOrFileName = (string)item.RowKey!;
-                        await UtilStorage.Delete(configuration.ConnectionStringStorage, folderOrFileName);
+                        await storage.Delete(folderOrFileName);
                         break;
                     }
             }
@@ -317,6 +320,7 @@
 
     protected override async Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<FieldCustomSaveDto> fieldCustomSaveList, string? modalName)
     {
+        await context.UserAuthAsync();
         // Button Delete
         if (buttonCustomClick?.Control.Name == "Delete")
         {
@@ -325,7 +329,7 @@
             {
                 foreach (var folderOrFileName in list)
                 {
-                    await UtilStorage.Delete(configuration.ConnectionStringStorage, folderOrFileName ?? "");
+                    await storage.Delete(folderOrFileName ?? "");
                 }
             }
         }
@@ -338,7 +342,7 @@
             {
                 foreach (var folderOrFileName in list)
                 {
-                    var length = await UtilStorage.Copy(configuration.ConnectionStringStorage, folderOrFileName ?? "", dest ?? "");
+                    var length = await storage.Copy(folderOrFileName ?? "", dest ?? "");
                 }
             }
             request.Grid.StateGet().IsSelectMultiList = null;
@@ -369,7 +373,7 @@
                 var folderName = fieldCustomSaveList?.FirstOrDefault()?.Control?.TextModified;
                 if (folderName != null)
                 {
-                    await UtilStorage.Create(configuration.ConnectionStringStorage!, folderName);
+                    await storage.Create(folderName);
                 }
             }
         }
