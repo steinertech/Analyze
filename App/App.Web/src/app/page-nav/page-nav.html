@@ -36,13 +36,13 @@
               <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
               <a [routerLink]="['/']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white" [routerLinkActiveOptions]="{exact: true}">Home</a>
               <a [routerLink]="['/product']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Product</a>
-              @if (dataService.userSign()) {
+              @if (dataService.userSignStatus()) {
               <a [routerLink]="['/storage']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Storage</a>
               }
-              @if (dataService.userSign()) {
+              @if (dataService.userSignStatus()) {
               <a [routerLink]="['/article']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Article</a>
               }
-              @if (dataService.userSign()) {
+              @if (dataService.userSignStatus()) {
               <a [routerLink]="['/organisation']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Organisation</a>
               }
               <a [routerLink]="['/about']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
@@ -50,7 +50,7 @@
           </div>
         </div>
         <div class="hidden sm:ml-6 sm:block absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-          @if (dataService.userSign()===undefined) {
+          @if (dataService.userSignStatus()===undefined) {
           <a [routerLink]="['/signin']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Sign in</a>
           } @else {
           <a [routerLink]="['/signout']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Sign out</a>
@@ -66,17 +66,17 @@
         <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
         <a [routerLink]="['/']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white" [routerLinkActiveOptions]="{exact: true}">Home</a>
         <a [routerLink]="['/product']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Product</a>
-        @if (dataService.userSign()) {
+        @if (dataService.userSignStatus()) {
         <a [routerLink]="['/storage']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Storage</a>
         }
-        @if (dataService.userSign()) {
+        @if (dataService.userSignStatus()) {
         <a [routerLink]="['/article']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Article</a>
         }
-        @if (dataService.userSign()) {
+        @if (dataService.userSignStatus()) {
         <a [routerLink]="['/organisation']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Organisation</a>
         }
         <a [routerLink]="['/about']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
-        @if (dataService.userSign()===undefined) {
+        @if (dataService.userSignStatus()===undefined) {
         <a [routerLink]="['/signin']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Sign in</a>
         } @else {
         <a [routerLink]="['/signout']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Sign out</a>
@@ -86,8 +86,8 @@
     }
   </nav>
 
-  @if(dataService.userSign()) {
-  <div class="text-right w-full bg-blue-200">{{dataService.userSign()?.email}}</div>
+  @if(dataService.userSignStatus()) {
+  <div class="text-right w-full bg-blue-200">{{dataService.userSignStatus()?.email}}; {{dataService.userSignStatus()?.organisationText}};</div>
   }
   <div class="h-2">
     @if(serverApi.isPost()) {

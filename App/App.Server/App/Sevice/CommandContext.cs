@@ -64,6 +64,31 @@ public class CommandContext(IServiceProvider serviceProvider)
         return new() { Email = email, Organisation = this.organisation };
     }
 
+    public async Task OrganisationSwitch(string organisationName)
+    {
+        var userAuth = await UserAuthAsync();
+        var cosmosDb = serviceProvider.GetService<CosmosDb>()!;
+        var organisation = await cosmosDb.SelectByNameAsync<OrganisationDto>(organisationName, isOrganisation: false);
+        if (organisation?.EmailList?.Contains(userAuth.Email) == true)
+        {
+            var sessionId = Guid.NewGuid().ToString();
+            SessionDto session = new SessionDto
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = sessionId,
+                SessionId = sessionId,
+                Email = email,
+                OrganisationName = organisation.Name,
+                OrganisationText = organisation.Text,
+                IsSignIn = true
+            };
+            await cosmosDb.InsertAsync(session, isOrganisation: false);
+            NotificationAdd("Switching Organisation. Please wait ...", NotificationEnum.Info);
+            ResponseSessionId = sessionId;
+            ResponseIsReload = true;
+        }
+    }
+
     /// <summary>
     /// Gets or sets Organisation. This is the signed in user selected organisation.
     /// </summary>
@@ -109,6 +134,8 @@ public class CommandContext(IServiceProvider serviceProvider)
     /// Gets or sets ResponseSessionId.
     /// </summary>
     public string? ResponseSessionId { get; internal set; }
+
+    public bool? ResponseIsReload { get; internal set; }
 
     public void NotificationAdd(string text, NotificationEnum notificationEnum = NotificationEnum.None)
     {

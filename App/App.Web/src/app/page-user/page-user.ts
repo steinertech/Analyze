@@ -42,7 +42,7 @@ export class PageUser implements OnInit, AfterContentInit {
     if (this.userModeEnum == UserModeEnum.SignOut) {
       if (this.serverApi.isBrowser()) {
         await this.serverApi.commmandUserSignOut()
-        await this.dataService.userSignUpdate()
+        await this.dataService.userSignStatusUpdate()
       }
     }
   }
@@ -54,8 +54,8 @@ export class PageUser implements OnInit, AfterContentInit {
     if (this.userModeEnum == UserModeEnum.SignIn) {
       // SignIn
       await this.serverApi.commmandUserSignIn({ email: this.userEmail, password: this.userPassword })
-      await this.dataService.userSignUpdate()
-      if (this.dataService.userSign()) {
+      await this.dataService.userSignStatusUpdate()
+      if (this.dataService.userSignStatus()) {
         this.serverApi.navigate('/')
       }
     }

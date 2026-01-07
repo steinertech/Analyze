@@ -130,6 +130,11 @@ internal static class UtilServer
                     responseDto.DevelopmentSessionId = context.ResponseSessionId;
                 }
             }
+            // Reload
+            if (context.ResponseIsReload == true)
+            {
+                responseDto.IsReload = true;
+            }
             // CacheId
             if (context.CacheId != null)
             {
@@ -408,6 +413,9 @@ public class Dynamic : Dictionary<string, object?>
         this[fieldName] = value;
     }
 
+    /// <summary>
+    /// Returns modified value. Save request sends only modified fields.
+    /// </summary>
     public bool ValueModifiedGet(string fieldName, out object? value, out object? valueModified)
     {
         var result = this.ContainsKey(fieldName);

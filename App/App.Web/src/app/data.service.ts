@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { ServerApi, UserDto } from './generate';
+import { ServerApi, UserStatusDto } from './generate';
 import { Observable, of } from 'rxjs';
 
 @Injectable({
@@ -11,7 +11,7 @@ export class DataService {
 
   constructor() {
     if (this.serverApi.isBrowser()) {
-      this.userSignUpdate()
+      this.userSignStatusUpdate()
     }
   }
 
@@ -33,11 +33,11 @@ export class DataService {
   }
 
   /** Currently signed in in user  */
-  userSign = signal<UserDto | undefined>(undefined)
-  async userSignUpdate() {
+  userSignStatus = signal<UserStatusDto | undefined>(undefined)
+  async userSignStatusUpdate() {
     const serverApi = this.serverApi
     const userSign = await serverApi.commmandUserSignStatus()
-    this.userSign.set(userSign)
+    this.userSignStatus.set(userSign)
   }
 }
 

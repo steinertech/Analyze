@@ -1,4 +1,4 @@
-﻿public class GridOrganisation(CommandContext context, CosmosDb cosmosDb): GridBase
+﻿public class GridOrganisation(CommandContext context, CosmosDb cosmosDb) : GridBase
 {
     protected override Task<GridConfig> Config()
     {
@@ -6,10 +6,12 @@
         {
             ColumnList =
             [
-                new() { FieldName = "Organisation", ColumnEnum = GridColumnEnum.Text }
+                new() { FieldName = "Organisation", ColumnEnum = GridColumnEnum.Text },
+                new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true }
             ],
             IsAllowNew = true,
-            FieldNameRowKey = "Organisation"
+            FieldNameRowKey = "Organisation",
+            IsAllowDelete = true, // TODO Remove. Used to make command column appear
         };
         return Task.FromResult(result);
     }
@@ -22,9 +24,24 @@
         var result = UtilGrid.DynamicFrom(list, (dataRowFrom, dataRowTo) =>
         {
             dataRowTo["Organisation"] = dataRowFrom.Name;
+            dataRowTo["Text"] = dataRowFrom.Text;
         });
         result = await UtilGrid.GridLoad2(request, result, null, config, configEnum);
         return result;
+    }
+
+    protected override async Task GridSave2Custom(GridRequest2Dto request, GridButtonCustom? buttonCustomClick, List<FieldCustomSaveDto> fieldCustomSaveList, string? modalName)
+    {
+        // Button Select
+        if (buttonCustomClick?.Control.Name == "Select")
+        {
+            var dataRowIndex = buttonCustomClick.Cell.DataRowIndex.GetValueOrDefault(-1);
+            var rowKey = request.Grid.State?.RowKeyList?[dataRowIndex];
+            if (rowKey != null)
+            {
+                await context.OrganisationSwitch(rowKey);
+            }
+        }
     }
 
     protected override async Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
@@ -32,12 +49,47 @@
         var email = (await context.UserAuthAsync()).Email;
         foreach (var item in sourceList)
         {
+            // Update
+            if (item.DynamicEnum == DynamicEnum.Update)
+            {
+                var organisation = await cosmosDb.SelectByNameAsync<OrganisationDto>(item.RowKey, isOrganisation: false);
+                if (organisation?.EmailList?.Contains(email) != null)
+                {
+                    if (item.ValueModifiedGet<string>("Text", out _, out var valueText))
+                    {
+                        organisation.Text = valueText;
+                    }
+                    organisation = await cosmosDb.UpdateAsync(organisation, isOrganisation: false);
+                }
+            }
+            // Insert
             if (item.DynamicEnum == DynamicEnum.Insert)
             {
-                if (item.ValueModifiedGet<string>("Organisation", out var value, out var valueModified))
+                var organisation = new OrganisationDto() { Id = Guid.NewGuid().ToString(), EmailList = new([email]) };
+                if (item.ValueModifiedGet<string>("Organisation", out _, out var valueOrganisation))
                 {
-                    var organisation = new OrganisationDto() { Id = Guid.NewGuid().ToString(), Name = valueModified, EmailList = new([email]) };
-                    organisation = await cosmosDb.InsertAsync(organisation, isOrganisation: false);
+                    organisation.Name = valueOrganisation;
+                }
+                if (item.ValueModifiedGet<string>("Text", out _, out var valueText))
+                {
+                    organisation.Text = valueText;
+                }
+                organisation = await cosmosDb.InsertAsync(organisation, isOrganisation: false);
+            }
+        }
+    }
+
+    protected override void GridRender2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
+    {
+        base.GridRender2(request, dataRowList, config, modalName);
+        if (request.Grid.RowCellList != null)
+        {
+            foreach (var row in request.Grid.RowCellList)
+            {
+                var dataRowIndex = row.Last().DataRowIndex;
+                if (dataRowIndex != null)
+                {
+                    row.AddControl(new() { ControlEnum = GridControlEnum.ButtonCustom, Text = "Select", Name = "Select" }); // TODO Without Render but with Config
                 }
             }
         }

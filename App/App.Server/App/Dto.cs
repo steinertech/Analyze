@@ -87,9 +87,14 @@ public class SessionDto : DocumentDto
     public bool? IsSignIn { get; set; }
 
     /// <summary>
-    /// Gets or sets OrganisationName. This is the currently selected organisation.
+    /// Gets or sets OrganisationName. This is the currently selected organisation name.
     /// </summary>
     public string? OrganisationName { get; set; }
+
+    /// <summary>
+    /// Gets or sets OrganisationText. This is the currently selected organisation display text.
+    /// </summary>
+    public string? OrganisationText { get; set; }
 }
 
 public class OrganisationDto : DocumentDto
@@ -98,4 +103,9 @@ public class OrganisationDto : DocumentDto
     /// Gets or sets EmailList. This is the list of users which can access this organisation.
     /// </summary>
     public List<string?>? EmailList { get; set; }
+
+    /// <summary>
+    /// Gets or sets Text. This is the organisation text to display.
+    /// </summary>
+    public string? Text { get; set; }
 }

@@ -3,18 +3,19 @@
     /// <summary>
     /// Returns UserDto. This is the currently signed in user.
     /// </summary>
-    public async Task<UserDto?> SignStatus()
+    public async Task<UserStatusDto?> SignStatus()
     {
-        UserDto? result = null;
+        UserStatusDto? result = null;
         var sessionId = context.RequestSessionId;
         var session = await cosmosDbCache.SelectByNameAsync<SessionDto>(sessionId, isOrganisation: false);
         if (session != null)
         {
             if (session.IsSignIn == true)
             {
-                result = new UserDto
+                result = new UserStatusDto
                 {
                     Email = session.Email,
+                    OrganisationText = session.OrganisationText,
                 };
             }
         }
@@ -53,6 +54,7 @@
                     SessionId = sessionId,
                     Email = user.Email,
                     OrganisationName = organisation.Name,
+                    OrganisationText = organisation.Text,
                     IsSignIn = true
                 };
                 await cosmosDb.InsertAsync(session, isOrganisation: false);
@@ -80,6 +82,7 @@
         { 
             Id = Guid.NewGuid().ToString(),
             Name = user.Email, // Organisation name
+            Text = user.Email,
             EmailList = [user.Email],
         };
         await cosmosDb.InsertAsync(organisation, isOrganisation: false);
@@ -106,4 +109,11 @@ public class UserDto : DocumentDto
     public string? Email { get; set; }
 
     public string? Password { get; set; }
+}
+
+public class UserStatusDto
+{
+    public string? Email { get; set; }
+
+    public string? OrganisationText { get; set; }
 }

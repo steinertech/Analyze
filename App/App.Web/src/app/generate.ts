@@ -53,6 +53,11 @@ export class UserDto {
   public password?: string
 }
 
+export class UserStatusDto {
+  public email?: string
+  public organisationText?: string
+}
+
 export class ProductDto {
   public text?: string
   public storageFileName?: string
@@ -374,6 +379,12 @@ export class ServerApi {
               })
             }
             this.notificationService.cacheCount.update(() => value.cacheCount)
+            // Reload
+            if (value.isReload) {
+              setTimeout(() => {
+                window.location.reload()
+              }, 3000);
+            }
           }),
           map(value => {
             this.postCountAdd(-1);
@@ -441,7 +452,7 @@ export class ServerApi {
   }
 
   async commmandUserSignStatus() {
-    return await firstValueFrom(this.post<UserDto>({ commandName: "CommandUserSignStatus", paramList: [] }))
+    return await firstValueFrom(this.post<UserStatusDto>({ commandName: "CommandUserSignStatus", paramList: [] }))
   }
 
   async commmandUserSignIn(userDto: UserDto) {
