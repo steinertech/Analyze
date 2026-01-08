@@ -21,6 +21,7 @@ export class PageGrid implements AfterViewInit {
     effect(() => {
       // console.log('Update _grid')
       this._grid = this.grid()
+      this._gridSetCount += 1
     })
     effect(() => {
       // console.log('Update _grid')
@@ -28,11 +29,13 @@ export class PageGrid implements AfterViewInit {
     })
   }
 
-  /** Wait for effect to set _grid */
+  /** Set grid and wait for effect to set _grid */
   gridSetWait(grid: GridDto): Promise<GridDto> {
+    const gridSetCount = this._gridSetCount
+    this.grid.set(grid)
     return new Promise(resolve => {
       const interval = setInterval(() => {
-        if (this._grid === grid) {
+        if (gridSetCount != this._gridSetCount) {
           clearInterval(interval)
           resolve(grid)
         }
@@ -44,7 +47,6 @@ export class PageGrid implements AfterViewInit {
   async ngAfterViewInit() {
     if (this.parent?._lookup) {
       const lookupGrid = this.parent._lookup.grid()
-      this.grid.set(lookupGrid)
       await this.gridSetWait(lookupGrid)
       await PageGrid.commandGridLoad2(this, this.parent?._lookup.cell, this.parent._lookup.control)
     }
@@ -121,9 +123,8 @@ export class PageGrid implements AfterViewInit {
   async load2(gridName: string | undefined, isLoad: boolean = true) {
     if (gridName) {
       const grid = { gridName: gridName }
-      this.grid.set(grid)
+      await this.gridSetWait(grid)
       if (isLoad && this.serverApi.isBrowser()) {
-        await this.gridSetWait(grid)
         await PageGrid.commandGridLoad2(this, undefined, undefined)
       }
     } else {
@@ -132,6 +133,8 @@ export class PageGrid implements AfterViewInit {
   }
 
   _grid?: GridDto // Data grid
+
+  _gridSetCount = 0
 
   protected _lookup?: Lookup
 

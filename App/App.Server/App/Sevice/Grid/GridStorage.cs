@@ -377,6 +377,16 @@
                 }
             }
         }
+        // Folder New
+        if (modalName == "FolderNew")
+        {
+            var folderName = fieldCustomSaveList?.Single().Control?.TextModified;
+            if (folderName != null)
+            {
+                folderName = UtilStorage.FolderOrFileNameOnly(folderName);
+                await storage.Create(folderName);
+            }
+        }
     }
 
     protected override void GridRender2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
@@ -416,6 +426,7 @@
                 addControl("Rename", false);
                 addControl("Upload", false).FileEnum = GridFileEnum.Upload;
                 addControl("Download", false).FileEnum = GridFileEnum.Download;
+                rowButton.AddControl(new() { ControlEnum = GridControlEnum.ButtonModalCustom, Text = "New Folder", Name = "FolderNew", Icon = new() { ClassName = "i-folder" } });
                 foreach (var row in request.Grid.RowCellList)
                 {
                     var dataRowIndex = row.Last().DataRowIndex;
@@ -430,6 +441,18 @@
                     }
                 }
             }
+        }
+
+        // Folder New
+        if (modalName == "FolderNew")
+        {
+            grid.AddRow();
+            grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = "Folder Name:" });
+            grid.AddRow();
+            grid.AddControl(new() { ControlEnum = GridControlEnum.FieldCustom });
+            grid.AddRow();
+            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupOk });
+            grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
         }
     }
 }

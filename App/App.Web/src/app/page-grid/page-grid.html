@@ -146,7 +146,12 @@
       }
       <!-- Button Modal Custom -->
       @case (GridControlEnum.ButtonModalCustom) {
-      <button class="frm-button-soft" (click)="clickLookup(cell, control)">{{control.text ?? 'Button'}}</button>
+      <button class="frm-button-soft" (click)="clickLookup(cell, control)">
+        @if (control.icon) {
+        <span title="{{control.icon.tooltip}}" [ngClass]=control.icon.className></span>
+        }
+        {{control.text ?? 'Button'}}
+      </button>
       }
       <!-- Pagination -->
       @case (GridControlEnum.Pagination) {
@@ -176,7 +181,6 @@
   </tr>
   }
 </table>
-<h1>Lookup</h1>
 @let lookup = this.lookup();
 @if(lookup) {
 @if(lookup.isModal) {
