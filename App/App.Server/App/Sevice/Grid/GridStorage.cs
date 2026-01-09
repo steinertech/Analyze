@@ -383,8 +383,9 @@
             var folderName = fieldCustomSaveList?.Single().Control?.TextModified;
             if (folderName != null)
             {
+                var dest = request.ParentGrid?.StateGet().PathGet(1);
                 folderName = UtilStorage.FolderOrFileNameOnly(folderName);
-                await storage.Create(folderName);
+                await storage.Create(dest + folderName);
             }
         }
     }

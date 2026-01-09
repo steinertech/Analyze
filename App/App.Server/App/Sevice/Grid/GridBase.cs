@@ -353,22 +353,34 @@
                         {
                             await GridSave2Custom(request, buttonCustomClick, fieldCustomSaveList, modalName);
                         }
-                        // Load
-                        var dataRowList = await GridLoad2(request, null, config, GridConfigEnum.Grid, modalName);
-                        if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubNew)
+                        // Lookup Button Ok
+                        if (request.Control?.ControlEnum == GridControlEnum.ButtonLookupOk)
                         {
-                            if (config.IsAllowNew)
+                            modalName = request.ParentGrid?.State?.PathModalNameGet();
+                            // Load
+                            var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
+                            // Render
+                            GridRender2(request.Parent2(), dataRowList, config, modalName);
+                            return new GridResponse2Dto { ParentGrid = request.ParentGrid };
+                        }
+                        {
+                            // Load
+                            var dataRowList = await GridLoad2(request, null, config, GridConfigEnum.Grid, modalName);
+                            if (request.GridActionEnum == GridRequest2GridActionEnum.GridNew || request.GridActionEnum == GridRequest2GridActionEnum.LookupSubNew)
                             {
-                                dataRowList.Insert(0, Dynamic.Create(config, isNew: true)); // Multi new data rows possible
+                                if (config.IsAllowNew)
+                                {
+                                    dataRowList.Insert(0, Dynamic.Create(config, isNew: true)); // Multi new data rows possible
+                                }
                             }
+                            // Render
+                            if (request.GridActionEnum != GridRequest2GridActionEnum.LookupSubOk)
+                            {
+                                GridRender2(request, dataRowList, config, modalName);
+                            }
+                            // IsPatch
+                            request.Grid.StateGet().IsPatch = config.IsSelectMultiPatch;
                         }
-                        // Render
-                        if (request.GridActionEnum != GridRequest2GridActionEnum.LookupSubOk)
-                        {
-                            GridRender2(request, dataRowList, config, modalName);
-                        }
-                        // IsPatch
-                        request.Grid.StateGet().IsPatch = config.IsSelectMultiPatch;
                     }
                     // Result
                     var result = new GridResponse2Dto { Grid = request.Grid };
