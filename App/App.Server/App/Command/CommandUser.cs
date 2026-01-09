@@ -85,6 +85,7 @@
             Text = user.Email,
             EmailList = [user.Email],
         };
+        OrganisationDto.Sanitize(organisation);
         await cosmosDb.InsertAsync(organisation, isOrganisation: false);
         // Navigate
         context.ResponseNavigateUrl = "signup-email"; // Email has been sent to activate.

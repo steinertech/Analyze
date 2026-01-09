@@ -18,6 +18,11 @@
         return result;
     }
 
+    public async Task RemoveByNameAsync<T>(T item, bool isOrganisation = true) where T : DocumentDto
+    {
+        await cache.RemoveAsync(Key(typeof(T), item.Name, isOrganisation));
+    }
+
     public async Task RemoveByNameAsync<T>(string? name, bool isOrganisation = true) where T : DocumentDto
     {
         await cache.RemoveAsync(Key(typeof(T), name, isOrganisation));

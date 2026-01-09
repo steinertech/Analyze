@@ -35,10 +35,10 @@ public class CommandContext(IServiceProvider serviceProvider)
     /// </summary>
     public async Task<CommandContextAuthResult> UserAuthAsync()
     {
-        if (this.organisation != null)
+        if (this.organisationName != null)
         {
             ArgumentNullException.ThrowIfNullOrEmpty(email);
-            return new() { Email = email, Organisation = this.organisation };
+            return new() { Email = email, OrganisationName = this.organisationName };
         }
         var cosmosDbCache = serviceProvider.GetService<CosmosDbCache>()!; // Prevent circular reference.
         var session = RequestSessionId == null ? null : await cosmosDbCache.SelectByNameAsync<SessionDto>(RequestSessionId, isOrganisation: false);
@@ -56,12 +56,29 @@ public class CommandContext(IServiceProvider serviceProvider)
             ResponseNavigateUrl = "signin";
             throw new Exception("User not signed in!");
         }
-        this.organisation = organisation.Name;
+        this.organisationName = organisation.Name;
         email = session.Email;
         ArgumentNullException.ThrowIfNullOrEmpty(email);
-        ArgumentNullException.ThrowIfNullOrEmpty(this.organisation);
+        ArgumentNullException.ThrowIfNullOrEmpty(this.organisationName);
 
-        return new() { Email = email, Organisation = this.organisation };
+        await UserAuthOrganisationFolder(organisation);
+
+        return new() { Email = email, OrganisationName = this.organisationName };
+    }
+
+    private async Task UserAuthOrganisationFolder(OrganisationDto organisation)
+    {
+        if (organisation.IsFolderCreate != true)
+        {
+            var cosmosDbCache = serviceProvider.GetService<CosmosDbCache>()!; // Prevent circular reference.
+            var cosmosDb = serviceProvider.GetService<CosmosDb>()!;
+            var storage = serviceProvider.GetService<Storage>()!;
+
+            await storage.Create(""); // Create Organisation storage
+            organisation.IsFolderCreate = true;
+            organisation = await cosmosDb.UpdateAsync(organisation, isOrganisation: false);
+            await cosmosDbCache.RemoveByNameAsync(organisation, isOrganisation: false);
+        }
     }
 
     public async Task OrganisationSwitch(string organisationName)
@@ -92,7 +109,7 @@ public class CommandContext(IServiceProvider serviceProvider)
     /// <summary>
     /// Gets or sets Organisation. This is the signed in user selected organisation.
     /// </summary>
-    private string? organisation;
+    private string? organisationName;
 
     /// <summary>
     /// Gets or sets email. This is the signed in user.
@@ -111,9 +128,9 @@ public class CommandContext(IServiceProvider serviceProvider)
         {
             return $"Domain{separator}{Domain}{separator}Global" + (name == null ? null : $"{separator}{name}");
         }
-        if (organisation != null)
+        if (organisationName != null)
         {
-            return $"Domain{separator}{Domain}{separator}Organisation{separator}{organisation}" + (name == null ? null : $"{separator}{name}");
+            return $"Domain{separator}{Domain}{separator}Organisation{separator}{organisationName}" + (name == null ? null : $"{separator}{name}");
         }
         throw new Exception("Request not authenticated!"); // Call method CommandContext.UserAuthAsync(); to make sure user is signed in and has an organisation selected.
     }
@@ -161,5 +178,5 @@ public class CommandContextAuthResult
 {
     public string Email { get; set; } = default!;
 
-    public string Organisation { get; set; } = default!;
+    public string OrganisationName { get; set; } = default!;
 }

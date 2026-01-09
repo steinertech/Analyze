@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 
 /// <summary>
 /// Generic request.
@@ -108,4 +109,34 @@ public class OrganisationDto : DocumentDto
     /// Gets or sets Text. This is the organisation text to display.
     /// </summary>
     public string? Text { get; set; }
+
+    /// <summary>
+    /// Gets or sets IsFolderCreate. If true, Organisation folder has been created.
+    /// </summary>
+    public bool? IsFolderCreate { get; set; }
+
+    /// <summary>
+    /// Sanitize Organisation name.
+    /// </summary>
+    public static void Sanitize(OrganisationDto value)
+    {
+        var result = new StringBuilder();
+        var name = value.Name?.ToLower();
+        if (name != null)
+        {
+            foreach (var item in name)
+            {
+                if ((item >= 'a' && item <= 'z') || (item >= '0' && item <= '9'))
+                {
+                    result.Append(item);
+                }
+            }
+        }
+        var resultText = result.ToString();
+        if (string.IsNullOrEmpty(resultText))
+        {
+            throw new Exception("Organisation name invalid!");
+        }
+        value.Name = resultText;
+    }
 }

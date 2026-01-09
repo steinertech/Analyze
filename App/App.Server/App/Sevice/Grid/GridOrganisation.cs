@@ -74,6 +74,7 @@
                 {
                     organisation.Text = valueText;
                 }
+                OrganisationDto.Sanitize(organisation);
                 organisation = await cosmosDb.InsertAsync(organisation, isOrganisation: false);
             }
         }
