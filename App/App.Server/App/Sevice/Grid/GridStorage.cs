@@ -154,7 +154,7 @@
             }
             fileCount += 1;
         }
-        var isDelete = fileCount > 0 && folderCount == 0 && folderParentCount == 0;
+        var isDelete = (fileCount > 0 || folderCount > 0) && folderParentCount == 0;
         var isCopy = fileCount > 0 && folderCount == 0 && folderParentCount == 0;
         var isRename = (fileCount == 1 || folderCount == 1) && folderParentCount == 0;
         var isPaste = request.Grid.StateGet().CustomList?.Count() > 0;
