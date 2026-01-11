@@ -3,7 +3,7 @@ using System.Linq.Dynamic.Core;
 
 public class GridArticle2 : GridBase
 {
-    protected override Task<GridConfig> Config()
+    protected override Task<GridConfig> Config2(GridRequest2Dto request)
     {
         GridConfig result = new() { ColumnList = new() };
         result.ColumnList = new List<GridColumn>

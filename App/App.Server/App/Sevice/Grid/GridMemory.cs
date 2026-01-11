@@ -114,7 +114,7 @@ public class GridMemory : GridBase
         return result;
     }
 
-    protected override Task<GridConfig> Config()
+    protected override Task<GridConfig> Config2(GridRequest2Dto request)
     {
         var result = UtilGridReflection.GridConfig(typeof(ProductDto));
         result.ColumnList.Single(item => item.FieldName == "City").IsAutocomplete = true;
