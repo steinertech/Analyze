@@ -147,6 +147,7 @@ public class GridExcel2Cache
                             UtilServer.Assert(cellReference.EndsWith(rowIndex.ToString()));
                             string colName = cellReference.Substring(0, rowIndex.ToString().Length);
                             var cellValue = UtilOpenXml.ExcelCellValueGet(cell, textList);
+                            cellValue = cellValue.ToString(); // All text
                             List[fileNameStorage][sheetName][rowIndex].Add(colName, cellValue);
                         }
                     }
@@ -169,20 +170,57 @@ public class GridExcel2Cache
 
 public class GridExcel2(CommandContext context, Storage storage, GridExcel2Cache cache) : GridBase
 {
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
+    /// <summary>
+    /// Returns first sheet.
+    /// </summary>
+    private async Task<Dictionary<uint, Dynamic>?> Sheet(GridRequest2Dto request)
     {
+        Dictionary<uint, Dynamic>? result = null;
         if (request.Grid.State?.RowKeyMasterList?.TryGetValue("Storage", out var rowKeyMaster) == true)
         {
             if (rowKeyMaster?.ToLower().EndsWith(".xlsx") == true)
             {
-                await context.UserAuthAsync();
                 var fileNameStorage = rowKeyMaster;
+                // Cache Load
                 if (!cache.List.ContainsKey(fileNameStorage))
                 {
+                    await context.UserAuthAsync();
                     await cache.Load(fileNameStorage, storage);
                 }
+                var sheet = cache.List[fileNameStorage].FirstOrDefault().Value; // First sheet
+                result = sheet;
             }
         }
-        return new();
+        return result;
+    }
+
+    protected override async Task<GridConfig> Config2(GridRequest2Dto request)
+    {
+        var result = new GridConfig();
+        // Config Column
+        var columnList = new List<GridColumn>();
+        var sheet = await Sheet(request);
+        if (sheet != null)
+        {
+            var colList = sheet.SelectMany(row => row.Value.Keys).Distinct().ToList();
+            foreach (var col in colList)
+            {
+                columnList.Add(new() { ColumnEnum = GridColumnEnum.Text, FieldName = col });
+            }
+        }
+        result.ColumnList = columnList;
+        return result;
+    }
+
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
+    {
+        var result = new List<Dynamic>();
+        var sheet = await Sheet(request);
+        if (sheet != null)
+        {
+            result = sheet.Select(item => item.Value).ToList();
+            result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
+        }
+        return result;
     }
 }

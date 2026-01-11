@@ -39,7 +39,7 @@
     /// <param name="request">Grid with state (filter, sort and pagination) to apply.</param>
     internal async Task<List<GridColumn>> ColumnList2(GridRequest2Dto request)
     {
-        var config = await Config2(request);
+        var config = await Config2(request.Parent2());
         var result = config.ColumnList;
         // Apply (filter, sort and pagination) from grid.
         var resultDynamic = UtilGrid.DynamicFrom(result, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
@@ -293,9 +293,10 @@
                     if (request.GridActionEnum == GridRequest2GridActionEnum.GridReload)
                     {
                         var state = request.Grid.State;
-                        request.Grid.State = new(); // Clear state keep PathList
-                        request.Grid.State.PathList = state?.PathList;
-                        request.Grid.State.PathModalIndex = state?.PathModalIndex;
+                        request.Grid.State = new(); // Clear State
+                        request.Grid.State.PathList = state?.PathList; // Keep
+                        request.Grid.State.PathModalIndex = state?.PathModalIndex; // Keep
+                        request.Grid.State.RowKeyMasterList = state?.RowKeyMasterList; // Keep
                     }
                     // Reset SelectMulti on Pagination
                     bool isSelectMultiReset = 
@@ -441,7 +442,7 @@
                     // Load
                     {
                         var fieldName = request.ParentCell.FieldName;
-                        var config = await Config2(request);
+                        var config = await Config2(request.Parent2());
                         var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config, GridConfigEnum.GridFilter, modalName);
                         UtilGrid.LookupFilterLoad2(request, dataRowList, fieldName);
                         UtilGrid.RenderLookup2(request, dataRowList, fieldName: fieldName);
