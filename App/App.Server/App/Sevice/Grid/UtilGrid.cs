@@ -913,7 +913,11 @@ public static class UtilGrid
             }
             foreach (var column in columnList)
             {
-                var text = dataRow[column.FieldName]?.ToString();
+                string? text = null;
+                if (dataRow.TryGetValue(column.FieldName, out var value))
+                {
+                    text = value?.ToString();
+                }
                 var cellEnum = column.IsDropdown ? GridCellEnum.FieldDropdown : column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
                 var iconRight = dataRow.IconGet(column.FieldName);
                 var iconLeft = dataRow.IconGet(column.FieldName, true);

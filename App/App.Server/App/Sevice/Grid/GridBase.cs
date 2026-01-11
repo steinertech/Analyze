@@ -443,7 +443,7 @@
                     {
                         var fieldName = request.ParentCell.FieldName;
                         var config = await Config2(request.Parent2());
-                        var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config, GridConfigEnum.GridFilter, modalName);
+                        var dataRowList = await GridLoad2(request.Parent2(), fieldNameDistinct: fieldName, config, GridConfigEnum.GridFilter, modalName);
                         UtilGrid.LookupFilterLoad2(request, dataRowList, fieldName);
                         UtilGrid.RenderLookup2(request, dataRowList, fieldName: fieldName);
                         return new GridResponse2Dto { Grid = request.Grid };
@@ -467,7 +467,7 @@
                         // Parent Load
                         if (isSave)
                         {
-                            var config = await Config2(request);
+                            var config = await Config2(request.Parent2());
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
                             GridRender2(request.Parent2(), dataRowList, config, modalName);
                         }

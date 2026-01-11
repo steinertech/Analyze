@@ -145,7 +145,7 @@ public class GridExcel2Cache
                         {
                             string cellReference = cell.CellReference!;
                             UtilServer.Assert(cellReference.EndsWith(rowIndex.ToString()));
-                            string colName = cellReference.Substring(0, rowIndex.ToString().Length);
+                            string colName = cellReference.Substring(0, cellReference.Length - rowIndex.ToString().Length);
                             var cellValue = UtilOpenXml.ExcelCellValueGet(cell, textList);
                             cellValue = cellValue.ToString(); // All text
                             List[fileNameStorage][sheetName][rowIndex].Add(colName, cellValue);
@@ -209,6 +209,7 @@ public class GridExcel2(CommandContext context, Storage storage, GridExcel2Cache
             }
         }
         result.ColumnList = columnList;
+        result.PageSize = 10;
         return result;
     }
 
