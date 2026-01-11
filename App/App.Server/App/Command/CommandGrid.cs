@@ -1,8 +1,9 @@
-﻿using System.Globalization;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 using System.Text;
 using System.Text.Json.Serialization;
 
-public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage storageGrid, GridArticle articleGrid, GridArticle2 gridArticle, GridOrganisation gridOrganisation, GridOrganisationEmail gridOrganisationEmail)
+public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage storageGrid, GridArticle articleGrid, GridArticle2 gridArticle, GridOrganisation gridOrganisation, GridOrganisationEmail gridOrganisationEmail, IServiceProvider serviceProvider)
 {
     /// <summary>
     /// Returns loaded grid.
@@ -127,6 +128,10 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
                 break;
             case "OrganisationEmail":
                 result = await gridOrganisationEmail.Load2(request);
+                break;
+            case "Excel":
+                var gridExcel = serviceProvider.GetService<GridExcel2>()!;
+                result = await gridExcel.Load2(request);
                 break;
             default:
                 var resultLoad = await Load(new()

@@ -12,6 +12,17 @@
         await UtilStorage.Upload(configuration.ConnectionStringStorage, fileName, data);
     }
 
+    /// <summary>
+    /// Returns fileNameLocal after download from storage.
+    /// </summary>
+    public async Task<string> DownloadLocal(string fileNameStorage, bool isOrganisation = true)
+    {
+        fileNameStorage = context.Name(fileNameStorage, isOrganisation);
+        var fileNameLocal = UtilServer.FolderNameAppServer() + "App/Data/Storage/" + fileNameStorage;
+        await UtilStorage.DownloadLocal(configuration.ConnectionStringStorage, fileNameStorage, fileNameLocal);
+        return fileNameLocal;
+    }
+
     public async Task<List<UtilStorageEntry>> List(string? folderName = null, bool isRecursive = false, bool isOrganisation = true)
     {
         folderName = context.Name(folderName, isOrganisation);

@@ -173,12 +173,18 @@ public static class UtilStorage
         return result;
     }
 
-    public static async Task Download(string connectionString, string fileNameStorage, string fileNameLocal)
+    public static async Task DownloadLocal(string connectionString, string fileNameStorage, string fileNameLocal)
     {
         fileNameStorage = Sanatize(connectionString, fileNameStorage);
 
         using var file = DownloadStream(connectionString, fileNameStorage);
         using var streamStorage = file.Content;
+
+        var folderNameLocal = Path.GetDirectoryName(fileNameLocal)!;
+        if (!Path.Exists(folderNameLocal))
+        {
+            Directory.CreateDirectory(folderNameLocal);
+        }
         using var streamLocal = new FileStream(fileNameLocal, FileMode.Create);
         await streamStorage.CopyToAsync(streamLocal);
         streamLocal.Close();

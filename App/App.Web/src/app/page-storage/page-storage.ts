@@ -14,7 +14,7 @@ export class PageStorage {
   @ViewChild('gridExcel') gridExcel!: PageGrid;
 
   async ngAfterViewInit() {
-      // await this.gridExcel.load2('Excel', false)
+      await this.gridExcel.load2('Excel', false)
       await this.gridStorage.load2('Storage')
   }
 }

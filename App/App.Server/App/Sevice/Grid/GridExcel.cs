@@ -28,7 +28,7 @@ public class GridExcel(Configuration configuration)
                     var fileNameStorage = item.FolderOrFileName;
                     this.list.Add(fileNameStorage, new());
                     var fileNameLocal = UtilServer.FolderNameAppServer() + "App/Data/Storage/" + fileNameStorage;
-                    await UtilStorage.Download(configuration.ConnectionStringStorage, fileNameStorage, fileNameLocal);
+                    await UtilStorage.DownloadLocal(configuration.ConnectionStringStorage, fileNameStorage, fileNameLocal);
                     using var document = SpreadsheetDocument.Open(fileNameLocal, isEditable: false);
                     var listLocal = UtilOpenXml.List(document.WorkbookPart);
                     var textList = UtilOpenXml.ExcelSharedStringTableGet(document);
@@ -103,5 +103,86 @@ public class GridExcel(Configuration configuration)
         }
         grid.AddRow();
         grid.AddControl(new() { ControlEnum = GridControlEnum.Pagination });
+    }
+}
+
+public class GridExcel2Cache
+{
+    private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1); // See also Azure Blob Lease for multiple Azure Function instances
+
+    /// <summary>
+    /// (FileName, SheetName, RowIndex, ColName, CellValue)
+    /// </summary>
+    public Dictionary<string, Dictionary<string, Dictionary<uint, Dynamic>>> List = new Dictionary<string, Dictionary<string, Dictionary<uint, Dynamic>>>();
+
+    public async Task Load(string fileNameStorage, Storage storage)
+    {
+        await semaphore.WaitAsync();
+        try
+        {
+            string? fileNameLocal = null;
+            try
+            {
+                fileNameLocal = await storage.DownloadLocal(fileNameStorage);
+                using var document = SpreadsheetDocument.Open(fileNameLocal, isEditable: false);
+                var listLocal = UtilOpenXml.List(document.WorkbookPart);
+                var textList = UtilOpenXml.ExcelSharedStringTableGet(document);
+                List[fileNameStorage] = new();
+                // SheetName
+                foreach (var sheetName in UtilOpenXml.ExcelSheetNameList(document))
+                {
+                    List[fileNameStorage].Add(sheetName, new());
+                    var worksheet = UtilOpenXml.ExcelWorksheet(document, sheetName);
+                    var rowList = listLocal.OfType<Row>().Where(item => item.Parent?.Parent == worksheet).ToList();
+                    // Row
+                    foreach (var row in rowList)
+                    {
+                        uint rowIndex = row.RowIndex!.Value;
+                        List[fileNameStorage][sheetName].Add(rowIndex, new());
+                        var cellList = row.OfType<Cell>();
+                        // Cell
+                        foreach (var cell in cellList)
+                        {
+                            string cellReference = cell.CellReference!;
+                            UtilServer.Assert(cellReference.EndsWith(rowIndex.ToString()));
+                            string colName = cellReference.Substring(0, rowIndex.ToString().Length);
+                            var cellValue = UtilOpenXml.ExcelCellValueGet(cell, textList);
+                            List[fileNameStorage][sheetName][rowIndex].Add(colName, cellValue);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                if (File.Exists(fileNameLocal))
+                {
+                    File.Delete(fileNameLocal);
+                }
+            }
+        }
+        finally
+        {
+            semaphore.Release();
+        }
+    }
+}
+
+public class GridExcel2(CommandContext context, Storage storage, GridExcel2Cache cache) : GridBase
+{
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
+    {
+        if (request.Grid.State?.RowKeyMasterList?.TryGetValue("Storage", out var rowKeyMaster) == true)
+        {
+            if (rowKeyMaster?.ToLower().EndsWith(".xlsx") == true)
+            {
+                await context.UserAuthAsync();
+                var fileNameStorage = rowKeyMaster;
+                if (!cache.List.ContainsKey(fileNameStorage))
+                {
+                    await cache.Load(fileNameStorage, storage);
+                }
+            }
+        }
+        return new();
     }
 }

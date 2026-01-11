@@ -21,6 +21,8 @@ internal static class UtilServer
         builder.Configuration.AddUserSecrets(typeof(Function).Assembly); // secrets.json // Package Microsoft.Extensions.Configuration.UserSecrets
         // builder.Configuration.AddAzureKeyVault(new Uri("https://stc001keyvault.vault.azure.net/"), new DefaultAzureCredential()); // KeyVault // Package Azure.Extensions.AspNetCore.Configuration.Secrets // Package Azure.Identity
 
+        // AddSingleton should never reference AddScoped like CommandContext
+
         builder.Services.AddSingleton<Configuration>(); // Contains state
         builder.Services.AddSingleton<DataService>(); // Contains state
         builder.Services.AddSingleton<CosmosDbContainer>(); // Contains state
@@ -32,6 +34,8 @@ internal static class UtilServer
         builder.Services.AddTransient<TableStorageDynamic>(); // Wrapper
         builder.Services.AddSingleton<GridMemory>(); // Contains state
         builder.Services.AddSingleton<GridExcel>();
+        builder.Services.AddTransient<GridExcel2>();
+        builder.Services.AddSingleton<GridExcel2Cache>(); // Contains state
         builder.Services.AddTransient<GridArticle>();
         builder.Services.AddSingleton<GridArticle2>(); // Contains state
         builder.Services.AddTransient<GridStorage>(); // Wrapper
