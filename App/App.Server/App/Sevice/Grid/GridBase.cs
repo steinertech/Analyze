@@ -410,7 +410,7 @@
                         // Parent Load
                         if (isSave)
                         {
-                            var config = await Config2(request);
+                            var config = await Config2(request.Parent2());
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
                             GridRender2(request.Parent2(), dataRowList, config, modalName);
                         }
@@ -494,7 +494,7 @@
                         // Parent Load
                         if (isSave)
                         {
-                            var config = await Config2(request);
+                            var config = await Config2(request.Parent2());
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
                             GridRender2(request.Parent2(), dataRowList, config, modalName);
                         }
