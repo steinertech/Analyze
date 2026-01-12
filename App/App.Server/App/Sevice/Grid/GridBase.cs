@@ -39,11 +39,16 @@
     /// <param name="request">Grid with state (filter, sort and pagination) to apply.</param>
     internal async Task<List<GridColumn>> ColumnList2(GridRequest2Dto request)
     {
-        var config = await Config2(request.Parent2());
+        var config = await Config2(request.Parent2()); // Config might access RowKeyMasterList
+        var configLookup = new GridConfig() // Config for lookup
+        {
+            ColumnList = [new() { ColumnEnum = GridColumnEnum.Text, FieldName = "FieldName" }],
+            PageSize = config.PageSizeColumn,
+        };
         var result = config.ColumnList;
         // Apply (filter, sort and pagination) from grid.
         var resultDynamic = UtilGrid.DynamicFrom(result, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
-        resultDynamic = await UtilGrid.GridLoad2(request, resultDynamic, null, config, GridConfigEnum.GridColumn);
+        resultDynamic = await UtilGrid.GridLoad2(request, resultDynamic, null, configLookup, GridConfigEnum.GridColumn);
         result = UtilGrid.DynamicTo<GridColumn>(resultDynamic, (dataRowFrom, dataRowTo) => { dataRowTo.FieldName = dataRowFrom["FieldName"]?.ToString()!; });
         return result;
     }

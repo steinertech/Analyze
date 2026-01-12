@@ -183,6 +183,11 @@ public static class UtilGrid
                 sortList = grid.State.SortListGet();
             }
         }
+        if (fieldNameDistinct != null)
+        {
+            // By now only one field in query
+            sortList = new List<GridStateSortDto>([new() { FieldName = fieldNameDistinct }]); // Sort asc
+        }
         for (int i = 0; i < sortList.Count; i++)
         {
             var sort = sortList[i];
@@ -207,7 +212,7 @@ public static class UtilGrid
             .Skip(pagination.PageIndex!.Value * pageSize)
             .Take(pageSize);
         // Result
-        var result = query.ToList();
+        var result = query.ToList(); // Debug with add to watch query.ToList(); and refrsh after every step
         return result;
     }
 
