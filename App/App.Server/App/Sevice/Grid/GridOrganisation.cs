@@ -1,6 +1,6 @@
 ﻿public class GridOrganisation(CommandContext context, CosmosDb cosmosDb) : GridBase
 {
-    protected override Task<GridConfig> Config2(GridRequest2Dto request)
+    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
         var result = new GridConfig
         {
@@ -99,7 +99,7 @@
 
 public class GridOrganisationEmail(CommandContext context, CosmosDb cosmosDb) : GridBase
 {
-    protected override Task<GridConfig> Config2(GridRequest2Dto request)
+    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
         var result = new GridConfig
         {

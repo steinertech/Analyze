@@ -112,9 +112,17 @@ public static class UtilGrid
                 break;
             case GridConfigEnum.GridFilter:
                 pageSize = config.PageSizeFilter;
+                ArgumentNullException.ThrowIfNull(fieldNameDistinct);
+                var column = config.ColumnGet(fieldNameDistinct);
+                config = new GridConfig() // Config for lookup
+                {
+                    ColumnList = [new() { FieldName = column.FieldName, ColumnEnum = column.ColumnEnum }],
+                    PageSize = config.PageSizeColumn,
+                };
                 break;
             case GridConfigEnum.GridColumn:
                 pageSize = config.PageSizeColumn;
+                config = new GridConfig() { ColumnList = [new() { FieldName = "FieldName" }] }; // Config for lookup
                 break;
             case GridConfigEnum.GridAutocomplete:
                 pageSize = config.PageSizeAutocomplete;
@@ -139,7 +147,7 @@ public static class UtilGrid
         foreach (var (fieldName, text) in grid.State.FilterList)
         {
             config.ColumnGet(fieldName); // Check
-            query = query.Where(item => (item[fieldName]!.ToString() ?? "").ToLower().Contains(text.ToLower()) == true);
+            query = query.Where(item => (item[fieldName] != null ? item[fieldName]!.ToString() ?? "" : "").ToLower().Contains(text.ToLower()) == true);
         }
         // FilterMulti
         foreach (var (fieldName, filterMulti) in grid.State.FilterMultiList)
@@ -147,7 +155,7 @@ public static class UtilGrid
             config.ColumnGet(fieldName); // Check
             var isInclude = filterMulti.IsSelectAll ? "!" : ""; // Include or exclude
             var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
-            query = query.Where($"{isInclude}@0.Contains(Convert.ToString({fieldName}).ToLower())", textListLower);
+            query = query.Where($"{isInclude}@0.Contains(Convert.ToString(np({fieldName})).ToLower())", textListLower);
         }
         // FieldName (Distinct)
         if (fieldNameDistinct != null)

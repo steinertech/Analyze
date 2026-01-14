@@ -12,7 +12,7 @@
     /// <summary>
     /// Returns config to render data grid.
     /// </summary>
-    protected virtual Task<GridConfig> Config2(GridRequest2Dto request)
+    protected virtual Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
         var result = new GridConfig();
         return Task.FromResult(result);
@@ -37,18 +37,13 @@
     /// Returns column list for lookup grid.
     /// </summary>
     /// <param name="request">Grid with state (filter, sort and pagination) to apply.</param>
-    internal async Task<List<GridColumn>> ColumnList2(GridRequest2Dto request)
+    internal async Task<List<GridColumn>> ColumnList2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
-        var config = await Config2(request.Parent2()); // Config might access RowKeyMasterList
-        var configLookup = new GridConfig() // Config for lookup
-        {
-            ColumnList = [new() { ColumnEnum = GridColumnEnum.Text, FieldName = "FieldName" }],
-            PageSize = config.PageSizeColumn,
-        };
+        var config = await Config2(request, configEnum);
         var result = config.ColumnList;
         // Apply (filter, sort and pagination) from grid.
         var resultDynamic = UtilGrid.DynamicFrom(result, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
-        resultDynamic = await UtilGrid.GridLoad2(request, resultDynamic, null, configLookup, GridConfigEnum.GridColumn);
+        resultDynamic = await UtilGrid.GridLoad2(request, resultDynamic, null, config, GridConfigEnum.GridColumn);
         result = UtilGrid.DynamicTo<GridColumn>(resultDynamic, (dataRowFrom, dataRowTo) => { dataRowTo.FieldName = dataRowFrom["FieldName"]?.ToString()!; });
         return result;
     }
@@ -332,7 +327,7 @@
                     {
                         request.Grid.StateGet().PathListAdd(new() { Name = request.Control?.Name, IsModal = true, IsModalCustom = true });
                     }
-                    var config = await Config2(request);
+                    var config = await Config2(request, GridConfigEnum.Grid);
                     var modalName = request.Grid.State?.PathModalNameGet();
                     var buttonCustomClick = request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom ? new GridButtonCustom() { Cell = request.Cell!, Control = request.Control! } : null;
                     var fieldCustomSaveList = request.Grid.State?.FieldCustomSaveList ?? new();
@@ -415,7 +410,7 @@
                         // Parent Load
                         if (isSave)
                         {
-                            var config = await Config2(request.Parent2());
+                            var config = await Config2(request, GridConfigEnum.GridFilter);
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
                             GridRender2(request.Parent2(), dataRowList, config, modalName);
                         }
@@ -428,7 +423,7 @@
                         // Filter Save (State)
                         var isSave = UtilGrid.LookupFilterSave2(request, request.ParentCell.FieldName);
                         // Filter Load
-                        var config = await Config2(request);
+                        var config = await Config2(request, GridConfigEnum.GridFilter);
                         {
                             var fieldName = request.ParentCell.FieldName;
                             var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config, GridConfigEnum.GridFilter, modalName);
@@ -447,8 +442,8 @@
                     // Load
                     {
                         var fieldName = request.ParentCell.FieldName;
-                        var config = await Config2(request.Parent2());
-                        var dataRowList = await GridLoad2(request.Parent2(), fieldNameDistinct: fieldName, config, GridConfigEnum.GridFilter, modalName);
+                        var config = await Config2(request, GridConfigEnum.GridFilter);
+                        var dataRowList = await GridLoad2(request, fieldNameDistinct: fieldName, config, GridConfigEnum.GridFilter, modalName);
                         UtilGrid.LookupFilterLoad2(request, dataRowList, fieldName);
                         UtilGrid.RenderLookup2(request, dataRowList, fieldName: fieldName);
                         return new GridResponse2Dto { Grid = request.Grid };
@@ -472,7 +467,7 @@
                         // Parent Load
                         if (isSave)
                         {
-                            var config = await Config2(request.Parent2());
+                            var config = await Config2(request, GridConfigEnum.GridColumn);
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
                             GridRender2(request.Parent2(), dataRowList, config, modalName);
                         }
@@ -491,7 +486,7 @@
                         var isSave = UtilGrid.LookupFilterSave2(request, "FieldName", isFilterColumn: true);
                         // Column Load
                         {
-                            var dataRowList = await ColumnList2(request);
+                            var dataRowList = await ColumnList2(request, GridConfigEnum.GridColumn);
                             var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
                             UtilGrid.LookupFilterLoad2(request, dataRowListDynamic, "FieldName", isFilterColumn: true);
                             UtilGrid.RenderLookup2(request, dataRowListDynamic, "FieldName");
@@ -499,7 +494,7 @@
                         // Parent Load
                         if (isSave)
                         {
-                            var config = await Config2(request.Parent2());
+                            var config = await Config2(request, GridConfigEnum.GridColumn);
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalName);
                             GridRender2(request.Parent2(), dataRowList, config, modalName);
                         }
@@ -508,7 +503,7 @@
                     }
                     // Load
                     {
-                        var dataRowList = await ColumnList2(request);
+                        var dataRowList = await ColumnList2(request, GridConfigEnum.GridColumn);
                         var dataRowListDynamic = UtilGrid.DynamicFrom(dataRowList, (dataRowFrom, dataRowTo) => { dataRowTo["FieldName"] = dataRowFrom.FieldName; });
                         UtilGrid.LookupFilterLoad2(request, dataRowListDynamic, "FieldName", isFilterColumn: true);
                         UtilGrid.RenderLookup2(request, dataRowListDynamic, "FieldName");
@@ -520,7 +515,7 @@
                 {
                     ArgumentNullException.ThrowIfNull(request.ParentGrid);
                     ArgumentNullException.ThrowIfNull(request.ParentCell?.FieldName);
-                    var config = await Config2(request);
+                    var config = await Config2(request, GridConfigEnum.GridAutocomplete);
                     if (request.GridActionEnum == GridRequest2GridActionEnum.LookupAutocompleteOk)
                     {
                         var isSave = UtilGrid.LookupAutocompleteSave2(request);
@@ -557,7 +552,7 @@
                         request.Grid.StateGet().PathList = pathList != null ? new(pathList) : null;
                         request.Grid.StateGet().PathListAdd(new() { Name = "Edit", IsModal = true, IsModalCustom = false });
                     }
-                    var config = await Config2(request);
+                    var config = await Config2(request, GridConfigEnum.Grid);
                     var modalName = request.Grid.State?.PathModalNameGet();
                     var modalNameParent = request.ParentGrid?.State?.PathModalNameGet();
                     // Save
@@ -583,7 +578,7 @@
                         request.Grid.StateGet().PathList = pathList != null ? new(pathList) : null;
                         request.Grid.StateGet().PathListAdd(new() { Name = "Delete", IsModal = true, IsModalCustom = false });
                     }
-                    var config = await Config2(request);
+                    var config = await Config2(request, GridConfigEnum.Grid);
                     var modalName = request.Grid.State?.PathModalNameGet();
                     var modalNameParent = request.ParentGrid?.State?.PathModalNameGet();
                     if (request.GridActionEnum == GridRequest2GridActionEnum.LookupConfirmDeleteOk)

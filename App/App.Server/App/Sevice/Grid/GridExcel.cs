@@ -173,9 +173,13 @@ public class GridExcel2(CommandContext context, Storage storage, GridExcel2Cache
     /// <summary>
     /// Returns first sheet.
     /// </summary>
-    private async Task<Dictionary<uint, Dynamic>?> Sheet(GridRequest2Dto request)
+    private async Task<Dictionary<uint, Dynamic>?> Sheet(GridRequest2Dto request, GridConfigEnum configEnum)
     {
         Dictionary<uint, Dynamic>? result = null;
+        if (configEnum == GridConfigEnum.GridFilter || configEnum == GridConfigEnum.GridColumn)
+        {
+            request = request.Parent2();
+        }
         if (request.Grid.State?.RowKeyMasterList?.TryGetValue("Storage", out var rowKeyMaster) == true)
         {
             if (rowKeyMaster?.ToLower().EndsWith(".xlsx") == true)
@@ -194,12 +198,12 @@ public class GridExcel2(CommandContext context, Storage storage, GridExcel2Cache
         return result;
     }
 
-    protected override async Task<GridConfig> Config2(GridRequest2Dto request)
+    protected override async Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
         var result = new GridConfig();
         // Config Column
         var columnList = new List<GridColumn>();
-        var sheet = await Sheet(request);
+        var sheet = await Sheet(request, configEnum);
         if (sheet != null)
         {
             var colList = sheet.SelectMany(row => row.Value.Keys).Distinct().ToList();
@@ -216,7 +220,7 @@ public class GridExcel2(CommandContext context, Storage storage, GridExcel2Cache
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
     {
         var result = new List<Dynamic>();
-        var sheet = await Sheet(request);
+        var sheet = await Sheet(request, configEnum);
         if (sheet != null)
         {
             result = sheet.Select(item => item.Value).ToList();

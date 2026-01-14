@@ -108,7 +108,7 @@
         }
     }
 
-    protected override Task<GridConfig> Config2(GridRequest2Dto request)
+    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
         var result = new GridConfig()
         {
@@ -263,7 +263,7 @@
                 }
             }
         });
-        result = await UtilGrid.GridLoad2(request, result, null, config, configEnum);
+        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
         // Add parent directory entry
         var pathParent = path?.TrimEnd('/').Substring(0, path.TrimEnd('/').LastIndexOf("/") + 1); // Returns null for none and empty for root.
         if (pathParent != null)
