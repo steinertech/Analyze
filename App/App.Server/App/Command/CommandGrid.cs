@@ -141,6 +141,10 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
                 var gridSchemaField = serviceProvider.GetService<GridSchemaField>()!;
                 result = await gridSchemaField.Load2(request);
                 break;
+            case "SchemaData":
+                var gridSchemaData = serviceProvider.GetService<GridSchemaData>()!;
+                result = await gridSchemaData.Load2(request);
+                break;
             default:
                 var resultLoad = await Load(new()
                 {

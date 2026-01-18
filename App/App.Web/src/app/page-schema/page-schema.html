@@ -1,7 +1,11 @@
 <app-page-nav></app-page-nav>
 <app-page-notification></app-page-notification>
-<h1>Schema</h1>
-<app-page-grid #gridSchemaTable>
+<h1>Table</h1>
+<app-page-grid #gridSchemaTable [detailList]=[gridSchemaData]>
 </app-page-grid>
+<h1>Field</h1>
 <app-page-grid #gridSchemaField>
+</app-page-grid>
+<h1>Data</h1>
+<app-page-grid #gridSchemaData>
 </app-page-grid>

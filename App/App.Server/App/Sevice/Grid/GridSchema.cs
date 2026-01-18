@@ -78,6 +78,39 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
     }
 }
 
+public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDynamic, CommandContext context) : GridBase
+{
+    protected override async Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
+    {
+        await context.UserAuthAsync();
+        var result = new GridConfig()
+        {
+            IsAllowNew = true,
+            IsAllowDelete = true,
+        };
+        var tableName = request.Grid.StateGet().RowKeyMasterList?["SchemaTable"];
+        var list = await storage.SelectAsync<GridSchemaFieldDto>();
+        list = list.Where(item => item.TableName == tableName).ToList();
+        var columnList = new List<GridColumn>();
+        foreach (var item in list)
+        {
+            if (item.FieldName != null)
+            {
+                columnList.Add(new GridColumn { FieldName = item.FieldName, ColumnEnum = GridColumnEnum.Text });
+            }
+        }
+        result.ColumnList = columnList;
+        return result;
+    }
+
+    protected override void GridRender2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
+    {
+        var tableName = request.Grid.StateGet().RowKeyMasterList?["SchemaTable"];
+        request.Grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = tableName });
+        base.GridRender2(request, dataRowList, config, modalName);
+    }
+}
+
 public class GridSchemaTableDto : TableEntityDto
 {
     public string? TableName { get; set; }

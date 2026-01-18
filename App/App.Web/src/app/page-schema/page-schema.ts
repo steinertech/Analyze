@@ -12,8 +12,10 @@ import { PageNotification } from "../page-notification/page-notification";
 export class PageSchema {
   @ViewChild('gridSchemaTable') gridSchemaTable!: PageGrid;
   @ViewChild('gridSchemaField') gridSchemaField!: PageGrid;
+  @ViewChild('gridSchemaData') gridSchemaData!: PageGrid;
 
   async ngAfterViewInit() {
+    await this.gridSchemaData.load2('SchemaData', false)
     await this.gridSchemaTable.load2('SchemaTable')
     await this.gridSchemaField.load2('SchemaField')
   }

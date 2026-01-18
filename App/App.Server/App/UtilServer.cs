@@ -39,13 +39,18 @@ internal static class UtilServer
         builder.Services.AddTransient<GridArticle>();
         builder.Services.AddSingleton<GridArticle2>(); // Contains state
         builder.Services.AddTransient<GridStorage>(); // Wrapper
+        // Schema
         builder.Services.AddTransient<GridSchemaTable>(); // Wrapper
         builder.Services.AddTransient<GridSchemaField>(); // Wrapper
+        builder.Services.AddTransient<GridSchemaData>(); // Wrapper
+        // Organisation
         builder.Services.AddTransient<GridOrganisation>(); // Wrapper
         builder.Services.AddTransient<GridOrganisationEmail>(); // Wrapper
-        builder.Services.AddScoped<CommandContext>(); // One new instance for every http request
+        // Storage
         builder.Services.AddTransient<Storage>(); // Wrapper
-        
+
+        builder.Services.AddScoped<CommandContext>(); // One new instance for every http request
+
         // Cache
         builder.Services.AddTransient<Cache>(); // Wrapper
         builder.Services.AddDistributedMemoryCache(); // TODO Redis
