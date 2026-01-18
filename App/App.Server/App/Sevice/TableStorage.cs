@@ -75,7 +75,7 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
         await UtilTableStorageDynamic.DeleteAsync<T>(tableStorageClient.Client, partitionKey, item);
     }
 
-    public async Task UpsertAsync<T>(List<Dynamic> sourceList, GridConfig config, bool isOrganisation = true) where T : TableEntityDto, new()
+    public async Task UpsertAsync<T>(List<Dynamic> sourceList, GridConfig config, Action<Dynamic>? calc = null, bool isOrganisation = true) where T : TableEntityDto, new()
     {
         foreach (var source in sourceList)
         {
@@ -85,11 +85,21 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
                     {
                         var dest = await SelectByIdAsync<T>(source.RowKey);
                         ArgumentNullException.ThrowIfNull(dest);
-                        if (dest["Id"] != dest["TableName"])
+                        foreach (var (fieldName, value) in source)
                         {
-                            // TODO Rename. Delete and copy to new.
+                            if (source.ValueModifiedGet(fieldName, out _, out var valueOriginal))
+                            {
+                                if (dest.ContainsKey(fieldName) && !object.Equals(valueOriginal, dest[fieldName]))
+                                {
+                                    throw new Exception("Value modified by someone else. Reload an try again.");
+                                }
+                            }
+                            dest[fieldName] = value;
                         }
-                        dest["Id"] = dest["TableName"]; // Unique
+                        if (calc != null)
+                        {
+                            calc(dest);
+                        }
                         await UpdateAsync<T>(dest, isOrganisation);
                     }
                     break;
@@ -97,8 +107,14 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
                     if (config.IsAllowNew)
                     {
                         var dest = new Dynamic();
-                        dest["TableName"] = source["TableName"];
-                        dest["Id"] = dest["TableName"]; // Unique
+                        foreach (var (fieldName, value) in source)
+                        {
+                            dest[fieldName] = value;
+                        }
+                        if (calc != null)
+                        {
+                            calc(dest);
+                        }
                         await InsertAsync<T>(dest, isOrganisation);
                     }
                     break;

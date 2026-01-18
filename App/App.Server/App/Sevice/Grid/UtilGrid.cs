@@ -1205,7 +1205,7 @@ public static class UtilGridReflection
         return result;
     }
 
-    public static List<Dynamic> DynamicFrom<T>(List<T> dataRowList, Action<T, Dynamic>? convertDataRow = null)
+    public static List<Dynamic> DynamicFrom<T>(List<T> dataRowList, Action<T, Dynamic>? dataRowConvert = null)
     {
         var result = new List<Dynamic>();
         var propertyList = typeof(T).GetProperties();
@@ -1218,9 +1218,9 @@ public static class UtilGridReflection
                 var value = property.GetValue(dataRow);
                 dataRowDictionary[name] = value;
             }
-            if (convertDataRow != null)
+            if (dataRowConvert != null)
             {
-                convertDataRow(dataRow, dataRowDictionary);
+                dataRowConvert(dataRow, dataRowDictionary);
             }
             result.Add(dataRowDictionary);
         }

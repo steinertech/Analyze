@@ -328,6 +328,10 @@
                         request.Grid.StateGet().PathListAdd(new() { Name = request.Control?.Name, IsModal = true, IsModalCustom = true });
                     }
                     var config = await Config2(request, GridConfigEnum.Grid);
+                    if (config.FieldNameRowKey != null)
+                    {
+                        config.ColumnGet(config.FieldNameRowKey); // Check
+                    }
                     var modalName = request.Grid.State?.PathModalNameGet();
                     var buttonCustomClick = request.GridActionEnum == GridRequest2GridActionEnum.ButtonCustom ? new GridButtonCustom() { Cell = request.Cell!, Control = request.Control! } : null;
                     var fieldCustomSaveList = request.Grid.State?.FieldCustomSaveList ?? new();

@@ -137,6 +137,10 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
                 var gridSchemaTable = serviceProvider.GetService<GridSchemaTable>()!;
                 result = await gridSchemaTable.Load2(request);
                 break;
+            case "SchemaField":
+                var gridSchemaField = serviceProvider.GetService<GridSchemaField>()!;
+                result = await gridSchemaField.Load2(request);
+                break;
             default:
                 var resultLoad = await Load(new()
                 {
@@ -1771,7 +1775,10 @@ public class GridConfig
             var isSelectAll = columnFilterMulti.IsSelectAll;
             result = result.Where(item => isSelectAll ^ columnFilterMulti.TextList.Contains(item.FieldName)).ToList();
         }
-        result = result.OrderBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
+        if (result.Any(item => item.Sort != null))
+        {
+            result = result.OrderBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
+        }
         return result;
     }
 
