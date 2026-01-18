@@ -40,6 +40,9 @@
               <a [routerLink]="['/storage']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Storage</a>
               }
               @if (dataService.userSignStatus()) {
+              <a [routerLink]="['/schema']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Schema</a>
+              }
+              @if (dataService.userSignStatus()) {
               <a [routerLink]="['/article']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Article</a>
               }
               @if (dataService.userSignStatus()) {
@@ -68,6 +71,9 @@
         <a [routerLink]="['/product']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Product</a>
         @if (dataService.userSignStatus()) {
         <a [routerLink]="['/storage']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Storage</a>
+        }
+        @if (dataService.userSignStatus()) {
+        <a [routerLink]="['/schema']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Schema</a>
         }
         @if (dataService.userSignStatus()) {
         <a [routerLink]="['/article']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Article</a>

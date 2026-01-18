@@ -39,6 +39,7 @@ internal static class UtilServer
         builder.Services.AddTransient<GridArticle>();
         builder.Services.AddSingleton<GridArticle2>(); // Contains state
         builder.Services.AddTransient<GridStorage>(); // Wrapper
+        builder.Services.AddTransient<GridSchemaTable>(); // Wrapper
         builder.Services.AddTransient<GridOrganisation>(); // Wrapper
         builder.Services.AddTransient<GridOrganisationEmail>(); // Wrapper
         builder.Services.AddScoped<CommandContext>(); // One new instance for every http request
@@ -271,7 +272,7 @@ public enum DynamicEnum
 /// <summary>
 /// See also UtilCosmosDbDynamic.Select(); and UtilTableStorageDynamic.SelectAsync(); Bridge to grid data row for processing. It's not a Dto.
 /// </summary>
-[DebuggerDisplay("Count = {Count}; ValueModified = {ValueModifiedDebug}; {DynamicEnum};")]
+[DebuggerDisplay("Count = {Count}; ValueModifiedList = {ValueModifiedListDebug}; {DynamicEnum};")]
 public class Dynamic : Dictionary<string, object?>
 {
     public Dynamic()
@@ -400,7 +401,7 @@ public class Dynamic : Dictionary<string, object?>
 
     private Dictionary<string, object?> valueModifiedList = new();
 
-    public string ValueModifiedDebug => string.Join(", ", valueModifiedList.Values);
+    public string? ValueModifiedListDebug => valueModifiedList.Count > 0 ? string.Join(", ", valueModifiedList.Values) : null;
 
     public object? ValueGet(string fieldName)
     {
@@ -449,5 +450,21 @@ public class Dynamic : Dictionary<string, object?>
         UtilServer.Assert(!object.Equals(value, valueModified));
         this[fieldName] = value;
         valueModifiedList[fieldName] = valueModified;
+    }
+
+    public static void ValueModifiedApply(Dynamic source, Dynamic dest)
+    {
+        if (dest.RowKey != source.RowKey)
+        {
+            throw new Exception("Dest RowKey invalid!");
+        }
+        foreach (var (fieldName, value) in source)
+        {
+            if (source.ValueModifiedGet(fieldName, out _, out var valueModified))
+            {
+
+                dest[fieldName] = valueModified;
+            }
+        }
     }
 }

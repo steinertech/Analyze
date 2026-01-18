@@ -7,6 +7,7 @@ import { PageStorage } from './page-storage/page-storage';
 import { PageProduct } from './page-product/page-product';
 import { PageArticle } from './page-article/page-article';
 import { PageOrganisation } from './page-organisation/page-organisation';
+import { PageSchema } from './page-schema/page-schema';
 
 export const routes: Routes = [
   { path: '', component: PageHome },
@@ -21,6 +22,7 @@ export const routes: Routes = [
   { path: 'signin-password-change', component: PageUser },
   { path: 'product', component: PageProduct },
   { path: 'storage', component: PageStorage },
+  { path: 'schema', component: PageSchema },
   { path: 'article', component: PageArticle },
   { path: 'organisation', component: PageOrganisation },
 ];

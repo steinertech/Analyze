@@ -125,6 +125,20 @@ public static class UtilTableStorageDynamic
         entity[nameof(TableEntityDto.Type)] = typeof(T).Name;
         await client.UpdateEntityAsync(entity, ETag.All, TableUpdateMode.Replace);
     }
+
+    public static async Task DeleteAsync<T>(TableClient client, string partitionKey, Dynamic item) where T : TableEntityDto
+    {
+        var entity = new TableEntity(item);
+        var id = entity["Id"]?.ToString();
+        entity.PartitionKey = partitionKey;
+        entity.RowKey = UtilTableStorage.RowKey(typeof(T), id);
+        entity[nameof(TableEntityDto.Type)] = typeof(T).Name;
+        var result = await client.DeleteEntityAsync(entity, ETag.All);
+        if (result.IsError)
+        {
+            throw new Exception("Delete failed!");
+        }
+    }
 }
 
 public partial class TableEntityDto : ITableEntity

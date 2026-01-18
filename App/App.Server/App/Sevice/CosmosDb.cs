@@ -2,6 +2,7 @@
 {
     private string PartitionKey<T>(bool isOrganisation) where T : DocumentDto
     {
+        // See also method CosmosDbDynamic.PartitionKey();
         var name = isOrganisation == false ? typeof(T).Name : null; // CosmosDb for one Organisation one PartitionKey only. Lease a read only token to access all data.
         return context.Name(name, isOrganisation);
     }
@@ -47,7 +48,8 @@ public class CosmosDbDynamic(CommandContext context, CosmosDbContainer cosmosDbC
 {
     private string PartitionKey<T>(bool isOrganisation) where T : DocumentDto
     {
-        var name = isOrganisation == false ? typeof(T).Name : null;
+        // See also method CosmosDb.PartitionKey();
+        var name = isOrganisation == false ? typeof(T).Name : null; // CosmosDb for one Organisation one PartitionKey only. Lease a read only token to access all data.
         return context.Name(name, isOrganisation);
     }
 

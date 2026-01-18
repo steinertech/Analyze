@@ -2,6 +2,7 @@
 {
     private string PartitionKey<T>(bool isOrganisation) where T : TableEntityDto
     {
+        // See also method TableStorageDynamic.PartitionKey();
         return context.Name(typeof(T).Name, isOrganisation, "|"); // TableStorage does not allow "/" character.
     }
 
@@ -40,8 +41,8 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
 {
     private string PartitionKey<T>(bool isOrganisation) where T : TableEntityDto
     {
-        var name = isOrganisation == false ? typeof(T).Name : null;
-        return context.Name(name, isOrganisation);
+        // See also method TableStorage.PartitionKey();
+        return context.Name(typeof(T).Name, isOrganisation, "|"); // TableStorage does not allow "/" character.
     }
 
     public Task<List<Dynamic>> SelectAsync<T>(FormattableString? filter = null, bool isOrganisation = true) where T : TableEntityDto
@@ -56,9 +57,63 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
         return UtilTableStorageDynamic.SingleByIdAsync<T>(tableStorageClient.Client, partitionKey, id);
     }
 
+    public async Task UpdateAsync<T>(Dynamic item, bool isOrganisation = true) where T : TableEntityDto, new()
+    {
+        var partitionKey = PartitionKey<T>(isOrganisation);
+        await UtilTableStorageDynamic.UpdateAsync<T>(tableStorageClient.Client, partitionKey, item);
+    }
+
     public async Task InsertAsync<T>(Dynamic item, bool isOrganisation = true) where T : TableEntityDto, new()
     {
         var partitionKey = PartitionKey<T>(isOrganisation);
         await UtilTableStorageDynamic.InsertAsync<T>(tableStorageClient.Client, partitionKey, item);
+    }
+
+    public async Task DeleteAsync<T>(Dynamic item, bool isOrganisation = true) where T : TableEntityDto, new()
+    {
+        var partitionKey = PartitionKey<T>(isOrganisation);
+        await UtilTableStorageDynamic.DeleteAsync<T>(tableStorageClient.Client, partitionKey, item);
+    }
+
+    public async Task UpsertAsync<T>(List<Dynamic> sourceList, GridConfig config, bool isOrganisation = true) where T : TableEntityDto, new()
+    {
+        foreach (var source in sourceList)
+        {
+            switch (source.DynamicEnum)
+            {
+                case DynamicEnum.Update:
+                    {
+                        var dest = await SelectByIdAsync<T>(source.RowKey);
+                        ArgumentNullException.ThrowIfNull(dest);
+                        Dynamic.ValueModifiedApply(source, dest);
+                        if (dest["Id"] != dest["TableName"])
+                        {
+                            // TODO Rename. Delete and copy to new.
+                        }
+                        dest["Id"] = dest["TableName"];
+                        await UpdateAsync<T>(dest, isOrganisation);
+                    }
+                    break;
+                case DynamicEnum.Insert:
+                    if (config.IsAllowNew)
+                    {
+                        var dest = new Dynamic();
+                        Dynamic.ValueModifiedApply(source, dest);
+                        dest["Id"] = dest["TableName"];
+                        await InsertAsync<T>(dest, isOrganisation);
+                    }
+                    break;
+                case DynamicEnum.Delete:
+                    if (config.IsAllowDelete)
+                    {
+                        var dest = await SelectByIdAsync<T>(source.RowKey);
+                        ArgumentNullException.ThrowIfNull(dest);
+                        await DeleteAsync<T>(dest);
+                    }
+                    break;
+                default:
+                    throw new Exception();
+            }
+        }
     }
 }
