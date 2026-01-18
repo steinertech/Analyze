@@ -26,7 +26,7 @@
             dataRowTo["Organisation"] = dataRowFrom.Name;
             dataRowTo["Text"] = dataRowFrom.Text;
         });
-        result = await UtilGrid.GridLoad2(request, result, null, config, configEnum);
+        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
         return result;
     }
 
@@ -55,9 +55,9 @@
                 var organisation = await cosmosDb.SelectByNameAsync<OrganisationDto>(item.RowKey, isOrganisation: false);
                 if (organisation?.EmailList?.Contains(email) != null)
                 {
-                    if (item.ValueModifiedGet<string>("Text", out _, out var valueText))
+                    if (item.ValueModifiedGet<string>("Text", out var value))
                     {
-                        organisation.Text = valueText;
+                        organisation.Text = value;
                     }
                     organisation = await cosmosDb.UpdateAsync(organisation, isOrganisation: false);
                 }
@@ -66,13 +66,13 @@
             if (item.DynamicEnum == DynamicEnum.Insert)
             {
                 var organisation = new OrganisationDto() { Id = Guid.NewGuid().ToString(), EmailList = new([email]) };
-                if (item.ValueModifiedGet<string>("Organisation", out _, out var valueOrganisation))
+                if (item.ValueModifiedGet<string>("Organisation", out var valueOrganisation))
                 {
                     organisation.Name = valueOrganisation;
                 }
-                if (item.ValueModifiedGet<string>("Text", out _, out var valueText))
+                if (item.ValueModifiedGet<string>("Text", out var value))
                 {
-                    organisation.Text = valueText;
+                    organisation.Text = value;
                 }
                 OrganisationDto.Sanitize(organisation);
                 organisation = await cosmosDb.InsertAsync(organisation, isOrganisation: false);
@@ -154,10 +154,10 @@ public class GridOrganisationEmail(CommandContext context, CosmosDb cosmosDb) : 
                     {
                         if (item.DynamicEnum == DynamicEnum.Insert)
                         {
-                            if (item.ValueModifiedGet<string>("Email", out var value, out var valueModified))
+                            if (item.ValueModifiedGet<string>("Email", out var value))
                             {
                                 organisation.EmailList ??= new();
-                                organisation.EmailList.Add(valueModified);
+                                organisation.EmailList.Add(value);
                                 organisation = await cosmosDb.UpdateAsync(organisation, isOrganisation: false);
                             }
                         }

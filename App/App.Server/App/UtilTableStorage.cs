@@ -123,7 +123,7 @@ public static class UtilTableStorageDynamic
         entity.PartitionKey = partitionKey;
         entity.RowKey = UtilTableStorage.RowKey(typeof(T), id);
         entity[nameof(TableEntityDto.Type)] = typeof(T).Name;
-        await client.UpdateEntityAsync(entity, ETag.All, TableUpdateMode.Replace);
+        var result = await client.UpdateEntityAsync(entity, ETag.All, TableUpdateMode.Replace);
     }
 
     public static async Task DeleteAsync<T>(TableClient client, string partitionKey, Dynamic item) where T : TableEntityDto

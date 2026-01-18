@@ -413,10 +413,7 @@ public static class UtilGrid
                         var index = destList.Select((item, index) => (Value: item, Index: index)).Single(item => object.Equals(item.Value["Id"], id)).Index;
                         foreach (var (fieldName, value) in source)
                         {
-                            if (source.ValueModifiedGet(fieldName, out _, out var valueModified))
-                            {
-                                destList[index][fieldName] = valueModified;
-                            }
+                            destList[index][fieldName] = value;
                         }
                     }
                     break;

@@ -272,7 +272,7 @@ public enum DynamicEnum
 /// <summary>
 /// See also UtilCosmosDbDynamic.Select(); and UtilTableStorageDynamic.SelectAsync(); Bridge to grid data row for processing. It's not a Dto.
 /// </summary>
-[DebuggerDisplay("Count = {Count}; ValueModifiedList = {ValueModifiedListDebug}; {DynamicEnum};")]
+[DebuggerDisplay("Count = {Count}; ValueOriginalList = {ValueOriginalListDebug}; {DynamicEnum};")]
 public class Dynamic : Dictionary<string, object?>
 {
     public Dynamic()
@@ -399,72 +399,46 @@ public class Dynamic : Dictionary<string, object?>
         }
     }
 
-    private Dictionary<string, object?> valueModifiedList = new();
+    private Dictionary<string, object?> valueOriginalList = new();
 
-    public string? ValueModifiedListDebug => valueModifiedList.Count > 0 ? string.Join(", ", valueModifiedList.Values) : null;
-
-    public object? ValueGet(string fieldName)
-    {
-        return this[fieldName];
-    }
-
-    public T? ValueGet<T>(string fieldName)
-    {
-        return (T?)ValueGet(fieldName);
-    }
-
-    public void ValueSet(string fieldName, object? value)
-    {
-        this[fieldName] = value;
-    }
+    public string? ValueOriginalListDebug => valueOriginalList.Count > 0 ? string.Join(", ", valueOriginalList.Values) : null;
 
     /// <summary>
-    /// Returns modified value. Save request sends only modified fields.
+    /// Returns modified value. Save request sends only modified fields and RowKey.
     /// </summary>
-    public bool ValueModifiedGet(string fieldName, out object? value, out object? valueModified)
+    public bool ValueModifiedGet(string fieldName, out object? value, out object? valueOriginal)
     {
         var result = this.ContainsKey(fieldName);
         if (result)
         {
             value = this[fieldName];
-            valueModified = valueModifiedList[fieldName];
+            valueOriginal = valueOriginalList[fieldName];
         }
         else
         {
             value = default;
-            valueModified = default;
+            valueOriginal = default;
         }
         return result;
     }
 
-    public bool ValueModifiedGet<T>(string fieldName, out T? value, out T? valueModified)
+    public bool ValueModifiedGet<T>(string fieldName, out T? value, out T? valueOriginal)
     {
-        var result = ValueModifiedGet(fieldName, out var valueObject, out var valueModifiedObject);
+        var result = ValueModifiedGet(fieldName, out var valueObject, out var valueOriginalObject);
         value = (T?)valueObject;
-        valueModified = (T?)valueModifiedObject;
+        valueOriginal = (T?)valueOriginalObject;
         return result;
+    }
+
+    public bool ValueModifiedGet<T>(string fieldName, out T? value)
+    {
+        return ValueModifiedGet<T>(fieldName, out value, out _);
     }
 
     internal void ValueModifiedSet(string fieldName, object? value, object? valueModified)
     {
         UtilServer.Assert(!object.Equals(value, valueModified));
-        this[fieldName] = value;
-        valueModifiedList[fieldName] = valueModified;
-    }
-
-    public static void ValueModifiedApply(Dynamic source, Dynamic dest)
-    {
-        if (dest.RowKey != source.RowKey)
-        {
-            throw new Exception("Dest RowKey invalid!");
-        }
-        foreach (var (fieldName, value) in source)
-        {
-            if (source.ValueModifiedGet(fieldName, out _, out var valueModified))
-            {
-
-                dest[fieldName] = valueModified;
-            }
-        }
+        this[fieldName] = valueModified;
+        valueOriginalList[fieldName] = value;
     }
 }

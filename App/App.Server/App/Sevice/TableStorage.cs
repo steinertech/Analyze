@@ -85,12 +85,11 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
                     {
                         var dest = await SelectByIdAsync<T>(source.RowKey);
                         ArgumentNullException.ThrowIfNull(dest);
-                        Dynamic.ValueModifiedApply(source, dest);
                         if (dest["Id"] != dest["TableName"])
                         {
                             // TODO Rename. Delete and copy to new.
                         }
-                        dest["Id"] = dest["TableName"];
+                        dest["Id"] = dest["TableName"]; // Unique
                         await UpdateAsync<T>(dest, isOrganisation);
                     }
                     break;
@@ -98,8 +97,8 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
                     if (config.IsAllowNew)
                     {
                         var dest = new Dynamic();
-                        Dynamic.ValueModifiedApply(source, dest);
-                        dest["Id"] = dest["TableName"];
+                        dest["TableName"] = source["TableName"];
+                        dest["Id"] = dest["TableName"]; // Unique
                         await InsertAsync<T>(dest, isOrganisation);
                     }
                     break;

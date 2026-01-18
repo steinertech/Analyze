@@ -289,20 +289,20 @@
             {
                 case DynamicEnum.Update:
                     {
-                        if (item.ValueModifiedGet<string>("Name", out var value, out var valueModified))
+                        if (item.ValueModifiedGet<string>("Name", out var value))
                         {
                             var folderOrFileName = (string)item.RowKey!;
-                            var folderOrFileNameOnlyNew = valueModified!;
+                            var folderOrFileNameOnlyNew = value!;
                             await storage.Rename(folderOrFileName, folderOrFileNameOnlyNew);
                         }
                         break;
                     }
                 case DynamicEnum.Insert:
                     {
-                        if (item.ValueModifiedGet<string>("Name", out var value, out var valueModified))
+                        if (item.ValueModifiedGet<string>("Name", out var value))
                         {
                             var path = request.Grid.StateGet().PathGet(1); // Breadcrumb without Home (Storage)
-                            var name = valueModified;
+                            var name = value;
                             var folderOrFileNameNew = path + name;
                             await storage.Upload(folderOrFileNameNew, null);
                         }
