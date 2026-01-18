@@ -1923,6 +1923,9 @@ public class GridColumn
     /// Gets or sets IsAutocomplete. If true, autocomplete lookup window is opened with distinct values of this column (by default).
     /// </summary>
     public bool IsAutocomplete { get; set; }
-    
+
+    /// <summary>
+    /// Gets or sets IsDropdown. See also method Dynamic.DropdownListSet();
+    /// </summary>
     public bool IsDropdown { get; set; }
 }

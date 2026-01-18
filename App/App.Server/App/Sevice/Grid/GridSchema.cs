@@ -44,6 +44,7 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
                 new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Text },
                 new() { FieldName = "TableName", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "FieldName", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
+                new() { FieldName = "FieldType", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsDropdown = true },
                 new() { FieldName = "Sort", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
             ],
             IsAllowNew = true,
@@ -59,6 +60,8 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
         var list = await storage.SelectAsync<GridSchemaFieldDto>();
         var result = UtilGridReflection.DynamicFrom(list);
         result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
+        var dropDownList = Enum.GetValues<GridColumnEnum>().Select(item => item.ToString() ?? null).ToList();
+        result.ForEach(item => item.DropdownListSet("FieldType", dropDownList));
         return result;
     }
 
@@ -67,6 +70,11 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
         await context.UserAuthAsync();
         var calc = (Dynamic dest) => { dest["Id"] = dest["TableName"] + "." + dest["FieldName"]; }; // Make unique
         await storageDynamic.UpsertAsync<GridSchemaFieldDto>(sourceList, config, calc);
+    }
+
+    protected override void GridRender2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
+    {
+        base.GridRender2(request, dataRowList, config, modalName);
     }
 }
 
@@ -80,6 +88,8 @@ public class GridSchemaFieldDto : TableEntityDto
     public string? TableName { get; set; }
 
     public string? FieldName { get; set; }
+    
+    public string? FieldType { get; set; }
 
     /// <summary>
     /// Gets or sets Sort. This is the column order.

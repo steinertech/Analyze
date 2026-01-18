@@ -113,7 +113,7 @@
         var result = new GridConfig()
         {
             ColumnList = [
-                // new() { FieldName = "FolderOrFileName", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
+                new() { FieldName = "FolderOrFileName", ColumnEnum = GridColumnEnum.Text },
                 // new() { FieldName = "IsFolder", ColumnEnum = GridColumnEnum.Text, IsAllowModify = false },
                 new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, FieldNameSortCustom = "NameSort", Sort = 1 },
                 new() { FieldName = "DateModified", ColumnEnum = GridColumnEnum.Long, Sort = 2 },
