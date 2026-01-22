@@ -89,6 +89,12 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
 
 public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDynamic, CommandContext context) : GridBase
 {
+    private string? TableName(GridRequest2Dto request, GridConfigEnum configEnum)
+    {
+        var result = configEnum == GridConfigEnum.Grid ? request.Grid.StateGet().RowKeyMasterList?["SchemaTable"] : request.ParentGrid?.StateGet().RowKeyMasterList?["SchemaTable"];
+        return result;
+    }
+
     protected override async Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
         await context.UserAuthAsync();
@@ -97,7 +103,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
             IsAllowNew = true,
             IsAllowDelete = true,
         };
-        var tableName = request.Grid.StateGet().RowKeyMasterList?["SchemaTable"];
+        var tableName = TableName(request, configEnum);
         var list = await storage.SelectAsync<GridSchemaFieldDto>();
         list = list.Where(item => item.TableName == tableName).OrderBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
         var columnList = new List<GridColumn>();
@@ -123,6 +129,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
             {
                 // Make unique
                 dataRow["Id"] = dataRow[fieldNameRowKey];
+                dataRow["TableName"] = tableName;
                 return Task.CompletedTask;
             };
             result.Calc = calc;
@@ -140,6 +147,8 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
     {
         var result = await storageDynamic.SelectAsync<GridSchemaDataDto>();
+        var tableName = TableName(request, configEnum);
+        result = result.Where(item => object.Equals(item["TableName"], tableName)).ToList();
         result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
         return result;
     }
