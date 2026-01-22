@@ -44,6 +44,7 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
                 new() { FieldName = "TableName", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "FieldName", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "FieldType", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsDropdown = true },
+                new() { FieldName = "IsRowKey", ColumnEnum = GridColumnEnum.Bool, IsAllowModify = true },
                 new() { FieldName = "Sort", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
             ],
             IsAllowNew = true,
@@ -104,10 +105,28 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         {
             if (item.FieldName != null)
             {
-                columnList.Add(new GridColumn { FieldName = item.FieldName, ColumnEnum = GridColumnEnum.Text });
+                columnList.Add(new GridColumn { FieldName = item.FieldName, ColumnEnum = GridColumnEnum.Text, IsAllowModify = true });
             }
         }
         result.ColumnList = columnList;
+        // RowKey
+        var field = list.OrderBy(item => item.FieldName).FirstOrDefault(item => item.IsRowKey == true);
+        if (field?.FieldName != null)
+        {
+            result.FieldNameRowKey = field.FieldName;
+        }
+        // Calc
+        var fieldNameRowKey = result.FieldNameRowKey;
+        if (fieldNameRowKey != null)
+        {
+            var calc = (Dynamic dataRow) =>
+            {
+                // Make unique
+                dataRow["Id"] = dataRow[fieldNameRowKey];
+                return Task.CompletedTask;
+            };
+            result.Calc = calc;
+        }
         return result;
     }
 
@@ -116,6 +135,18 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         var tableName = request.Grid.StateGet().RowKeyMasterList?["SchemaTable"];
         request.Grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = tableName });
         base.GridRender2(request, dataRowList, config, modalName);
+    }
+
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
+    {
+        var result = await storageDynamic.SelectAsync<GridSchemaDataDto>();
+        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
+        return result;
+    }
+
+    protected override async Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
+    {
+        await storageDynamic.UpsertAsync<GridSchemaDataDto>(sourceList, config);
     }
 }
 
@@ -131,9 +162,16 @@ public class GridSchemaFieldDto : TableEntityDto
     public string? FieldName { get; set; }
     
     public string? FieldType { get; set; }
+    
+    public bool? IsRowKey { get; set; }
 
     /// <summary>
     /// Gets or sets Sort. This is the column order.
     /// </summary>
     public int? Sort { get; set; }
+}
+
+public class GridSchemaDataDto : TableEntityDto
+{
+
 }

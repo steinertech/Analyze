@@ -1730,6 +1730,8 @@ public enum GridColumnEnum
     Date = 4,
 
     Long = 5,
+
+    Bool = 6,
 }
 
 public class GridConfig
@@ -1877,6 +1879,9 @@ public class GridConfig
                 break;
             case GridColumnEnum.Long:
                 result = long.Parse(value);
+                break;
+            case GridColumnEnum.Bool:
+                result = bool.Parse(value);
                 break;
             default:
                 throw new Exception("Type unknown!");

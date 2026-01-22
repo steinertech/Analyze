@@ -368,6 +368,10 @@ public static class UtilGrid
                                     var valueModified = config.ConvertFrom(fieldName, textModified);
                                     dataRow.ValueModifiedSet(fieldName, value, valueModified);
                                 }
+                                else
+                                {
+                                    throw new Exception("Field is read only!");
+                                }
                             }
                         }
                     }
