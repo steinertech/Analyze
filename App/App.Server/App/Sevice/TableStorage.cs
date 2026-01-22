@@ -75,7 +75,7 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
         await UtilTableStorageDynamic.DeleteAsync<T>(tableStorageClient.Client, partitionKey, item);
     }
 
-    public async Task UpsertAsync<T>(List<Dynamic> sourceList, GridConfig config, Action<Dynamic>? calc = null, bool isOrganisation = true) where T : TableEntityDto, new()
+    public async Task UpsertAsync<T>(List<Dynamic> sourceList, GridConfig config, bool isOrganisation = true) where T : TableEntityDto, new()
     {
         foreach (var source in sourceList)
         {
@@ -96,9 +96,9 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
                             }
                             dest[fieldName] = value;
                         }
-                        if (calc != null)
+                        if (config.Calc != null)
                         {
-                            calc(dest);
+                            await config.Calc(dest);
                         }
                         await UpdateAsync<T>(dest, isOrganisation);
                     }
@@ -111,9 +111,9 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
                         {
                             dest[fieldName] = value;
                         }
-                        if (calc != null)
+                        if (config.Calc != null)
                         {
-                            calc(dest);
+                            await config.Calc(dest);
                         }
                         await InsertAsync<T>(dest, isOrganisation);
                     }

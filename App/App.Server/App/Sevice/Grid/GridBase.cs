@@ -384,7 +384,12 @@
                             {
                                 if (config.IsAllowNew)
                                 {
-                                    dataRowList.Insert(0, Dynamic.Create(config, isNew: true)); // Multi new data rows possible
+                                    var dataRowNew = Dynamic.Create(config, isNew: true);
+                                    if (config.Calc != null)
+                                    {
+                                        await config.Calc(dataRowNew);
+                                    }
+                                    dataRowList.Insert(0, dataRowNew); // Multi new data rows possible
                                 }
                             }
                             // Render

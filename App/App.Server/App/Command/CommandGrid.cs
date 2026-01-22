@@ -1779,7 +1779,7 @@ public class GridConfig
             var isSelectAll = columnFilterMulti.IsSelectAll;
             result = result.Where(item => isSelectAll ^ columnFilterMulti.TextList.Contains(item.FieldName)).ToList();
         }
-        if (result.Any(item => item.Sort != null))
+        if (result.Any(item => item.Sort != null)) // If no sort take source code order.
         {
             result = result.OrderBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
         }
@@ -1841,6 +1841,11 @@ public class GridConfig
     /// Gets or sets IsSelectMultiPatch. If true, grid is partially patched (reloaded) when a checkbox is selected. Instead of full reload.
     /// </summary>
     public bool? IsSelectMultiPatch { get; set; }
+
+    /// <summary>
+    /// Gets or Sets Calc. Used for calculated properties or to set DropdownListSet. See also <see cref="Dynamic.DropdownListSet"/>
+    /// </summary>
+    public Func<Dynamic, Task>? Calc { get; set; } // TODO List<Dynamic>
 
     public string? ConvertTo(string fieldName, object value)
     {

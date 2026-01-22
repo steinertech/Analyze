@@ -28,8 +28,7 @@
     protected override async Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
     {
         await context.UserAuthAsync();
-        var calc = (Dynamic dest) => { dest["Id"] = dest["TableName"]; }; // Make unique
-        await storageDynamic.UpsertAsync<GridSchemaTableDto>(sourceList, config, calc);
+        await storageDynamic.UpsertAsync<GridSchemaTableDto>(sourceList, config);
     }
 }
 
@@ -51,6 +50,16 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
             IsAllowDelete = true,
             FieldNameRowKey = "Id",
         };
+        var calc = static (Dynamic dataRow) =>
+        {
+            // Make unique
+            dataRow["Id"] = dataRow["TableName"] + "." + dataRow["FieldName"];
+            // DropDownList
+            var dropDownList = Enum.GetValues<GridColumnEnum>().Select(item => item.ToString() ?? null).ToList();
+            dataRow.DropdownListSet("FieldType", dropDownList);
+            return Task.CompletedTask;
+        };
+        result.Calc = calc;
         return Task.FromResult(result);
     }
 
@@ -68,8 +77,7 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
     protected override async Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
     {
         await context.UserAuthAsync();
-        var calc = (Dynamic dest) => { dest["Id"] = dest["TableName"] + "." + dest["FieldName"]; }; // Make unique
-        await storageDynamic.UpsertAsync<GridSchemaFieldDto>(sourceList, config, calc);
+        await storageDynamic.UpsertAsync<GridSchemaFieldDto>(sourceList, config);
     }
 
     protected override void GridRender2(GridRequest2Dto request, List<Dynamic> dataRowList, GridConfig config, string? modalName)
@@ -90,7 +98,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         };
         var tableName = request.Grid.StateGet().RowKeyMasterList?["SchemaTable"];
         var list = await storage.SelectAsync<GridSchemaFieldDto>();
-        list = list.Where(item => item.TableName == tableName).ToList();
+        list = list.Where(item => item.TableName == tableName).OrderBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
         var columnList = new List<GridColumn>();
         foreach (var item in list)
         {
