@@ -13,6 +13,7 @@
             IsAllowDelete = true,
             FieldNameRowKey = "Id",
         };
+        result.Calc = (Dynamic dataRow) => { dataRow["Id"] = dataRow["TableName"]; return Task.CompletedTask; };
         return Task.FromResult(result);
     }
 
