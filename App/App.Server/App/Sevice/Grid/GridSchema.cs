@@ -46,6 +46,7 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
                 new() { FieldName = "FieldName", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "FieldType", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsDropdown = true },
                 new() { FieldName = "IsRowKey", ColumnEnum = GridColumnEnum.Bool, IsAllowModify = true },
+                new() { FieldName = "Ref", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsAutocomplete = true },
                 new() { FieldName = "Sort", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
             ],
             IsAllowNew = true,

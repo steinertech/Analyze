@@ -147,7 +147,7 @@ public static class UtilGrid
         foreach (var (fieldName, text) in grid.State.FilterList)
         {
             config.ColumnGet(fieldName); // Check
-            query = query.Where(item => (item[fieldName] != null ? item[fieldName]!.ToString() ?? "" : "").ToLower().Contains(text.ToLower()) == true);
+            query = query.Where(item => (item.GetValueOrDefault(fieldName) != null ? item.GetValueOrDefault(fieldName)!.ToString() ?? "" : "").ToLower().Contains(text.ToLower()) == true); // item[fieldName], GetValueOrDefault if key does not exist
         }
         // FilterMulti
         foreach (var (fieldName, filterMulti) in grid.State.FilterMultiList)
@@ -162,7 +162,7 @@ public static class UtilGrid
         {
             config.ColumnGet(fieldNameDistinct); // Check
             query = query
-                .Select(item => item[fieldNameDistinct])
+                .Select(item => item.GetValueOrDefault(fieldNameDistinct)) // item[fieldName], GetValueOrDefault if key does not exist
                 .Distinct()
                 .OrderBy(item => item)
                 .Select(item => new Dynamic { { fieldNameDistinct, item } });
@@ -208,11 +208,25 @@ public static class UtilGrid
             }
             if (i == 0)
             {
-                query = query.OrderBy($"""{fieldName}{(sort.IsDesc ? " DESC" : "")}""");
+                if (sort.IsDesc == false)
+                {
+                    query = query.OrderBy(row => row.GetValueOrDefault(fieldName)); // item[fieldName], GetValueOrDefault if key does not exist
+                }
+                else
+                {
+                    query = query.OrderByDescending(row => row.GetValueOrDefault(fieldName));
+                }
             }
             else
             {
-                query = ((IOrderedQueryable<Dynamic>)query).ThenBy($"""{fieldName}{(sort.IsDesc ? " DESC" : "")}""");
+                if (sort.IsDesc == false)
+                {
+                    query = ((IOrderedQueryable<Dynamic>)query).ThenBy(row => row.GetValueOrDefault(fieldName)); // item[fieldName], GetValueOrDefault if key does not exist
+                }
+                else
+                {
+                    query = ((IOrderedQueryable<Dynamic>)query).ThenByDescending(row => row.GetValueOrDefault(fieldName));
+                }
             }
         }
         // Pagination
