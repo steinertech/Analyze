@@ -1890,7 +1890,7 @@ public class GridConfig
     }
 }
 
-public enum GridConfigEnum
+public enum GridConfigEnum // TODO Rename to GridEnum
 {
     None = 0,
 

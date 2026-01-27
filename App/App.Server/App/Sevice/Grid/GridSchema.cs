@@ -70,11 +70,20 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
     {
         await context.UserAuthAsync();
         var list = await storage.SelectAsync<GridSchemaFieldDto>();
-        var result = UtilGridReflection.DynamicFrom(list);
-        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
-        var dropDownList = Enum.GetValues<GridColumnEnum>().Select(item => item.ToString() ?? null).ToList();
-        result.ForEach(item => item.DropdownListSet("FieldType", dropDownList));
-        return result;
+        if (configEnum == GridConfigEnum.GridAutocomplete)
+        {
+            var result = list.Select(item => { var result = new Dynamic(); result[fieldNameDistinct!] = item.TableName + "." + item.FieldName; return result; }).ToList();
+            result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, GridConfigEnum.GridAutocomplete);
+            return result;
+        }
+        else
+        {
+            var result = UtilGridReflection.DynamicFrom(list);
+            result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
+            var dropDownList = Enum.GetValues<GridColumnEnum>().Select(item => item.ToString() ?? null).ToList();
+            result.ForEach(item => item.DropdownListSet("FieldType", dropDownList));
+            return result;
+        }
     }
 
     protected override async Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
@@ -180,6 +189,8 @@ public class GridSchemaFieldDto : TableEntityDto
     /// Gets or sets Sort. This is the column order.
     /// </summary>
     public int? Sort { get; set; }
+
+    public string? Ref { get; set; }
 }
 
 public class GridSchemaDataDto : TableEntityDto

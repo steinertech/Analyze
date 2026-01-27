@@ -1161,7 +1161,7 @@ public static class UtilGrid
         foreach (var dataRow in dataRowList)
         {
             grid.AddRow();
-            var text = dataRow[fieldName]?.ToString();
+            var text = dataRow.GetValueOrDefault(fieldName)?.ToString(); // dataRow[fieldName], GetValueOrDefault if key does not exist
             grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = text, DataRowIndex = dataRowIndex }, rowKey: text);
             dataRowIndex += 1;
         }
