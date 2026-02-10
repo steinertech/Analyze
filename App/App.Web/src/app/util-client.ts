@@ -1,5 +1,5 @@
 export class UtilClient {
-  public static versionClient = '1.0.19'
+  public static versionClient = '1.0.20'
 
   public static MathFloor100(value: number) { // TODO Rename to mathFloor100
     // Also be aware of 100.00 - 80.04 = 19.959999999999994
