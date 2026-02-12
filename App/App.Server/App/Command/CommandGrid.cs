@@ -159,10 +159,6 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
                 break;
         }
         // Clear
-        if (result.Grid?.State != null)
-        {
-            result.Grid.State.FieldSaveList = null;
-        }
         if (result.Grid?.State?.Pagination != null)
         {
             result.Grid.State.Pagination.PageIndexDeltaClick = null;
@@ -987,6 +983,14 @@ public class GridRequest2Dto
                 break;
         }
         return result;
+    }
+
+    internal void FieldSaveListClear()
+    {
+        if (Grid.State != null)
+        {
+            Grid.State.FieldSaveList = null;
+        }
     }
 }
 

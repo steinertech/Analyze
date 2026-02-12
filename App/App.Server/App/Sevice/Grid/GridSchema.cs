@@ -52,6 +52,7 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
             IsAllowNew = true,
             IsAllowDelete = true,
             FieldNameRowKey = "Id",
+            PageSize = 10,
         };
         var calc = static (Dynamic dataRow) =>
         {

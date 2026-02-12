@@ -207,7 +207,7 @@ export class PageGrid implements AfterViewInit {
         let index = this._grid.state.fieldSaveList.findIndex(item => item.dataRowIndex == cell.dataRowIndex && item.fieldName == cell.fieldName)
         if (cell.textModified == undefined) {
           if (index != -1) {
-            this._grid.state.fieldSaveList.splice(index, 1) // Remove item
+            this._grid.state.fieldSaveList.splice(index, 1) // Remove item // See also C# method UtilGrid.LookupAutocompleteSave2();
           }
         } else {
           if (index == -1) {
@@ -469,7 +469,24 @@ export class PageGrid implements AfterViewInit {
         // Button Ok (Lookup)
         case GridControlEnum.ButtonLookupOk: {
           if (this.parent?._grid) {
-            await PageGrid.commandGridLoad2(this, cell, control)
+            const cellParent = this.parent?._lookup?.cell
+            const isAutocomplete = cellParent?.cellEnum == GridCellEnum.FieldAutocomplete;
+            if (isAutocomplete) {
+              const isSaveOnOk = false
+              if (isSaveOnOk) {
+                await PageGrid.commandGridLoad2(this, cell, control) // Might also save other modified fields on autocomplete ok
+              } else {
+                const index = this._grid.state?.isSelectList?.findIndex(x => x === true) ?? -1;
+                if (index != -1 && this._grid.state?.rowKeyList) {
+                  const text = this._grid.state?.rowKeyList[index]
+                  if (text) {
+                    this.parent.cellTextSet(cellParent, text)
+                  }
+                }
+              }
+            } else {
+              await PageGrid.commandGridLoad2(this, cell, control)
+            }
             this.parent?.lookupClose()
           }
           break

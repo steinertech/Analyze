@@ -658,13 +658,28 @@ public static class UtilGrid
         ArgumentNullException.ThrowIfNull(request.ParentCell);
         ArgumentNullException.ThrowIfNull(request.Grid.State?.RowKeyList);
         ArgumentNullException.ThrowIfNull(request.ParentGrid?.State);
-        var fieldName = request.ParentCell.FieldName;
-        var dataRowIndex = request.Grid.State.IsSelectList?.Select((item, index) => (Value: item, Index: index)).Single(item => item.Value == true).Index;
+        var dataRowIndex = request.Grid.State.IsSelectList?.Select((item, index) => (Value: item, Index: index)).Single(item => item.Value == true).Index; // DataRowIndex of LookupAutocomplete
         if (dataRowIndex != null)
         {
             var text = request.Grid.State.RowKeyList[dataRowIndex.Value];
             request.ParentGrid.State.FieldSaveList ??= new();
-            request.ParentGrid.State.FieldSaveList.Add(new() { DataRowIndex = request.ParentCell.DataRowIndex, FieldName = fieldName, Text = request.ParentCell.Text, TextModified = text });
+            var fieldSave = request.ParentGrid.State.FieldSaveList.SingleOrDefault(item => item.DataRowIndex == request.ParentCell.DataRowIndex && item.FieldName == request.ParentCell.FieldName);
+            if (fieldSave == null)
+            {
+                fieldSave = new()
+                {
+                    CellEnum = request.ParentCell.CellEnum,
+                    DataRowIndex = request.ParentCell.DataRowIndex,
+                    FieldName = request.ParentCell.FieldName,
+                    Text = request.ParentCell.Text,
+                };
+                request.ParentGrid.State.FieldSaveList.Add(fieldSave);
+            }
+            fieldSave.TextModified = text;
+            if (fieldSave.Text == fieldSave.TextModified)
+            {
+                request.ParentGrid.State.FieldSaveList.Remove(fieldSave); // See also TypeScript method cellTextSetSave();
+            }
             return true;
         }
         return false;

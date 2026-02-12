@@ -347,6 +347,7 @@
                         if (sourceList.Count() > 0)
                         {
                             await GridSave2(request, sourceList, config);
+                            request.FieldSaveListClear();
                         }
                     }
                     // Load Patch
@@ -534,7 +535,8 @@
                             var sourceList = UtilGrid.GridSave2(request.Parent2(), config);
                             if (sourceList.Count() > 0)
                             {
-                                await GridSave2(request.Parent2(), sourceList, config);
+                                await GridSave2(request.Parent2(), sourceList, config); // Might also save other modified fields on autocomplete ok
+                                request.Parent2().FieldSaveListClear();
                             }
                             // Parent Load
                             var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, null); // TODO ModalName
@@ -571,6 +573,7 @@
                         if (sourceList.Count() > 0)
                         {
                             await GridSave2(request, sourceList, config);
+                            request.FieldSaveListClear();
                         }
                     }
                     // Load
@@ -598,6 +601,7 @@
                         if (sourceList.Count() > 0)
                         {
                             await GridSave2(request.Parent2(), sourceList, config);
+                            request.Parent2().FieldSaveListClear();
                         }
                         // Load Parent
                         var dataRowList = await GridLoad2(request.Parent2(), null, config, GridConfigEnum.Grid, modalNameParent);
