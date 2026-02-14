@@ -182,6 +182,17 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
             fieldNameDistinct = config.FieldNameRowKey;
         }
         result = result.Where(item => object.Equals(item["TableName"], tableName)).ToList(); // Filter by TableName
+        foreach (var item in result)
+        {
+            if (item.TryGetValue("PersonId", out var value))
+            {
+                item["PersonIdDisplay"] = value + " - " + "Max" + value;
+            }
+            if (item.TryGetValue("PersId", out value))
+            {
+                item["PersIdDisplay"] = value + " - " + "Max" + value;
+            }
+        }
         result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
         return result;
     }
