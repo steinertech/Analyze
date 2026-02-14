@@ -217,7 +217,7 @@ public class GridExcel2(CommandContext context, Storage storage, GridExcel2Cache
         return result;
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         var result = new List<Dynamic>();
         var sheet = await Sheet(request, configEnum);

@@ -17,7 +17,7 @@
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         await context.UserAuthAsync();
         var list = await storage.SelectAsync<GridSchemaTableDto>();
@@ -67,7 +67,7 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         await context.UserAuthAsync();
         var fieldList = await storage.SelectAsync<GridSchemaFieldDto>();
@@ -108,33 +108,43 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         return result;
     }
 
-    protected override async Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
+    private async Task<List<GridSchemaFieldDto>> SchemaFieldList(string tableName)
     {
-        await context.UserAuthAsync();
-        var result = new GridConfig()
-        {
-            IsAllowNew = true,
-            IsAllowDelete = true,
-        };
-        var tableName = TableName(request, configEnum);
-        var fieldList = await storage.SelectAsync<GridSchemaFieldDto>();
-        fieldList = fieldList.Where(item => item.TableName == tableName).OrderBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
-        var columnList = new List<GridColumn>();
+        var result = await storage.SelectAsync<GridSchemaFieldDto>();
+        result = result.Where(item => item.TableName == tableName).OrderBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
+        return result;
+    }
+
+    private GridConfig Config(List<GridSchemaFieldDto> fieldList)
+    {
+        var result = new GridConfig();
+        var resultColumnList = new List<GridColumn>();
         foreach (var item in fieldList)
         {
             if (item.FieldName != null)
             {
                 bool isRef = item.Ref != null;
-                columnList.Add(new GridColumn { FieldName = item.FieldName, ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsAutocomplete = isRef });
+                resultColumnList.Add(new GridColumn { FieldName = item.FieldName, ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsAutocomplete = isRef });
             }
         }
-        result.ColumnList = columnList;
+        result.ColumnList = resultColumnList;
         // RowKey
         var field = fieldList.OrderBy(item => item.FieldName).FirstOrDefault(item => item.IsRowKey == true);
         if (field?.FieldName != null)
         {
             result.FieldNameRowKey = field.FieldName;
         }
+        return result;
+    }
+
+    protected override async Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
+    {
+        await context.UserAuthAsync();
+        var tableName = TableName(request, configEnum);
+        var columnList = await SchemaFieldList(tableName!);
+        var result = Config(columnList);
+        result.IsAllowNew = true;
+        result.IsAllowDelete = true;
         // Calc
         var fieldNameRowKey = result.FieldNameRowKey;
         if (fieldNameRowKey != null)
@@ -158,16 +168,18 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         base.GridRender2(request, dataRowList, config, modalName);
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         var result = await storageDynamic.SelectAsync<GridSchemaDataDto>(); // Load all data
         var tableName = TableName(request, configEnum);
         if (configEnum == GridConfigEnum.GridAutocomplete)
         {
-            var fieldList = await storage.SelectAsync<GridSchemaFieldDto>();
-            var field = fieldList.Where(item => item.TableName == tableName && item.FieldName == fieldNameDistinct).Single();
-            tableName = field.Ref; // TableName ref
-            fieldNameDistinct = fieldList.Where(item => item.TableName == tableName && item.IsRowKey == true).Single().FieldName; // TableName ref RowKey
+            var columnList = await SchemaFieldList(tableName!);
+            tableName = columnList.Where(item => item.FieldName == fieldNameDistinct).Single().Ref;
+            columnList = await SchemaFieldList(tableName!);
+            config = Config(columnList);
+            autocomplete!.FieldName = config.FieldNameRowKey!;
+            fieldNameDistinct = config.FieldNameRowKey;
         }
         result = result.Where(item => object.Equals(item["TableName"], tableName)).ToList(); // Filter by TableName
         result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
@@ -185,7 +197,7 @@ public class GridSchemaTableDto : TableEntityDto
     public string? TableName { get; set; }
 }
 
-public class GridSchemaFieldDto : TableEntityDto
+public class GridSchemaFieldDto : TableEntityDto // TODO Rename to GridSchemaColumnDto. Delete Db!
 {
     public string? TableName { get; set; }
 
