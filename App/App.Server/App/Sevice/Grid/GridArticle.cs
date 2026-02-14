@@ -92,12 +92,12 @@ public class GridArticle2 : GridBase
         return result;
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, GridConfigEnum configEnum, string? modalName, GridLoadArg arg)
     {
         // Load
         var dataRowList = this.dataRowList;
         // Apply (filter, sort and pagination)
-        var result = await UtilGrid.GridLoad2(request, dataRowList, fieldNameDistinct, config, configEnum);
+        var result = await UtilGrid.GridLoad2(request, dataRowList, arg.FieldNameDistinct, arg.Config, configEnum);
         return result;
     }
 }

@@ -122,10 +122,10 @@ public class GridMemory : GridBase
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, GridConfigEnum configEnum, string? modalName, GridLoadArg arg)
     {
         var result = ProductListGet();
-        result = await UtilGrid.GridLoad2(request, result, null, config, configEnum);
+        result = await UtilGrid.GridLoad2(request, result, null, arg.Config, configEnum);
         return result;
     }
 
