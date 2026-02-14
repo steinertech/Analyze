@@ -161,24 +161,11 @@ public static class UtilGrid
         if (fieldNameDistinct != null)
         {
             config.ColumnGet(fieldNameDistinct); // Check
-            var isDisplay = dataRowList.Any(item => item.TryGetValue(fieldNameDistinct, out _));
-            if (isDisplay == false)
-            {
-                query = query
-                    .Select(item => item.GetValueOrDefault(fieldNameDistinct)) // item[fieldName], GetValueOrDefault if key does not exist
-                    .Distinct()
-                    .OrderBy(item => item)
-                    .Select(item => new Dynamic { { fieldNameDistinct, item } });
-            }
-            else
-            {
-                // Preserve display column
-                query = query
-                    .Select(item => new { Value = item.GetValueOrDefault(fieldNameDistinct), ValueDisplay = item.GetValueOrDefault(fieldNameDistinct + "Display") }) // item[fieldName], GetValueOrDefault if key does not exist
-                    .DistinctBy(item => item.ValueDisplay)
-                    .OrderBy(item => item.ValueDisplay)
-                    .Select(item => new Dynamic { { fieldNameDistinct, item.Value }, { fieldNameDistinct + "Display", item.ValueDisplay } });
-            }
+            query = query
+                .Select(item => item.GetValueOrDefault(fieldNameDistinct)) // item[fieldName], GetValueOrDefault if key does not exist
+                .Distinct()
+                .OrderBy(item => item)
+                .Select(item => new Dynamic { { fieldNameDistinct, item } });
         }
         // Pagination (PageCount)
         var rowCount = await query.CountAsync();
@@ -973,10 +960,6 @@ public static class UtilGrid
                 if (dataRow.TryGetValue(column.FieldName, out var value))
                 {
                     text = value?.ToString();
-                    if (dataRow.TryGetValue(column.FieldName + "Display", out var valueDisplay))
-                    {
-                        text = valueDisplay?.ToString();
-                    }
                 }
                 var cellEnum = column.IsDropdown ? GridCellEnum.FieldDropdown : column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
                 var iconRight = dataRow.IconGet(column.FieldName);
@@ -1194,12 +1177,7 @@ public static class UtilGrid
         {
             grid.AddRow();
             var text = dataRow.GetValueOrDefault(fieldName)?.ToString(); // dataRow[fieldName], GetValueOrDefault if key does not exist
-            var textDisplay = text;
-            if (dataRow.TryGetValue(fieldName + "Display", out var valueDisplay))
-            {
-                textDisplay = valueDisplay?.ToString();
-            }
-            grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = textDisplay, DataRowIndex = dataRowIndex }, rowKey: text);
+            grid.AddCell(new() { CellEnum = GridCellEnum.Field, Text = text, DataRowIndex = dataRowIndex }, rowKey: text);
             dataRowIndex += 1;
         }
         // Render Pagination
