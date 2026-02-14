@@ -218,7 +218,7 @@
         return result;
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, GridConfigEnum configEnum, string? modalName, GridLoadArg arg)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
     {
         await context.UserAuthAsync();
         // Breadcrumb add Home
@@ -263,7 +263,7 @@
                 }
             }
         });
-        result = await UtilGrid.GridLoad2(request, result, arg.FieldNameDistinct, arg.Config, configEnum);
+        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
         // Add parent directory entry
         var pathParent = path?.TrimEnd('/').Substring(0, path.TrimEnd('/').LastIndexOf("/") + 1); // Returns null for none and empty for root.
         if (pathParent != null)

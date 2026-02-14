@@ -217,14 +217,14 @@ public class GridExcel2(CommandContext context, Storage storage, GridExcel2Cache
         return result;
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, GridConfigEnum configEnum, string? modalName, GridLoadArg arg)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName)
     {
         var result = new List<Dynamic>();
         var sheet = await Sheet(request, configEnum);
         if (sheet != null)
         {
             result = sheet.Select(item => item.Value).ToList();
-            result = await UtilGrid.GridLoad2(request, result, arg.FieldNameDistinct, arg.Config, configEnum);
+            result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
         }
         return result;
     }
