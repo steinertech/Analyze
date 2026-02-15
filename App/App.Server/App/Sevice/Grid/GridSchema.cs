@@ -72,17 +72,17 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         await context.UserAuthAsync();
-        var fieldList = await storage.SelectAsync<GridSchemaFieldDto>();
+        var columnList = await storage.SelectAsync<GridSchemaFieldDto>();
         if (configEnum == GridConfigEnum.GridAutocomplete)
         {
-            var tableNameList = fieldList.Select(item => item.TableName).Distinct().ToList();
+            var tableNameList = columnList.Select(item => item.TableName).Distinct().ToList();
             var result = tableNameList.Select(item => { var result = new Dynamic(); result[fieldNameDistinct!] = item; return result; }).ToList();
             result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, GridConfigEnum.GridAutocomplete);
             return result;
         }
         else
         {
-            var result = UtilGridReflection.DynamicFrom(fieldList);
+            var result = UtilGridReflection.DynamicFrom(columnList);
             result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
             var dropDownList = Enum.GetValues<GridColumnEnum>().Select(item => item.ToString() ?? null).ToList();
             result.ForEach(item => item.DropdownListSet("FieldType", dropDownList));
@@ -110,18 +110,18 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         return result;
     }
 
-    private async Task<List<GridSchemaFieldDto>> SchemaFieldList(string tableName)
+    private async Task<List<GridSchemaFieldDto>> SchemaColumnList(string tableName)
     {
         var result = await storage.SelectAsync<GridSchemaFieldDto>();
         result = result.Where(item => item.TableName == tableName).OrderBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
         return result;
     }
 
-    private GridConfig Config(List<GridSchemaFieldDto> fieldList)
+    private GridConfig Config(List<GridSchemaFieldDto> columnList)
     {
         var result = new GridConfig();
         var resultColumnList = new List<GridColumn>();
-        foreach (var item in fieldList)
+        foreach (var item in columnList)
         {
             if (item.FieldName != null)
             {
@@ -131,7 +131,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         }
         result.ColumnList = resultColumnList;
         // RowKey
-        var field = fieldList.OrderBy(item => item.FieldName).FirstOrDefault(item => item.IsRowKey == true);
+        var field = columnList.OrderBy(item => item.FieldName).FirstOrDefault(item => item.IsRowKey == true);
         if (field?.FieldName != null)
         {
             result.FieldNameRowKey = field.FieldName;
@@ -143,7 +143,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
     {
         await context.UserAuthAsync();
         var tableName = TableName(request, configEnum);
-        var columnList = await SchemaFieldList(tableName!);
+        var columnList = await SchemaColumnList(tableName!);
         var result = Config(columnList);
         result.IsAllowNew = true;
         result.IsAllowDelete = true;
@@ -174,11 +174,11 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
     {
         var resultAll = await storageDynamic.SelectAsync<GridSchemaDataDto>(); // Load all data
         var tableName = TableName(request, configEnum);
-        var columnList = await SchemaFieldList(tableName!);
+        var columnList = await SchemaColumnList(tableName!);
         if (configEnum == GridConfigEnum.GridAutocomplete)
         {
             tableName = columnList.Where(item => item.FieldName == fieldNameDistinct).Single().Ref;
-            var columnListRef = await SchemaFieldList(tableName!);
+            var columnListRef = await SchemaColumnList(tableName!);
             config = Config(columnListRef);
             autocomplete!.FieldName = config.FieldNameRowKey!;
             fieldNameDistinct = config.FieldNameRowKey;
@@ -190,7 +190,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
             {
                 var tableNameRef = column.Ref;
                 var resultRef = resultAll.Where(item => object.Equals(item["TableName"], tableNameRef)).ToList();
-                var columnListRef = await SchemaFieldList(tableNameRef);
+                var columnListRef = await SchemaColumnList(tableNameRef);
                 var fieldNameRowKey = columnListRef.OrderBy(item => item.FieldName).First(item => item.IsRowKey == true).FieldName;
                 foreach (var item in result)
                 {
@@ -215,7 +215,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
     protected override async Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
     {
         var tableName = TableName(request, GridConfigEnum.Grid);
-        var columnList = await SchemaFieldList(tableName!);
+        var columnList = await SchemaColumnList(tableName!);
         foreach (var column in columnList)
         {
             var fieldName = column.FieldName;
