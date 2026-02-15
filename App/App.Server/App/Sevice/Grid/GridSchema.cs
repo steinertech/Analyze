@@ -47,6 +47,8 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
                 new() { FieldName = "FieldType", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsDropdown = true },
                 new() { FieldName = "IsRowKey", ColumnEnum = GridColumnEnum.Bool, IsAllowModify = true },
                 new() { FieldName = "Ref", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsAutocomplete = true },
+                new() { FieldName = "RefDisplay1", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
+                new() { FieldName = "RefDisplay2", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "Sort", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
             ],
             IsAllowNew = true,
@@ -170,24 +172,64 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
 
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
-        var result = await storageDynamic.SelectAsync<GridSchemaDataDto>(); // Load all data
+        var resultAll = await storageDynamic.SelectAsync<GridSchemaDataDto>(); // Load all data
         var tableName = TableName(request, configEnum);
+        var columnList = await SchemaFieldList(tableName!);
         if (configEnum == GridConfigEnum.GridAutocomplete)
         {
-            var columnList = await SchemaFieldList(tableName!);
             tableName = columnList.Where(item => item.FieldName == fieldNameDistinct).Single().Ref;
-            columnList = await SchemaFieldList(tableName!);
-            config = Config(columnList);
+            var columnListRef = await SchemaFieldList(tableName!);
+            config = Config(columnListRef);
             autocomplete!.FieldName = config.FieldNameRowKey!;
             fieldNameDistinct = config.FieldNameRowKey;
         }
-        result = result.Where(item => object.Equals(item["TableName"], tableName)).ToList(); // Filter by TableName
+        var result = resultAll.Where(item => object.Equals(item["TableName"], tableName)).ToList(); // Filter by TableName
+        foreach (var column in columnList)
+        {
+            if (!string.IsNullOrEmpty(column.Ref))
+            {
+                var tableNameRef = column.Ref;
+                var resultRef = resultAll.Where(item => object.Equals(item["TableName"], tableNameRef)).ToList();
+                var columnListRef = await SchemaFieldList(tableNameRef);
+                var fieldNameRowKey = columnListRef.OrderBy(item => item.FieldName).First(item => item.IsRowKey == true).FieldName;
+                foreach (var item in result)
+                {
+                    var fieldName = column.FieldName;
+                    if (configEnum == GridConfigEnum.GridAutocomplete)
+                    {
+                        fieldName = fieldNameRowKey;
+                    }
+                    if (item.TryGetValue(fieldName!, out var value))
+                    {
+                        var dataRowRef = resultRef.SingleOrDefault(item => object.Equals(value, item!.GetValueOrDefault(fieldNameRowKey)));
+                        var display = value?.ToString() + " - " + (dataRowRef != null ? dataRowRef!.GetValueOrDefault(column.RefDisplay1 ?? "")?.ToString() : null) + " " + (dataRowRef != null ? dataRowRef!.GetValueOrDefault(column.RefDisplay2 ?? "")?.ToString() : null);
+                        item[fieldName!] = display;
+                    }
+                }
+            }
+        }
         result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
         return result;
     }
 
     protected override async Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
     {
+        var tableName = TableName(request, GridConfigEnum.Grid);
+        var columnList = await SchemaFieldList(tableName!);
+        foreach (var column in columnList)
+        {
+            var fieldName = column.FieldName;
+            if (!string.IsNullOrEmpty(column.Ref))
+            {
+                foreach (var item in sourceList)
+                {
+                    item.ValueModifiedGet(fieldName!, out var value, out var valueOriginal);
+                    value = value?.ToString()?.Split(" ")[0];
+                    valueOriginal = valueOriginal?.ToString()?.Split(" - ")[0];
+                    item.ValueModifiedSet(fieldName!, valueOriginal, value);
+                }
+            }
+        }
         await storageDynamic.UpsertAsync<GridSchemaDataDto>(sourceList, config);
     }
 }
@@ -212,7 +254,11 @@ public class GridSchemaFieldDto : TableEntityDto // TODO Rename to GridSchemaCol
     /// </summary>
     public int? Sort { get; set; }
 
-    public string? Ref { get; set; }
+    public string? Ref { get; set; } // TODO Rename to RefTableName
+
+    public string? RefDisplay1 { get; set; }
+    
+    public string? RefDisplay2 { get; set; }
 }
 
 public class GridSchemaDataDto : TableEntityDto

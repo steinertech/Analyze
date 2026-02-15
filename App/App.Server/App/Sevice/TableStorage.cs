@@ -87,9 +87,10 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
                         ArgumentNullException.ThrowIfNull(dest);
                         foreach (var (fieldName, value) in source)
                         {
-                            if (source.ValueModifiedGet(fieldName, out _, out var valueOriginal))
+                            if (source.ValueModifiedGet(fieldName, out _, out var valueOriginalSource))
                             {
-                                if (dest.ContainsKey(fieldName) && !object.Equals(valueOriginal, dest[fieldName]))
+                                var valueOriginalDest = dest.GetValueOrDefault(fieldName);
+                                if (dest.ContainsKey(fieldName) && !object.Equals(valueOriginalSource, valueOriginalDest))
                                 {
                                     throw new Exception("Value modified by someone else. Reload an try again.");
                                 }
