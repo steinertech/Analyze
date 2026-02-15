@@ -597,7 +597,7 @@ public enum GridRequest2GridEnum
     /// <summary>
     /// Request sent by edit grid. See also method RenderForm.
     /// </summary>
-    LookupEdit = 5,
+    LookupEdit = 5, // TODO Rename to LookupEditForm
 
     /// <summary>
     /// Request sent by sub grid. See also enum GridControlEnum.ButtonModal
@@ -745,8 +745,8 @@ public class GridRequest2Dto
     [JsonIgnore]
     public GridControlDto? ParentControl => ListGet(1 + offset)?.Control;
 
-    // [JsonIgnore]
-    // public GridDto? GreatParentGrid => List[2].Grid; // Request does not send GreatParent data grid
+    [JsonIgnore]
+    public GridDto? GreatParentGrid => List[2].Grid;
 
     [JsonIgnore]
     public GridDto? LookupGrid => ListGet(-1 + offset)?.Grid;

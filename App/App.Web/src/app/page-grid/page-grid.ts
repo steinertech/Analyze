@@ -54,31 +54,22 @@ export class PageGrid implements AfterViewInit {
 
   static async commandGridLoad2(pageGrid: PageGrid, cell?: GridCellDto, control?: GridControlDto) {
     const grid = pageGrid._grid!
-    const parentCell = pageGrid.parent?._lookup?.cell
-    const parentControl = pageGrid.parent?._lookup?.control
-    const parentGrid = pageGrid.parent?._grid
-    const grandParentCell = pageGrid.parent?.parent?._lookup?.cell
-    const grandParentControl = pageGrid.parent?.parent?._lookup?.control
-    const grandParentGrid = pageGrid.parent?.parent?._grid
-    //
-    const gridClone = grid ? { ...grid } : undefined
-    delete gridClone?.rowCellList
-    const cellClone = cell ? { ...cell } : undefined
-    delete cellClone?.controlList
-    const parentGridClone = parentGrid ? { ...parentGrid } : undefined
-    delete parentGridClone?.rowCellList
-    const parentCellClone = parentCell ? { ...parentCell } : undefined
-    delete parentCellClone?.controlList
-    const grandParentCellClone = grandParentCell ? { ...grandParentCell } : undefined
-    delete grandParentCellClone?.controlList
-    //
-    const request: GridRequest2Dto = {
-      list: [
-        { grid: gridClone, cell: cellClone, control: control },
-        { grid: parentGridClone, cell: parentCellClone, control: parentControl },
-        { /* grid: grandParentGrid, */ cell: grandParentCellClone, control: grandParentControl }, // Request for GrandParent grid is not sent
-      ]
-    }
+    // PageGrid.Parent loop
+    const request: GridRequest2Dto = { list: [] }
+    let pageGridLocal: PageGrid | undefined = pageGrid
+    let cellLocal = cell
+    let controlLocal = control
+    do {
+      const gridClone = pageGridLocal?._grid ? { ...pageGridLocal._grid } : undefined
+      delete gridClone?.rowCellList
+      const cellClone = cellLocal ? { ...cellLocal } : undefined
+      delete cellClone?.controlList
+      request.list.push({ grid: gridClone, cell: cellClone, control: controlLocal })
+      pageGridLocal = pageGridLocal?.parent
+      cellLocal = pageGridLocal?._lookup?.cell
+      controlLocal = pageGridLocal?._lookup?.control
+    } while (pageGridLocal != null)
+    // Post
     const response = await pageGrid.serverApi.commandGridLoad2(request)
     if (response.list?.[0] != null) {
       // Load Patch

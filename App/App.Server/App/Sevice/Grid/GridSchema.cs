@@ -106,7 +106,12 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
 {
     private string? TableName(GridRequest2Dto request, GridConfigEnum configEnum)
     {
-        var result = configEnum == GridConfigEnum.Grid ? request.Grid.StateGet().RowKeyMasterList?["SchemaTable"] : request.ParentGrid?.StateGet().RowKeyMasterList?["SchemaTable"];
+        string? result = null;
+        do
+        {
+            result = request.Grid.StateGet().RowKeyMasterList?.GetValueOrDefault("SchemaTable");
+            request = request.Parent2();
+        } while (result == null);
         return result;
     }
 
@@ -147,6 +152,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         var result = Config(columnList);
         result.IsAllowNew = true;
         result.IsAllowDelete = true;
+        result.IsAllowEditForm = true;
         // Calc
         var fieldNameRowKey = result.FieldNameRowKey;
         if (fieldNameRowKey != null)
