@@ -115,7 +115,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         return result;
     }
 
-    private async Task<List<GridSchemaFieldDto>> SchemaColumnList(string tableName)
+    private async Task<List<GridSchemaFieldDto>> SchemaColumnList(string tableName) // TODO Performance multiple calls.
     {
         var result = await storage.SelectAsync<GridSchemaFieldDto>();
         result = result.Where(item => item.TableName == tableName).OrderBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
@@ -130,7 +130,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         {
             if (item.FieldName != null)
             {
-                bool isRef = item.Ref != null;
+                bool isRef = !string.IsNullOrEmpty(item.Ref);
                 resultColumnList.Add(new GridColumn { FieldName = item.FieldName, ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsAutocomplete = isRef });
             }
         }
@@ -229,10 +229,12 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
             {
                 foreach (var item in sourceList)
                 {
-                    item.ValueModifiedGet(fieldName!, out var value, out var valueOriginal);
-                    value = value?.ToString()?.Split(" ")[0];
-                    valueOriginal = valueOriginal?.ToString()?.Split(" - ")[0];
-                    item.ValueModifiedSet(fieldName!, valueOriginal, value);
+                    if (item.ValueModifiedGet(fieldName!, out var value, out var valueOriginal))
+                    {
+                        value = value?.ToString()?.Split(" ")[0];
+                        valueOriginal = valueOriginal?.ToString()?.Split(" - ")[0];
+                        item.ValueModifiedSet(fieldName!, valueOriginal, value);
+                    }
                 }
             }
         }

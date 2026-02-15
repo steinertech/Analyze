@@ -746,7 +746,7 @@ public class GridRequest2Dto
     public GridControlDto? ParentControl => ListGet(1 + offset)?.Control;
 
     [JsonIgnore]
-    public GridDto? GreatParentGrid => List[2].Grid;
+    public GridDto? GreatParentGrid => ListGet(2 + offset)?.Grid;
 
     [JsonIgnore]
     public GridDto? LookupGrid => ListGet(-1 + offset)?.Grid;

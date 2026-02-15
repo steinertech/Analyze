@@ -736,23 +736,27 @@ public static class UtilGrid
         var dataRowIndex = 0;
         foreach (var dataRow in dataRowList)
         {
-            foreach (var column in columnList)
+            var rowKey = columnRowKey != null ? dataRow[columnRowKey.FieldName]?.ToString() : null;
+            var rowKeyParent = request?.ParentGrid?.State?.RowKeyList?[request?.ParentCell?.DataRowIndex ?? -1];
+            if (rowKey == rowKeyParent)
             {
-                grid.AddRow();
-                grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = column.FieldName });
-                grid.AddRow();
-                var text = dataRow[column.FieldName]?.ToString();
-                var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
-                if (columnRowKey == null)
+                foreach (var column in columnList)
                 {
-                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                    grid.AddRow();
+                    grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = column.FieldName });
+                    grid.AddRow();
+                    var text = dataRow[column.FieldName]?.ToString();
+                    var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                    if (columnRowKey == null)
+                    {
+                        grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                    }
+                    else
+                    {
+                        grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
+                    }
+                    dataRowIndex += 1;
                 }
-                else
-                {
-                    var rowKey = dataRow[columnRowKey.FieldName]?.ToString();
-                    grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
-                }
-                dataRowIndex += 1;
             }
         }
         // Render Save
