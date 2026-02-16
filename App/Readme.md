@@ -48,7 +48,22 @@ Start DevContainer Codespace
 * https://www.browserling.com
 * https://github.com/mui/mui-x
 
-# Code
+# App.Cli
+Migration
 ```
-// TODO
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'VersionDb')
+BEGIN
+  CREATE TABLE VersionDb (
+	Id INT IDENTITY(1, 1) PRIMARY KEY,
+	Version NVARCHAR(16) NOT NULL
+  );
+  ALTER TABLE VersionDb ADD CONSTRAINT Single CHECK (Id = 1)
+  INSERT INTO VersionDb (Version) VALUES ('1.0')
+END;
+
+IF (SELECT Version FROM VersionDb) = '1.0'
+BEGIN
+  SELECT 'Hello World' AS Text
+  UPDATE VersionDb SET Version = '1.1'
+END
 ```

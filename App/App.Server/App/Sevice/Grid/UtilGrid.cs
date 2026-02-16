@@ -740,22 +740,43 @@ public static class UtilGrid
             var rowKeyParent = request?.ParentGrid?.State?.RowKeyList?[request?.ParentCell?.DataRowIndex ?? -1];
             if (rowKey == rowKeyParent)
             {
-                foreach (var column in columnList)
+                columnList = columnList.OrderBy(item => item.SortRow).ThenBy(item => item.SortColumn).ThenBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
+                var sortRowMax = columnList.Max(item => item.SortRow) ?? 0;
+                var sortRowNullInc = (int? sortRow) => // Append columns without SortRow
                 {
-                    grid.AddRow();
-                    grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = column.FieldName });
-                    grid.AddRow();
-                    var text = dataRow[column.FieldName]?.ToString();
-                    var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
-                    if (columnRowKey == null)
+                    if (sortRow == null)
                     {
-                        grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                        sortRowMax += 1;
+                        return sortRowMax;
                     }
-                    else
+                    return sortRow;
+                };
+                var columnGroupList = columnList.GroupBy(item => sortRowNullInc(item.SortRow)).OrderBy(item => item.Key).ToList();
+                foreach (var row in columnGroupList)
+                {
+                    var sortRow = row.Key;
+                    grid.AddRow();
+                    var rowColumnList = row; // row.OrderBy(item => item.SortColumn).ThenBy(item => item.Sort).ThenBy(item => item.FieldName);
+                    foreach (var column in rowColumnList)
                     {
-                        grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
+                        grid.AddCellControl();
+                        grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = column.FieldName });
                     }
-                    dataRowIndex += 1;
+                    grid.AddRow();
+                    foreach (var column in rowColumnList)
+                    {
+                        var text = dataRow[column.FieldName]?.ToString();
+                        var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                        if (columnRowKey == null)
+                        {
+                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                        }
+                        else
+                        {
+                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
+                        }
+                        dataRowIndex += 1;
+                    }
                 }
             }
         }

@@ -1128,6 +1128,9 @@ public class GridDto
         return result;
     }
 
+    /// <summary>
+    /// Add empty cell to add controls.
+    /// </summary>
     public GridCellDto AddCellControl(int? colSpan = null)
     {
         RowCellList = RowCellList ?? new();
@@ -1862,7 +1865,7 @@ public class GridConfig
     public object? ConvertFrom(string fieldName, string? value)
     {
         var columnEnum = ColumnGet(fieldName).ColumnEnum;
-        if (value == null)
+        if (string.IsNullOrEmpty(value))
         {
             return null;
         }
@@ -1919,7 +1922,7 @@ public enum GridConfigEnum // TODO Rename to GridEnum
     GridAutocomplete = 4,
 }
 
-public class GridColumn
+public class GridColumn // TODO Rename to GridConfigColumn
 {
     public string FieldName { get; set; } = default!;
 
@@ -1934,6 +1937,16 @@ public class GridColumn
     /// Gets or sets Sort. This is the column order.
     /// </summary>
     public int? Sort { get; set; }
+
+    /// <summary>
+    /// Gets or sets SortRow. This is the row order on a form.
+    /// </summary>
+    public int? SortRow { get; set; }
+
+    /// <summary>
+    /// Gets or sets SortColumn. This is the column order on a form.
+    /// </summary>
+    public int? SortColumn { get; set; }
 
     public bool IsAllowModify { get; set; }
 

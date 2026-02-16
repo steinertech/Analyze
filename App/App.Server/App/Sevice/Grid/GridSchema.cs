@@ -50,6 +50,8 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
                 new() { FieldName = "RefDisplay1", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "RefDisplay2", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "Sort", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
+                new() { FieldName = "SortRow", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
+                new() { FieldName = "SortColumn", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
             ],
             IsAllowNew = true,
             IsAllowDelete = true,
@@ -131,7 +133,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
             if (item.FieldName != null)
             {
                 bool isRef = !string.IsNullOrEmpty(item.Ref);
-                resultColumnList.Add(new GridColumn { FieldName = item.FieldName, ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsAutocomplete = isRef });
+                resultColumnList.Add(new GridColumn { FieldName = item.FieldName, ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsAutocomplete = isRef, Sort = item.Sort, SortRow = item.SortRow, SortColumn = item.SortColumn });
             }
         }
         result.ColumnList = resultColumnList;
@@ -261,6 +263,10 @@ public class GridSchemaFieldDto : TableEntityDto // TODO Rename to GridSchemaCol
     /// Gets or sets Sort. This is the column order.
     /// </summary>
     public int? Sort { get; set; }
+
+    public int? SortRow { get; set; }
+
+    public int? SortColumn { get; set; }
 
     public string? Ref { get; set; } // TODO Rename to RefTableName
 
