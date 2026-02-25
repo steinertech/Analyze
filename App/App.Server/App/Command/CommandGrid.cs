@@ -1131,14 +1131,14 @@ public class GridDto
     /// <summary>
     /// Add empty cell to add controls.
     /// </summary>
-    public GridCellDto AddCellControl(int? colSpan = null)
+    public GridCellDto AddCellControl(int? colSpan = null, int? rowSpan = null)
     {
         RowCellList = RowCellList ?? new();
         if (RowCellList.LastOrDefault() == null)
         {
             RowCellList.Add(new());
         }
-        var cell = new GridCellDto() { CellEnum = GridCellEnum.Control, ColSpan = colSpan };
+        var cell = new GridCellDto() { CellEnum = GridCellEnum.Control, ColSpan = colSpan, RowSpan = rowSpan };
         RowCellList.Last().Add(cell);
         return cell;
     }
@@ -1947,6 +1947,10 @@ public class GridColumn // TODO Rename to GridConfigColumn
     /// Gets or sets SortColumn. This is the column order on a form.
     /// </summary>
     public int? SortColumn { get; set; }
+
+    public int? ColSpan { get; set; }
+
+    public int? RowSpan { get; set; }
 
     public bool IsAllowModify { get; set; }
 

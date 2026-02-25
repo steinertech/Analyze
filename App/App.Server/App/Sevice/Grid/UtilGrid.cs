@@ -759,7 +759,9 @@ public static class UtilGrid
                     var rowColumnList = row; // row.OrderBy(item => item.SortColumn).ThenBy(item => item.Sort).ThenBy(item => item.FieldName);
                     foreach (var column in rowColumnList)
                     {
-                        grid.AddCellControl();
+                        // Label
+                        var labelColSpan = column.ColSpan;
+                        grid.AddCellControl(colSpan: labelColSpan); // No RowSpan for Label
                         grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = column.FieldName });
                     }
                     grid.AddRow();
@@ -767,13 +769,16 @@ public static class UtilGrid
                     {
                         var text = dataRow[column.FieldName]?.ToString();
                         var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                        // Field
+                        var fieldColSpan = column.ColSpan;
+                        var fieldRowSpan = column.RowSpan * 2 - 1;
                         if (columnRowKey == null)
                         {
-                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex });
+                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, ColSpan = fieldColSpan, RowSpan = fieldRowSpan });
                         }
                         else
                         {
-                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null }, rowKey);
+                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null, ColSpan = fieldColSpan, RowSpan = fieldRowSpan }, rowKey);
                         }
                         dataRowIndex += 1;
                     }

@@ -52,6 +52,8 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
                 new() { FieldName = "Sort", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
                 new() { FieldName = "SortRow", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
                 new() { FieldName = "SortColumn", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
+                new() { FieldName = "ColSpan", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
+                new() { FieldName = "RowSpan", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
             ],
             IsAllowNew = true,
             IsAllowDelete = true,
@@ -133,7 +135,19 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
             if (item.FieldName != null)
             {
                 bool isRef = !string.IsNullOrEmpty(item.Ref);
-                resultColumnList.Add(new GridColumn { FieldName = item.FieldName, ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, IsAutocomplete = isRef, Sort = item.Sort, SortRow = item.SortRow, SortColumn = item.SortColumn });
+                var gridColumn = new GridColumn()
+                {
+                    FieldName = item.FieldName,
+                    ColumnEnum = GridColumnEnum.Text,
+                    IsAllowModify = true,
+                    IsAutocomplete = isRef,
+                    Sort = item.Sort,
+                    SortRow = item.SortRow,
+                    SortColumn = item.SortColumn,
+                    ColSpan = item.ColSpan,
+                    RowSpan = item.RowSpan,
+                };
+                resultColumnList.Add(gridColumn);
             }
         }
         result.ColumnList = resultColumnList;
@@ -267,6 +281,10 @@ public class GridSchemaFieldDto : TableEntityDto // TODO Rename to GridSchemaCol
     public int? SortRow { get; set; }
 
     public int? SortColumn { get; set; }
+
+    public int? ColSpan { get; set; }
+
+    public int? RowSpan { get; set; }
 
     public string? Ref { get; set; } // TODO Rename to RefTableName
 
