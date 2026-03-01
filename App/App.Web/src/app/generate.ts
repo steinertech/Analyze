@@ -172,6 +172,7 @@ export enum GridControlEnum {
   ButtonModalCustom = 13,
   Pagination = 14,
   Breadcrumb = 15,
+  Title = 16
 }
 
 export enum GridFileEnum {

@@ -136,6 +136,10 @@
       @case (GridControlEnum.Label) {
       {{control.text}}
       }
+      <!-- Title -->
+      @case (GridControlEnum.Title) {
+      <span class="frm-title">{{control.text}}</span>
+      }
       <!-- Field Custom -->
       @case (GridControlEnum.FieldCustom) {
       <input [ngModel]="cellTextGetControl(cell, control)" (ngModelChange)="cellTextSetControl(cell, control, $event)">

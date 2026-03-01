@@ -261,9 +261,10 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
         grid.RowCellList.Last().Add(new GridCellDto
         {
             CellEnum = GridCellEnum.Control,
-            ControlList = [
-            new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll, Text = "false" },
-            new() { ControlEnum = GridControlEnum.Label, Text = "(Select All)" },
+            ControlList = 
+            [
+                new() { ControlEnum = GridControlEnum.CheckboxSelectMultiAll, Text = "false" },
+                new() { ControlEnum = GridControlEnum.Label, Text = "(Select All)" },
             ]
         });
         // State
@@ -295,9 +296,11 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
         grid.RowCellList.Last().Add(new GridCellDto
         {
             CellEnum = GridCellEnum.Control,
-            ControlList = [
-            new() { ControlEnum = GridControlEnum.ButtonLookupCancel },
-            new() { ControlEnum = GridControlEnum.ButtonLookupOk },
+            ControlList = 
+            [
+
+                new() { ControlEnum = GridControlEnum.ButtonLookupCancel },
+                new() { ControlEnum = GridControlEnum.ButtonLookupOk },
             ]
         });
     }
@@ -1120,18 +1123,25 @@ public class GridDto
         return RowCellList;
     }
 
-    public List<GridCellDto> AddRow()
+    public List<GridCellDto> AddRow(int? rowIndex = null)
     {
         RowCellList = RowCellList ?? new();
         var result = new List<GridCellDto>();
-        RowCellList.Add(result);
+        if (rowIndex == null)
+        {
+            RowCellList.Add(result);
+        }
+        else
+        {
+            RowCellList.Insert(rowIndex.Value, result);
+        }
         return result;
     }
 
     /// <summary>
     /// Add empty cell to add controls.
     /// </summary>
-    public GridCellDto AddCellControl(int? colSpan = null, int? rowSpan = null)
+    public GridCellDto AddCellControl(int? colSpan = null, int? rowSpan = null, int? rowIndex = null)
     {
         RowCellList = RowCellList ?? new();
         if (RowCellList.LastOrDefault() == null)
@@ -1139,7 +1149,8 @@ public class GridDto
             RowCellList.Add(new());
         }
         var cell = new GridCellDto() { CellEnum = GridCellEnum.Control, ColSpan = colSpan, RowSpan = rowSpan };
-        RowCellList.Last().Add(cell);
+        var row = rowIndex == null ? RowCellList.Last() : RowCellList[rowIndex.Value];
+        row.Add(cell);
         return cell;
     }
 
@@ -1690,6 +1701,11 @@ public enum GridControlEnum
     /// Breadcrumb navigation. See also PathList.
     /// </summary>
     Breadcrumb = 15,
+
+    /// <summary>
+    /// Title for example to group fields.
+    /// </summary>
+    Title = 16,
 }
 
 public enum GridFileEnum

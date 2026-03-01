@@ -646,14 +646,14 @@ public class GridButtonCustom
 
 public static class GridExtension
 {
-    public static GridControlDto AddControl(this GridDto grid, GridControlDto control, int? dataRowIndex = null)
+    public static GridControlDto AddControl(this GridDto grid, GridControlDto control, int? dataRowIndex = null, int? rowIndex = null)
     {
         grid.RowCellList = grid.RowCellList ?? new();
         if (grid.RowCellList.LastOrDefault() == null)
         {
             grid.RowCellList.Add(new());
         }
-        var row = grid.RowCellList.Last();
+        var row = rowIndex == null ? grid.RowCellList.Last() : grid.RowCellList[rowIndex.Value];
         row.AddControl(control, dataRowIndex);
         return control;
     }

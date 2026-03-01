@@ -190,6 +190,12 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         var tableName = request.Grid.StateGet().RowKeyMasterList?["SchemaTable"];
         request.Grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = tableName });
         base.GridRender2(request, dataRowList, config, modalName);
+        if (modalName == "Edit")
+        {
+            request.Grid.AddRow(rowIndex: 0);
+            request.Grid.AddCellControl(colSpan: 2, rowIndex: 0);
+            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.Title, Text = "MyTitle" }, rowIndex: 0);
+        }
     }
 
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
