@@ -11,7 +11,7 @@ using System.Text.Json.Serialization.Metadata;
 
 internal static class UtilServer
 {
-    public static string VersionServer => "1.0.20";
+    public static string VersionServer => "1.0.21";
 
     /// <summary>
     /// App start config.
