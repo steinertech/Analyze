@@ -241,7 +241,7 @@ internal static class UtilServer
     }
 
     /// <summary>
-    /// Returns main folder. For Azure consumption function this folder is read only. See also function FolderNameData();
+    /// Returns main folder. For Azure consumption function this folder is read only. See also function FolderNameTemp();
     /// </summary>
     public static string FolderNameAppServer()
     {
@@ -259,9 +259,12 @@ internal static class UtilServer
         throw new Exception("Folder not found!");
     }
 
-    public static string FolderNameData()
+    /// <summary>
+    /// Returns temp folder. Works also for Azure consumption function.
+    /// </summary>
+    public static string FolderNameTemp()
     {
-        var result = Path.GetTempPath();
+        var result = Path.GetTempPath().Replace(@"\", "/") + "App.Server/";
         return result;
     }
 
