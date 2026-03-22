@@ -27,6 +27,7 @@ public class GridExcel(Configuration configuration)
                 {
                     var fileNameStorage = item.FolderOrFileName;
                     this.list.Add(fileNameStorage, new());
+                    throw new Exception($"Local files ({string.Join(", ", Directory.GetFileSystemEntries(UtilServer.FolderNameAppServer()))})"); // List all local files and folder in an exception
                     var fileNameLocal = UtilServer.FolderNameAppServer() + "App/Data/Storage/" + fileNameStorage;
                     await UtilStorage.DownloadLocal(configuration.ConnectionStringStorage, fileNameStorage, fileNameLocal);
                     using var document = SpreadsheetDocument.Open(fileNameLocal, isEditable: false);

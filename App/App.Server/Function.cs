@@ -14,7 +14,7 @@ public class Function(DataService dataService, IServiceProvider serviceProvider,
     [Function("trigger")]
     public void RunTrigger([TimerTrigger("* * * * *")] TimerInfo timerInfo, FunctionContext context) // Package Microsoft.Azure.Functions.Worker.Extensions.Timer
     {
-        logger.LogInformation($"RunTrigger (Instance={dataService.Instance})");
+        logger.LogInformation($"RunTrigger (Instance={dataService.Instance})"); // Log Analytics run query AppTraces | where Message contains "RunTrigger"
 
         dataService.Counter += 1;
 

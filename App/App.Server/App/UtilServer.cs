@@ -162,7 +162,7 @@ internal static class UtilServer
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Catch Exception");
+            logger.LogError(exception, "Catch Exception"); // Log Analytics run query AppExceptions | where OuterMessage contains "Result: Catch Exception"
             responseDto = new ResponseDto
             {
                 ExceptionText = exception.Message,
