@@ -240,6 +240,9 @@ internal static class UtilServer
         return (T?)JsonElementTo(value, typeof(T), jsonOptions);
     }
 
+    /// <summary>
+    /// Returns main folder. For Azure consumption function this folder is read only. See also function FolderNameData();
+    /// </summary>
     public static string FolderNameAppServer()
     {
         var result = new Uri(new Uri(typeof(UtilServer).Assembly.Location), ".").LocalPath.Replace(@"\", "/");
@@ -254,6 +257,12 @@ internal static class UtilServer
             return result;
         }
         throw new Exception("Folder not found!");
+    }
+
+    public static string FolderNameData()
+    {
+        var result = Path.GetTempPath();
+        return result;
     }
 
     public static void Assert(bool value, string? message = null)

@@ -18,7 +18,7 @@
     public async Task<string> DownloadLocal(string fileNameStorage, bool isOrganisation = true)
     {
         fileNameStorage = context.Name(fileNameStorage, isOrganisation);
-        var fileNameLocal = UtilServer.FolderNameAppServer() + "App/Data/Storage/" + fileNameStorage;
+        var fileNameLocal = UtilServer.FolderNameData() + "App/Data/Storage/" + fileNameStorage;
         await UtilStorage.DownloadLocal(configuration.ConnectionStringStorage, fileNameStorage, fileNameLocal);
         return fileNameLocal;
     }

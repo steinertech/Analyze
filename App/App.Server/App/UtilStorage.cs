@@ -183,7 +183,6 @@ public static class UtilStorage
         var folderNameLocal = Path.GetDirectoryName(fileNameLocal)!;
         if (!Path.Exists(folderNameLocal))
         {
-            throw new Exception($"Local files ({string.Join(", ", Directory.GetFileSystemEntries(UtilServer.FolderNameAppServer()))})"); // List all local files and folder in an exception
             Directory.CreateDirectory(folderNameLocal);
         }
         using var streamLocal = new FileStream(fileNameLocal, FileMode.Create);
