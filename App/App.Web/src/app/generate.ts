@@ -302,7 +302,7 @@ export class ServerApi {
   /** Returns configuration based on client domain. */
   private configuration() {
     const partList = window.location.hostname.split('.')
-    partList[0] = 'api' // www.example.com to api.example.com
+    partList[0] = 'api2' // www.example.com to api.example.com
     const urlApi = partList.join('.') + '/api/data'
     let result = { serverUrl: 'https://' + urlApi, isDevelopment: false }
     if (this.isLocalhost()) {
