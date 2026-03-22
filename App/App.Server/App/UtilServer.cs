@@ -162,6 +162,7 @@ internal static class UtilServer
         }
         catch (Exception exception)
         {
+            logger.LogError(exception, "Catch Exception");
             responseDto = new ResponseDto
             {
                 ExceptionText = exception.Message,
