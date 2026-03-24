@@ -11,7 +11,9 @@ using System.Text.Json.Serialization.Metadata;
 
 internal static class UtilServer
 {
-    public static string VersionServer => "1.0.21";
+    public static string VersionServer => "1.0.22";
+
+    public static string VersionServerFull => $"App.Server ({UtilServer.VersionServer})";
 
     /// <summary>
     /// App start config.
@@ -20,6 +22,7 @@ internal static class UtilServer
     {
         builder.Configuration.AddUserSecrets(typeof(Function).Assembly); // secrets.json // Package Microsoft.Extensions.Configuration.UserSecrets
         // builder.Configuration.AddAzureKeyVault(new Uri("https://stc001keyvault.vault.azure.net/"), new DefaultAzureCredential()); // KeyVault // Package Azure.Extensions.AspNetCore.Configuration.Secrets // Package Azure.Identity
+        builder.Services.AddHttpClient(); // Used for method serviceProvider.GetService<IHttpClientFactory>();
 
         // AddSingleton should never reference AddScoped like CommandContext
 
@@ -90,7 +93,7 @@ internal static class UtilServer
         // GET
         if (req.Method == "GET")
         {
-            return new OkObjectResult($"App.Server ({UtilServer.VersionServer})");
+            return new OkObjectResult(UtilServer.VersionServerFull);
         }
         // POST
         using var reader = new StreamReader(req.Body);
