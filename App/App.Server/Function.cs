@@ -18,14 +18,15 @@ public class Function(DataService dataService, IServiceProvider serviceProvider,
     [Function("trigger")]
     public async Task RunTrigger([TimerTrigger("* * * * *")] TimerInfo timerInfo, FunctionContext context) // Package Microsoft.Azure.Functions.Worker.Extensions.Timer
     {
-        logger.LogInformation($"RunTrigger (Instance={dataService.Instance})"); // Log Analytics run query AppTraces | where Message contains "RunTrigger"
+        var configuration = serviceProvider.GetService<Configuration>()!;
+        
+        logger.LogInformation($"RunTrigger (Instance={dataService.Instance}; TriggerUrl={configuration.TriggerUrl})"); // Log Analytics run query AppTraces | where Message contains "RunTrigger"
 
         dataService.Counter += 1;
 
         dataService.CounterList.Add(DateTime.UtcNow.ToString());
 
         // Keep warm Http
-        var configuration = serviceProvider.GetService<Configuration>()!;
         if (configuration.TriggerUrl != null)
         {
             if (httpClient == null)
