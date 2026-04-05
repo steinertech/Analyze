@@ -54,6 +54,8 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
                 new() { FieldName = "SortColumn", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
                 new() { FieldName = "ColSpan", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
                 new() { FieldName = "RowSpan", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
+                new() { FieldName = nameof(GridSchemaFieldDto.Title), ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
+                new() { FieldName = nameof(GridSchemaFieldDto.TitleColSpan), ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
             ],
             IsAllowNew = true,
             IsAllowDelete = true,
@@ -146,6 +148,8 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
                     SortColumn = item.SortColumn,
                     ColSpan = item.ColSpan,
                     RowSpan = item.RowSpan,
+                    Title = item.Title,
+                    TitleColSpan = item.TitleColSpan,
                 };
                 resultColumnList.Add(gridColumn);
             }
@@ -190,12 +194,6 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         var tableName = request.Grid.StateGet().RowKeyMasterList?["SchemaTable"];
         request.Grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = tableName });
         base.GridRender2(request, dataRowList, config, modalName);
-        if (modalName == "Edit")
-        {
-            request.Grid.AddRow(rowIndex: 0);
-            request.Grid.AddCellControl(colSpan: 2, rowIndex: 0);
-            request.Grid.AddControl(new() { ControlEnum = GridControlEnum.Title, Text = "MyTitle" }, rowIndex: 0);
-        }
     }
 
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
@@ -292,11 +290,24 @@ public class GridSchemaFieldDto : TableEntityDto // TODO Rename to GridSchemaCol
 
     public int? RowSpan { get; set; }
 
+    /// <summary>
+    /// Gets or sets Ref. This is the TableName.
+    /// </summary>
     public string? Ref { get; set; } // TODO Rename to RefTableName
 
-    public string? RefDisplay1 { get; set; }
-    
+    /// <summary>
+    /// Gets or sets RefDisplay1. This is the field name.
+    /// </summary>
+    public string? RefDisplay1 { get; set; } // TODO Rename to RefDisplay1FieldName
+
+    /// <summary>
+    /// Gets or sets RefDisplay2. This is the field name.
+    /// </summary>
     public string? RefDisplay2 { get; set; }
+
+    public string? Title { get; set; }
+
+    public int? TitleColSpan { get; set; }
 }
 
 public class GridSchemaDataDto : TableEntityDto

@@ -407,6 +407,9 @@ export class ServerApi {
               // Notification
               if (error.error?.exceptionText) {
                 this.notificationService.add(NotificationEnum.Error, "Exception: " + error.error.exceptionText)
+                if (this.isBrowser()) {
+                  window.scroll({ top: 0, behavior: 'smooth' }) // Scroll to top when notification has been added.
+                }
                 throw error
               }
               this.notificationService.add(NotificationEnum.Error, "Error: " + "Network failure!")
