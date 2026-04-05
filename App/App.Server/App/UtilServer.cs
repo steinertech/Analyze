@@ -1,4 +1,4 @@
-﻿using Azure.Identity; // Used for AddAzureKeyVault
+﻿using Azure.Identity; // Used for AddAzureKeyVault NuGet Azure.Extensions.AspNetCore.Configuration.Secrets and Azure.Identity
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker.Builder;
