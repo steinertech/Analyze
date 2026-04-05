@@ -29,12 +29,12 @@ jobs:
           dotnet build --configuration Release --output ./output
           popd
       
-      - name: Login to Azure # Azure portal Function App Deployment Center connect to GitHub. This will set GitHub secret AZUREAPPSERVICE_CLIENTID.
+      - name: Login to Azure # Azure portal Function App Deployment Center connect to GitHub. This will set GitHub secret AZUREAPPSERVICE_CLIENTID. Create Identity stc001appFunctionDeploy. Go to Azure function Access control (IAM) and add Website Contributor role.
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5EC4221767BD4E41AA298ABDAD6BA52B }} # See also https://github.com/steinertech/Analyze/settings/secrets/actions
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C6D082ECC1E84E04933FDF5790D6268A }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7DDC438B6B054D1B9FB5E6323744B86F }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A1C3E8AD79864649A67189E5EC3565A1 }} # See also https://github.com/steinertech/Analyze/settings/secrets/actions 
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3E4E22D09B6E467FB47CDE228E825335 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E4978D749A3943DF8BAA9CB9D1898C83 }}
 
       - name: Deploy Azure Function # Open https://stc001appfunction.azurewebsites.net/api/data 
         uses: Azure/functions-action@v1 # Add custom domain api.example.com
