@@ -11,7 +11,9 @@ using System.Text.Json.Serialization.Metadata;
 
 internal static class UtilServer
 {
-    public static string VersionServer => "1.0.20";
+    public static string VersionServer => "1.0.22";
+
+    public static string VersionServerFull => $"App.Server ({UtilServer.VersionServer})";
 
     /// <summary>
     /// App start config.
@@ -20,6 +22,7 @@ internal static class UtilServer
     {
         builder.Configuration.AddUserSecrets(typeof(Function).Assembly); // secrets.json // Package Microsoft.Extensions.Configuration.UserSecrets
         // builder.Configuration.AddAzureKeyVault(new Uri("https://stc001keyvault.vault.azure.net/"), new DefaultAzureCredential()); // KeyVault // Package Azure.Extensions.AspNetCore.Configuration.Secrets // Package Azure.Identity
+        builder.Services.AddHttpClient(); // Used for method serviceProvider.GetService<IHttpClientFactory>();
 
         // AddSingleton should never reference AddScoped like CommandContext
 
@@ -90,7 +93,7 @@ internal static class UtilServer
         // GET
         if (req.Method == "GET")
         {
-            return new OkObjectResult($"App.Server ({UtilServer.VersionServer})");
+            return new OkObjectResult(UtilServer.VersionServerFull);
         }
         // POST
         using var reader = new StreamReader(req.Body);
@@ -162,6 +165,7 @@ internal static class UtilServer
         }
         catch (Exception exception)
         {
+            logger.LogError(exception, "Catch Exception"); // Log Analytics run query AppExceptions | where OuterMessage contains "Result: Catch Exception"
             responseDto = new ResponseDto
             {
                 ExceptionText = exception.Message,
@@ -239,6 +243,9 @@ internal static class UtilServer
         return (T?)JsonElementTo(value, typeof(T), jsonOptions);
     }
 
+    /// <summary>
+    /// Returns main folder. For Azure consumption function this folder is read only. See also function FolderNameTemp();
+    /// </summary>
     public static string FolderNameAppServer()
     {
         var result = new Uri(new Uri(typeof(UtilServer).Assembly.Location), ".").LocalPath.Replace(@"\", "/");
@@ -253,6 +260,15 @@ internal static class UtilServer
             return result;
         }
         throw new Exception("Folder not found!");
+    }
+
+    /// <summary>
+    /// Returns temp folder. Works also for Azure consumption function.
+    /// </summary>
+    public static string FolderNameTemp()
+    {
+        var result = Path.GetTempPath().Replace(@"\", "/") + "App.Server/";
+        return result;
     }
 
     public static void Assert(bool value, string? message = null)

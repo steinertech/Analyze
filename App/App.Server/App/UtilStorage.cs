@@ -131,7 +131,7 @@ public static class UtilStorage
 
         var result = new List<UtilStorageEntry>();
         var client = Client(connectionString);
-        await foreach (var pathItem in client.GetSubDirectoryClient(folderName).GetPathsAsync(recursive: isRecursive))
+        await foreach (var pathItem in client.GetSubDirectoryClient(folderName).GetPathsAsync(new DataLakeGetPathsOptions { Recursive = true }))
         {
             var folderOrFileName = PathItemToFolderOrFileName(pathItem) + (pathItem.IsDirectory == true ? "/" : null);
             var isFolder = pathItem.IsDirectory ?? false;

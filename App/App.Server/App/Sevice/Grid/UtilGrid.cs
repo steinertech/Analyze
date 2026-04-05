@@ -755,8 +755,21 @@ public static class UtilGrid
                 foreach (var row in columnGroupList)
                 {
                     var sortRow = row.Key;
-                    grid.AddRow();
                     var rowColumnList = row; // row.OrderBy(item => item.SortColumn).ThenBy(item => item.Sort).ThenBy(item => item.FieldName);
+                    // Row for Title
+                    grid.AddRow();
+                    foreach (var column in rowColumnList)
+                    {
+                        // Title
+                        var titleColSpan = column.TitleColSpan;
+                        grid.AddCellControl(colSpan: titleColSpan); // No RowSpan for Title
+                        if (column.Title != null)
+                        {
+                            grid.AddControl(new() { ControlEnum = GridControlEnum.Title, Text = column.Title });
+                        }
+                    }
+                    // Row for Label
+                    grid.AddRow();
                     foreach (var column in rowColumnList)
                     {
                         // Label
@@ -764,6 +777,7 @@ public static class UtilGrid
                         grid.AddCellControl(colSpan: labelColSpan); // No RowSpan for Label
                         grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = column.FieldName });
                     }
+                    // Row for Field
                     grid.AddRow();
                     foreach (var column in rowColumnList)
                     {
@@ -771,7 +785,7 @@ public static class UtilGrid
                         var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
                         // Field
                         var fieldColSpan = column.ColSpan;
-                        var fieldRowSpan = column.RowSpan * 2 - 1;
+                        var fieldRowSpan = column.RowSpan * 3 - 2;
                         if (columnRowKey == null)
                         {
                             grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, ColSpan = fieldColSpan, RowSpan = fieldRowSpan });

@@ -1979,4 +1979,8 @@ public class GridColumn // TODO Rename to GridConfigColumn
     /// Gets or sets IsDropdown. See also method Dynamic.DropdownListSet();
     /// </summary>
     public bool IsDropdown { get; set; }
+
+    public string? Title { get; set; }
+
+    public int? TitleColSpan { get; set; }
 }

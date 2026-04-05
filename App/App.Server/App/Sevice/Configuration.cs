@@ -11,6 +11,7 @@ public class Configuration
         this.IsDevelopment = configuration.GetValue<bool>("IsDevelopment", false);
         this.IsCache = configuration.GetValue<bool>("IsCache", false);
         this.IsCacheShared = configuration.GetValue<bool>("IsCacheShared", false);
+        this.TriggerUrl = configuration.GetValue<string?>("TriggerUrl", null);
     }
 
     public string ConnectionStringStorage { get; }
@@ -34,5 +35,10 @@ public class Configuration
     /// If false, each server instance has it's own cache.
     /// </summary>
     public bool IsCacheShared { get; }
+
+    /// <summary>
+    /// Gets or sets TriggerUrl. Called every minute by trigger.
+    /// </summary>
+    public string? TriggerUrl { get; }
 }
 

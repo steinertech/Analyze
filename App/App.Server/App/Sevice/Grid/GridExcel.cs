@@ -27,7 +27,7 @@ public class GridExcel(Configuration configuration)
                 {
                     var fileNameStorage = item.FolderOrFileName;
                     this.list.Add(fileNameStorage, new());
-                    var fileNameLocal = UtilServer.FolderNameAppServer() + "App/Data/Storage/" + fileNameStorage;
+                    var fileNameLocal = UtilServer.FolderNameTemp() + "App/Data/Storage/" + fileNameStorage;
                     await UtilStorage.DownloadLocal(configuration.ConnectionStringStorage, fileNameStorage, fileNameLocal);
                     using var document = SpreadsheetDocument.Open(fileNameLocal, isEditable: false);
                     var listLocal = UtilOpenXml.List(document.WorkbookPart);

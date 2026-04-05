@@ -20,7 +20,7 @@ jobs:
       - name: Setup DotNet
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
       - name: Build DotNet
         shell: bash
@@ -29,18 +29,18 @@ jobs:
           dotnet build --configuration Release --output ./output
           popd
       
-      - name: Login to Azure
+      - name: Login to Azure # Azure portal Function App Deployment Center connect to GitHub. This will set GitHub secret AZUREAPPSERVICE_CLIENTID.
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_121155F2AC32461ABD708E07BBA86972 }} # See also https://github.com/steinertech/Analyze/settings/secrets/actions
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F2AC48361B5E47B7BBA3C6A41BD35F78 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_6746E4C4C80D4DAB8F5971E6C45F7D4B }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5EC4221767BD4E41AA298ABDAD6BA52B }} # See also https://github.com/steinertech/Analyze/settings/secrets/actions
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C6D082ECC1E84E04933FDF5790D6268A }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7DDC438B6B054D1B9FB5E6323744B86F }}
 
-      - name: Deploy Azure Function
-        uses: Azure/functions-action@v1
+      - name: Deploy Azure Function # Open https://stc001appfunction.azurewebsites.net/api/data 
+        uses: Azure/functions-action@v1 # Add custom domain api.example.com
         id: fa
         with:
-          app-name: 'stc001appFunction'
+          app-name: 'stc001appFunction2'
           slot-name: 'Production'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
 

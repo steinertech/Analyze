@@ -14,6 +14,7 @@ public class CosmosDbContainer
             // ConnectionMode = ConnectionMode.Direct,
             // MaxRequestsPerTcpConnection = 2,
             // MaxTcpConnectionsPerEndpoint = 10,
+            ApplicationRegion = Regions.NorthEurope, // TODO Configure
         };
         client = new CosmosClient(connectionString, options);
     }
