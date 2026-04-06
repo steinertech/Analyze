@@ -1955,14 +1955,14 @@ public class GridColumn // TODO Rename to GridConfigColumn
     public int? Sort { get; set; }
 
     /// <summary>
-    /// Gets or sets SortRow. This is the row order on a form.
+    /// Gets or sets Row. This is the row on a form.
     /// </summary>
-    public int? SortRow { get; set; }
+    public int? Row { get; set; }
 
     /// <summary>
-    /// Gets or sets SortColumn. This is the column order on a form.
+    /// Gets or sets Column. This is the column on a form.
     /// </summary>
-    public int? SortColumn { get; set; }
+    public int? Column { get; set; }
 
     public int? ColSpan { get; set; }
 

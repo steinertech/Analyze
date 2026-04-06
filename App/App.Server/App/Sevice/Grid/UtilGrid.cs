@@ -722,6 +722,56 @@ public static class UtilGrid
         grid.AddControl(new() { ControlEnum = GridControlEnum.ButtonLookupCancel });
     }
 
+    private class RenderForm2Plane
+    {
+        public RenderForm2Plane(GridConfig config)
+        {
+            foreach (var item in config.ColumnList)
+            {
+                Add(item);
+            }
+        }
+
+        private List<List<GridColumn?>> list = new List<List<GridColumn?>>();
+
+        public void Add(GridColumn value)
+        {
+            var row = value.Row;
+            var column = value.Column;
+            if (row != null && column != null)
+            {
+                row = row - 1;
+                column = column - 1;
+                while (list.Count <= row)
+                {
+                    list.Add(new List<GridColumn?>());
+                }
+                while (list[row.Value].Count <= column)
+                {
+                    list[row.Value].Add(null);
+                }
+                if (list[row.Value][column.Value] == null)
+                {
+                    list[row.Value][column.Value] = value;
+                }
+            }
+        }
+
+        public GridColumn? Get(int row, int column)
+        {
+            GridColumn? result = null;
+            if (list[row].Count > column)
+            {
+                result = list[row][column];
+            }
+            return result;
+        }
+
+        public int RowCount => list.Count;
+
+        public int ColCount => list.Select(item => item.Count).Max();
+    }
+
     /// <summary>
     /// Render data grid form.
     /// </summary>
@@ -734,67 +784,75 @@ public static class UtilGrid
         var columnRowKey = config.ColumnList.Where(item => item.FieldName == config.FieldNameRowKey).SingleOrDefault();
         // Render Data
         var dataRowIndex = 0;
+        var plane = new RenderForm2Plane(config);
+        bool isDebug = false;
         foreach (var dataRow in dataRowList)
         {
             var rowKey = columnRowKey != null ? dataRow[columnRowKey.FieldName]?.ToString() : null;
             var rowKeyParent = request?.ParentGrid?.State?.RowKeyList?[request?.ParentCell?.DataRowIndex ?? -1];
             if (rowKey == rowKeyParent)
             {
-                columnList = columnList.OrderBy(item => item.SortRow).ThenBy(item => item.SortColumn).ThenBy(item => item.Sort).ThenBy(item => item.FieldName).ToList();
-                var sortRowMax = columnList.Max(item => item.SortRow) ?? 0;
-                var sortRowNullInc = (int? sortRow) => // Append columns without SortRow
+                for (int row = 0; row < plane.RowCount; row++)
                 {
-                    if (sortRow == null)
-                    {
-                        sortRowMax += 1;
-                        return sortRowMax;
-                    }
-                    return sortRow;
-                };
-                var columnGroupList = columnList.GroupBy(item => sortRowNullInc(item.SortRow)).OrderBy(item => item.Key).ToList();
-                foreach (var row in columnGroupList)
-                {
-                    var sortRow = row.Key;
-                    var rowColumnList = row; // row.OrderBy(item => item.SortColumn).ThenBy(item => item.Sort).ThenBy(item => item.FieldName);
                     // Row for Title
                     grid.AddRow();
-                    foreach (var column in rowColumnList)
+                    for (int column = 0; column < plane.ColCount; column++)
                     {
+                        var configColumn = plane.Get(row, column);
                         // Title
-                        var titleColSpan = column.TitleColSpan;
+                        var titleColSpan = configColumn?.TitleColSpan;
                         grid.AddCellControl(colSpan: titleColSpan); // No RowSpan for Title
-                        if (column.Title != null)
+                        var text = isDebug && configColumn != null ? "T" + columnList.IndexOf(configColumn) + "=" + configColumn.Title : configColumn?.Title;
+                        if (text != null)
                         {
-                            grid.AddControl(new() { ControlEnum = GridControlEnum.Title, Text = column.Title });
+                            grid.AddControl(new() { ControlEnum = GridControlEnum.Title, Text = text });
                         }
                     }
                     // Row for Label
                     grid.AddRow();
-                    foreach (var column in rowColumnList)
+                    for (int column = 0; column < plane.ColCount; column++)
                     {
+                        var configColumn = plane.Get(row, column);
                         // Label
-                        var labelColSpan = column.ColSpan;
+                        var labelColSpan = configColumn?.ColSpan;
                         grid.AddCellControl(colSpan: labelColSpan); // No RowSpan for Label
-                        grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = column.FieldName });
+                        var text = isDebug && configColumn != null ? "L" + columnList.IndexOf(configColumn) + "=" + configColumn.FieldName : configColumn?.FieldName;
+                        if (text != null)
+                        {
+                            grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = text });
+                        }
                     }
                     // Row for Field
                     grid.AddRow();
-                    foreach (var column in rowColumnList)
+                    for (int column = 0; column < plane.ColCount; column++)
                     {
-                        var text = dataRow[column.FieldName]?.ToString();
-                        var cellEnum = column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                        var configColumn = plane.Get(row, column);
                         // Field
-                        var fieldColSpan = column.ColSpan;
-                        var fieldRowSpan = column.RowSpan * 3 - 2;
-                        if (columnRowKey == null)
+                        if (configColumn != null && !isDebug)
                         {
-                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, ColSpan = fieldColSpan, RowSpan = fieldRowSpan });
+                            var text = dataRow[configColumn.FieldName]?.ToString();
+                            var cellEnum = configColumn.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                            var fieldColSpan = configColumn.ColSpan;
+                            var fieldRowSpan = configColumn.RowSpan * 3 - 2;
+                            if (columnRowKey == null)
+                            {
+                                grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = configColumn.FieldName, DataRowIndex = dataRowIndex, ColSpan = fieldColSpan, RowSpan = fieldRowSpan });
+                            }
+                            else
+                            {
+                                grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = configColumn.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null, ColSpan = fieldColSpan, RowSpan = fieldRowSpan }, rowKey);
+                            }
+                            dataRowIndex += 1;
                         }
                         else
                         {
-                            grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = column.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null, ColSpan = fieldColSpan, RowSpan = fieldRowSpan }, rowKey);
+                            grid.AddCellControl(); // No RowSpan for Label
+                            var text = isDebug && configColumn != null ? "F" + columnList.IndexOf(configColumn) + "=" + configColumn.Title : configColumn?.Title;
+                            if (text != null)
+                            {
+                                grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = text });
+                            }
                         }
-                        dataRowIndex += 1;
                     }
                 }
             }
