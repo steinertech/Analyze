@@ -728,38 +728,68 @@ public static class UtilGrid
         {
             foreach (var item in config.ColumnList)
             {
-                Add(item);
+                if (item.Row != null && item.Column != null)
+                {
+                    var row = item.Row.Value - 1;
+                    var column = item.Column.Value - 1;
+                    var entry = new RenderForm2PlaneEntry { Title = item, Label = item, Field = item };
+                    Add(row, column, entry);
+                    // Title Span
+                    var entryTitleSpan = new RenderForm2PlaneEntry { Title = item, IsSpanTitle = true };
+                    for (int i = 1; i < item.TitleColSpan; i++)
+                    {
+                        Add(row, column + i, entryTitleSpan);
+                    }
+                    // Field Span
+                    var entryFieldSpan = new RenderForm2PlaneEntry { Title = item, Label = item, Field = item, IsSpanTitle = true, IsSpanLabel = true, IsSpanField = true };
+                    for (int rowSpan = 0; rowSpan < (item.RowSpan ?? 1); rowSpan++)
+                    {
+                        for (int colSpan = 0; colSpan < (item.ColSpan ?? 1); colSpan++)
+                        {
+                            if (!(rowSpan == 0 && colSpan == 0))
+                            {
+                                Add(row + rowSpan, column + colSpan, entryFieldSpan);
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        private List<List<GridColumn?>> list = new List<List<GridColumn?>>();
+        private List<List<RenderForm2PlaneEntry?>> list = new List<List<RenderForm2PlaneEntry?>>();
 
-        public void Add(GridColumn value)
+        public void Add(int row, int column, RenderForm2PlaneEntry entry)
         {
-            var row = value.Row;
-            var column = value.Column;
-            if (row != null && column != null)
+            while (list.Count <= row)
             {
-                row = row - 1;
-                column = column - 1;
-                while (list.Count <= row)
-                {
-                    list.Add(new List<GridColumn?>());
-                }
-                while (list[row.Value].Count <= column)
-                {
-                    list[row.Value].Add(null);
-                }
-                if (list[row.Value][column.Value] == null)
-                {
-                    list[row.Value][column.Value] = value;
-                }
+                list.Add(new());
             }
+            while (list[row].Count <= column)
+            {
+                list[row].Add(null);
+            }
+            var entryOld = Get(row, column);
+            if (entryOld?.Title != null)
+            {
+                entry.Title = entryOld.Title;
+                entry.IsSpanTitle = entryOld.IsSpanTitle;
+            }
+            if (entryOld?.Label != null)
+            {
+                entry.Label = entryOld.Label;
+                entry.IsSpanLabel = entryOld.IsSpanLabel;
+            }
+            if (entryOld?.Field != null)
+            {
+                entry.Field = entryOld.Field;
+                entry.IsSpanField = entryOld.IsSpanField;
+            }
+            list[row][column] = entry;
         }
 
-        public GridColumn? Get(int row, int column)
+        public RenderForm2PlaneEntry? Get(int row, int column)
         {
-            GridColumn? result = null;
+            RenderForm2PlaneEntry? result = null;
             if (list[row].Count > column)
             {
                 result = list[row][column];
@@ -770,6 +800,21 @@ public static class UtilGrid
         public int RowCount => list.Count;
 
         public int ColCount => list.Select(item => item.Count).Max();
+    }
+
+    private class RenderForm2PlaneEntry
+    {
+        public GridColumn? Title { get; set; }
+
+        public GridColumn? Label { get; set; }
+
+        public GridColumn? Field { get; set; }
+
+        public bool IsSpanTitle { get; set; }
+
+        public bool IsSpanLabel { get; set; }
+
+        public bool IsSpanField { get; set; }
     }
 
     /// <summary>
@@ -798,59 +843,72 @@ public static class UtilGrid
                     grid.AddRow();
                     for (int column = 0; column < plane.ColCount; column++)
                     {
-                        var configColumn = plane.Get(row, column);
+                        var entry = plane.Get(row, column);
                         // Title
-                        var titleColSpan = configColumn?.TitleColSpan;
-                        grid.AddCellControl(colSpan: titleColSpan); // No RowSpan for Title
-                        var text = isDebug && configColumn != null ? "T" + columnList.IndexOf(configColumn) + "=" + configColumn.Title : configColumn?.Title;
-                        if (text != null)
+                        if (entry?.IsSpanTitle != true)
                         {
-                            grid.AddControl(new() { ControlEnum = GridControlEnum.Title, Text = text });
+                            var titleColSpan = entry?.Title?.TitleColSpan;
+                            grid.AddCellControl(colSpan: titleColSpan); // Add empty cell
+                            var text = isDebug && entry?.Title != null ? "T" + columnList.IndexOf(entry.Title) + "=" + entry.Title.Title : entry?.Title?.Title;
+                            if (text != null)
+                            {
+                                grid.AddControl(new() { ControlEnum = GridControlEnum.Title, Text = text });
+                            }
                         }
                     }
                     // Row for Label
                     grid.AddRow();
                     for (int column = 0; column < plane.ColCount; column++)
                     {
-                        var configColumn = plane.Get(row, column);
+                        var entry = plane.Get(row, column);
                         // Label
-                        var labelColSpan = configColumn?.ColSpan;
-                        grid.AddCellControl(colSpan: labelColSpan); // No RowSpan for Label
-                        var text = isDebug && configColumn != null ? "L" + columnList.IndexOf(configColumn) + "=" + configColumn.FieldName : configColumn?.FieldName;
-                        if (text != null)
+                        if (entry?.IsSpanLabel != true)
                         {
-                            grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = text });
+                            var labelColSpan = entry?.Label?.ColSpan;
+                            grid.AddCellControl(colSpan: labelColSpan); // Add empty cell
+                            var text = isDebug && entry?.Label != null ? "L" + columnList.IndexOf(entry.Label) + "=" + entry.Label.FieldName : entry?.Label?.FieldName;
+                            if (text != null)
+                            {
+                                grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = text });
+                            }
                         }
                     }
                     // Row for Field
                     grid.AddRow();
                     for (int column = 0; column < plane.ColCount; column++)
                     {
-                        var configColumn = plane.Get(row, column);
+                        var entry = plane.Get(row, column);
                         // Field
-                        if (configColumn != null && !isDebug)
+                        if (entry?.IsSpanField != true)
                         {
-                            var text = dataRow[configColumn.FieldName]?.ToString();
-                            var cellEnum = configColumn.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
-                            var fieldColSpan = configColumn.ColSpan;
-                            var fieldRowSpan = configColumn.RowSpan * 3 - 2;
-                            if (columnRowKey == null)
+                            var fieldColSpan = entry?.Field?.ColSpan;
+                            var fieldRowSpan = entry?.Field?.RowSpan * 3 - 2;
+                            if (entry?.Field != null)
                             {
-                                grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = configColumn.FieldName, DataRowIndex = dataRowIndex, ColSpan = fieldColSpan, RowSpan = fieldRowSpan });
+                                var text = dataRow[entry.Field.FieldName]?.ToString();
+                                var cellEnum = entry.Field.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
+                                if (!isDebug)
+                                {
+                                    if (columnRowKey == null)
+                                    {
+                                        grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = entry.Field.FieldName, DataRowIndex = dataRowIndex, ColSpan = fieldColSpan, RowSpan = fieldRowSpan });
+                                    }
+                                    else
+                                    {
+                                        grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = entry.Field.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null, ColSpan = fieldColSpan, RowSpan = fieldRowSpan }, rowKey);
+                                    }
+                                }
+                                else
+                                {
+                                    var textDebug = "F" + columnList.IndexOf(entry.Field) + "=" + text;
+                                    grid.AddCellControl(rowSpan: fieldRowSpan, colSpan: fieldColSpan); // Add empty cell
+                                    grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = textDebug });
+                                }
+                                dataRowIndex += 1;
                             }
                             else
                             {
-                                grid.AddCell(new GridCellDto { CellEnum = cellEnum, Text = text, FieldName = configColumn.FieldName, DataRowIndex = dataRowIndex, TextPlaceholder = rowKey == null ? "New" : null, ColSpan = fieldColSpan, RowSpan = fieldRowSpan }, rowKey);
-                            }
-                            dataRowIndex += 1;
-                        }
-                        else
-                        {
-                            grid.AddCellControl(); // No RowSpan for Label
-                            var text = isDebug && configColumn != null ? "F" + columnList.IndexOf(configColumn) + "=" + configColumn.Title : configColumn?.Title;
-                            if (text != null)
-                            {
-                                grid.AddControl(new() { ControlEnum = GridControlEnum.Label, Text = text });
+                                grid.AddCellControl(rowSpan: fieldRowSpan, colSpan: fieldColSpan); // Add empty cell
                             }
                         }
                     }
