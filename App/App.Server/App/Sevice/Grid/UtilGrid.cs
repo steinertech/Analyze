@@ -726,7 +726,8 @@ public static class UtilGrid
     {
         public RenderForm2Plane(GridConfig config)
         {
-            foreach (var item in config.ColumnList)
+            var columnList = config.ColumnList.OrderBy(item => item.Row).ThenBy(item => item.Column).ThenBy(item => item.FieldName).ToList(); // Sequence is important for span. If a field or title overlaps a subsequent field or title, the second field or title is hidden.
+            foreach (var item in columnList)
             {
                 if (item.Row != null && item.Column != null)
                 {
@@ -769,6 +770,7 @@ public static class UtilGrid
                 list[row].Add(null);
             }
             var entryOld = Get(row, column);
+            // TODO count override title and field
             if (entryOld?.Title != null)
             {
                 entry.Title = entryOld.Title;
