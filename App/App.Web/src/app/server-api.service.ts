@@ -1,5 +1,15 @@
 class ServerApi {
-    // Implement ServerApi functionality here
-}
+    constructor() {
+        // Initialization code
+    }
 
-export default ServerApi;
+    fetchData() {
+        // Fetch data implementation
+    }
+
+    postData(data) {
+        // Post data implementation
+    }
+
+    // Other methods...
+}
