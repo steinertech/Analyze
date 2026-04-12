@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, inject, ViewChild } from '@angular/core';
 import { PageNav } from "../page-nav/page-nav";
 import { PageNotification } from "../page-notification/page-notification";
-import { ServerApi } from '../generate';
 import { PageGrid } from "../page-grid/page-grid";
+import { ServerApi } from '../server-api';
 
 @Component({
   selector: 'app-page-article',

@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { ServerApi, UserStatusDto } from './generate';
+import { UserStatusDto } from './generate';
 import { Observable, of } from 'rxjs';
+import { ServerApi } from './server-api';
 
 @Injectable({
   providedIn: 'root'

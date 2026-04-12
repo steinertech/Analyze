@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Input, signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridFileEnum, GridDto, GridRequest2Dto, ServerApi } from '../generate';
+import { GridCellDto, GridCellEnum, GridControlDto, GridControlEnum, GridFileEnum, GridDto, GridRequest2Dto } from '../generate';
 import { UtilClient } from '../util-client';
+import { ServerApi } from '../server-api';
 
 @Component({
   selector: 'app-page-grid',

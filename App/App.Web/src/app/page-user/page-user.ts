@@ -2,9 +2,9 @@ import { AfterContentInit, Component, inject, OnInit } from '@angular/core';
 import { PageNav } from '../page-nav/page-nav';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ServerApi } from '../generate';
 import { PageNotification } from "../page-notification/page-notification";
 import { DataService } from '../data.service';
+import { ServerApi } from '../server-api';
 
 @Component({
   selector: 'app-page-user',

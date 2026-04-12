@@ -1,10 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { PageNav } from '../page-nav/page-nav';
-import { ComponentDto, ServerApi } from '../generate';
+import { ComponentDto } from '../generate';
 import { DataService } from '../data.service';
 import { UtilClient } from '../util-client';
 import { CommonModule } from '@angular/common';
 import { PageNotification } from "../page-notification/page-notification";
+import { ServerApi } from '../server-api';
 
 @Component({
   selector: 'app-page-about',

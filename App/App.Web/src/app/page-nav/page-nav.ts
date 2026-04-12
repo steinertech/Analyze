@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { BreakpointObserver, LayoutModule } from '@angular/cdk/layout';
 import { RouterModule } from '@angular/router';
 import { DataService } from '../data.service';
-import { ServerApi } from '../generate';
+import { ServerApi } from '../server-api';
 
 @Component({
   selector: 'app-page-nav',
