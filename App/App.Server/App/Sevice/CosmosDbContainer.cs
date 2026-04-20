@@ -11,11 +11,11 @@ public class CosmosDbContainer
         var options = new CosmosClientOptions 
         { 
             SerializerOptions = new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase },
-            // ConnectionMode = ConnectionMode.Direct,
+            // ConnectionMode = ConnectionMode.Direct, // Change to ConnectionMode.Gateway for Exception The requested resource is no longer available at the server.
             // MaxRequestsPerTcpConnection = 2,
             // MaxTcpConnectionsPerEndpoint = 10,
             ApplicationRegion = Regions.NorthEurope, // TODO Configure
-        };
+         };
         client = new CosmosClient(connectionString, options);
     }
 

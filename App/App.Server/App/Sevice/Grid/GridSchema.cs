@@ -79,6 +79,11 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
     {
         await context.UserAuthAsync();
         var columnList = await storage.SelectAsync<GridSchemaFieldDto>();
+        var tableNameMaster = request.Grid.StateGet().RowKeyMasterList?.GetValueOrDefault("SchemaTable");
+        if (tableNameMaster != null)
+        {
+            columnList = columnList.Where(item => item.TableName == tableNameMaster).ToList();
+        }
         if (configEnum == GridConfigEnum.GridAutocomplete)
         {
             var tableNameList = columnList.Select(item => item.TableName).Distinct().ToList();

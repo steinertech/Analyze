@@ -16,9 +16,7 @@ export class PageSchema {
 
   async ngAfterViewInit() {
     await this.gridSchemaTable.load2('SchemaTable')
-    /*
-    await this.gridSchemaField.load2('SchemaField')
+    await this.gridSchemaField.load2('SchemaField', false)
     await this.gridSchemaData.load2('SchemaData', false)
-    */
   }
 }

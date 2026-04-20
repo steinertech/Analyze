@@ -391,6 +391,10 @@ export class PageGrid implements AfterViewInit {
         }
         this._grid.state.isSelectList = []
         this._grid.state.isSelectList[cell.dataRowIndex] = true
+        // Clear detail data grids
+        this.detailList?.forEach(item => {
+          item.grid.set({ gridName: item.grid()?.gridName! })
+        })
         // Reload detail data grids
         this.detailList?.forEach(async item => {
           if (item._grid) {
