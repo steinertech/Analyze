@@ -122,7 +122,7 @@ public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDyn
         {
             result = request.Grid.StateGet().RowKeyMasterList?.GetValueOrDefault("SchemaTable");
             request = request.Parent2();
-        } while (result == null);
+        } while (result == null && request.ListEntry != null);
         return result;
     }
 

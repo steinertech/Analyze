@@ -13,7 +13,7 @@
         {
             return result;
         }
-        result = await cosmosDb.SelectByNameAsync<T>(name, isOrganisation); // See also class CosmosDbContainer for Exception The requested resource is no longer available at the server.
+        result = await cosmosDb.SelectByNameAsync<T>(name, isOrganisation);
         await cache.SetAsync(Key(typeof(T), name, isOrganisation), result);
         return result;
     }

@@ -725,10 +725,15 @@ public class GridRequest2Dto
 {
     public List<GridRequest2EntryDto> List { get; set; } = default!;
 
-    private GridRequest2EntryDto? ListGet(int index)
+    private GridRequest2EntryDto? ListGet(int index) // TODO Rename to ListEntryGet
     {
         return index >= 0 && index < List.Count ? List[index] : null;
     }
+
+    /// <summary>
+    /// Gets current GridRequest2EntryDto.
+    /// </summary>
+    public GridRequest2EntryDto? ListEntry => ListGet(0 + offset);
 
     [JsonIgnore]
     public GridDto Grid => ListGet(0 + offset)!.Grid!;
