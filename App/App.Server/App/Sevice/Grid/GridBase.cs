@@ -78,6 +78,9 @@
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Request to save modified data.
+    /// </summary>
     protected virtual Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config) // TODO Rename to Save2
     {
         // UtilGrid.GridSave2(sourceList, destList, config);
@@ -385,12 +388,15 @@
                             {
                                 if (config.IsAllowNew)
                                 {
-                                    var dataRowNew = Dynamic.Create(config, isNew: true);
-                                    if (config.Calc != null)
+                                    for (int i = 0; i < 1; i++) // Multi new data rows possible
                                     {
-                                        await config.Calc(dataRowNew);
+                                        var dataRowNew = Dynamic.Create(config, isNew: true);
+                                        if (config.Calc != null)
+                                        {
+                                            await config.Calc(dataRowNew);
+                                        }
+                                        dataRowList.Insert(0, dataRowNew);
                                     }
-                                    dataRowList.Insert(0, dataRowNew); // Multi new data rows possible
                                 }
                             }
                             // Render

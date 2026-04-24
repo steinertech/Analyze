@@ -70,4 +70,9 @@ public class CosmosDbDynamic(CommandContext context, CosmosDbContainer cosmosDbC
         var partitionKey = PartitionKey<T>(isOrganisation);
         return await UtilCosmosDbDynamic.InsertAsync<T>(cosmosDbContainer.Container, partitionKey, item);
     }
+
+    public async Task UpsertAsync<T>(List<Dynamic> sourceList, GridConfig config, bool isOrganisation = true) where T : DocumentDto, new()
+    {
+        // TODO
+    }
 }

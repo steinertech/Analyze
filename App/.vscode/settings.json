@@ -1,6 +1,6 @@
 {
     "dotnet.defaultSolution": "App.sln",
-    "workbench.preferredDarkColorTheme": "Default Dark Modern",
+    "workbench.preferredDarkColorTheme": "Dark Modern",
     "files.autoSave": "off",
     // "azureFunctions.deploySubpath": "App.Server/bin/Release/net9.0/publish",
     "azureFunctions.projectLanguage": "C#",

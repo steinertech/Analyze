@@ -49,6 +49,8 @@ internal static class UtilServer
         // Organisation
         builder.Services.AddTransient<GridOrganisation>(); // Wrapper
         builder.Services.AddTransient<GridOrganisationEmail>(); // Wrapper
+        // Ai
+        builder.Services.AddTransient<GridAi>(); // Wrapper
         // Storage
         builder.Services.AddTransient<Storage>(); // Wrapper
 

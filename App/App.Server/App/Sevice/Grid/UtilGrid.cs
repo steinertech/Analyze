@@ -309,7 +309,7 @@ public static class UtilGrid
     }
 
     /// <summary>
-    /// Save grid state to data row list.
+    /// Save grid state to data row list. Request fields with same DataRowIndex end up in same data row.
     /// </summary>
     /// <returns>Returns data rows to save to database. Data rows contain only fields which changed values and RowKey.</returns>
     public static List<Dynamic> GridSave2(GridRequest2Dto request, GridConfig config)

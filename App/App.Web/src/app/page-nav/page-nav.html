@@ -48,6 +48,9 @@
               @if (dataService.userSignStatus()) {
               <a [routerLink]="['/organisation']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Organisation</a>
               }
+              @if (dataService.userSignStatus()) {
+              <a [routerLink]="['/ai']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">AI</a>
+              }
               <a [routerLink]="['/about']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
             </div>
           </div>
@@ -80,6 +83,9 @@
         }
         @if (dataService.userSignStatus()) {
         <a [routerLink]="['/organisation']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Organisation</a>
+        }
+        @if (dataService.userSignStatus()) {
+        <a [routerLink]="['/ai']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">AI</a>
         }
         <a [routerLink]="['/about']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
         @if (dataService.userSignStatus()===undefined) {
