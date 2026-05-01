@@ -70,23 +70,50 @@ public static class UtilCosmosDbDynamic
         return result;
     }
 
+    public static async Task<Dynamic?> SelectByIdAsync<T>(Container container, string partitionKey, string? id) where T : DocumentDto
+    {
+        IQueryable<Dynamic> result = container.GetItemLinqQueryable<Dynamic>();
+        result = result.Where(item => (string?)item["partitionKey"] == partitionKey);
+        result = result.Where(item => (string?)item["type"] == typeof(T).Name);
+        result = result.Where(item => (string?)item["id"] == id);
+        var item = await result.SingleOrDefaultDynamicAsync();
+        return item;
+    }
+
     public static async Task<Dynamic?> SelectByNameAsync<T>(Container container, string partitionKey, string? name) where T : DocumentDto
     {
         IQueryable<Dynamic> result = container.GetItemLinqQueryable<Dynamic>();
         result = result.Where(item => (string?)item["partitionKey"] == partitionKey);
         result = result.Where(item => (string?)item["type"] == typeof(T).Name);
-        result = result.Where(item => (string?)item["Namekey"] == UtilCosmosDb.NameKey(typeof(T), name));
+        result = result.Where(item => (string?)item["namekey"] == UtilCosmosDb.NameKey(typeof(T), name));
         var item = await result.SingleOrDefaultDynamicAsync();
         return item;
     }
 
-    public static async Task<Dynamic> InsertAsync<T>(Container container, string partitionKey, Dynamic item) where T : DocumentDto, new()
+    public static async Task<Dynamic> InsertAsync<T>(Container container, string partitionKey, Dynamic item) where T : DocumentDto
     {
         item["partitionKey"] = partitionKey;
         item["type"] = typeof(T).Name;
         item["nameKey"] = UtilCosmosDb.NameKey(typeof(T), item.ContainsKey("name") ? (string?)item["name"] : null);
         item["_etag"] = null!;
         var result = await container.UpsertItemAsync(item);
+        return result.Resource;
+    }
+
+    public static async Task<Dynamic> UpdateAsync<T>(Container container, string partitionKey, Dynamic item) where T : DocumentDto
+    {
+        item["partitionKey"] = partitionKey;
+        item["type"] = typeof(T).Name;
+        item["nameKey"] = UtilCosmosDb.NameKey(typeof(T), item.ContainsKey("name") ? (string?)item["name"] : null);
+        item["_etag"] = null!;
+        var result = await container.UpsertItemAsync(item);
+        return result.Resource;
+    }
+
+    public static async Task<Dynamic> DeleteAsync<T>(Container container, string partitionKey, Dynamic item) where T : DocumentDto
+    {
+        var id = item["id"]?.ToString();
+        var result = await container.DeleteItemAsync<Dynamic>(id, new PartitionKey(partitionKey));
         return result.Resource;
     }
 }
@@ -144,7 +171,7 @@ public static class UtilCosmosDbDynamicExtension
 public class DocumentDto
 {
     /// <summary>
-    /// Gets or sets id. This is the primary key. Unique within a partition key.
+    /// Gets or sets id. This is the primary key. Unique within a partition key. It can not be changed. For example Guid.
     /// </summary>
     [JsonProperty(PropertyName = "id")]
     public string? Id { get; init; }
@@ -179,7 +206,7 @@ public class DocumentDto
     }
 
     /// <summary>
-    /// Gets or sets Name. This (Class type + Name) is unique within a partition key. Name can be changed. Id not.
+    /// Gets or sets Name. This (Class type + Name) is unique within a partition key. Name can be changed. For example email.
     /// </summary>
     [JsonProperty(PropertyName = "name")]
     public string? Name { get; set; }

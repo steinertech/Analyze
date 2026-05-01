@@ -122,7 +122,7 @@ public class TableStorageDynamic(CommandContext context, TableStorageClient tabl
                 case DynamicEnum.Delete:
                     if (config.IsAllowDelete)
                     {
-                        var dest = await SelectByIdAsync<T>(source.RowKey);
+                        var dest = await SelectByIdAsync<T>(source.RowKey, isOrganisation);
                         ArgumentNullException.ThrowIfNull(dest);
                         await DeleteAsync<T>(dest);
                     }

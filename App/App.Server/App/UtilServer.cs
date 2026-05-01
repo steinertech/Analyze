@@ -299,13 +299,13 @@ public enum DynamicEnum
 [DebuggerDisplay("{DebuggerDisplay(), nq}")]
 public class Dynamic : Dictionary<string, object?>
 {
-    public Dynamic()
+    public Dynamic() : base(StringComparer.OrdinalIgnoreCase) // For CamelCase and PascalCase
     {
         
     }
 
     public Dynamic(IDictionary<string, object?> dictionary) 
-        : base(dictionary)
+        : base(dictionary, StringComparer.OrdinalIgnoreCase) // For CamelCase and PascalCase
     {
         
     }

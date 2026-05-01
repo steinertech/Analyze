@@ -6,7 +6,10 @@
         {
             ColumnList =
             [
-                new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Int, IsAllowModify = true },
+                new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
+                new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
+                new() { FieldName = "PartitionKey", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
+                new() { FieldName = "NameKey", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "IsVector", ColumnEnum = GridColumnEnum.Bool, IsAllowModify = true }
             ],
@@ -28,6 +31,7 @@
 
     protected override async Task GridSave2(GridRequest2Dto request, List<Dynamic> sourceList, GridConfig config)
     {
+        await context.UserAuthAsync();
         await cosmosDb.UpsertAsync<GridAiDto>(sourceList, config);
     }
 }
