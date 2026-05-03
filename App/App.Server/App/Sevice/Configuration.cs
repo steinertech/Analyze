@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 public class Configuration
 {
@@ -39,9 +40,40 @@ public class Configuration
     public bool IsCacheShared { get; }
 
     /// <summary>
-    /// Gets TriggerUrl. Called every minute by trigger.
+    /// Gets TriggerUrl. Server domain called every minute by trigger.
     /// </summary>
     public string? TriggerUrl { get; }
+
+    /// <summary>
+    /// Returns server domain. Used for example for Mcp server.
+    /// </summary>
+    public string TriggerDomainWithPort()
+    {
+        ArgumentNullException.ThrowIfNull(TriggerUrl);
+        var uri = new Uri(TriggerUrl);
+        var result = uri.Host;
+        if (uri.Port != 80)
+        {
+            result += ":" + uri.Port;
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Returns server domain. Used for example when running on GitHub Codespaces.
+    /// </summary>
+    public string TriggerDomain(HttpRequest req)
+    {
+        if (IsDevelopment)
+        {
+            return new Uri(req.Headers.Origin!).Host;
+        }
+        else
+        {
+            ArgumentNullException.ThrowIfNull(TriggerUrl);
+            return new Uri(TriggerUrl).Host;
+        }
+    }
 
     /// <summary>
     /// Gets AzureOpenAiEndpoint. This is the Azure OpenAI for example to vectorize.
