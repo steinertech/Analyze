@@ -1121,7 +1121,7 @@ public static class UtilGrid
                 string? text = null;
                 if (dataRow.TryGetValue(column.FieldName, out var value))
                 {
-                    text = value?.ToString();
+                    text = config.ConvertTo(column.FieldName, value);
                 }
                 var cellEnum = column.IsDropdown ? GridCellEnum.FieldDropdown : column.IsAutocomplete ? GridCellEnum.FieldAutocomplete : GridCellEnum.Field;
                 var iconRight = dataRow.IconGet(column.FieldName);

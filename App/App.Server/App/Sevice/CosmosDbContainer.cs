@@ -22,5 +22,5 @@ public class CosmosDbContainer
 
     private readonly CosmosClient client;
 
-    public Container Container =>  client.GetContainer("db", "container");
+    public Container Container => client.GetContainer("db", "container");
 }

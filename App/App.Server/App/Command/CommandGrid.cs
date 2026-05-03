@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -1764,6 +1766,8 @@ public enum GridColumnEnum
     Long = 5,
 
     Bool = 6,
+
+    Vector = 7,
 }
 
 public class GridConfig
@@ -1881,16 +1885,53 @@ public class GridConfig
     /// </summary>
     public Func<Dynamic, Task>? Calc { get; set; } // TODO List<Dynamic>
 
-    public string? ConvertTo(string fieldName, object value)
-    {
-        var result = value?.ToString();
-        return result == "" ? null : result;
-    }
-
-    public object? ConvertFrom(string fieldName, string? value)
+    public string? ConvertTo(string fieldName, object? value) // TODO Rename to ValueConvertTo
     {
         var columnEnum = ColumnGet(fieldName).ColumnEnum;
-        if (string.IsNullOrEmpty(value))
+        if (value == null)
+        {
+            return null;
+        }
+        string? result;
+        switch (columnEnum)
+        {
+            case GridColumnEnum.Text:
+                result = value.ToString();
+                break;
+            case GridColumnEnum.Int:
+                result = value.ToString();
+                break;
+            case GridColumnEnum.Double:
+                result = value.ToString();
+                break;
+            case GridColumnEnum.Date:
+                result = value.ToString();
+                break;
+            case GridColumnEnum.Long:
+                result = value.ToString();
+                break;
+            case GridColumnEnum.Bool:
+                result = value.ToString();
+                break;
+            case GridColumnEnum.Vector:
+                result = value.ToString();
+                if (value is JArray jArray)
+                {
+                    var floats = jArray.ToObject<float[]>();
+                    ReadOnlySpan<byte> byteSpan = MemoryMarshal.AsBytes(floats.AsSpan());
+                    result = Convert.ToBase64String(byteSpan);
+                }
+                break;
+            default:
+                throw new Exception("Type unknown!");
+        }
+        return result;
+    }
+
+    public object? ConvertFrom(string fieldName, string? text)
+    {
+        var columnEnum = ColumnGet(fieldName).ColumnEnum;
+        if (string.IsNullOrEmpty(text))
         {
             return null;
         }
@@ -1898,22 +1939,67 @@ public class GridConfig
         switch (columnEnum)
         {
             case GridColumnEnum.Text:
-                result = value;
+                result = text;
                 break;
             case GridColumnEnum.Int:
-                result = int.Parse(value);
+                result = int.Parse(text);
                 break;
             case GridColumnEnum.Double:
-                result = double.Parse(value);
+                result = double.Parse(text);
                 break;
             case GridColumnEnum.Date:
-                result = DateTime.ParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                result = DateTime.ParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture);
                 break;
             case GridColumnEnum.Long:
-                result = long.Parse(value);
+                result = long.Parse(text);
                 break;
             case GridColumnEnum.Bool:
-                result = bool.Parse(value);
+                result = bool.Parse(text);
+                break;
+            case GridColumnEnum.Vector:
+                var bytes = Convert.FromBase64String(text);
+                result = MemoryMarshal.Cast<byte, float>(bytes).ToArray();
+                break;
+            default:
+                throw new Exception("Type unknown!");
+        }
+        return result;
+    }
+
+    public bool ValueEquals(string fieldName, object? valueA, object? valueB)
+    {
+        var result = false;
+        var columnEnum = ColumnGet(fieldName).ColumnEnum;
+        switch (columnEnum)
+        {
+            case GridColumnEnum.Text:
+                object.Equals(valueA, valueB);
+                break;
+            case GridColumnEnum.Int:
+                object.Equals(valueA, valueB);
+                break;
+            case GridColumnEnum.Double:
+                object.Equals(valueA, valueB);
+                break;
+            case GridColumnEnum.Date:
+                object.Equals(valueA, valueB);
+                break;
+            case GridColumnEnum.Long:
+                object.Equals(valueA, valueB);
+                break;
+            case GridColumnEnum.Bool:
+                object.Equals(valueA, valueB);
+                break;
+            case GridColumnEnum.Vector:
+                if (valueA is JArray jArrayA)
+                {
+                    valueA = jArrayA.ToObject<float[]>();
+                }
+                if (valueB is JArray jArrayB)
+                {
+                    valueB = jArrayB.ToObject<float[]>();
+                }
+                object.Equals(valueA, valueB);
                 break;
             default:
                 throw new Exception("Type unknown!");

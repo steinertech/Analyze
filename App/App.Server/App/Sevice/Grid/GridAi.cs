@@ -1,4 +1,4 @@
-﻿public class GridAi(CommandContext context, CosmosDbDynamic cosmosDb) : GridBase
+﻿public class GridAi(CommandContext context, CosmosDbDynamic cosmosDb, OpenAi openAi) : GridBase
 {
     protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
@@ -11,13 +11,23 @@
                 new() { FieldName = "PartitionKey", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "NameKey", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
+                new() { FieldName = "Vector", ColumnEnum = GridColumnEnum.Vector, IsAllowModify = true },
                 new() { FieldName = "IsVector", ColumnEnum = GridColumnEnum.Bool, IsAllowModify = true }
             ],
             IsAllowNew = true,
             FieldNameRowKey = "Id",
             IsAllowDelete = true,
-        }
-        ;
+            Calc = async (dataRow) =>
+            {
+                dataRow["Vector"] = null;
+                var text = (string?)dataRow["Text"];
+                if (text != null)
+                {
+                    var vector = await openAi.GenerateEmbeddingAsync(text);
+                    dataRow["Vector"] = vector;
+                }
+            }
+        };
         return Task.FromResult(result);
     }
 

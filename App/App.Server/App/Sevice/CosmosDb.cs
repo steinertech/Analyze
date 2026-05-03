@@ -104,7 +104,7 @@ public class CosmosDbDynamic(CommandContext context, CosmosDbContainer cosmosDbC
                             if (source.ValueModifiedGet(fieldName, out _, out var valueOriginalSource))
                             {
                                 var valueOriginalDest = dest.GetValueOrDefault(fieldName);
-                                if (dest.ContainsKey(fieldName) && !object.Equals(valueOriginalSource, valueOriginalDest))
+                                if (dest.ContainsKey(fieldName) && config.ValueEquals(fieldName, valueOriginalSource, valueOriginalDest))
                                 {
                                     throw new Exception("Value modified by someone else. Reload an try again.");
                                 }

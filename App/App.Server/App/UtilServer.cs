@@ -60,6 +60,9 @@ internal static class UtilServer
         builder.Services.AddTransient<Cache>(); // Wrapper
         builder.Services.AddDistributedMemoryCache(); // TODO Redis
 
+        // OpenAi
+        builder.Services.AddSingleton<OpenAi>(); // Contains state
+
         builder.Services.AddControllers().AddJsonOptions(configure =>
         {
             var options = configure.JsonSerializerOptions;

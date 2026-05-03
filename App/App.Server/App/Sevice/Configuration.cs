@@ -12,6 +12,8 @@ public class Configuration
         this.IsCache = configuration.GetValue<bool>("IsCache", false);
         this.IsCacheShared = configuration.GetValue<bool>("IsCacheShared", false);
         this.TriggerUrl = configuration.GetValue<string?>("TriggerUrl", null);
+        this.AzureOpenAiEndpoint = configuration.GetValue<string?>("AzureOpenAiEndpoint", null);
+        this.AzureOpenAiApiKey = configuration.GetValue<string?>("AzureOpenAiApiKey", null);
     }
 
     public string ConnectionStringStorage { get; }
@@ -26,19 +28,29 @@ public class Configuration
     public bool IsDevelopment { get; }
 
     /// <summary>
-    /// Gets or sets IsCache. If false, all caching is disabled.
+    /// Gets IsCache. If false, all caching is disabled.
     /// </summary>
     public bool IsCache { get; }
 
     /// <summary>
-    /// Gets or sets IsCacheShared. If true, cache (like Redis) is shared between server instances.
+    /// Gets IsCacheShared. If true, cache (like Redis) is shared between server instances.
     /// If false, each server instance has it's own cache.
     /// </summary>
     public bool IsCacheShared { get; }
 
     /// <summary>
-    /// Gets or sets TriggerUrl. Called every minute by trigger.
+    /// Gets TriggerUrl. Called every minute by trigger.
     /// </summary>
     public string? TriggerUrl { get; }
+
+    /// <summary>
+    /// Gets AzureOpenAiEndpoint. This is the Azure OpenAI for example to vectorize.
+    /// </summary>
+    public string? AzureOpenAiEndpoint { get; }
+
+    /// <summary>
+    /// Gets OpenAiApiKey. Key for Azure OpenAI.
+    /// </summary>
+    public string? AzureOpenAiApiKey { get; }
 }
 
