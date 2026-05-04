@@ -51,7 +51,7 @@ public class Configuration
     public string McpUrl()
     {
         ArgumentNullException.ThrowIfNull(TriggerUrl);
-        var result = new Uri(TriggerUrl).GetLeftPart(UriPartial.Authority) + "/mcp";
+        var result = new Uri(TriggerUrl).GetLeftPart(UriPartial.Authority) + "/runtime/webhooks/mcp";
         return result;
     }
 
