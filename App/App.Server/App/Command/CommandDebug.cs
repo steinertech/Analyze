@@ -1,4 +1,4 @@
-﻿public class CommandDebug(CommandContext context, DataService dataService, OpenAi openAi)
+﻿public class CommandDebug(CommandContext context, DataService dataService, OpenAi openAi, Configuration configuration)
 {
     public async Task<DebugDto> Run()
     {
@@ -8,7 +8,8 @@
             Instance = dataService.Instance,
             Counter = dataService.Counter,
             CounterList = dataService.CounterList,
-            AiChat = await openAi.CompleteChatAsync()
+            AiChat = await openAi.CompleteChatAsync(),
+            McpUrl = configuration.McpUrl(),
         };
 
         context.NotificationAdd("Hello from debug", NotificationEnum.Info);
@@ -37,4 +38,6 @@ public class DebugDto
     public List<string>? CounterList { get; set; }
 
     public string? AiChat { get; set; }
+    
+    public string? McpUrl { get; set; }
 }
