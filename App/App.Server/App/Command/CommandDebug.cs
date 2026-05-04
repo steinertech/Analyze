@@ -1,6 +1,6 @@
-﻿public class CommandDebug(CommandContext context, DataService dataService)
+﻿public class CommandDebug(CommandContext context, DataService dataService, OpenAi openAi)
 {
-    public DebugDto Run()
+    public async Task<DebugDto> Run()
     {
         var result = new DebugDto
         {
@@ -8,6 +8,7 @@
             Instance = dataService.Instance,
             Counter = dataService.Counter,
             CounterList = dataService.CounterList,
+            AiChat = await openAi.CompleteChatAsync()
         };
 
         context.NotificationAdd("Hello from debug", NotificationEnum.Info);
@@ -34,4 +35,6 @@ public class DebugDto
     public int? Counter { get; set; }
 
     public List<string>? CounterList { get; set; }
+
+    public string? AiChat { get; set; }
 }

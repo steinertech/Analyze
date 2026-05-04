@@ -18,7 +18,7 @@ internal static class ServerApi
                 break;
             // Debug
             case nameof(CommandDebug):
-                responseDto.Result = new CommandDebug(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<DataService>()!).Run();
+                responseDto.Result = await new CommandDebug(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<DataService>()!, serviceProvider.GetService<OpenAi>()!).Run();
                 break;
             // Storage
             case nameof(CommandStorage) + nameof(CommandStorage.Download):
