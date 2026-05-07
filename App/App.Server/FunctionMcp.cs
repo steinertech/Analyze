@@ -1,14 +1,18 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.Mcp;
 
-public class FunctionMcp(Configuration configuration)
+/// <summary>
+/// See also host.json webhookAuthorizationLevel 
+/// See also npx @modelcontextprotocol/inspector
+/// curl -X POST http://localhost:7138/runtime/webhooks/mcp -H "Content-Type: application/json" -d '{ "jsonrpc": "2.0", "id": "1", "method": "tools/list" }'
+/// </summary>
+public class FunctionMcp(Configuration configuration) 
 {
     [Function("version")]
     public async Task<string> Version(
         [McpToolTrigger(toolName: "Version", description: "Gets current version of this app")]
         ToolInvocationContext toolContext)
     {
-        // See also npx @modelcontextprotocol/inspector
         string? apiKey = null;
         if (toolContext.TryGetHttpTransport(out var transport))
         {
