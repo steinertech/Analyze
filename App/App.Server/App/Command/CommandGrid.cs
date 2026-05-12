@@ -2078,4 +2078,6 @@ public class GridColumn // TODO Rename to GridConfigColumn
     public string? Title { get; set; }
 
     public int? TitleColSpan { get; set; }
+
+    public string? FieldNameVector { get; set; }
 }
