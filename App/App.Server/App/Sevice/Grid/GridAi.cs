@@ -10,7 +10,7 @@
                 new() { FieldName = "Name", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "PartitionKey", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "NameKey", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
-                new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
+                new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true, FieldNameVector = "Vector" },
                 new() { FieldName = "Vector", ColumnEnum = GridColumnEnum.Vector, IsAllowModify = true },
                 new() { FieldName = "IsVector", ColumnEnum = GridColumnEnum.Bool, IsAllowModify = true }
             ],
@@ -34,8 +34,8 @@
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         await context.UserAuthAsync();
-        var result = await cosmosDb.Select<GridAiDto>().ToListAsync();
-        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
+        var query = cosmosDb.Select<GridAiDto>();
+        var result = await UtilGrid.GridLoad2(request, query, fieldNameDistinct, config, configEnum, openAi);
         return result;
     }
 

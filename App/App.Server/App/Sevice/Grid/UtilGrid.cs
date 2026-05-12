@@ -1,5 +1,7 @@
-﻿using Microsoft.Azure.Cosmos.Linq;
+﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using System.Linq.Dynamic.Core;
+using System.Text.Json;
 
 public static class UtilGrid
 {
@@ -101,7 +103,7 @@ public static class UtilGrid
     /// <param name="request">Grid with state to apply (filter, sort and pagination).</param>
     /// <param name="dataRowList">DataRowList (or query).</param>
     /// <param name="fieldNameDistinct">Used for example for filter lookup data grid. Returns one column grid.</param>
-    public static async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, List<Dynamic> dataRowList, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum)
+    public static async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, IQueryable<Dynamic> query, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, OpenAi? openAi = null)
     {
         // PageSize
         int pageSize;
@@ -132,7 +134,6 @@ public static class UtilGrid
         }
         // Grid
         var grid = request.Grid;
-        var query = dataRowList.AsQueryable();
         // Init Filter, Pagination
         grid.State ??= new();
         grid.State.FilterList ??= new();
@@ -146,8 +147,18 @@ public static class UtilGrid
         // Filter
         foreach (var (fieldName, text) in grid.State.FilterList)
         {
-            config.ColumnGet(fieldName); // Check
-            query = query.Where(item => (item.GetValueOrDefault(fieldName) != null ? item.GetValueOrDefault(fieldName)!.ToString() ?? "" : "").ToLower().Contains(text.ToLower()) == true); // item[fieldName], GetValueOrDefault if key does not exist
+            var column = config.ColumnGet(fieldName);
+            if (column.FieldNameVector == null || openAi == null)
+            {
+                if (query.Provider.GetType().Name == "CosmosLinqQueryProvider")
+                {
+                    query = query.Where($"string({JsonNamingPolicy.CamelCase.ConvertName(fieldName)}).contains(@0)", text);
+                }
+                else
+                {
+                    query = query.Where(item => (item.GetValueOrDefault(fieldName) != null ? item.GetValueOrDefault(fieldName)!.ToString() ?? "" : "").ToLower().Contains(text.ToLower()) == true); // item[fieldName], GetValueOrDefault if key does not exist
+                }
+            }
         }
         // FilterMulti
         foreach (var (fieldName, filterMulti) in grid.State.FilterMultiList)
@@ -157,7 +168,18 @@ public static class UtilGrid
             var textListLower = filterMulti.TextList.Select(item => item?.ToLower()).ToList();
             query = query.Where($"{isInclude}@0.Contains(Convert.ToString(np({fieldName})).ToLower())", textListLower);
         }
-        // FieldName (Distinct)
+        // FilterVector
+        foreach (var (fieldName, text) in grid.State.FilterList)
+        {
+            var column = config.ColumnGet(fieldName); // Check
+            if (openAi != null && column.FieldNameVector != null)
+            {
+                var textVector = await openAi.GenerateEmbeddingAsync(text);
+                var fieldNameVector = column.FieldNameVector;
+                query = query.Where(item => CosmosLinqExtensions.VectorDistance(textVector, textVector, false, new CosmosLinqExtensions.VectorDistanceOptions { }) > 0.7);
+            }
+        }
+        // FieldName (Distinct)GetValueOrDefault
         if (fieldNameDistinct != null)
         {
             config.ColumnGet(fieldNameDistinct); // Check
@@ -234,7 +256,13 @@ public static class UtilGrid
             .Skip(pagination.PageIndex!.Value * pageSize)
             .Take(pageSize);
         // Result
-        var result = query.ToList(); // Debug with add to watch query.ToList(); and refrsh after every step
+        var result = await query.ToListAsync(); // Debug with add to watch query.ToList(); and refrsh after every step
+        return result;
+    }
+
+    public static async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, List<Dynamic> dataRowList, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum)
+    {
+        var result = await GridLoad2(request, dataRowList.AsQueryable(), fieldNameDistinct, config, configEnum);
         return result;
     }
 
