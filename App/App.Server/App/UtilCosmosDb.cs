@@ -70,6 +70,51 @@ public static class UtilCosmosDbDynamic
         return result;
     }
 
+    private class SelectAi
+    {
+        /// <summary>
+        /// Gets or sets Document. This is a data row.
+        /// </summary>
+        public Dynamic? Document { get; set; }
+
+        /// <summary>
+        /// (FieldName, SimilarityScore) this is the result of the sql function VectorDistance.
+        /// </summary>
+        public Dictionary<string, double?>? SimilarityScore { get; set; }
+    }
+
+    /// <summary>
+    /// Returns data from CosmosDb with VectorDistance capability.
+    /// </summary>
+    public static async Task<List<Dynamic>> SelectAiAsync<T>(Container container, string partitionKey, float[]? vector) where T : DocumentDto
+    {
+        var query = Select<T>(container, partitionKey);
+        var sql = query.ToQueryDefinition().QueryText;
+        sql = "SELECT VALUE {\"document\": root, \"similarityScore\": { myScore: 2, vectorScore: VectorDistance(root.vector, @p0) } } FROM root WHERE ((root[\"partitionKey\"] = \"Domain/localhost/Organisation/a\") AND (root[\"type\"] = \"GridAiDto\"))";
+        QueryDefinition queryDefinition = new QueryDefinition(sql).WithParameter("@p0", vector);
+        using var feed = container.GetItemQueryIterator<SelectAi>(queryDefinition);
+        double requestCharge = 0;
+        var result = new List<Dynamic>();
+        while (feed.HasMoreResults)
+        {
+            var response = await feed.ReadNextAsync();
+            requestCharge += response.RequestCharge;
+            foreach (var item in response)
+            {
+                ArgumentNullException.ThrowIfNull(item.Document);
+                ArgumentNullException.ThrowIfNull(item.SimilarityScore);
+                foreach (var itemSimilarityScore in item.SimilarityScore)
+                {
+                    var fieldName = itemSimilarityScore.Key;
+                    var value = itemSimilarityScore.Value;
+                    item.Document.Add(fieldName, value);
+                }
+                result.Add(item.Document);
+            }
+        }
+        return result;
+    }
+
     public static async Task<Dynamic?> SelectByIdAsync<T>(Container container, string partitionKey, string? id) where T : DocumentDto
     {
         IQueryable<Dynamic> result = container.GetItemLinqQueryable<Dynamic>();

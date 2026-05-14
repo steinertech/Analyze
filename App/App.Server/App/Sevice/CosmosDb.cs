@@ -59,6 +59,12 @@ public class CosmosDbDynamic(CommandContext context, CosmosDbContainer cosmosDbC
         return UtilCosmosDbDynamic.Select<T>(cosmosDbContainer.Container, partitionKey);
     }
 
+    public async Task<List<Dynamic>> SelectAiAsync<T>(float[]? vector, bool isOrganisation = true) where T : DocumentDto
+    {
+        var partitionKey = PartitionKey<T>(isOrganisation);
+        return await UtilCosmosDbDynamic.SelectAiAsync<T>(cosmosDbContainer.Container, partitionKey, vector);
+    }
+
     public Task<Dynamic?> SelectByIdAsync<T>(string? id, bool isOrganisation = true) where T : DocumentDto
     {
         var partitionKey = PartitionKey<T>(isOrganisation);

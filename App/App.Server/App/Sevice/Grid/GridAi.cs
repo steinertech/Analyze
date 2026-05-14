@@ -12,6 +12,7 @@
                 new() { FieldName = "NameKey", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, IsAllowModify = true },
                 new() { FieldName = "Vector", ColumnEnum = GridColumnEnum.Vector, IsAllowModify = true },
+                new() { FieldName = "VectorScore", ColumnEnum = GridColumnEnum.Double },
                 new() { FieldName = "IsVector", ColumnEnum = GridColumnEnum.Bool, IsAllowModify = true }
             ],
             IsAllowNew = true,
@@ -33,8 +34,9 @@
 
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
+        var vector = await openAi.GenerateEmbeddingAsync("My Blue House");
         await context.UserAuthAsync();
-        var result = await cosmosDb.Select<GridAiDto>().ToListAsync();
+        var result = await cosmosDb.SelectAiAsync<GridAiDto>(vector);
         result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
         return result;
     }
