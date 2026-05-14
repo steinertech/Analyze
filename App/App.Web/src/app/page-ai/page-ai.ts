@@ -2,10 +2,11 @@ import { Component, ViewChild } from '@angular/core';
 import { PageNav } from "../page-nav/page-nav";
 import { PageNotification } from "../page-notification/page-notification";
 import { PageGrid } from "../page-grid/page-grid";
+import { PageAssistant } from '../page-assistant/page-assistant';
 
 @Component({
   selector: 'app-page-ai',
-  imports: [PageNav, PageNotification, PageGrid],
+  imports: [PageNav, PageNotification, PageGrid, PageAssistant],
   templateUrl: './page-ai.html',
   styleUrl: './page-ai.css'
 })

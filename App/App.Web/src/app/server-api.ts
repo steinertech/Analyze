@@ -5,7 +5,7 @@ import { Router } from "@angular/router"
 import { NotificationEnum, NotificationService } from "./notification.service"
 import { UtilClient } from "./util-client"
 import { isPlatformBrowser } from "@angular/common"
-import { ComponentDto, GridRequest2Dto, GridRequestDto, GridResponse2Dto, RequestDto, ResponseDto, UserDto, UserStatusDto } from "./generate"
+import { AssistantDto, ComponentDto, GridRequest2Dto, GridRequestDto, GridResponse2Dto, RequestDto, ResponseDto, UserDto, UserStatusDto } from "./generate"
 
 @Injectable({
   providedIn: 'root',
@@ -187,6 +187,10 @@ export class ServerApi {
 
   commandDebug() {
     return this.post<ResponseDto>({ commandName: "CommandDebug" })
+  }
+
+  async commandAssistant(text: string) {
+    return await firstValueFrom(this.post<AssistantDto>({ commandName: "CommandAssistant", paramList: [text] }))
   }
 
   commandStorageDownload(fileName: string) {

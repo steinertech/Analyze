@@ -1,0 +1,17 @@
+<div class="fixed bottom-6 right-6 border border-gray-200 p-4 rounded-xl bg-gray-100 w-80">
+
+  <div class="h-[50vh] overflow-y-auto [scrollbar-width:none]">
+    @for (message of messages(); track $index) {
+      <p>{{ message }}</p>
+    }
+  </div>
+
+  <div class="flex items-center gap-2 w-full">
+    <input type="text" [(ngModel)]="inputText" (keydown.enter)="send()" placeholder="Type a message..." class="bg-white flex-1 p-2.5 bg-gray-100 text-gray-900 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white placeholder-gray-400 text-sm transition-colors" />
+
+    <button (click)="send()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors text-sm cursor-pointer shadow-xs shrink-0 flex items-center justify-center">
+      Send
+    </button>
+  </div>
+
+</div>

@@ -42,6 +42,10 @@ export class ComponentTextDto extends ComponentDto {
   public text?: string
 }
 
+export class AssistantDto {
+  public text?: string
+}
+
 export class UserDto {
   public email?: string
   public password?: string
