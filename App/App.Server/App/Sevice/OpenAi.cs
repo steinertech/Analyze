@@ -1,5 +1,6 @@
 using Azure.AI.OpenAI;
 using ModelContextProtocol.Client;
+using OpenAI;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
 using System.Text.Json;
@@ -8,16 +9,24 @@ public class OpenAi
 {
     public OpenAi(Configuration configuration)
     {
-        // OpenAI
-        // client = new OpenAIClient(configuration.OpenAiApiKey);
-        // Azure OpenAI
-        client = new AzureOpenAIClient(new Uri(configuration.AzureOpenAiEndpoint!), new System.ClientModel.ApiKeyCredential(configuration.AzureOpenAiApiKey!));
-        embeddingClient = client.GetEmbeddingClient(configuration.AzureOpenAiEmbeddingModel!);
-        chatClient = client.GetChatClient(configuration.AzureOpenAiChatModel!);
+        if (configuration.OpenAiIsActive == false)
+        {
+            // Azure OpenAI
+            client = new AzureOpenAIClient(new Uri(configuration.AzureOpenAiEndpoint!), new System.ClientModel.ApiKeyCredential(configuration.AzureOpenAiApiKey!));
+            embeddingClient = client.GetEmbeddingClient(configuration.AzureOpenAiEmbeddingModel!);
+            chatClient = client.GetChatClient(configuration.AzureOpenAiChatModel!);
+        }
+        else
+        {
+            // OpenAI
+            client = new OpenAIClient(new System.ClientModel.ApiKeyCredential(configuration.OpenAiApiKey!));
+            embeddingClient = client.GetEmbeddingClient(configuration.OpenAiEmbeddingModel!);
+            chatClient = client.GetChatClient(configuration.OpenAiChatModel!);
+        }
         mcpUrl = configuration.McpUrl();
     }
 
-    private readonly AzureOpenAIClient client;
+    private readonly OpenAIClient client;
 
     private readonly EmbeddingClient embeddingClient;
 

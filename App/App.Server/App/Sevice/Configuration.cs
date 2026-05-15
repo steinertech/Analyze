@@ -16,6 +16,10 @@ public class Configuration
         this.AzureOpenAiApiKey = configuration.GetValue<string?>("AzureOpenAiApiKey", null);
         this.AzureOpenAiEmbeddingModel = configuration.GetValue<string?>("AzureOpenAiEmbeddingModel", null);
         this.AzureOpenAiChatModel = configuration.GetValue<string?>("AzureOpenAiChatModel", null);
+        this.OpenAiIsActive = configuration.GetValue<bool?>("OpenAiIsActive", null);
+        this.OpenAiApiKey = configuration.GetValue<string?>("OpenAiApiKey", null);
+        this.OpenAiEmbeddingModel = configuration.GetValue<string?>("OpenAiEmbeddingModel", null);
+        this.OpenAiChatModel = configuration.GetValue<string?>("OpenAiChatModel", null);
     }
 
     public string ConnectionStringStorage { get; }
@@ -56,12 +60,12 @@ public class Configuration
     }
 
     /// <summary>
-    /// Gets AzureOpenAiEndpoint. This is the Azure OpenAI for example to vectorize.
+    /// Gets AzureOpenAiEndpoint. This is the Azure OpenAI for example to vectorize. See also https://ai.azure.com/resource/overview
     /// </summary>
     public string? AzureOpenAiEndpoint { get; }
 
     /// <summary>
-    /// Gets OpenAiApiKey. Key for Azure OpenAI.
+    /// Gets OpenAiApiKey. Key for Azure OpenAI. See also https://ai.azure.com/resource/overview
     /// </summary>
     public string? AzureOpenAiApiKey { get; }
 
@@ -74,5 +78,25 @@ public class Configuration
     /// Gets AzureOpenAiModel. Used for chat. See also https://ai.azure.com/resource/deployments
     /// </summary>
     public string? AzureOpenAiChatModel { get; }
+
+    /// <summary>
+    /// Gets OpenAiIsActive. If true, use OpenAI. If false use Azure OpenAI.
+    /// </summary>
+    public bool? OpenAiIsActive { get; }
+
+    /// <summary>
+    /// Gets OpenAiApiKey. Key for OpenAI. See also  https://platform.openai.com/account/api-keys
+    /// </summary>
+    public string? OpenAiApiKey { get; }
+
+    /// <summary>
+    /// Gets OpenAiEmbeddingModel. See also https://platform.openai.com/settings/organization/limits
+    /// </summary>
+    public string? OpenAiEmbeddingModel { get; }
+
+    /// <summary>
+    /// Gets OpenAiModel. See also https://platform.openai.com/settings/organization/limits
+    /// </summary>
+    public string? OpenAiChatModel { get; }
 }
 
