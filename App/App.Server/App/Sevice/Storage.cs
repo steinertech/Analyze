@@ -1,15 +1,15 @@
-﻿public class Storage(CommandContext context, Configuration configuration)
+﻿public class Storage(CommandContext context, Configuration configuration, StorageClientService storageClientService)
 {
     public async Task<string> Download(string fileName, bool isOrganisation = true)
     {
         fileName = context.Name(fileName, isOrganisation);
-        return await UtilStorage.Download(configuration.ConnectionStringStorage, fileName);
+        return await UtilStorage.Download(storageClientService.Client, fileName);
     }
 
     public async Task Upload(string fileName, string? data, bool isOrganisation = true)
     {
         fileName = context.Name(fileName, isOrganisation);
-        await UtilStorage.Upload(configuration.ConnectionStringStorage, fileName, data);
+        await UtilStorage.Upload(storageClientService.Client, fileName, data);
     }
 
     /// <summary>
@@ -19,14 +19,14 @@
     {
         fileNameStorage = context.Name(fileNameStorage, isOrganisation);
         var fileNameLocal = UtilServer.FolderNameTemp() + "App/Data/Storage/" + fileNameStorage;
-        await UtilStorage.DownloadLocal(configuration.ConnectionStringStorage, fileNameStorage, fileNameLocal);
+        await UtilStorage.DownloadLocal(storageClientService.Client, fileNameStorage, fileNameLocal);
         return fileNameLocal;
     }
 
     public async Task<List<UtilStorageEntry>> List(string? folderName = null, bool isRecursive = false, bool isOrganisation = true)
     {
         folderName = context.Name(folderName, isOrganisation);
-        var result = await UtilStorage.List(configuration.ConnectionStringStorage, folderName, isRecursive);
+        var result = await UtilStorage.List(storageClientService.Client, folderName, isRecursive);
         var folderNamePrefix = context.Name(null, isOrganisation) + "/";
         foreach (var item in result)
         {
@@ -42,7 +42,7 @@
         {
             fileNameList[i] = context.Name(fileNameList[i], isOrganisation);
         }
-        return UtilStorage.DownloadUrl(configuration.ConnectionStringStorage, fileNameList);
+        return UtilStorage.DownloadUrl(storageClientService.Client, fileNameList);
     }
 
     public List<string> UploadUrl(List<string> fileNameList, bool isOrganisation = true)
@@ -51,31 +51,31 @@
         {
             fileNameList[i] = context.Name(fileNameList[i], isOrganisation);
         }
-        return UtilStorage.UploadUrl(configuration.ConnectionStringStorage, fileNameList);
+        return UtilStorage.UploadUrl(storageClientService.Client, fileNameList);
     }
 
     public async Task Rename(string folderOrFileName, string folderOrFileNameOnlyNew, bool isOrganisation = true)
     {
         folderOrFileName = context.Name(folderOrFileName, isOrganisation);
-        await UtilStorage.Rename(configuration.ConnectionStringStorage, folderOrFileName, folderOrFileNameOnlyNew);
+        await UtilStorage.Rename(storageClientService.Client, folderOrFileName, folderOrFileNameOnlyNew);
     }
 
     public async Task Delete(string folderOrFileName, bool isOrganisation = true)
     {
         folderOrFileName = context.Name(folderOrFileName, isOrganisation);
-        await UtilStorage.Delete(configuration.ConnectionStringStorage, folderOrFileName);
+        await UtilStorage.Delete(storageClientService.Client, folderOrFileName);
     }
 
     public async Task<long> Copy(string folderOrFileNameSource, string folderNameDest, bool isOrganisation = true)
     {
         folderOrFileNameSource = context.Name(folderOrFileNameSource, isOrganisation);
         folderNameDest = context.Name(folderNameDest, isOrganisation);
-        return await UtilStorage.Copy(configuration.ConnectionStringStorage, folderOrFileNameSource, folderNameDest);
+        return await UtilStorage.Copy(storageClientService.Client, folderOrFileNameSource, folderNameDest, configuration.ConnectionStringStorage);
     }
 
     public async Task Create(string folderName, bool isOrganisation = true)
     {
         folderName = context.Name(folderName, isOrganisation);
-        await UtilStorage.Create(configuration.ConnectionStringStorage, folderName);
+        await UtilStorage.Create(storageClientService.Client, folderName);
     }
 }

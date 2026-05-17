@@ -52,6 +52,7 @@ internal static class UtilServer
         // Ai
         builder.Services.AddTransient<GridAi>(); // Wrapper
         // Storage
+        builder.Services.AddSingleton<StorageClientService>(); // Contains state
         builder.Services.AddTransient<Storage>(); // Wrapper
 
         builder.Services.AddScoped<CommandContext>(); // One new instance for every http request

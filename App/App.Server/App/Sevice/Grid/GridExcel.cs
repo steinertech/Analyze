@@ -1,7 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
-public class GridExcel(Configuration configuration)
+public class GridExcel(StorageClientService storageClientService)
 {
     private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
@@ -20,7 +20,7 @@ public class GridExcel(Configuration configuration)
             if (!isInit)
             {
                 isInit = true;
-                var fileNameList = await UtilStorage.List(configuration.ConnectionStringStorage);
+                var fileNameList = await UtilStorage.List(storageClientService.Client);
                 fileNameList = fileNameList.Where(item => item.IsFolder == false && Path.GetExtension(item.FolderOrFileName).ToLower() == ".xlsx").ToList();
                 // FileName
                 foreach (var item in fileNameList)
@@ -28,7 +28,7 @@ public class GridExcel(Configuration configuration)
                     var fileNameStorage = item.FolderOrFileName;
                     this.list.Add(fileNameStorage, new());
                     var fileNameLocal = UtilServer.FolderNameTemp() + "App/Data/Storage/" + fileNameStorage;
-                    await UtilStorage.DownloadLocal(configuration.ConnectionStringStorage, fileNameStorage, fileNameLocal);
+                    await UtilStorage.DownloadLocal(storageClientService.Client, fileNameStorage, fileNameLocal);
                     using var document = SpreadsheetDocument.Open(fileNameLocal, isEditable: false);
                     var listLocal = UtilOpenXml.List(document.WorkbookPart);
                     var textList = UtilOpenXml.ExcelSharedStringTableGet(document);

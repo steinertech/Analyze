@@ -5,46 +5,23 @@ using System.Text;
 
 public static class UtilStorage
 {
-    private static string containerName = "app";
-
-    private static string containerFolderName = "data/"; // "data/Organisation/"
-
-    private static string prefix = "/" + containerName + "/" + containerFolderName;
-
     private static string PathItemToFolderOrFileName(PathItem value)
     {
-        UtilServer.Assert(value.Name.StartsWith(containerFolderName));
-        var result = value.Name.Substring(containerFolderName.Length);
-        return result;
-    }
-
-    private static DataLakeDirectoryClient Client(string connectionString)
-    {
-        var result = new DataLakeDirectoryClient(connectionString, containerName, containerFolderName).GetSubDirectoryClient(null);
-        
-        // Debug
-        // var list = result.GetPaths(recursive: true).ToArray();
-        // foreach (var item in list)
-        // {
-        //     var folderOrFileName = PathItemToFolderOrFileName(item);
-        //     var localPath = result.GetFileClient(folderOrFileName).Uri.LocalPath;
-        //     UtilServer.Assert(localPath == prefix + folderOrFileName);
-        // }
-        
+        UtilServer.Assert(value.Name.StartsWith(StorageClientService.ContainerFolderName));
+        var result = value.Name.Substring(StorageClientService.ContainerFolderName.Length);
         return result;
     }
 
     /// <summary>
     /// Ensure folder or file name starts with /app/data/ path also if it uses relative path characters.
     /// </summary>
-    private static string Sanatize(string connectionString, string? folderOrFileName)
+    private static string Sanatize(DataLakeDirectoryClient client, string? folderOrFileName)
     {
         folderOrFileName = folderOrFileName?.TrimEnd('/');
-        var client = Client(connectionString);
         var result = client.GetSubDirectoryClient(string.IsNullOrEmpty(folderOrFileName) ? "." : folderOrFileName).Uri.LocalPath;
-        if (result == prefix + folderOrFileName)
+        if (result == StorageClientService.Prefix + folderOrFileName)
         {
-            result = result.Substring(prefix.Length);
+            result = result.Substring(StorageClientService.Prefix.Length);
             return result;
         }
         throw new Exception($"Folder or file name invalid! ({folderOrFileName})");
@@ -72,21 +49,20 @@ public static class UtilStorage
         return result;
     }
 
-    public static async Task<long> Copy(string connectionString, string folderOrFileNameSource, string folderNameDest)
+    public static async Task<long> Copy(DataLakeDirectoryClient client, string folderOrFileNameSource, string folderNameDest, string connectionString)
     {
         UtilServer.Assert(IsFolder(folderNameDest));
         if (IsFile(folderOrFileNameSource))
         {
             var fileNameOnlySource = FolderOrFileNameOnly(folderOrFileNameSource);
             var folderNameSource = FolderName(folderOrFileNameSource);
-            await Create(connectionString, folderNameDest);
-            var client = Client(connectionString);
+            await Create(client, folderNameDest);
             var folderSource = client.GetSubDirectoryClient(folderNameSource);
             var fileSource = folderSource.GetFileClient(fileNameOnlySource);
             var fileSourceUri = fileSource.GenerateSasUri(Azure.Storage.Sas.DataLakeSasPermissions.Read, DateTimeOffset.UtcNow.AddMinutes(3));
             // var folderDest = client.GetSubDirectoryClient(folderNameDest);
             // var fileDest = folderDest.GetFileClient(folderNameDest); // DataLakeFileClient does not support server‑side copy
-            var fileDest2 = new BlobClient(connectionString, containerName, containerFolderName + folderNameDest + fileNameOnlySource);
+            var fileDest2 = new BlobClient(connectionString, StorageClientService.ContainerName, StorageClientService.ContainerFolderName + folderNameDest + fileNameOnlySource);
             var result = await fileDest2.StartCopyFromUriAsync(fileSourceUri);
             await result.UpdateStatusAsync();
             return result.Value;
@@ -94,43 +70,39 @@ public static class UtilStorage
         throw new Exception();
     }
 
-    public static async Task Create(string connectionString, string folderName)
+    public static async Task Create(DataLakeDirectoryClient client, string folderName)
     {
-        folderName = Sanatize(connectionString, folderName);
+        folderName = Sanatize(client, folderName);
 
-        var client = Client(connectionString);
         await client.GetFileClient(folderName).CreateAsync(PathResourceType.Directory);
     }
 
-    public static async Task Delete(string connectionString, string folderOrFileName)
+    public static async Task Delete(DataLakeDirectoryClient client, string folderOrFileName)
     {
-        folderOrFileName = Sanatize(connectionString, folderOrFileName);
+        folderOrFileName = Sanatize(client, folderOrFileName);
 
         UtilServer.Assert(folderOrFileName.Length > 0); // Do not delete root
 
-        var client = Client(connectionString);
         await client.GetFileClient(folderOrFileName).DeleteAsync();
     }
 
-    public static async Task Rename(string connectionString, string folderOrFileName, string folderOrFileNameOnlyNew)
+    public static async Task Rename(DataLakeDirectoryClient client, string folderOrFileName, string folderOrFileNameOnlyNew)
     {
         var folderName = FolderName(folderOrFileName);
         folderOrFileNameOnlyNew = FolderOrFileNameOnly(folderOrFileNameOnlyNew);
         var folderOrFileNameNew2 = folderName + "/" + folderOrFileNameOnlyNew; // Rename only. No move to other folder.
 
-        folderOrFileName = Sanatize(connectionString, folderOrFileName);
-        folderOrFileNameNew2 = Sanatize(connectionString, folderOrFileNameNew2);
+        folderOrFileName = Sanatize(client, folderOrFileName);
+        folderOrFileNameNew2 = Sanatize(client, folderOrFileNameNew2);
 
-        var client = Client(connectionString);
-        await client.GetFileClient(folderOrFileName).RenameAsync(containerFolderName + folderOrFileNameNew2);
+        await client.GetFileClient(folderOrFileName).RenameAsync(StorageClientService.ContainerFolderName + folderOrFileNameNew2);
     }
 
-    public static async Task<List<UtilStorageEntry>> List(string connectionString, string? folderName = null, bool isRecursive = false)
+    public static async Task<List<UtilStorageEntry>> List(DataLakeDirectoryClient client, string? folderName = null, bool isRecursive = false)
     {
-        folderName = Sanatize(connectionString, folderName);
+        folderName = Sanatize(client, folderName);
 
         var result = new List<UtilStorageEntry>();
-        var client = Client(connectionString);
         await foreach (var pathItem in client.GetSubDirectoryClient(folderName).GetPathsAsync(new DataLakeGetPathsOptions { Recursive = true }))
         {
             var folderOrFileName = PathItemToFolderOrFileName(pathItem) + (pathItem.IsDirectory == true ? "/" : null);
@@ -150,12 +122,11 @@ public static class UtilStorage
         return result;
     }
 
-    public static async Task<string> Download(string connectionString, string fileName)
+    public static async Task<string> Download(DataLakeDirectoryClient client, string fileName)
     {
-        fileName = Sanatize(connectionString, fileName);
+        fileName = Sanatize(client, fileName);
 
         string result;
-        var client = Client(connectionString);
         var content = await client.GetFileClient(fileName).ReadContentAsync();
         var fileNameExtension = Path.GetExtension(fileName).ToLower();
         switch (fileNameExtension)
@@ -173,11 +144,11 @@ public static class UtilStorage
         return result;
     }
 
-    public static async Task DownloadLocal(string connectionString, string fileNameStorage, string fileNameLocal)
+    public static async Task DownloadLocal(DataLakeDirectoryClient client, string fileNameStorage, string fileNameLocal)
     {
-        fileNameStorage = Sanatize(connectionString, fileNameStorage);
+        fileNameStorage = Sanatize(client, fileNameStorage);
 
-        using var file = DownloadStream(connectionString, fileNameStorage);
+        using var file = DownloadStream(client, fileNameStorage);
         using var streamStorage = file.Content;
 
         var folderNameLocal = Path.GetDirectoryName(fileNameLocal)!;
@@ -191,22 +162,20 @@ public static class UtilStorage
         streamStorage.Close();
     }
 
-    public static DataLakeFileReadStreamingResult DownloadStream(string connectionString, string fileName)
+    public static DataLakeFileReadStreamingResult DownloadStream(DataLakeDirectoryClient client, string fileName)
     {
-        fileName = Sanatize(connectionString, fileName);
+        fileName = Sanatize(client, fileName);
 
-        var client = Client(connectionString);
         var result = client.GetFileClient(fileName).ReadStreaming().Value;
         return result; // result.Content is the Stream. Beware of DataLakeFileReadStreamingResult.IDisposable
     }
 
-    public static async Task Upload(string connectionString, string fileName, string? data)
+    public static async Task Upload(DataLakeDirectoryClient client, string fileName, string? data)
     {
-        fileName = Sanatize(connectionString, fileName);
+        fileName = Sanatize(client, fileName);
 
         byte[] result;
         var fileNameExtension = Path.GetExtension(fileName).ToLower();
-        var client = Client(connectionString);
         switch (fileNameExtension)
         {
             case ".txt":
@@ -232,10 +201,9 @@ public static class UtilStorage
     /// <summary>
     /// Returns list of SasUri to upload to.
     /// </summary>
-    public static List<string> UploadUrl(string connectionString, List<string> fileNameList)
+    public static List<string> UploadUrl(DataLakeDirectoryClient client, List<string> fileNameList)
     {
         var result = new List<string>();
-        var client = Client(connectionString);
         foreach (var fileName in fileNameList)
         {
             var file = client.GetFileClient(fileName);
@@ -248,10 +216,9 @@ public static class UtilStorage
     /// <summary>
     /// Returns list of SasUri to download from.
     /// </summary>
-    public static List<string> DownloadUrl(string connectionString, List<string> fileNameList)
+    public static List<string> DownloadUrl(DataLakeDirectoryClient client, List<string> fileNameList)
     {
         var result = new List<string>();
-        var client = Client(connectionString);
         foreach (var fileName in fileNameList)
         {
             var file = client.GetFileClient(fileName);
