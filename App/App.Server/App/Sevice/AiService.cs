@@ -13,7 +13,8 @@ public class AiService
     public AiService(ConfigurationService configuration)
     {
         Configuration = configuration;
-        if (configuration.OpenAiIsActive == false)
+        var openAiIsEnabled = configuration.OpenAiIsEnabled == true;
+        if (openAiIsEnabled == false)
         {
             // Azure OpenAI
             client = new AzureOpenAIClient(new Uri(Configuration.AzureOpenAiEndpoint!), new ApiKeyCredential(Configuration.AzureOpenAiApiKey!));

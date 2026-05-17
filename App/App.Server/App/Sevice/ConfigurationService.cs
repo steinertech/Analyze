@@ -16,7 +16,7 @@ public class ConfigurationService
         this.AzureOpenAiApiKey = configuration.GetValue<string?>("AzureOpenAiApiKey", null);
         this.AzureOpenAiEmbeddingModel = configuration.GetValue<string?>("AzureOpenAiEmbeddingModel", null);
         this.AzureOpenAiChatModel = configuration.GetValue<string?>("AzureOpenAiChatModel", null);
-        this.OpenAiIsActive = configuration.GetValue<bool?>("OpenAiIsActive", null);
+        this.OpenAiIsEnabled = configuration.GetValue<bool?>("OpenAiIsEnabled", null);
         this.OpenAiApiKey = configuration.GetValue<string?>("OpenAiApiKey", null);
         this.OpenAiEmbeddingModel = configuration.GetValue<string?>("OpenAiEmbeddingModel", null);
         this.OpenAiChatModel = configuration.GetValue<string?>("OpenAiChatModel", null);
@@ -82,9 +82,9 @@ public class ConfigurationService
     public string? AzureOpenAiChatModel { get; }
 
     /// <summary>
-    /// Gets OpenAiIsActive. If true, use OpenAI. If false use Azure OpenAI.
+    /// Gets OpenAiIsEnabled. If true, use OpenAI. If false use Azure OpenAI.
     /// </summary>
-    public bool? OpenAiIsActive { get; }
+    public bool? OpenAiIsEnabled { get; }
 
     /// <summary>
     /// Gets OpenAiApiKey. Key for OpenAI. See also  https://platform.openai.com/account/api-keys

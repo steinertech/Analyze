@@ -94,7 +94,7 @@ internal static class UtilServer
     public static async Task<IActionResult> Run(HttpRequest req, IServiceProvider serviceProvider)
     {
         var logger = serviceProvider.GetRequiredService<ILogger<Function>>();
-        logger.LogInformation("UrilServer.Run();");
+        logger.LogInformation("UtilServer.Run();");
         var jsonOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
         // GET
         if (req.Method == "GET")
