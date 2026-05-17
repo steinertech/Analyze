@@ -8,7 +8,6 @@
             Instance = dataService.Instance,
             Counter = dataService.Counter,
             CounterList = dataService.CounterList,
-            AiChat = await ai.CompleteChatAsync(),
             McpUrl = configuration.McpUrl(),
             Text = await ai.AnalyzeDocumentAsync("Doc1.pdf", storage)
         };
