@@ -101,16 +101,16 @@ public static class UtilGrid
     /// <param name="request">Grid with state to apply (filter, sort and pagination).</param>
     /// <param name="dataRowList">DataRowList (or query).</param>
     /// <param name="fieldNameDistinct">Used for example for filter lookup data grid. Returns one column grid.</param>
-    public static async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, List<Dynamic> dataRowList, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum)
+    public static async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, List<Dynamic> dataRowList, string? fieldNameDistinct, GridConfig config, GridEnum gridEnum)
     {
         // PageSize
         int pageSize;
-        switch (configEnum)
+        switch (gridEnum)
         {
-            case GridConfigEnum.Grid:
+            case GridEnum.Grid:
                 pageSize = config.PageSize;
                 break;
-            case GridConfigEnum.GridFilter:
+            case GridEnum.GridFilter:
                 pageSize = config.PageSizeFilter;
                 ArgumentNullException.ThrowIfNull(fieldNameDistinct);
                 var column = config.ColumnGet(fieldNameDistinct);
@@ -120,11 +120,11 @@ public static class UtilGrid
                     PageSize = config.PageSizeColumn,
                 };
                 break;
-            case GridConfigEnum.GridColumn:
+            case GridEnum.GridColumn:
                 pageSize = config.PageSizeColumn;
                 config = new GridConfig() { ColumnList = [new() { FieldName = "FieldName" }] }; // Config for lookup
                 break;
-            case GridConfigEnum.GridAutocomplete:
+            case GridEnum.GridAutocomplete:
                 pageSize = config.PageSizeAutocomplete;
                 break;
             default:
@@ -181,7 +181,7 @@ public static class UtilGrid
         }
         // Sort
         var sortList = grid.State.SortListGet();
-        if (configEnum == GridConfigEnum.Grid)
+        if (gridEnum == GridEnum.Grid)
         {
             var sortDefaultList = config.DefaultSortList;
             if (sortList.Count == 0 && sortDefaultList != null)
@@ -201,7 +201,7 @@ public static class UtilGrid
             var sort = sortList[i];
             var fieldName = sort.FieldName;
             config.ColumnGet(fieldName); // Check
-            if (configEnum == GridConfigEnum.Grid)
+            if (gridEnum == GridEnum.Grid)
             {
                 // Sort with custom column
                 fieldName = config.ColumnGet(fieldName).FieldNameSortCustom ?? fieldName;
@@ -806,11 +806,11 @@ public static class UtilGrid
 
     private class RenderForm2PlaneEntry
     {
-        public GridColumn? Title { get; set; }
+        public GridConfigColumn? Title { get; set; }
 
-        public GridColumn? Label { get; set; }
+        public GridConfigColumn? Label { get; set; }
 
-        public GridColumn? Field { get; set; }
+        public GridConfigColumn? Field { get; set; }
 
         public bool IsSpanTitle { get; set; }
 
@@ -1363,7 +1363,7 @@ public static class UtilGridReflection
     {
         var result = new GridConfig();
         var propertyInfoList = rowType.GetProperties();
-        var columnList = new List<GridColumn>();
+        var columnList = new List<GridConfigColumn>();
         var sort = 0;
         foreach (var propertyInfo in propertyInfoList)
         {

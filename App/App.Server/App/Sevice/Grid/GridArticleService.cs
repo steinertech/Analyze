@@ -1,12 +1,12 @@
 ﻿using Microsoft.Azure.Cosmos.Linq;
 using System.Linq.Dynamic.Core;
 
-public class GridArticle2Service : GridBase
+public class GridArticle2Service : GridServiceBase
 {
-    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
+    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridEnum gridEnum)
     {
         GridConfig result = new() { ColumnList = new() };
-        result.ColumnList = new List<GridColumn>
+        result.ColumnList = new List<GridConfigColumn>
         {
             new() { FieldName = "Id", ColumnEnum = GridColumnEnum.Int, Sort = 1 },
             new() { FieldName = "Text", ColumnEnum = GridColumnEnum.Text, Sort = 2, IsAllowModify = true },
@@ -92,12 +92,12 @@ public class GridArticle2Service : GridBase
         return result;
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridEnum gridEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         // Load
         var dataRowList = this.dataRowList;
         // Apply (filter, sort and pagination)
-        var result = await UtilGrid.GridLoad2(request, dataRowList, fieldNameDistinct, config, configEnum);
+        var result = await UtilGrid.GridLoad2(request, dataRowList, fieldNameDistinct, config, gridEnum);
         return result;
     }
 }

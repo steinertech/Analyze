@@ -1,6 +1,6 @@
-﻿public class GridOrganisationService(CommandContextService context, CosmosDbService cosmosDb) : GridBase
+﻿public class GridOrganisationService(CommandContextService context, CosmosDbService cosmosDb) : GridServiceBase
 {
-    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
+    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridEnum gridEnum)
     {
         var result = new GridConfig
         {
@@ -16,7 +16,7 @@
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridEnum gridEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         var email = (await context.UserAuthAsync()).Email;
         var list = await cosmosDb.Select<OrganisationDto>(isOrganisation: false).ToListAsync();
@@ -26,7 +26,7 @@
             dataRowTo["Organisation"] = dataRowFrom.Name;
             dataRowTo["Text"] = dataRowFrom.Text;
         });
-        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
+        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, gridEnum);
         return result;
     }
 
@@ -97,9 +97,9 @@
     }
 }
 
-public class GridOrganisationEmailService(CommandContextService context, CosmosDbService cosmosDb) : GridBase
+public class GridOrganisationEmailService(CommandContextService context, CosmosDbService cosmosDb) : GridServiceBase
 {
-    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
+    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridEnum gridEnum)
     {
         var result = new GridConfig
         {
@@ -114,7 +114,7 @@ public class GridOrganisationEmailService(CommandContextService context, CosmosD
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridEnum gridEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         var email = (await context.UserAuthAsync()).Email;
         var result = new List<Dynamic>();
@@ -131,7 +131,7 @@ public class GridOrganisationEmailService(CommandContextService context, CosmosD
                     {
                         dataRowTo["Email"] = dataRowFrom;
                     });
-                    result = await UtilGrid.GridLoad2(request, result, null, config, configEnum);
+                    result = await UtilGrid.GridLoad2(request, result, null, config, gridEnum);
                 }
             }
         }

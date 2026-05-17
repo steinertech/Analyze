@@ -1,6 +1,6 @@
-﻿public class GridAiService(CommandContextService context, CosmosDbDynamicService cosmosDb, AiService ai) : GridBase
+﻿public class GridAiService(CommandContextService context, CosmosDbDynamicService cosmosDb, AiService ai) : GridServiceBase
 {
-    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
+    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridEnum gridEnum)
     {
         var result = new GridConfig
         {
@@ -32,12 +32,12 @@
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridEnum gridEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         var vector = await ai.GenerateEmbeddingAsync("My Blue House");
         await context.UserAuthAsync();
         var result = await cosmosDb.SelectAiAsync<GridAiDto>(vector);
-        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
+        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, gridEnum);
         return result;
     }
 

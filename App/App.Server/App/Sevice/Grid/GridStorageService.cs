@@ -1,4 +1,4 @@
-﻿public class GridStorageService(StorageService storage, CommandContextService context, StorageClientService storageClient) : GridBase
+﻿public class GridStorageService(StorageService storage, CommandContextService context, StorageClientService storageClient) : GridServiceBase
 {
     private async Task Load(GridDto grid)
     {
@@ -108,7 +108,7 @@
         }
     }
 
-    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
+    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridEnum gridEnum)
     {
         var result = new GridConfig()
         {
@@ -218,7 +218,7 @@
         return result;
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridEnum gridEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         await context.UserAuthAsync();
         // Breadcrumb add Home
@@ -263,7 +263,7 @@
                 }
             }
         });
-        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
+        result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, gridEnum);
         // Add parent directory entry
         var pathParent = path?.TrimEnd('/').Substring(0, path.TrimEnd('/').LastIndexOf("/") + 1); // Returns null for none and empty for root.
         if (pathParent != null)

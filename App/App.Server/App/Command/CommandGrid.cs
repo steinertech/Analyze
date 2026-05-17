@@ -1772,12 +1772,12 @@ public enum GridColumnEnum
 
 public class GridConfig
 {
-    private Dictionary<string, GridColumn> columnList = new();
+    private Dictionary<string, GridConfigColumn> columnList = new();
 
     /// <summary>
     /// Gets or sets ColumnList. This is all data grid columns. See also method ColumnGet();
     /// </summary>
-    public List<GridColumn> ColumnList
+    public List<GridConfigColumn> ColumnList
     {
         get
         {
@@ -1785,14 +1785,14 @@ public class GridConfig
         }
         set
         {
-            columnList = new(value.Select(item => new KeyValuePair<string, GridColumn>(item.FieldName, item)));
+            columnList = new(value.Select(item => new KeyValuePair<string, GridConfigColumn>(item.FieldName, item)));
         }
     }
 
     /// <summary>
     /// Returns data column by name.
     /// </summary>
-    public GridColumn ColumnGet(string fieldName)
+    public GridConfigColumn ColumnGet(string fieldName)
     {
         return columnList[fieldName];
     }
@@ -1800,7 +1800,7 @@ public class GridConfig
     /// <summary>
     /// Returns sorted column list to render data grid.
     /// </summary>
-    public List<GridColumn> ColumnListGet(GridDto grid)
+    public List<GridConfigColumn> ColumnListGet(GridDto grid)
     {
         var result = ColumnList;
         var columnFilterMulti = grid.State?.ColumnFilterMulti;
@@ -2008,7 +2008,7 @@ public class GridConfig
     }
 }
 
-public enum GridConfigEnum // TODO Rename to GridEnum
+public enum GridEnum
 {
     None = 0,
 
@@ -2033,7 +2033,7 @@ public enum GridConfigEnum // TODO Rename to GridEnum
     GridAutocomplete = 4,
 }
 
-public class GridColumn // TODO Rename to GridConfigColumn
+public class GridConfigColumn
 {
     public string FieldName { get; set; } = default!;
 

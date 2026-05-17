@@ -1,6 +1,6 @@
 ﻿using System.Linq.Dynamic.Core;
 
-public class GridMemoryService : GridBase
+public class GridMemoryService : GridServiceBase
 {
     public GridMemoryService()
     {
@@ -114,7 +114,7 @@ public class GridMemoryService : GridBase
         return result;
     }
 
-    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
+    protected override Task<GridConfig> Config2(GridRequest2Dto request, GridEnum gridEnum)
     {
         var result = UtilGridReflection.GridConfig(typeof(ProductDto));
         result.ColumnList.Single(item => item.FieldName == "City").IsAutocomplete = true;
@@ -122,10 +122,10 @@ public class GridMemoryService : GridBase
         return Task.FromResult(result);
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete autocomplete)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridEnum gridEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         var result = ProductListGet();
-        result = await UtilGrid.GridLoad2(request, result, null, config, configEnum);
+        result = await UtilGrid.GridLoad2(request, result, null, config, gridEnum);
         return result;
     }
 

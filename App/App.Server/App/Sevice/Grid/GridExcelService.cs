@@ -168,15 +168,15 @@ public class GridExcel2CacheService
     }
 }
 
-public class GridExcel2Service(CommandContextService context, StorageService storage, GridExcel2CacheService cache) : GridBase
+public class GridExcel2Service(CommandContextService context, StorageService storage, GridExcel2CacheService cache) : GridServiceBase
 {
     /// <summary>
     /// Returns first sheet.
     /// </summary>
-    private async Task<Dictionary<uint, Dynamic>?> Sheet(GridRequest2Dto request, GridConfigEnum configEnum)
+    private async Task<Dictionary<uint, Dynamic>?> Sheet(GridRequest2Dto request, GridEnum gridEnum)
     {
         Dictionary<uint, Dynamic>? result = null;
-        if (configEnum == GridConfigEnum.GridFilter || configEnum == GridConfigEnum.GridColumn)
+        if (gridEnum == GridEnum.GridFilter || gridEnum == GridEnum.GridColumn)
         {
             request = request.Parent2();
         }
@@ -198,12 +198,12 @@ public class GridExcel2Service(CommandContextService context, StorageService sto
         return result;
     }
 
-    protected override async Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
+    protected override async Task<GridConfig> Config2(GridRequest2Dto request, GridEnum gridEnum)
     {
         var result = new GridConfig();
         // Config Column
-        var columnList = new List<GridColumn>();
-        var sheet = await Sheet(request, configEnum);
+        var columnList = new List<GridConfigColumn>();
+        var sheet = await Sheet(request, gridEnum);
         if (sheet != null)
         {
             var colList = sheet.SelectMany(row => row.Value.Keys).Distinct().ToList();
@@ -217,14 +217,14 @@ public class GridExcel2Service(CommandContextService context, StorageService sto
         return result;
     }
 
-    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
+    protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridEnum gridEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
         var result = new List<Dynamic>();
-        var sheet = await Sheet(request, configEnum);
+        var sheet = await Sheet(request, gridEnum);
         if (sheet != null)
         {
             result = sheet.Select(item => item.Value).ToList();
-            result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);
+            result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, gridEnum);
         }
         return result;
     }
