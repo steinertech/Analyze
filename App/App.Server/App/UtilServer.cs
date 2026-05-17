@@ -26,43 +26,43 @@ internal static class UtilServer
 
         // AddSingleton should never reference AddScoped like CommandContext
 
-        builder.Services.AddSingleton<Configuration>(); // Contains state
+        builder.Services.AddSingleton<ConfigurationService>(); // Contains state
         builder.Services.AddSingleton<DataService>(); // Contains state
-        builder.Services.AddSingleton<CosmosDbContainer>(); // Contains state
-        builder.Services.AddSingleton<TableStorageClient>(); // Contains state
-        builder.Services.AddTransient<CosmosDb>(); // Wrapper
-        builder.Services.AddTransient<CosmosDbCache>(); // Wrapper
-        builder.Services.AddTransient<CosmosDbDynamic>(); // Wrapper
-        builder.Services.AddTransient<TableStorage>(); // Wrapper
-        builder.Services.AddTransient<TableStorageDynamic>(); // Wrapper
-        builder.Services.AddSingleton<GridMemory>(); // Contains state
-        builder.Services.AddSingleton<GridExcel>();
-        builder.Services.AddTransient<GridExcel2>();
-        builder.Services.AddSingleton<GridExcel2Cache>(); // Contains state
-        builder.Services.AddTransient<GridArticle>();
-        builder.Services.AddSingleton<GridArticle2>(); // Contains state
-        builder.Services.AddTransient<GridStorage>(); // Wrapper
+        builder.Services.AddSingleton<CosmosDbContainerService>(); // Contains state
+        builder.Services.AddSingleton<TableStorageClientService>(); // Contains state
+        builder.Services.AddTransient<CosmosDbService>(); // Wrapper
+        builder.Services.AddTransient<CosmosDbCacheService>(); // Wrapper
+        builder.Services.AddTransient<CosmosDbDynamicService>(); // Wrapper
+        builder.Services.AddTransient<TableStorageService>(); // Wrapper
+        builder.Services.AddTransient<TableStorageDynamicService>(); // Wrapper
+        builder.Services.AddSingleton<GridMemoryService>(); // Contains state
+        builder.Services.AddSingleton<GridExcelService>();
+        builder.Services.AddTransient<GridExcel2Service>();
+        builder.Services.AddSingleton<GridExcel2CacheService>(); // Contains state
+        builder.Services.AddTransient<GridArticleService>();
+        builder.Services.AddSingleton<GridArticle2Service>(); // Contains state
+        builder.Services.AddTransient<GridStorageService>(); // Wrapper
         // Schema
-        builder.Services.AddTransient<GridSchemaTable>(); // Wrapper
-        builder.Services.AddTransient<GridSchemaField>(); // Wrapper
-        builder.Services.AddTransient<GridSchemaData>(); // Wrapper
+        builder.Services.AddTransient<GridSchemaTableService>(); // Wrapper
+        builder.Services.AddTransient<GridSchemaFieldService>(); // Wrapper
+        builder.Services.AddTransient<GridSchemaDataService>(); // Wrapper
         // Organisation
-        builder.Services.AddTransient<GridOrganisation>(); // Wrapper
-        builder.Services.AddTransient<GridOrganisationEmail>(); // Wrapper
+        builder.Services.AddTransient<GridOrganisationService>(); // Wrapper
+        builder.Services.AddTransient<GridOrganisationEmailService>(); // Wrapper
         // Ai
-        builder.Services.AddTransient<GridAi>(); // Wrapper
+        builder.Services.AddTransient<GridAiService>(); // Wrapper
         // Storage
         builder.Services.AddSingleton<StorageClientService>(); // Contains state
-        builder.Services.AddTransient<Storage>(); // Wrapper
+        builder.Services.AddTransient<StorageService>(); // Wrapper
 
-        builder.Services.AddScoped<CommandContext>(); // One new instance for every http request
+        builder.Services.AddScoped<CommandContextService>(); // One new instance for every http request
 
         // Cache
-        builder.Services.AddTransient<Cache>(); // Wrapper
+        builder.Services.AddTransient<CacheService>(); // Wrapper
         builder.Services.AddDistributedMemoryCache(); // TODO Redis
 
         // OpenAi
-        builder.Services.AddSingleton<OpenAi>(); // Contains state
+        builder.Services.AddSingleton<AiService>(); // Contains state
 
         builder.Services.AddControllers().AddJsonOptions(configure =>
         {
@@ -93,9 +93,9 @@ internal static class UtilServer
     /// </summary>
     public static async Task<IActionResult> Run(HttpRequest req, IServiceProvider serviceProvider)
     {
-        var logger = serviceProvider.GetService<ILogger<Function>>()!;
+        var logger = serviceProvider.GetRequiredService<ILogger<Function>>();
         logger.LogInformation("UrilServer.Run();");
-        var jsonOptions = serviceProvider.GetService<JsonSerializerOptions>()!;
+        var jsonOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
         // GET
         if (req.Method == "GET")
         {
@@ -105,8 +105,8 @@ internal static class UtilServer
         using var reader = new StreamReader(req.Body);
         var requestBody = await reader.ReadToEndAsync();
         var requestDto = JsonSerializer.Deserialize<RequestDto>(requestBody, jsonOptions)!;
-        var context = serviceProvider.GetService<CommandContext>()!;
-        var configuration = serviceProvider.GetService<Configuration>()!;
+        var context = serviceProvider.GetRequiredService<CommandContextService>();
+        var configuration = serviceProvider.GetRequiredService<ConfigurationService>();
         context.Domain = new Uri(req.Headers.Origin!).Host;
         // context.DomainNameServer = req.Host.Host; // Not used
         if (configuration.IsDevelopment == false)

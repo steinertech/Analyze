@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-public class Configuration
+public class ConfigurationService
 {
-    public Configuration(IConfiguration configuration)
+    public ConfigurationService(IConfiguration configuration)
     {
         // var sources = ((ConfigurationManager)configuration).Sources;
         // See also AddUserSecrets, Function App > Environment variables > Connection strings, AddAzureKeyVault

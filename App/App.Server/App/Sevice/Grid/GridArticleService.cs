@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos.Linq;
 using System.Linq.Dynamic.Core;
 
-public class GridArticle2 : GridBase
+public class GridArticle2Service : GridBase
 {
     protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
@@ -102,7 +102,7 @@ public class GridArticle2 : GridBase
     }
 }
 
-public class GridArticle(CommandContext context, CosmosDb cosmosDb)
+public class GridArticleService(CommandContextService context, CosmosDbService cosmosDb)
 {
     public async Task Load(GridDto grid, GridCellDto? parentCell, GridControlDto? parentControl, GridDto? parentGrid, GridRequestDto request)
     {

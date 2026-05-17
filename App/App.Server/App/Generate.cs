@@ -18,35 +18,35 @@ internal static class ServerApi
                 break;
             // Debug
             case nameof(CommandDebug):
-                responseDto.Result = await new CommandDebug(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<DataService>()!, serviceProvider.GetService<OpenAi>()!, serviceProvider.GetService<Configuration>()!, serviceProvider.GetService<Storage>()!).Run();
+                responseDto.Result = await new CommandDebug(serviceProvider.GetRequiredService<CommandContextService>(), serviceProvider.GetRequiredService<DataService>(), serviceProvider.GetRequiredService<AiService>(), serviceProvider.GetRequiredService<ConfigurationService>(), serviceProvider.GetRequiredService<StorageService>()).Run();
                 break;
             // Storage
             case nameof(CommandStorage) + nameof(CommandStorage.Download):
-                responseDto.Result = await new CommandStorage(serviceProvider.GetService<Storage>()!, serviceProvider.GetService<CommandContext>()!).Download(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
+                responseDto.Result = await new CommandStorage(serviceProvider.GetRequiredService<StorageService>(), serviceProvider.GetRequiredService<CommandContextService>()).Download(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandStorage) + nameof(CommandStorage.Upload):
-                await new CommandStorage(serviceProvider.GetService<Storage>()!, serviceProvider.GetService<CommandContext>()!).Upload(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<string>(requestDto.ParamList![1], jsonOptions)!);
+                await new CommandStorage(serviceProvider.GetRequiredService<StorageService>(), serviceProvider.GetRequiredService<CommandContextService>()).Upload(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!, UtilServer.JsonElementTo<string>(requestDto.ParamList![1], jsonOptions)!);
                 break;
             // User
             case nameof(CommandUser) + nameof(CommandUser.SignStatus):
-                responseDto.Result = await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<Configuration>()!).SignStatus();
+                responseDto.Result = await new CommandUser(serviceProvider.GetRequiredService<CosmosDbService>(), serviceProvider.GetRequiredService<CosmosDbCacheService>(), serviceProvider.GetRequiredService<CommandContextService>(), serviceProvider.GetRequiredService<ConfigurationService>()).SignStatus();
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignIn):
-                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<Configuration>()!).SignIn(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
+                await new CommandUser(serviceProvider.GetRequiredService<CosmosDbService>(), serviceProvider.GetRequiredService<CosmosDbCacheService>(), serviceProvider.GetRequiredService<CommandContextService>(), serviceProvider.GetRequiredService<ConfigurationService>()).SignIn(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignUp):
-                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<Configuration>()!).SignUp(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
+                await new CommandUser(serviceProvider.GetRequiredService<CosmosDbService>(), serviceProvider.GetRequiredService<CosmosDbCacheService>(), serviceProvider.GetRequiredService<CommandContextService>(), serviceProvider.GetRequiredService<ConfigurationService>()).SignUp(UtilServer.JsonElementTo<UserDto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             case nameof(CommandUser) + nameof(CommandUser.SignOut):
-                await new CommandUser(serviceProvider.GetService<CosmosDb>()!, serviceProvider.GetService<CosmosDbCache>()!, serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<Configuration>()!).SignOut();
+                await new CommandUser(serviceProvider.GetRequiredService<CosmosDbService>(), serviceProvider.GetRequiredService<CosmosDbCacheService>(), serviceProvider.GetRequiredService<CommandContextService>(), serviceProvider.GetRequiredService<ConfigurationService>()).SignOut();
                 break;
             // Grid
             case nameof(CommandGrid) + nameof(CommandGrid.Load2):
-                responseDto.Result = await new CommandGrid(serviceProvider.GetService<GridMemory>()!, serviceProvider.GetService<GridExcel>()!, serviceProvider.GetService<GridStorage>()!, serviceProvider.GetService<GridArticle>()!, serviceProvider.GetService<GridArticle2>()!, serviceProvider.GetService<GridOrganisation>()!, serviceProvider.GetService<GridOrganisationEmail>()!, serviceProvider).Load2(UtilServer.JsonElementTo<GridRequest2Dto>(requestDto.ParamList![0], jsonOptions)!);
+                responseDto.Result = await new CommandGrid(serviceProvider.GetRequiredService<GridMemoryService>(), serviceProvider.GetRequiredService<GridExcelService>(), serviceProvider.GetRequiredService<GridStorageService>(), serviceProvider.GetRequiredService<GridArticleService>(), serviceProvider.GetRequiredService<GridArticle2Service>(), serviceProvider.GetRequiredService<GridOrganisationService>(), serviceProvider.GetRequiredService<GridOrganisationEmailService>(), serviceProvider).Load2(UtilServer.JsonElementTo<GridRequest2Dto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             // Assistant
             case nameof(CommandAssistant):
-                responseDto.Result = await new CommandAssistant(serviceProvider.GetService<CommandContext>()!, serviceProvider.GetService<OpenAi>()!).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
+                responseDto.Result = await new CommandAssistant(serviceProvider.GetRequiredService<AiService>()).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
                 break;
             default:
                 throw new Exception($"Command not found! ({requestDto.CommandName})");

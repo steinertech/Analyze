@@ -1,4 +1,4 @@
-﻿public class CommandDebug(CommandContext context, DataService dataService, OpenAi openAi, Configuration configuration, Storage storage)
+﻿public class CommandDebug(CommandContextService context, DataService dataService, AiService ai, ConfigurationService configuration, StorageService storage)
 {
     public async Task<DebugDto> Run()
     {
@@ -8,9 +8,9 @@
             Instance = dataService.Instance,
             Counter = dataService.Counter,
             CounterList = dataService.CounterList,
-            AiChat = await openAi.CompleteChatAsync(),
+            AiChat = await ai.CompleteChatAsync(),
             McpUrl = configuration.McpUrl(),
-            Text = await openAi.AnalyzeDocumentAsync("Doc1.pdf", storage)
+            Text = await ai.AnalyzeDocumentAsync("Doc1.pdf", storage)
         };
 
         context.NotificationAdd("Hello from debug", NotificationEnum.Info);

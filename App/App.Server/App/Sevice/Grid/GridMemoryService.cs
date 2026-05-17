@@ -1,8 +1,8 @@
 ﻿using System.Linq.Dynamic.Core;
 
-public class GridMemory : GridBase
+public class GridMemoryService : GridBase
 {
-    public GridMemory()
+    public GridMemoryService()
     {
         productList = new List<ProductDto>
         {

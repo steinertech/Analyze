@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json.Serialization;
 
-public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage storageGrid, GridArticle articleGrid, GridArticle2 gridArticle, GridOrganisation gridOrganisation, GridOrganisationEmail gridOrganisationEmail, IServiceProvider serviceProvider)
+public class CommandGrid(GridMemoryService memoryGrid, GridExcelService excelGrid, GridStorageService storageGrid, GridArticleService articleGrid, GridArticle2Service gridArticle, GridOrganisationService gridOrganisation, GridOrganisationEmailService gridOrganisationEmail, IServiceProvider serviceProvider)
 {
     /// <summary>
     /// Returns loaded grid.
@@ -132,23 +132,23 @@ public class CommandGrid(GridMemory memoryGrid, GridExcel excelGrid, GridStorage
                 result = await gridOrganisationEmail.Load2(request);
                 break;
             case "Excel":
-                var gridExcel = serviceProvider.GetService<GridExcel2>()!;
+                var gridExcel = serviceProvider.GetRequiredService<GridExcel2Service>();
                 result = await gridExcel.Load2(request);
                 break;
             case "SchemaTable":
-                var gridSchemaTable = serviceProvider.GetService<GridSchemaTable>()!;
+                var gridSchemaTable = serviceProvider.GetRequiredService<GridSchemaTableService>();
                 result = await gridSchemaTable.Load2(request);
                 break;
             case "SchemaField":
-                var gridSchemaField = serviceProvider.GetService<GridSchemaField>()!;
+                var gridSchemaField = serviceProvider.GetRequiredService<GridSchemaFieldService>();
                 result = await gridSchemaField.Load2(request);
                 break;
             case "SchemaData":
-                var gridSchemaData = serviceProvider.GetService<GridSchemaData>()!;
+                var gridSchemaData = serviceProvider.GetRequiredService<GridSchemaDataService>();
                 result = await gridSchemaData.Load2(request);
                 break;
             case "Ai":
-                var gridAi = serviceProvider.GetService<GridAi>()!;
+                var gridAi = serviceProvider.GetRequiredService<GridAiService>();
                 result = await gridAi.Load2(request);
                 break;
             default:

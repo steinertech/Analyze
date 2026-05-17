@@ -1,7 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
-public class GridExcel(StorageClientService storageClient)
+public class GridExcelService(StorageClientService storageClient)
 {
     private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
@@ -106,7 +106,7 @@ public class GridExcel(StorageClientService storageClient)
     }
 }
 
-public class GridExcel2Cache
+public class GridExcel2CacheService
 {
     private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1); // See also Azure Blob Lease for multiple Azure Function instances
 
@@ -115,7 +115,7 @@ public class GridExcel2Cache
     /// </summary>
     public Dictionary<string, Dictionary<string, Dictionary<uint, Dynamic>>> List = new Dictionary<string, Dictionary<string, Dictionary<uint, Dynamic>>>();
 
-    public async Task Load(string fileNameStorage, Storage storage)
+    public async Task Load(string fileNameStorage, StorageService storage)
     {
         await semaphore.WaitAsync();
         try
@@ -168,7 +168,7 @@ public class GridExcel2Cache
     }
 }
 
-public class GridExcel2(CommandContext context, Storage storage, GridExcel2Cache cache) : GridBase
+public class GridExcel2Service(CommandContextService context, StorageService storage, GridExcel2CacheService cache) : GridBase
 {
     /// <summary>
     /// Returns first sheet.

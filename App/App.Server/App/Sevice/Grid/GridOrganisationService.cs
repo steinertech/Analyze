@@ -1,4 +1,4 @@
-﻿public class GridOrganisation(CommandContext context, CosmosDb cosmosDb) : GridBase
+﻿public class GridOrganisationService(CommandContextService context, CosmosDbService cosmosDb) : GridBase
 {
     protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
@@ -97,7 +97,7 @@
     }
 }
 
-public class GridOrganisationEmail(CommandContext context, CosmosDb cosmosDb) : GridBase
+public class GridOrganisationEmailService(CommandContextService context, CosmosDbService cosmosDb) : GridBase
 {
     protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {

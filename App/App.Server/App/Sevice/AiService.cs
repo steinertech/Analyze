@@ -8,9 +8,9 @@ using System.ClientModel;
 using System.Text;
 using System.Text.Json;
 
-public class OpenAi
+public class AiService
 {
-    public OpenAi(Configuration configuration)
+    public AiService(ConfigurationService configuration)
     {
         Configuration = configuration;
         if (configuration.OpenAiIsActive == false)
@@ -31,7 +31,7 @@ public class OpenAi
         contentUnderstandingClient = new ContentUnderstandingClient(new Uri(Configuration.AzureContentUnderstandingEndpoint!), new Azure.AzureKeyCredential(Configuration.AzureContentUnderstandingApiKey!));
     }
 
-    public readonly Configuration Configuration;
+    public readonly ConfigurationService Configuration;
 
     private readonly OpenAIClient client;
 
@@ -139,7 +139,7 @@ public class OpenAi
         return result;
     }
 
-    public async Task<string> AnalyzeDocumentAsync(string fileName, Storage storage)
+    public async Task<string> AnalyzeDocumentAsync(string fileName, StorageService storage)
     {
         var result = new StringBuilder();
         var downloadUrl = storage.DownloadUrl(fileName, isOrganisation: false);

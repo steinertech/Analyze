@@ -1,8 +1,8 @@
-public class CommandAssistant(CommandContext context, OpenAi openAi)
+public class CommandAssistant(AiService ai)
 {
     public async Task<AssistantDto> Run(string text)
     {
-        var resultText = await openAi.CompleteChatAsync(text);
+        var resultText = await ai.CompleteChatAsync(text);
         var result = new AssistantDto { Text = resultText };
         return result;
     }

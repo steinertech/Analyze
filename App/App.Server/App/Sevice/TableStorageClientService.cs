@@ -3,9 +3,9 @@
 /// <summary>
 /// Keeps TableStorage client connection.
 /// </summary>
-public class TableStorageClient
+public class TableStorageClientService
 {
-    public TableStorageClient(Configuration configuration)
+    public TableStorageClientService(ConfigurationService configuration)
     {
         var connectionString = configuration.ConnectionStringStorage;
         this.Client = new TableClient(connectionString, "App");

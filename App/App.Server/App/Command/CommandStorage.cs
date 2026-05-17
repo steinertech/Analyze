@@ -1,4 +1,4 @@
-﻿public class CommandStorage(Storage storage, CommandContext context)
+﻿public class CommandStorage(StorageService storage, CommandContextService context)
 {
     public async Task<string> Download(string fileName)
     {

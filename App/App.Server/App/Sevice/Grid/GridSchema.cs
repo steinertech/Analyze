@@ -1,4 +1,4 @@
-﻿public class GridSchemaTable(TableStorage storage, TableStorageDynamic storageDynamic, CommandContext context) : GridBase
+﻿public class GridSchemaTableService(TableStorageService storage, TableStorageDynamicService storageDynamic, CommandContextService context) : GridBase
 {
     protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
@@ -33,7 +33,7 @@
     }
 }
 
-public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDynamic, CommandContext context) : GridBase
+public class GridSchemaFieldService(TableStorageService storage, TableStorageDynamicService storageDynamic, CommandContextService context) : GridBase
 {
     protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
@@ -113,7 +113,7 @@ public class GridSchemaField(TableStorage storage, TableStorageDynamic storageDy
     }
 }
 
-public class GridSchemaData(TableStorage storage, TableStorageDynamic storageDynamic, CommandContext context) : GridBase
+public class GridSchemaDataService(TableStorageService storage, TableStorageDynamicService storageDynamic, CommandContextService context) : GridBase
 {
     private string? TableName(GridRequest2Dto request, GridConfigEnum configEnum)
     {

@@ -1,4 +1,4 @@
-﻿public class Storage(CommandContext context, Configuration configuration, StorageClientService storageClient)
+﻿public class StorageService(CommandContextService context, ConfigurationService configuration, StorageClientService storageClient)
 {
     public async Task<string> Download(string fileName, bool isOrganisation = true)
     {

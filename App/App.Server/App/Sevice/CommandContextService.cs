@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// Gives access to generic RequestDto and ResponseDto.
 /// </summary>
-public class CommandContext(IServiceProvider serviceProvider)
+public class CommandContextService(IServiceProvider serviceProvider)
 {
     private string? domain;
 
@@ -40,7 +40,7 @@ public class CommandContext(IServiceProvider serviceProvider)
             ArgumentNullException.ThrowIfNullOrEmpty(email);
             return new() { Email = email, OrganisationName = this.organisationName };
         }
-        var cosmosDbCache = serviceProvider.GetService<CosmosDbCache>()!; // Prevent circular reference.
+        var cosmosDbCache = serviceProvider.GetRequiredService<CosmosDbCacheService>(); // Prevent circular reference.
         var session = RequestSessionId == null ? null : await cosmosDbCache.SelectByNameAsync<SessionDto>(RequestSessionId, isOrganisation: false);
         if (session == null || session.IsSignIn != true)
         {
@@ -70,9 +70,9 @@ public class CommandContext(IServiceProvider serviceProvider)
     {
         if (organisation.IsFolderCreate != true)
         {
-            var cosmosDbCache = serviceProvider.GetService<CosmosDbCache>()!; // Prevent circular reference.
-            var cosmosDb = serviceProvider.GetService<CosmosDb>()!;
-            var storage = serviceProvider.GetService<Storage>()!;
+            var cosmosDbCache = serviceProvider.GetRequiredService<CosmosDbCacheService>(); // Prevent circular reference.
+            var cosmosDb = serviceProvider.GetRequiredService<CosmosDbService>();
+            var storage = serviceProvider.GetRequiredService<StorageService>();
 
             await storage.Create(""); // Create Organisation storage
             organisation.IsFolderCreate = true;
@@ -84,7 +84,7 @@ public class CommandContext(IServiceProvider serviceProvider)
     public async Task OrganisationSwitch(string organisationName)
     {
         var userAuth = await UserAuthAsync();
-        var cosmosDb = serviceProvider.GetService<CosmosDb>()!;
+        var cosmosDb = serviceProvider.GetRequiredService<CosmosDbService>();
         var organisation = await cosmosDb.SelectByNameAsync<OrganisationDto>(organisationName, isOrganisation: false);
         if (organisation?.EmailList?.Contains(userAuth.Email) == true)
         {

@@ -5,7 +5,7 @@
 /// </summary>
 public class StorageClientService
 {
-    public StorageClientService(Configuration configuration)
+    public StorageClientService(ConfigurationService configuration)
     {
         var connectionString = configuration.ConnectionStringStorage;
         this.Client = new DataLakeDirectoryClient(connectionString, ContainerName, ContainerFolderName).GetSubDirectoryClient(null);

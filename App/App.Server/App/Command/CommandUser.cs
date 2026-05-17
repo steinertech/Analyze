@@ -1,4 +1,4 @@
-﻿public class CommandUser(CosmosDb cosmosDb, CosmosDbCache cosmosDbCache, CommandContext context, Configuration configuration)
+﻿public class CommandUser(CosmosDbService cosmosDb, CosmosDbCacheService cosmosDbCache, CommandContextService context, ConfigurationService configuration)
 {
     /// <summary>
     /// Returns UserDto. This is the currently signed in user.

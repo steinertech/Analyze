@@ -1,4 +1,4 @@
-﻿public class GridAi(CommandContext context, CosmosDbDynamic cosmosDb, OpenAi openAi) : GridBase
+﻿public class GridAiService(CommandContextService context, CosmosDbDynamicService cosmosDb, AiService ai) : GridBase
 {
     protected override Task<GridConfig> Config2(GridRequest2Dto request, GridConfigEnum configEnum)
     {
@@ -24,7 +24,7 @@
                 var text = (string?)dataRow["Text"];
                 if (text != null)
                 {
-                    var vector = await openAi.GenerateEmbeddingAsync(text);
+                    var vector = await ai.GenerateEmbeddingAsync(text);
                     dataRow["Vector"] = vector;
                 }
             }
@@ -34,7 +34,7 @@
 
     protected override async Task<List<Dynamic>> GridLoad2(GridRequest2Dto request, string? fieldNameDistinct, GridConfig config, GridConfigEnum configEnum, string? modalName, GridLoadAutocomplete? autocomplete)
     {
-        var vector = await openAi.GenerateEmbeddingAsync("My Blue House");
+        var vector = await ai.GenerateEmbeddingAsync("My Blue House");
         await context.UserAuthAsync();
         var result = await cosmosDb.SelectAiAsync<GridAiDto>(vector);
         result = await UtilGrid.GridLoad2(request, result, fieldNameDistinct, config, configEnum);

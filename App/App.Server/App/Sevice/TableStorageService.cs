@@ -1,4 +1,4 @@
-﻿public class TableStorage(CommandContext context, TableStorageClient tableStorageClient)
+﻿public class TableStorageService(CommandContextService context, TableStorageClientService tableStorageClient)
 {
     private string PartitionKey<T>(bool isOrganisation) where T : TableEntityDto
     {
@@ -37,7 +37,7 @@
     }
 }
 
-public class TableStorageDynamic(CommandContext context, TableStorageClient tableStorageClient)
+public class TableStorageDynamicService(CommandContextService context, TableStorageClientService tableStorageClient)
 {
     private string PartitionKey<T>(bool isOrganisation) where T : TableEntityDto
     {

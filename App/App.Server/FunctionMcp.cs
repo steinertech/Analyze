@@ -6,7 +6,7 @@ using Microsoft.Azure.Functions.Worker.Extensions.Mcp;
 /// See also npx @modelcontextprotocol/inspector
 /// curl -X POST http://localhost:7138/runtime/webhooks/mcp -H "Content-Type: application/json" -d '{ "jsonrpc": "2.0", "id": "1", "method": "tools/list" }'
 /// </summary>
-public class FunctionMcp(Configuration configuration) 
+public class FunctionMcp(ConfigurationService configuration) 
 {
     [Function("version")]
     public async Task<string> Version(

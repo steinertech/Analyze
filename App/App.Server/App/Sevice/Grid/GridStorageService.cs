@@ -1,4 +1,4 @@
-﻿public class GridStorage(Storage storage, CommandContext context, StorageClientService storageClient) : GridBase
+﻿public class GridStorageService(StorageService storage, CommandContextService context, StorageClientService storageClient) : GridBase
 {
     private async Task Load(GridDto grid)
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 
-public class Cache(IDistributedCache cache, Configuration configuration, CommandContext context)
+public class CacheService(IDistributedCache cache, ConfigurationService configuration, CommandContextService context)
 {
     private async Task<string> Key(string key)
     {
@@ -12,19 +12,19 @@ public class Cache(IDistributedCache cache, Configuration configuration, Command
             {
                 // First client request
                 context.CacheId = Guid.NewGuid().ToString();
-                await cache.SetStringAsync($"{nameof(Cache)}/{context.CacheId}", context.CacheId);
+                await cache.SetStringAsync($"{nameof(CacheService)}/{context.CacheId}", context.CacheId);
             }
             else
             {
-                var cacheId = await cache.GetStringAsync($"{nameof(Cache)}/{context.CacheId}");
+                var cacheId = await cache.GetStringAsync($"{nameof(CacheService)}/{context.CacheId}");
                 if (cacheId != context.CacheId)
                 {
                     // Subsequent client request went to different server instance
                     context.CacheId = Guid.NewGuid().ToString();
-                    await cache.SetStringAsync($"{nameof(Cache)}/{context.CacheId}", context.CacheId);
+                    await cache.SetStringAsync($"{nameof(CacheService)}/{context.CacheId}", context.CacheId);
                 }
             }
-            result = $"{nameof(Cache)}/CacheId/{context.CacheId}/{key}";
+            result = $"{nameof(CacheService)}/CacheId/{context.CacheId}/{key}";
         }
         return result;
     }

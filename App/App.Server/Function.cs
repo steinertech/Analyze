@@ -18,7 +18,7 @@ public class Function(DataService dataService, IServiceProvider serviceProvider,
     [Function("trigger")]
     public async Task RunTrigger([TimerTrigger("* * * * *")] TimerInfo timerInfo, FunctionContext context) // Package Microsoft.Azure.Functions.Worker.Extensions.Timer
     {
-        var configuration = serviceProvider.GetService<Configuration>()!;
+        var configuration = serviceProvider.GetRequiredService<ConfigurationService>();
         
         logger.LogInformation($"RunTrigger (Instance={dataService.Instance}; TriggerUrl={configuration.TriggerUrl})"); // Log Analytics run query AppTraces | where Message contains "RunTrigger"
 
@@ -31,7 +31,7 @@ public class Function(DataService dataService, IServiceProvider serviceProvider,
         {
             if (httpClient == null)
             {
-                var factory = serviceProvider.GetService<IHttpClientFactory>()!;
+                var factory = serviceProvider.GetRequiredService<IHttpClientFactory>();
                 httpClient = factory.CreateClient();
             }
             var response = await httpClient.GetAsync(configuration.TriggerUrl);
@@ -39,7 +39,7 @@ public class Function(DataService dataService, IServiceProvider serviceProvider,
             UtilServer.Assert(UtilServer.VersionServerFull == responseText);
 
             // Keep warm CosmosDb
-            var cosmosDb = serviceProvider.GetService<CosmosDb>();
+            var cosmosDb = serviceProvider.GetRequiredService<CosmosDbService>();
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿public class CosmosDbCache(CosmosDb cosmosDb, Cache cache)
+﻿public class CosmosDbCacheService(CosmosDbService cosmosDb, CacheService cache)
 {
     private static string Key(Type type, string? name, bool isOrganisation)
     {
         UtilServer.Assert(!(name ?? "").Contains("/"));
-        return $"{nameof(CosmosDbCache)}/Type/{type.Name}Name/{name}/IsOrganisation/{isOrganisation}";
+        return $"{nameof(CosmosDbCacheService)}/Type/{type.Name}Name/{name}/IsOrganisation/{isOrganisation}";
     }
 
     public async Task<T?> SelectByNameAsync<T>(string? name, bool isOrganisation = true) where T : DocumentDto
@@ -29,7 +29,7 @@
     }
 }
 
-public class CosmosDbDynamicCache(CosmosDb cosmosDb, Cache cache)
+public class CosmosDbDynamicCache(CosmosDbService cosmosDb, CacheService cache)
 {
     public Task<Dynamic?> SelectByNameAsync<T>(string? name, bool isOrganisation = true) where T : DocumentDto
     {

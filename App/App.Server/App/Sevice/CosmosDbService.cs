@@ -1,4 +1,4 @@
-﻿public class CosmosDb(CommandContext context, CosmosDbContainer cosmosDbContainer)
+﻿public class CosmosDbService(CommandContextService context, CosmosDbContainerService cosmosDbContainer)
 {
     private string PartitionKey<T>(bool isOrganisation) where T : DocumentDto
     {
@@ -44,7 +44,7 @@
     }
 }
 
-public class CosmosDbDynamic(CommandContext context, CosmosDbContainer cosmosDbContainer)
+public class CosmosDbDynamicService(CommandContextService context, CosmosDbContainerService cosmosDbContainer)
 {
     private string PartitionKey<T>(bool isOrganisation) where T : DocumentDto
     {

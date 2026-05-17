@@ -3,9 +3,9 @@
 /// <summary>
 /// Keeps CosmosDb container connection.
 /// </summary>
-public class CosmosDbContainer
+public class CosmosDbContainerService
 {
-    public CosmosDbContainer(Configuration configuration)
+    public CosmosDbContainerService(ConfigurationService configuration)
     {
         var connectionString = configuration.ConnectionStringCosmosDb;
         var options = new CosmosClientOptions 
