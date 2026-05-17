@@ -1,9 +1,9 @@
-﻿public class GridStorage(Storage storage, CommandContext context, StorageClientService storageClientService) : GridBase
+﻿public class GridStorage(Storage storage, CommandContext context, StorageClientService storageClient) : GridBase
 {
     private async Task Load(GridDto grid)
     {
         grid.Clear();
-        var folderOrFileNameList = await UtilStorage.List(storageClientService.Client, isRecursive: true);
+        var folderOrFileNameList = await UtilStorage.List(storageClient.Client, isRecursive: true);
         var dataRowIndex = 0;
         foreach (var item in folderOrFileNameList)
         {
@@ -65,7 +65,7 @@
         var cellList = grid.CellList().Where(item => item.TextModified != null).ToList();
         foreach (var item in cellList)
         {
-            await UtilStorage.Rename(storageClientService.Client, item.Text!, item.TextModified!);
+            await UtilStorage.Rename(storageClient.Client, item.Text!, item.TextModified!);
         }
         // Button Create Folder
         if (request.Control?.ControlEnum == GridControlEnum.Button && request.Control.Name == "CreateFolder")
@@ -73,7 +73,7 @@
             var control = grid.ControlModifiedList().SingleOrDefault();
             if (control != null)
             {
-                await UtilStorage.Create(storageClientService.Client, control.TextModified!);
+                await UtilStorage.Create(storageClient.Client, control.TextModified!);
             }
         }
     }
@@ -92,7 +92,7 @@
             {
                 var dataRowIndex = parentCell.DataRowIndex!;
                 var folderOrFileName = parentGrid!.CellList().Where(item => item.CellEnum == GridCellEnum.Field && dataRowIndex == item.DataRowIndex).Select(item => item.Text).Single();
-                await UtilStorage.Delete(storageClientService.Client, folderOrFileName!);
+                await UtilStorage.Delete(storageClient.Client, folderOrFileName!);
                 await Load(parentGrid);
             }
             // Modal Rename
@@ -101,7 +101,7 @@
                 var control = grid.ControlModifiedList().Where(item => item.Name == "Rename").SingleOrDefault();
                 if (control != null)
                 {
-                    await UtilStorage.Rename(storageClientService.Client, control.Text!, control.TextModified!);
+                    await UtilStorage.Rename(storageClient.Client, control.Text!, control.TextModified!);
                     await Load(parentGrid!);
                 }
             }
