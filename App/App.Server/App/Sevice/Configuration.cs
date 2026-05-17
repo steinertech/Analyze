@@ -20,6 +20,8 @@ public class Configuration
         this.OpenAiApiKey = configuration.GetValue<string?>("OpenAiApiKey", null);
         this.OpenAiEmbeddingModel = configuration.GetValue<string?>("OpenAiEmbeddingModel", null);
         this.OpenAiChatModel = configuration.GetValue<string?>("OpenAiChatModel", null);
+        this.AzureContentUnderstandingEndpoint = configuration.GetValue<string?>("AzureContentUnderstandingEndpoint", null);
+        this.AzureContentUnderstandingApiKey = configuration.GetValue<string?>("AzureContentUnderstandingApiKey", null);
     }
 
     public string ConnectionStringStorage { get; }
@@ -98,5 +100,15 @@ public class Configuration
     /// Gets OpenAiModel. See also https://platform.openai.com/settings/organization/limits
     /// </summary>
     public string? OpenAiChatModel { get; }
+
+    /// <summary>
+    /// Gets AzureContentUnderstandingEndpoint. Go to Azure Portal Foundry AI Services. See also https://contentunderstanding.ai.azure.com/settings
+    /// </summary>
+    public string? AzureContentUnderstandingEndpoint { get; }
+
+    /// <summary>
+    /// Gets AzureContentUnderstandingApiKey. Key for Azure Foundry.
+    /// </summary>
+    public string? AzureContentUnderstandingApiKey { get; } 
 }
 

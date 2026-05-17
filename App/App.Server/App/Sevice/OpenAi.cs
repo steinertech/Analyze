@@ -1,30 +1,40 @@
+using Azure.AI.ContentUnderstanding;
 using Azure.AI.OpenAI;
 using ModelContextProtocol.Client;
 using OpenAI;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
+using System.ClientModel;
+using System.Text;
 using System.Text.Json;
 
 public class OpenAi
 {
-    public OpenAi(Configuration configuration)
+    public OpenAi(Configuration configuration, IServiceProvider serviceProvider)
     {
+        Configuration = configuration;
+        ServiceProvider = serviceProvider;
         if (configuration.OpenAiIsActive == false)
         {
             // Azure OpenAI
-            client = new AzureOpenAIClient(new Uri(configuration.AzureOpenAiEndpoint!), new System.ClientModel.ApiKeyCredential(configuration.AzureOpenAiApiKey!));
-            embeddingClient = client.GetEmbeddingClient(configuration.AzureOpenAiEmbeddingModel!);
-            chatClient = client.GetChatClient(configuration.AzureOpenAiChatModel!);
+            client = new AzureOpenAIClient(new Uri(Configuration.AzureOpenAiEndpoint!), new ApiKeyCredential(Configuration.AzureOpenAiApiKey!));
+            embeddingClient = client.GetEmbeddingClient(Configuration.AzureOpenAiEmbeddingModel!);
+            chatClient = client.GetChatClient(Configuration.AzureOpenAiChatModel!);
         }
         else
         {
             // OpenAI
-            client = new OpenAIClient(new System.ClientModel.ApiKeyCredential(configuration.OpenAiApiKey!));
-            embeddingClient = client.GetEmbeddingClient(configuration.OpenAiEmbeddingModel!);
-            chatClient = client.GetChatClient(configuration.OpenAiChatModel!);
+            client = new OpenAIClient(new ApiKeyCredential(Configuration.OpenAiApiKey!));
+            embeddingClient = client.GetEmbeddingClient(Configuration.OpenAiEmbeddingModel!);
+            chatClient = client.GetChatClient(Configuration.OpenAiChatModel!);
         }
-        mcpUrl = configuration.McpUrl();
+        mcpUrl = Configuration.McpUrl();
+        contentUnderstandingClient = new ContentUnderstandingClient(new Uri(Configuration.AzureContentUnderstandingEndpoint!), new Azure.AzureKeyCredential(Configuration.AzureContentUnderstandingApiKey!));
     }
+
+    public readonly Configuration Configuration;
+
+    public readonly IServiceProvider ServiceProvider;
 
     private readonly OpenAIClient client;
 
@@ -33,6 +43,8 @@ public class OpenAi
     private readonly ChatClient chatClient;
 
     private readonly string mcpUrl;
+
+    private readonly ContentUnderstandingClient contentUnderstandingClient;
 
     public async Task<float[]> GenerateEmbeddingAsync(string text)
     {
@@ -128,5 +140,26 @@ public class OpenAi
 
         var result = response.Value.Content[0].Text;
         return result;
+    }
+
+    public async Task<string> AnalyzeDocumentAsync(string fileName, Storage storage)
+    {
+        var result = new StringBuilder();
+        var downloadUrl = storage.DownloadUrl(fileName, isOrganisation: false);
+        var response = await contentUnderstandingClient.AnalyzeAsync(Azure.WaitUntil.Completed, "prebuilt-read", [new AnalysisInput { Uri = new Uri(downloadUrl) }]);
+        foreach (var item in response.Value.Contents)
+        {
+            if (item is DocumentContent documentContent)
+            {
+                foreach (var page in documentContent.Pages)
+                {
+                    foreach (var line in page.Lines)
+                    {
+                        result.AppendLine(line.Content);
+                    }
+                }
+            }
+        }
+        return result.ToString();
     }
 }

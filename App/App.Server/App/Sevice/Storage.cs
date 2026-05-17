@@ -45,6 +45,11 @@
         return UtilStorage.DownloadUrl(configuration.ConnectionStringStorage, fileNameList);
     }
 
+    public string DownloadUrl(string fileName, bool isOrganisation = true)
+    {
+        return DownloadUrl([fileName], isOrganisation).Single();
+    }
+
     public List<string> UploadUrl(List<string> fileNameList, bool isOrganisation = true)
     {
         for (int i = 0; i < fileNameList.Count; i++)
