@@ -128,6 +128,8 @@ public class AiService
         builder.AddEdge(a, b);
         builder.AddEdge(b, c);
         var workflow = builder.Build();
+        var dDot = workflow.ToDotString(); // https://www.devtoolsdaily.com/
+        var dMermaid = workflow.ToMermaidString(); // https://mermaid.live/
         var store = new AiStore(); // new FileSystemJsonCheckpointStore(store);
         var manager = CheckpointManager.CreateJson(store);
         var response = await InProcessExecution.RunAsync(workflow, "my", manager);
