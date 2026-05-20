@@ -12,6 +12,8 @@
             Text = await ai.AnalyzeDocumentAsync("Doc1.pdf", storage)
         };
 
+        result.Text += "; Workflow=" + await ai.WorkflowRun();
+
         context.NotificationAdd("Hello from debug", NotificationEnum.Info);
 
         if (context.RequestSessionId == null)
