@@ -1,5 +1,7 @@
 using Azure.AI.ContentUnderstanding;
 using Azure.AI.OpenAI;
+using Microsoft.Agents.AI.Workflows;
+using Microsoft.Agents.AI.Workflows.Checkpointing;
 using ModelContextProtocol.Client;
 using OpenAI;
 using OpenAI.Chat;
@@ -114,5 +116,117 @@ public class AiService
             }
         }
         return result.ToString();
+    }
+
+    public async Task<string> WorkflowRun()
+    {
+        var result = new StringBuilder();
+        var a = new AiExecutorA().BindExecutor();
+        var b = new AiExecutorB().BindExecutor();
+        var c = new AiExecutorC().BindExecutor();
+        WorkflowBuilder builder = new(a);
+        builder.AddEdge(a, b);
+        builder.AddEdge(b, c);
+        var workflow = builder.Build();
+        var store = new AiStore(); // new FileSystemJsonCheckpointStore(store);
+        var manager = CheckpointManager.CreateJson(store);
+        var response = await InProcessExecution.RunAsync(workflow, "my", manager);
+        var count = 0;
+        foreach (var item in response.NewEvents)
+        {
+            count += 1;
+            result.AppendLine($"[{item.GetType().Name}; {count}]");
+            if (item is ExecutorCompletedEvent completedStep)
+            {
+                result.AppendLine($"[{completedStep.ExecutorId}] processed data: \"{completedStep.Data}\"");
+            }
+            if (item is SuperStepCompletedEvent superStepEvent)
+            {
+                var savedCheckpoint = superStepEvent.CompletionInfo?.Checkpoint;
+                result.AppendLine($"[Engine] Superstep done. Saved Checkpoint ID: {savedCheckpoint?.CheckpointId}");
+            }
+        }
+        return result.ToString();
+    }
+}
+
+public class AiStore : ICheckpointStore<JsonElement>
+{
+    /// <summary>
+    /// (SessionId, CheckpointId, Json)
+    /// </summary>
+    private Dictionary<string, Dictionary<string, string>> list = new Dictionary<string, Dictionary<string, string>>();
+
+    public async ValueTask<CheckpointInfo> CreateCheckpointAsync(string sessionId, JsonElement value, CheckpointInfo? parent = null)
+    {
+        if (!list.ContainsKey(sessionId))
+        {
+            list.Add(sessionId, new());
+        }
+        var checkpointId = (list[sessionId].Count + 1).ToString();
+        var json = JsonSerializer.Serialize(value, new JsonSerializerOptions { WriteIndented = true });
+        list[sessionId][checkpointId] = json;
+        var result = new CheckpointInfo(sessionId, checkpointId);
+        return result;
+    }
+
+    public async ValueTask<JsonElement> RetrieveCheckpointAsync(string sessionId, CheckpointInfo key)
+    {
+        var json = list[sessionId][key.CheckpointId];
+        var result = JsonSerializer.Deserialize<JsonElement>(json);
+        return result;
+    }
+
+    public async ValueTask<IEnumerable<CheckpointInfo>> RetrieveIndexAsync(string sessionId, CheckpointInfo? withParent = null)
+    {
+        var result = new List<CheckpointInfo>();
+        foreach (var item in list)
+        {
+            result.Add(new CheckpointInfo(sessionId, item.Key));
+        }
+        return result;
+    }
+}
+
+public class AiExecutorA : Executor<string, string> // Pregel Vertex
+{
+    public AiExecutorA() 
+        : base("ExecutorA")
+    {
+
+    }
+
+    public override async ValueTask<string> HandleAsync(string message, IWorkflowContext context, CancellationToken cancellationToken = default)
+    {
+        // Call LLM
+        return message + "A";
+    }
+}
+
+public class AiExecutorB : Executor<string, string>
+{
+    public AiExecutorB()
+        : base("ExecutorB")
+    {
+
+    }
+
+    public override async ValueTask<string> HandleAsync(string message, IWorkflowContext context, CancellationToken cancellationToken = default)
+    {
+        return message + "B";
+    }
+}
+
+public class AiExecutorC : Executor<string, string>
+{
+    public AiExecutorC()
+        : base("ExecutorC")
+    {
+
+    }
+
+    public override async ValueTask<string> HandleAsync(string message, IWorkflowContext context, CancellationToken cancellationToken = default)
+    {
+        return message + "C";
     }
 }
