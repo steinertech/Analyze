@@ -126,21 +126,23 @@ public class AiService
         var c = new AiExecutorC().BindExecutor();
         WorkflowBuilder builder = new(a);
         builder.AddEdge(a, b);
-        builder.AddEdge(b, c);
+        // builder.AddEdge(a, b, (object? message) => { return true; // If true, go after A to B });
+        builder.AddSwitch(b, (p) => p.WithDefault(c).AddCase((AiMessageDto? message) => message?.Count < 3, a));
+        // builder.AddEdge(b, c);
         var workflow = builder.Build();
-        var dDot = workflow.ToDotString(); // https://www.devtoolsdaily.com/
-        var dMermaid = workflow.ToMermaidString(); // https://mermaid.live/
+        var debugMermaid = workflow.ToMermaidString(); // https://mermaid.live/
+        var dedugDot = workflow.ToDotString(); // https://www.devtoolsdaily.com/
         var store = new AiStore(); // new FileSystemJsonCheckpointStore(store);
         var manager = CheckpointManager.CreateJson(store);
-        var response = await InProcessExecution.RunAsync(workflow, "my", manager);
+        var response = await InProcessExecution.RunAsync(workflow, new AiMessageDto { Text = "My" }, manager);
         var count = 0;
         foreach (var item in response.NewEvents)
         {
             count += 1;
-            result.AppendLine($"[{item.GetType().Name}; {count}]");
+            result.AppendLine($"[{count:D3}; {item.GetType().Name};]");
             if (item is ExecutorCompletedEvent completedStep)
             {
-                result.AppendLine($"[{completedStep.ExecutorId}] processed data: \"{completedStep.Data}\"");
+                result.AppendLine($"[{completedStep.ExecutorId}] processed data: \"{(completedStep.Data as AiMessageDto)?.Text}\"");
             }
             if (item is SuperStepCompletedEvent superStepEvent)
             {
@@ -150,6 +152,13 @@ public class AiService
         }
         return result.ToString();
     }
+}
+
+public class AiMessageDto
+{
+    public int Count { get; set; }
+
+    public string? Text { get; set; }
 }
 
 public class AiStore : ICheckpointStore<JsonElement>
@@ -190,7 +199,7 @@ public class AiStore : ICheckpointStore<JsonElement>
     }
 }
 
-public class AiExecutorA : Executor<string, string> // Pregel Vertex
+public class AiExecutorA : Executor<AiMessageDto, AiMessageDto> // Pregel Vertex
 {
     public AiExecutorA() 
         : base("ExecutorA")
@@ -198,14 +207,15 @@ public class AiExecutorA : Executor<string, string> // Pregel Vertex
 
     }
 
-    public override async ValueTask<string> HandleAsync(string message, IWorkflowContext context, CancellationToken cancellationToken = default)
+    public override async ValueTask<AiMessageDto> HandleAsync(AiMessageDto message, IWorkflowContext context, CancellationToken cancellationToken = default)
     {
         // Call LLM
-        return message + "A";
+        message.Text += "A";
+        return message;
     }
 }
 
-public class AiExecutorB : Executor<string, string>
+public class AiExecutorB : Executor<AiMessageDto, AiMessageDto>
 {
     public AiExecutorB()
         : base("ExecutorB")
@@ -213,13 +223,18 @@ public class AiExecutorB : Executor<string, string>
 
     }
 
-    public override async ValueTask<string> HandleAsync(string message, IWorkflowContext context, CancellationToken cancellationToken = default)
+    public override async ValueTask<AiMessageDto> HandleAsync(AiMessageDto message, IWorkflowContext context, CancellationToken cancellationToken = default)
     {
-        return message + "B";
+        message.Text += "B";
+        message.Count += 1;
+        // var count = await context.ReadStateAsync<int>("Count");
+        // count += 1;
+        // await context.QueueStateUpdateAsync("Count", count);
+        return message;
     }
 }
 
-public class AiExecutorC : Executor<string, string>
+public class AiExecutorC : Executor<AiMessageDto, AiMessageDto>
 {
     public AiExecutorC()
         : base("ExecutorC")
@@ -227,8 +242,9 @@ public class AiExecutorC : Executor<string, string>
 
     }
 
-    public override async ValueTask<string> HandleAsync(string message, IWorkflowContext context, CancellationToken cancellationToken = default)
+    public override async ValueTask<AiMessageDto> HandleAsync(AiMessageDto message, IWorkflowContext context, CancellationToken cancellationToken = default)
     {
-        return message + "C";
+        message.Text += "C";
+        return message;
     }
 }
