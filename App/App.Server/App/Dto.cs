@@ -111,7 +111,7 @@ public class OrganisationDto : DocumentDto
     public string? Text { get; set; }
 
     /// <summary>
-    /// Gets or sets IsFolderCreate. If true, Organisation folder has been created.
+    /// Gets or sets IsFolderCreate. If true, Organisation storage folder has been created.
     /// </summary>
     public bool? IsFolderCreate { get; set; }
 

@@ -47,7 +47,7 @@ public class ConfigurationService
     public bool IsCacheShared { get; }
 
     /// <summary>
-    /// Gets TriggerUrl. Called every minute by trigger.
+    /// Gets TriggerUrl. Called every minute by trigger. This is the api url. For example http://localhost:7138/api/data
     /// </summary>
     public string? TriggerUrl { get; }
 

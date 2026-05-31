@@ -9,6 +9,7 @@ import { PageArticle } from './page-article/page-article';
 import { PageOrganisation } from './page-organisation/page-organisation';
 import { PageSchema } from './page-schema/page-schema';
 import { PageAi } from './page-ai/page-ai';
+import { PageJob } from './page-job/page-job';
 
 export const routes: Routes = [
   { path: '', component: PageHome },
@@ -27,4 +28,5 @@ export const routes: Routes = [
   { path: 'article', component: PageArticle },
   { path: 'organisation', component: PageOrganisation },
   { path: 'ai', component: PageAi },
+  { path: 'job', component: PageJob },
 ];

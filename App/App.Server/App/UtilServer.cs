@@ -64,6 +64,9 @@ internal static class UtilServer
         // OpenAi
         builder.Services.AddSingleton<AiService>(); // Contains state
 
+        // Job
+        builder.Services.AddTransient<GridJobService>(); // Wrapper
+
         builder.Services.AddControllers().AddJsonOptions(configure =>
         {
             var options = configure.JsonSerializerOptions;
