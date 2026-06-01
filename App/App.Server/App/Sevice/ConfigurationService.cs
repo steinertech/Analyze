@@ -12,6 +12,7 @@ public class ConfigurationService
         this.IsCache = configuration.GetValue<bool>("IsCache", false);
         this.IsCacheShared = configuration.GetValue<bool>("IsCacheShared", false);
         this.TriggerUrl = configuration.GetValue<string?>("TriggerUrl", null);
+        this.DomainList = configuration.GetSection("DomainList").Get<List<string?>?>();
         this.AzureOpenAiEndpoint = configuration.GetValue<string?>("AzureOpenAiEndpoint", null);
         this.AzureOpenAiApiKey = configuration.GetValue<string?>("AzureOpenAiApiKey", null);
         this.AzureOpenAiEmbeddingModel = configuration.GetValue<string?>("AzureOpenAiEmbeddingModel", null);
@@ -50,6 +51,27 @@ public class ConfigurationService
     /// Gets TriggerUrl. Called every minute by trigger. This is the api url. For example http://localhost:7138/api/data
     /// </summary>
     public string? TriggerUrl { get; }
+
+    /// <summary>
+    /// Gets DomainList. For example localhost, my.localhost, www.example.com
+    /// </summary>
+    public List<string?>? DomainList { get; }
+
+    public List<string> DomainListGet()
+    {
+        var result = new List<string>();
+        if (DomainList != null)
+        {
+            foreach (var item in DomainList)
+            {
+                if (item != null)
+                {
+                    result.Add(item);
+                }
+            }
+        }
+        return result;
+    }
 
     /// <summary>
     /// Returns server domain. Used for example for Mcp server for login redirect. Returns for example http://localhost:7138

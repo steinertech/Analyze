@@ -22,10 +22,22 @@ public class CommandContextService(IServiceProvider serviceProvider)
             }
             return domain;
         }
-        internal set
+    }
+
+    /// <summary>
+    /// Sets Domain. This is the client domain name. For example localhost or example.com
+    /// </summary>
+    internal void DomainSet(string value)
+    {
+        if (domain != null)
         {
-            domain = value;
+            throw new Exception("Domain already set!");
         }
+        if (string.IsNullOrEmpty(value))
+        {
+            throw new Exception("Domain can not be null!");
+        }
+        domain = value;
     }
 
     // public string DomainNameServer { get; set; } = default!;

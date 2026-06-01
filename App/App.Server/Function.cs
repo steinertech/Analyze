@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Net.Http.Json;
 
 public class Function(DataService dataService, IServiceProvider serviceProvider, ILogger<Function> logger)
 {
@@ -39,7 +40,50 @@ public class Function(DataService dataService, IServiceProvider serviceProvider,
             UtilServer.Assert(UtilServer.VersionServerFull == responseText);
 
             // Keep warm CosmosDb
-            var cosmosDb = serviceProvider.GetRequiredService<CosmosDbService>();
+            {
+                var cosmosDb = serviceProvider.GetRequiredService<CosmosDbService>();
+            }
+
+            // Job command
+            {
+                foreach (var domain in configuration.DomainListGet())
+                {
+                    var scope = serviceProvider.CreateScope();
+                    var commandContext = scope.ServiceProvider.GetRequiredService<CommandContextService>();
+                    commandContext.DomainSet(domain);
+                    var cosmosDb = scope.ServiceProvider.GetRequiredService<CosmosDbService>();
+                    var organisationList = await cosmosDb.Select<OrganisationDto>(isOrganisation: false).ToListAsync();
+                    organisationList = organisationList.Where(item => item.IsFolderCreate == true).ToList();
+                    foreach (var organisation in organisationList)
+                    {
+                        var sessionId = Guid.NewGuid().ToString();
+                        var session = new SessionDto { Id = Guid.NewGuid().ToString(), SessionId = sessionId, Name = sessionId, Email = "Job", IsSignIn = true, OrganisationName = organisation.Name };
+                        session = await cosmosDb.InsertAsync(session, isOrganisation: false);
+                        try
+                        {
+                            var request = new RequestDto { CommandName = "CommandJob", };
+                            var httpRequest = new HttpRequestMessage(HttpMethod.Post, configuration.TriggerUrl)
+                            {
+                                Content = JsonContent.Create(request),
+                            };
+                            if (configuration.IsDevelopment == false)
+                            {
+                                httpRequest.Headers.Add("Cookie", $"SessionId={sessionId}");
+                            }
+                            else
+                            {
+                                request.DevelopmentSessionId = sessionId;
+                            }
+                            httpRequest.Headers.Add("Origin", $"https://{domain}");
+                            await httpClient.SendAsync(httpRequest); // Call for every domain and organisation
+                        }
+                        finally
+                        {
+                            session = await cosmosDb.DeleteAsync<SessionDto>(session.Id!, isOrganisation: false);
+                        }
+                    }
+                }
+            }
         }
     }
 }

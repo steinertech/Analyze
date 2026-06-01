@@ -110,7 +110,12 @@ internal static class UtilServer
         var requestDto = JsonSerializer.Deserialize<RequestDto>(requestBody, jsonOptions)!;
         var context = serviceProvider.GetRequiredService<CommandContextService>();
         var configuration = serviceProvider.GetRequiredService<ConfigurationService>();
-        context.Domain = new Uri(req.Headers.Origin!).Host;
+        var domain = new Uri(req.Headers.Origin!).Host;
+        if (configuration.DomainList?.Contains(domain) == false)
+        {
+            throw new Exception("Domain unknown!");
+        }
+        context.DomainSet(domain);
         // context.DomainNameServer = req.Host.Host; // Not used
         if (configuration.IsDevelopment == false)
         {
