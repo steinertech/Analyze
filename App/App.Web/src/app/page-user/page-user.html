@@ -26,7 +26,7 @@
 @if(userModeEnum===UserModeEnumLocal.SignIn || userModeEnum===UserModeEnumLocal.SignUp || userModeEnum===UserModeEnumLocal.SignInRecover|| userModeEnum===UserModeEnumLocal.SignInPasswordChange) {
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
   <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-    <img class="mx-auto h-10 w-auto" src="logo.png" alt="SteinerTech">
+    <img class="mx-auto h-10 w-auto" src="logo.png" alt="App">
     @if(userModeEnum===UserModeEnumLocal.SignIn){
     <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Sign in to your account</h2>
     }
@@ -105,7 +105,7 @@
 
 @if (userModeEnum===UserModeEnumLocal.SignOut) {
 <div class="lg:prose-xl sm:pt sm:pt prose pt-2 sm:container sm:mx-auto sm:px-24 sm:pt-8">
-  <h1>Sign Out</h1>
+  <h1>Sign Out <span class="i-user"></span></h1>
   @if (dataService.userSignStatus()) {
   <p>Signing out...</p>
   } @else {

@@ -10,6 +10,7 @@ import { PageOrganisation } from './page-organisation/page-organisation';
 import { PageSchema } from './page-schema/page-schema';
 import { PageAi } from './page-ai/page-ai';
 import { PageJob } from './page-job/page-job';
+import { PageTicket } from './page-ticket/page-ticket';
 
 export const routes: Routes = [
   { path: '', component: PageHome },
@@ -28,5 +29,6 @@ export const routes: Routes = [
   { path: 'article', component: PageArticle },
   { path: 'organisation', component: PageOrganisation },
   { path: 'ai', component: PageAi },
+  { path: 'ticket', component: PageTicket },
   { path: 'job', component: PageJob },
 ];
