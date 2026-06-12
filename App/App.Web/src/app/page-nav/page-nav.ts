@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, LOCALE_ID } from '@angular/core';
 import { BreakpointObserver, LayoutModule } from '@angular/cdk/layout';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { DataService } from '../data.service';
 import { ServerApi } from '../server-api';
 
@@ -12,8 +12,18 @@ import { ServerApi } from '../server-api';
 })
 export class PageNav {
   private observer = inject(BreakpointObserver)
+  private router = inject(Router)
   protected dataService = inject(DataService)
   protected serverApi = inject(ServerApi)
+  protected localeId = inject(LOCALE_ID)
+
+  get langSwitchUrl(): string {
+    return this.localeId === 'de' ? this.router.url : '/de' + this.router.url;
+  }
+
+  get langSwitchLabel(): string {
+    return this.localeId === 'de' ? 'EN' : 'DE';
+  }
 
   constructor() {
     this.observer.observe(['(max-width: 640px)']).subscribe(result => { // See also https://v2.tailwindcss.com/docs/responsive-design
