@@ -2,6 +2,22 @@
   "locale": "en-US",
   "translations": {
     "debugKeyHtml": "Hello Html (Native)",
-    "debugKeyTs": "Hello Ts (Native)"
+    "debugKeyTs": "Hello Ts (Native)",
+    "homeTitle": "Your Business. Simplified.",
+    "homeIntro": "The all-in-one platform built for small and growing companies. Manage your team, data, and operations from a single, secure workspace — so you can focus on what matters most.",
+    "homeSecureAccessTitle": "Secure Access {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
+    "homeSecureAccessBody": "Get up and running in minutes. Invite your team, assign roles, and keep your organisation's data protected with enterprise-grade authentication — without the enterprise complexity.",
+    "homeSpreadsheetTitle": "Spreadsheet {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
+    "homeSpreadsheetBody": "A powerful, familiar spreadsheet experience built right into the platform. View, edit, and collaborate on data in real time — no exports, no switching tools, no version conflicts.",
+    "homeStorageTitle": "Storage {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
+    "homeStorageBody": "Store, organise, and share files with confidence. From contracts to spreadsheets, your documents are always at hand — securely hosted in the cloud and accessible from anywhere.",
+    "homeTicketingTitle": "Ticketing System {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
+    "homeTicketingBody": "Stay on top of every request and issue. Create, assign, and track tickets through to resolution, giving your team full visibility and your customers faster responses.",
+    "homeDataSchemaTitle": "Data Schema {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
+    "homeDataSchemaBody": "Model your business your way. Define custom entities — customers, products, leads, and more — and build a data structure that reflects how your company actually works.",
+    "homeAiAssistantTitle": "AI Assistant {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
+    "homeAiAssistantBody": "Work smarter with a built-in AI assistant that understands your business context. Ask questions, trigger actions, and navigate the platform using natural language — no training required.",
+    "homeJobsTitle": "Jobs {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
+    "homeJobsBody": "Automate the heavy lifting. Schedule and run data processing background tasks around the clock, so your reports are ready and your workflows keep moving — even while you sleep."
   }
 }
