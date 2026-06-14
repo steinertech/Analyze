@@ -44,6 +44,10 @@ internal static class ServerApi
             case nameof(CommandGrid) + nameof(CommandGrid.Load2):
                 responseDto.Result = await new CommandGrid(serviceProvider.GetRequiredService<GridMemoryService>(), serviceProvider.GetRequiredService<GridExcelService>(), serviceProvider.GetRequiredService<GridStorageService>(), serviceProvider.GetRequiredService<GridArticleService>(), serviceProvider.GetRequiredService<GridArticle2Service>(), serviceProvider.GetRequiredService<GridOrganisationService>(), serviceProvider.GetRequiredService<GridOrganisationEmailService>(), serviceProvider).Load2(UtilServer.JsonElementTo<GridRequest2Dto>(requestDto.ParamList![0], jsonOptions)!);
                 break;
+            // Assistant
+            case nameof(CommandAssistant):
+                responseDto.Result = await new CommandAssistant(serviceProvider.GetRequiredService<AiService>()).Run(UtilServer.JsonElementTo<string>(requestDto.ParamList![0], jsonOptions)!);
+                break;
             // Job
             case nameof(CommandJob):
                 await new CommandJob(serviceProvider.GetRequiredService<CommandContextService>(), serviceProvider.GetRequiredService<StorageService>(), serviceProvider.GetRequiredService<CosmosDbService>()).Run();
