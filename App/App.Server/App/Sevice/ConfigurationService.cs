@@ -23,6 +23,15 @@ public class ConfigurationService
         this.OpenAiChatModel = configuration.GetValue<string?>("OpenAiChatModel", null);
         this.AzureContentUnderstandingEndpoint = configuration.GetValue<string?>("AzureContentUnderstandingEndpoint", null);
         this.AzureContentUnderstandingApiKey = configuration.GetValue<string?>("AzureContentUnderstandingApiKey", null);
+        this.EmailHost = configuration.GetValue<string?>("EmailHost", null);
+        this.EmailPort = configuration.GetValue<int?>("EmailPort", null);
+        this.EmailFrom = configuration.GetValue<string?>("EmailFrom", null);
+        this.EmailTo = configuration.GetValue<string?>("EmailTo", null);
+        this.EmailPassword = configuration.GetValue<string?>("EmailPassword", null);
+        this.SmsAccount = configuration.GetValue<string?>("SmsAccount", null);
+        this.SmsToken = configuration.GetValue<string?>("SmsToken", null);
+        this.SmsFrom = configuration.GetValue<string?>("SmsFrom", null);
+        this.SmsTo = configuration.GetValue<string?>("SmsTo", null);
     }
 
     public string ConnectionStringStorage { get; }
@@ -131,6 +140,33 @@ public class ConfigurationService
     /// <summary>
     /// Gets AzureContentUnderstandingApiKey. Key for Azure Foundry.
     /// </summary>
-    public string? AzureContentUnderstandingApiKey { get; } 
+    public string? AzureContentUnderstandingApiKey { get; }
+
+    /// <summary>
+    /// Gets EmailHost. This is the SMTP name.
+    /// </summary>
+    public string? EmailHost { get; }
+
+    /// <summary>
+    /// Gets EmailPort. Use 587.
+    /// </summary>
+    public int? EmailPort { get; }
+
+    public string? EmailFrom { get; }
+
+    public string? EmailTo { get; }
+
+    public string? EmailPassword { get; }
+
+    /// <summary>
+    /// Gets SmsAccount. This is the Twilio Account SID.
+    /// </summary>
+    public string? SmsAccount { get; }
+
+    public string? SmsToken { get; }
+
+    public string? SmsFrom { get; }
+
+    public string? SmsTo { get; }
 }
 

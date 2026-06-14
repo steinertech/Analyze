@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>89735b35-7ddc-4825-b8e4-f86c10f1825a</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.9" />
+  </ItemGroup>
+
+</Project>
