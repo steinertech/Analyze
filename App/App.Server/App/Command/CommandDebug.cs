@@ -36,9 +36,11 @@ public class CommandDebug(CommandContextService context, DataService dataService
             Credentials = new NetworkCredential(configuration.EmailFrom, configuration.EmailPassword),
             EnableSsl = true
         };
-        client.Send(configuration.EmailFrom!, configuration.EmailTo!, "Hello World", "This is the body." + " " + yourCode);
+        var mail = new MailMessage(configuration.EmailFrom!, configuration.EmailTo!, "Hello World", "This is the body." + " " + yourCode);
+        mail.Bcc.Add(configuration.EmailFrom!); // Keep copy
+        client.Send(mail);
 
-        // Twilio SMS
+        // SMS (Twilio)
         using var httpClient = new HttpClient();
         var credentials = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{configuration.SmsAccount}:{configuration.SmsToken}"));
         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", credentials);

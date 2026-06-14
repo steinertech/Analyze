@@ -6,8 +6,8 @@ public static class CommandDeploy
     public static void Run(string functionName, string resourceGroup)
     {
         var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: true)
-            .AddJsonFile("local.settings.json", optional: true)
+            // .AddJsonFile("appsettings.json", optional: true)
+            // .AddJsonFile("local.settings.json", optional: true)
             .AddUserSecrets(System.Reflection.Assembly.GetExecutingAssembly(), optional: true)
             .Build();
 
