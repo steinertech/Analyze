@@ -55,6 +55,9 @@
               <a [routerLink]="['/ticket']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Ticket</a>
               }
               @if (dataService.userSignStatus()) {
+              <a [routerLink]="['/calendar']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Calendar</a>
+              }
+              @if (dataService.userSignStatus()) {
               <a [routerLink]="['/job']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Job</a>
               }
               <a [routerLink]="['/about']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
@@ -96,6 +99,9 @@
         }
         @if (dataService.userSignStatus()) {
         <a [routerLink]="['/ticket']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Ticket</a>
+        }
+        @if (dataService.userSignStatus()) {
+        <a [routerLink]="['/calendar']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Calendar</a>
         }
         @if (dataService.userSignStatus()) {
         <a [routerLink]="['/job']" [routerLinkActive]="['bg-gray-900', 'text-white']" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Job</a>

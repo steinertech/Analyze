@@ -18,6 +18,8 @@
     "homeAiAssistantTitle": "KI-Assistent {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
     "homeAiAssistantBody": "Arbeiten Sie intelligenter mit einem integrierten KI-Assistenten, der Ihren Geschäftskontext versteht. Stellen Sie Fragen, lösen Sie Aktionen aus und navigieren Sie die Plattform per natürlicher Sprache – ganz ohne Schulung.",
     "homeJobsTitle": "Aufträge {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
-    "homeJobsBody": "Automatisieren Sie aufwändige Prozesse. Planen und führen Sie Datenverarbeitungsaufgaben rund um die Uhr im Hintergrund aus – damit Ihre Berichte bereitstehen und Ihre Abläufe weiterlaufen, auch während Sie schlafen."
+    "homeJobsBody": "Automatisieren Sie aufwändige Prozesse. Planen und führen Sie Datenverarbeitungsaufgaben rund um die Uhr im Hintergrund aus – damit Ihre Berichte bereitstehen und Ihre Abläufe weiterlaufen, auch während Sie schlafen.",
+    "homeCalendarTitle": "Kalender {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
+    "homeCalendarBody": "Halten Sie Ihr Team und Ihre Kunden auf dem Laufenden. Verwalten Sie Termine, Arbeitszeiten und Feiertage an einem Ort – damit alle wissen, was ansteht, und nichts übersehen wird."
   }
 }

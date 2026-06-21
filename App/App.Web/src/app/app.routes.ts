@@ -11,6 +11,7 @@ import { PageSchema } from './page-schema/page-schema';
 import { PageAi } from './page-ai/page-ai';
 import { PageJob } from './page-job/page-job';
 import { PageTicket } from './page-ticket/page-ticket';
+import { PageCalendar } from './page-calendar/page-calendar';
 
 export const routes: Routes = [
   { path: '', component: PageHome },
@@ -30,5 +31,6 @@ export const routes: Routes = [
   { path: 'organisation', component: PageOrganisation },
   { path: 'ai', component: PageAi },
   { path: 'ticket', component: PageTicket },
+  { path: 'calendar', component: PageCalendar },
   { path: 'job', component: PageJob },
 ];

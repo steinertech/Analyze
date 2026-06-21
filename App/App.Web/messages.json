@@ -18,6 +18,8 @@
     "homeAiAssistantTitle": "AI Assistant {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
     "homeAiAssistantBody": "Work smarter with a built-in AI assistant that understands your business context. Ask questions, trigger actions, and navigate the platform using natural language — no training required.",
     "homeJobsTitle": "Jobs {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
-    "homeJobsBody": "Automate the heavy lifting. Schedule and run data processing background tasks around the clock, so your reports are ready and your workflows keep moving — even while you sleep."
+    "homeJobsBody": "Automate the heavy lifting. Schedule and run data processing background tasks around the clock, so your reports are ready and your workflows keep moving — even while you sleep.",
+    "homeCalendarTitle": "Calendar {$START_TAG_SPAN}{$CLOSE_TAG_SPAN}",
+    "homeCalendarBody": "Keep your team and customers in sync. Manage appointments, work schedules, and holidays in one place — so everyone knows what's happening and nothing gets missed."
   }
 }
