@@ -382,8 +382,9 @@ export class PageGrid implements AfterViewInit {
     return this._grid?.state?.isSelectList && cell.dataRowIndex != undefined && this._grid.state.isSelectList[cell.dataRowIndex] == true
   }
 
-  cellClick(cell: GridCellDto) {
-    if (this._grid) {
+  cellClick(cell: GridCellDto, event: MouseEvent) {
+    const isButtonClick = (event.target as HTMLElement).closest('button') !== null // (mousedown) on td or on button?
+    if (!isButtonClick && this._grid) {
       if (cell.dataRowIndex != undefined) {
         const dataRowIndex = cell.dataRowIndex
         if (!this._grid.state) {
