@@ -13,7 +13,8 @@
             if (session.IsSignIn == true)
             {
                 var domain = context.Domain;
-                UtilServer.Assert(session.InternalPartitionKey?.StartsWith($"Domain/{domain}/") == true);
+                var partitionKey = $"Domain/{domain}/Global/{typeof(SessionDto).Name}";
+                UtilServer.Assert(session.InternalPartitionKey == partitionKey);
                 result = new UserStatusDto
                 {
                     Email = session.Email,
