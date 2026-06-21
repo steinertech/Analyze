@@ -119,7 +119,7 @@
   </nav>
 
   @if(dataService.userSignStatus()) {
-  <div class="text-right w-full bg-blue-200">User={{dataService.userSignStatus()?.email}}; Org={{dataService.userSignStatus()?.organisationText}};</div>
+  <div class="text-right w-full bg-blue-200">User={{dataService.userSignStatus()?.email}}; Org={{dataService.userSignStatus()?.organisationText}}; Domain={{dataService.userSignStatus()?.domain}};</div>
   }
   <div class="h-2">
     @if(serverApi.isPost()) {

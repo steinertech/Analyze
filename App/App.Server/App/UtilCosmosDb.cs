@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 public static class UtilCosmosDb
 {
@@ -224,19 +225,25 @@ public class DocumentDto
     /// <summary>
     /// Gets or sets _etag. Used for concurrency.
     /// </summary>
-    [JsonProperty(PropertyName = "_etag")]
+    [JsonProperty(PropertyName = "_etag")] // Newtonsoft used for CosmosDb
+    [JsonInclude] // System.Text.Json used for Cache
+    [JsonPropertyName(name: "_Etag")] // System.Text.Json used for Cache
     internal string? InternalEtag { get; set; }
 
     /// <summary>
     /// Gets or sets PartitionKey. This is the partition key (Type or Organisation). Also used for resource token to provide read access for client.
     /// </summary>
-    [JsonProperty(PropertyName = "partitionKey")]
+    [JsonProperty(PropertyName = "partitionKey")] // Newtonsoft used for CosmosDb
+    [JsonInclude] // System.Text.Json used for Cache
+    [JsonPropertyName(name: "PartitionKey")] // System.Text.Json used for Cache
     internal string? InternalPartitionKey { get; set; }
 
     /// <summary>
     /// Gets or sets Type. This is the class name.
     /// </summary>
-    [JsonProperty(PropertyName = "type")]
+    [JsonProperty(PropertyName = "type")] // Newtonsoft used for CosmosDb
+    [JsonInclude] // System.Text.Json used for Cache
+    [JsonPropertyName(name: "Type")] // System.Text.Json used for Cache
     internal string? InternalType
     {
         get
@@ -259,7 +266,9 @@ public class DocumentDto
     /// <summary>
     /// Gets or sets Key. This is unique within a partition key (Type/Name).
     /// </summary>
-    [JsonProperty(PropertyName = "nameKey")]
+    [JsonProperty(PropertyName = "nameKey")] // Newtonsoft used for CosmosDb
+    [JsonInclude] // System.Text.Json used for Cache
+    [JsonPropertyName(name: "NameKey")] // System.Text.Json used for Cache
     internal string? InternalNameKey
     {
         get

@@ -12,10 +12,13 @@
         {
             if (session.IsSignIn == true)
             {
+                var domain = context.Domain;
+                UtilServer.Assert(session.InternalPartitionKey?.StartsWith($"Domain/{domain}/") == true);
                 result = new UserStatusDto
                 {
                     Email = session.Email,
                     OrganisationText = session.OrganisationText,
+                    Domain = domain,
                 };
             }
         }
@@ -117,4 +120,6 @@ public class UserStatusDto
     public string? Email { get; set; }
 
     public string? OrganisationText { get; set; }
+
+    public string? Domain { get; set; }
 }

@@ -69,14 +69,13 @@ internal static class UtilServer
 
         builder.Services.AddControllers().AddJsonOptions(configure =>
         {
-            var options = configure.JsonSerializerOptions;
-            UtilServer.JsonConfigure(options);
+            var optionsResponse = configure.JsonSerializerOptions; // Used for http responses
+            UtilServer.JsonConfigure(optionsResponse);
         });
 
-        var jssonOptions = new JsonSerializerOptions();
-        UtilServer.JsonConfigure(jssonOptions);
-
-        builder.Services.AddSingleton(jssonOptions);
+        var optionsRequest = new JsonSerializerOptions(); // Used for http requests
+        UtilServer.JsonConfigure(optionsRequest);
+        builder.Services.AddSingleton(optionsRequest);
     }
 
     private static CookieOptions CookieOptions()
@@ -212,7 +211,7 @@ internal static class UtilServer
     public static JsonSerializerOptions JsonOptions()
     {
         var result = new JsonSerializerOptions();
-        JsonConfigure(result);
+        UtilServer.JsonConfigure(result);
         return result;
     }
 

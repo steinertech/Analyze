@@ -54,6 +54,7 @@ export class UserDto {
 export class UserStatusDto {
   public email?: string
   public organisationText?: string
+  public domain?: string
 }
 
 export class ProductDto {

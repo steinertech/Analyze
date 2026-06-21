@@ -58,7 +58,7 @@ public class CacheService(IDistributedCache cache, ConfigurationService configur
             var json = JsonSerializer.Serialize<T>(value, UtilServer.JsonOptions());
             key = await Key(key);
             var options = new DistributedCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(15) }; // Keep alive 15 min from last access.
-            await cache.SetStringAsync(key, json, new() {   });
+            await cache.SetStringAsync(key, json, new() { });
         }
     }
 
