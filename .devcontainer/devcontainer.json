@@ -7,7 +7,7 @@
 	"image": "mcr.microsoft.com/dotnet/sdk:9.0",
 	// See also https://containers.dev/features
 	"features": {
-		"ghcr.io/devcontainers/features/node:1": {},
+		"ghcr.io/devcontainers/features/node:2": {},
 		"ghcr.io/jlaundry/devcontainer-features/azure-functions-core-tools:1": {},
 		"ghcr.io/devcontainers-extra/features/angular-cli:2": {}
 	},
