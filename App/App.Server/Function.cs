@@ -17,7 +17,7 @@ public class Function(DataService dataService, IServiceProvider serviceProvider,
     private HttpClient? httpClient;
 
     [Function("trigger")]
-    public async Task RunTrigger([TimerTrigger("* * * * *")] TimerInfo timerInfo, FunctionContext context) // Package Microsoft.Azure.Functions.Worker.Extensions.Timer
+    public async Task RunTrigger([TimerTrigger("*/10 * * * *")] TimerInfo timerInfo, FunctionContext context) // Package Microsoft.Azure.Functions.Worker.Extensions.Timer
     {
         var configuration = serviceProvider.GetRequiredService<ConfigurationService>();
         
